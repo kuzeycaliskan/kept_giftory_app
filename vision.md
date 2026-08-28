@@ -1,17 +1,17 @@
-# Giftory — Ürün Vizyon Dokümanı
+# Kept — Ürün Vizyon Dokümanı
 
-> Bu doküman, `giftory_initial_idea.md` (ilk beyin fırtınası) üzerine yapılan
+> Bu doküman, `initial_idea.md` (ilk beyin fırtınası) üzerine yapılan
 > stratejik tartışma sonrası ortaya çıkan **olgunlaşmış vizyonu** özetler.
 > PBI'lar (version bazlı iş kalemleri) bu dokümandan türetilecektir.
 >
-> Durum: Backend teknoloji kararı için derin maliyet araştırması sürüyor
-> (bkz. `backend_research.md`). "Teknik Stack" bölümü araştırma bitince kesinleşecek.
+> Durum: Vizyon ve teknik stack kararları netleşti (bkz. §8 ve `backend_research.md`).
+> Version bazlı PBI'lar `pbi/` altında (V1 detaylı, V2–V4 kapsam).
 
 ---
 
 ## 1. Tek Cümlelik Vizyon
 
-**Giftory, insanların sahip oldukları eşyaları / zevklerini paylaştığı bir sosyal
+**Kept, insanların sahip oldukları eşyaları / zevklerini paylaştığı bir sosyal
 ağdır; hediyeleşme ise bu ağa girişi sağlayan kancadır (wedge).**
 
 Konumlandırma — boş bir alana oturuyor:
@@ -19,13 +19,14 @@ Konumlandırma — boş bir alana oturuyor:
 - Twitter → fikirlerini paylaşırsın
 - Instagram → estetik anlarını paylaşırsın
 - LinkedIn → işini/kariyerini paylaşırsın
-- **Giftory → neye sahip olduğunu, zevkini, eşyalarını paylaşırsın**
+- **Kept → neye sahip olduğunu, zevkini, eşyalarını paylaşırsın**
 
 Kritik içgörü: "Envanterimi neden paylaşayım?" sorusunun cevabı hediyeleşmede gizli.
 Envanteri paylaşmak burada **gösteriş değil, fonksiyoneldir** — "arkadaşlarım bana
 daha iyi hediye alsın, aynısını iki kez almasın" diye. Fayda ve vitrin aynı anda.
 
-İsim de bunu yakalıyor: **Gift + Story (sosyal) + inventory/history (envanter/geçmiş)**.
+İsim de bunu yakalıyor: **Kept = "sakladığın şeyler"** — sahip olduğun/tuttuğun eşyalar
+ve hediye anıları.
 
 ---
 

@@ -1,6 +1,6 @@
-# Giftory — Ürün Backlog (PBI) Index
+# Kept — Ürün Backlog (PBI) Index
 
-> Kaynak vizyon: `../giftory_vision.md` · Kalite sözleşmesi: `../CLAUDE.md`
+> Kaynak vizyon: `../vision.md` · Kalite sözleşmesi: `../CLAUDE.md`
 > Backend kararı: `../backend_research.md`
 >
 > Stack: Flutter + Supabase (Postgres/Auth/Storage/RLS/Realtime) + FCM + (ölçekte) Cloudflare R2.

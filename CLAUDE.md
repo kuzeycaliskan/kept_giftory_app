@@ -1,6 +1,6 @@
-# CLAUDE.md — Giftory Engineering Guide
+# CLAUDE.md — Kept Engineering Guide
 
-> This file is the **quality contract** for Giftory. It is loaded automatically every
+> This file is the **quality contract** for Kept. It is loaded automatically every
 > session so we never re-litigate standards. Treat every rule here as a default, not a
 > suggestion. When a rule genuinely doesn't fit a situation, say so explicitly and
 > propose the alternative — don't silently ignore it.
@@ -13,12 +13,12 @@
 
 ## 1. Product Context (read the source docs, don't re-derive)
 
-- `giftory_vision.md` — product vision, positioning, two core loops, roadmap.
+- `vision.md` — product vision, positioning, two core loops, roadmap.
 - `pbi/` — version-based backlog: `README.md` (index + project-wide decisions),
   `v1.md` (detailed, dev-ready), `v2.md`/`v3.md`/`v4.md` (scoped).
 - `backend_research.md` — cost-driven backend decision (→ Supabase).
 
-Giftory = a **personal-inventory social network** with **gifting as the wedge**.
+Kept = a **personal-inventory social network** with **gifting as the wedge**.
 Two loops: (1) social/inventory content, (2) gift-event coordination + reveal.
 First market: Turkey. Founder is solo/low-budget — cost-awareness is a design input.
 
@@ -214,3 +214,12 @@ Keep the same rigor for UI PBIs (screens) when we detail them in V1.
 - Surface trade-offs briefly with a recommendation — don't dump exhaustive option lists.
 - Report outcomes honestly: if tests fail, say so; if something is skipped, say so.
 - Optimize for the senior-engineer bar on every change. Quality over speed.
+
+### Reviews: report signal, not noise
+
+When I ask you to review/inspect something (docs, code, a change), and there are **no
+real problems**, just say **"no problems"** (kısaca: sorun yok) and stop. Do **not**
+manufacture findings, invent nitpicks, or surface hypothetical "extra" work to look
+thorough. Only raise something when it's a genuine problem or a real open question that
+needs my decision. Don't drown me in details — give me the signal, not a wall of
+optional extras. If everything's fine, that's a complete and acceptable answer.

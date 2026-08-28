@@ -1,7 +1,7 @@
-# Giftory — Backend / BaaS Seçimi: Maliyet-Öncelikli Karşılaştırma Raporu
+# Kept — Backend / BaaS Seçimi: Maliyet-Öncelikli Karşılaştırma Raporu
 
 > **Hazırlanma tarihi:** 2026-08-28
-> **Uygulama:** Giftory — Flutter (iOS + Android), kişisel envanter odaklı **sosyal ağ + hediyeleşme** uygulaması.
+> **Uygulama:** Kept — Flutter (iOS + Android), kişisel envanter odaklı **sosyal ağ + hediyeleşme** uygulaması.
 > **Öncelik #1:** Minimum maliyet. Erken aşama (0–1000 kullanıcı) ve büyüme (10k, 100k) için gerçek rakamlar.
 > **Not:** Tüm fiyat/limit iddiaları resmi kaynaklardan 2026-08-28 tarihinde doğrulanmıştır. Maliyet tahminleri, belirtilen kullanım varsayımlarına dayalı **mühendislik projeksiyonlarıdır** — birim fiyatlar kaynaklıdır, toplamlar sizin gerçek metriklerinize göre değişir. Fiyatlar hızla değiştiği için kritik kararlardan önce canlı fiyat sayfalarını teyit edin.
 
@@ -11,7 +11,7 @@
 
 ### Kısa cevap: **Supabase (Free → Pro)**
 
-Giftory'nin veri modeli **ilişkisel-ağırlıklıdır**: arkadaş grafiği (social graph), bölüm-bazlı granüler mahremiyet (public/friends/private), event üyelikleri + durum makinesi, hediye geçmişi. Bu tam olarak Postgres'in ve Postgres RLS'in (Row Level Security) güçlü olduğu yerdir. Aynı zamanda Supabase'in fiyatlandırması **kaynak-bazlıdır** (compute + storage + bandwidth), **işlem-bazlı değildir** — bu, sosyal/feed uygulamalarının Firebase'de düştüğü "her okuma/yazma para" tuzağından sizi korur.
+Kept'in veri modeli **ilişkisel-ağırlıklıdır**: arkadaş grafiği (social graph), bölüm-bazlı granüler mahremiyet (public/friends/private), event üyelikleri + durum makinesi, hediye geçmişi. Bu tam olarak Postgres'in ve Postgres RLS'in (Row Level Security) güçlü olduğu yerdir. Aynı zamanda Supabase'in fiyatlandırması **kaynak-bazlıdır** (compute + storage + bandwidth), **işlem-bazlı değildir** — bu, sosyal/feed uygulamalarının Firebase'de düştüğü "her okuma/yazma para" tuzağından sizi korur.
 
 **Neden Firebase değil (maliyet önceliğiyle):** Firebase Firestore **işlem başına** faturalar ($0.06/100k okuma, **$0.18/100k yazma**). Sosyal grafik + feed + fan-out (bir gönderiyi N takipçiye yazmak = N yazma) bu modelde kontrolsüz büyür. Orta yoğunlukta bile 100k kullanıcıda **~$1.700–2.200/ay**, agresif feed'de **$10k/ay**'ı aşabilir. Ayrıca 2026-02-03'ten itibaren **Cloud Storage artık ücretsiz Spark planında YOK** — fotoğraf storage için Blaze (kredi kartı) zorunlu.
 
@@ -25,7 +25,7 @@ Giftory'nin veri modeli **ilişkisel-ağırlıklıdır**: arkadaş grafiği (soc
 | **~10.000 kullanıcı** | Supabase **Pro** + küçük overage | **~$35 – $90** |
 | **~100.000 kullanıcı** | Supabase **Pro** (compute + egress ağırlıklı) — o noktada **büyük tasarruf için fotoğrafları Cloudflare R2'ye (sıfır egress) taşıyın** | **~$300 – $600** (R2 ile egress'i kırarak daha da düşük) |
 
-**Tek cümlelik gerekçe:** Supabase, Giftory'nin ilişkisel doğasına ve granüler mahremiyet ihtiyacına en iyi uyan, maliyeti **öngörülebilir ve düz** olan, vendor lock-in'i düşük (saf Postgres, istediğinizde `pg_dump` ile taşınabilir), Flutter SDK'sı olgun ve gerekirse **ücretsiz self-host**'a kaçış kapısı olan seçenektir.
+**Tek cümlelik gerekçe:** Supabase, Kept'in ilişkisel doğasına ve granüler mahremiyet ihtiyacına en iyi uyan, maliyeti **öngörülebilir ve düz** olan, vendor lock-in'i düşük (saf Postgres, istediğinizde `pg_dump` ile taşınabilir), Flutter SDK'sı olgun ve gerekirse **ücretsiz self-host**'a kaçış kapısı olan seçenektir.
 
 ---
 
@@ -145,7 +145,7 @@ Giftory'nin veri modeli **ilişkisel-ağırlıklıdır**: arkadaş grafiği (soc
 
 ## 4. "Bu Uygulamaya Özel" Değerlendirme
 
-Giftory'nin 4 zorlu gereksinimi ve seçeneklerin uyumu:
+Kept'in 4 zorlu gereksinimi ve seçeneklerin uyumu:
 
 ### (a) Granüler Mahremiyet — public/friends/private, bölüm-bazlı (profil/envanter/hediye geçmişi ayrı)
 - **Supabase (RLS): EN İYİ.** Her bölüm için tabloya politika; `visibility='public' OR owner=auth.uid() OR EXISTS(SELECT 1 FROM friendships WHERE ...)` gibi ifadeler doğal. Bölüm-bazlı ayrı görünürlük = ayrı tablolar/kolonlar + ayrı politikalar. Postgres JOIN ile friends kontrolü verimli.
@@ -167,7 +167,7 @@ Giftory'nin 4 zorlu gereksinimi ve seçeneklerin uyumu:
 - **Push:** **Hiçbir BaaS bunu tek başına çözmez** — arka planda/kapalı uygulamaya bildirim için **FCM (Android) + APNs (iOS) her durumda gerekir.** Firebase'de yerleşik ve ücretsiz; Appwrite'ta Messaging sarmalar (yine FCM); Supabase/PocketBase/VPS'te kendiniz kurarsınız (device token → cron/trigger → Edge Function/hook → FCM HTTP v1). Doğum günü hatırlatması = zamanlanmış iş (Supabase `pg_cron` + Edge Function; kendi VPS'te cron).
 - **Event chat:** Supabase Realtime (Broadcast/Presence), Appwrite Realtime, PocketBase SSE hepsi yeterli. Supabase Broadcast + Presence (typing/online) event chat için en zengin.
 
-**Sonuç:** Giftory'nin dört gereksinimini bir arada en temiz karşılayan **Supabase**'dir (RLS + gerçek ilişkisel + `pg_cron` + Realtime), tek eksiği push için FCM entegrasyonu — ki bu **her seçenekte zorunlu**.
+**Sonuç:** Kept'in dört gereksinimini bir arada en temiz karşılayan **Supabase**'dir (RLS + gerçek ilişkisel + `pg_cron` + Realtime), tek eksiği push için FCM entegrasyonu — ki bu **her seçenekte zorunlu**.
 
 ---
 

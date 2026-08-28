@@ -2,7 +2,7 @@
 
 **A personal-inventory social network — with gifting as the wedge.**
 
-> Brand: **Kept** · internal codename: *Giftory* (some docs still use it).
+> Brand: **Kept**. (Repo slug `kept_giftory_app` retains the old codename *Giftory*.)
 
 Twitter = your ideas · Instagram = your moments · LinkedIn = your work ·
 **Kept = what you own, your taste, your things — the things you keep.** Sharing your
@@ -23,7 +23,7 @@ Cloudflare R2 (media at scale) · Riverpod · go_router.
 | Doc | What |
 |---|---|
 | [`CLAUDE.md`](CLAUDE.md) | Engineering guide & quality contract (senior-level standards) |
-| [`giftory_vision.md`](giftory_vision.md) | Product vision, positioning, two core loops, roadmap |
+| [`vision.md`](vision.md) | Product vision, positioning, two core loops, roadmap |
 | [`backend_research.md`](backend_research.md) | Cost-driven backend decision (→ Supabase) |
 | [`pbi/`](pbi/) | Version-based backlog — `README.md` (index) + `v1`–`v4` |
 
