@@ -1,10 +1,13 @@
-# Giftory
+# Kept
 
 **A personal-inventory social network — with gifting as the wedge.**
 
+> Brand: **Kept** · internal codename: *Giftory* (some docs still use it).
+
 Twitter = your ideas · Instagram = your moments · LinkedIn = your work ·
-**Giftory = what you own, your taste, your things.** Sharing your inventory isn't
-bragging here — it's functional: so friends gift you better and never buy a duplicate.
+**Kept = what you own, your taste, your things — the things you keep.** Sharing your
+inventory isn't bragging here — it's functional: so friends gift you better and never
+buy a duplicate.
 
 ## Status
 
