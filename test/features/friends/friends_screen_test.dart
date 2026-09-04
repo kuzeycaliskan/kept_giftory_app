@@ -122,28 +122,60 @@ void main() {
 
     expect(find.text('Requests'), findsNothing);
     expect(find.text('Selin'), findsOneWidget);
-    expect(find.byIcon(Icons.person_remove_outlined), findsOneWidget);
+    // No accept button anymore — it's a friend row now.
+    expect(find.byIcon(Icons.check_circle_outline), findsNothing);
   });
 
-  testWidgets('removing a friend asks for confirmation first',
+  testWidgets('swiping a friend left asks for confirmation, then removes',
       (tester) async {
     final repo = _FakeFriendshipRepository([friend]);
     await pumpFriends(tester, repo);
 
-    await tester.tap(find.byIcon(Icons.person_remove_outlined));
+    // Swipe left → confirm dialog.
+    await tester.drag(find.text('Ali'), const Offset(-400, 0));
     await tester.pumpAndSettle();
     expect(find.text('Remove friend?'), findsOneWidget);
 
-    // Cancel keeps the friend.
+    // Cancel keeps the friend (tile snaps back).
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(find.text('Ali'), findsOneWidget);
 
-    // Confirm removes.
-    await tester.tap(find.byIcon(Icons.person_remove_outlined));
+    // Swipe again, confirm → removed.
+    await tester.drag(find.text('Ali'), const Offset(-400, 0));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Remove'));
     await tester.pumpAndSettle();
+    expect(find.text('No friends yet'), findsOneWidget);
+  });
+
+  testWidgets('long-pressing a friend opens the same confirmation',
+      (tester) async {
+    await pumpFriends(tester, _FakeFriendshipRepository([friend]));
+
+    await tester.longPress(find.text('Ali'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Remove friend?'), findsOneWidget);
+  });
+
+  testWidgets('swiping an incoming request right accepts it', (tester) async {
+    await pumpFriends(tester, _FakeFriendshipRepository([incoming]));
+
+    await tester.drag(find.text('Selin'), const Offset(400, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Requests'), findsNothing);
+    expect(find.text('Selin'), findsOneWidget);
+  });
+
+  testWidgets('swiping an incoming request left declines it', (tester) async {
+    await pumpFriends(tester, _FakeFriendshipRepository([incoming]));
+
+    await tester.drag(find.text('Selin'), const Offset(-400, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Selin'), findsNothing);
     expect(find.text('No friends yet'), findsOneWidget);
   });
 }

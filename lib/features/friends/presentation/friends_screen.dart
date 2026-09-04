@@ -107,6 +107,33 @@ class _Avatar extends StatelessWidget {
   }
 }
 
+/// Colored swipe background for [Dismissible] rows.
+class _SwipeBackground extends StatelessWidget {
+  const _SwipeBackground({
+    required this.icon,
+    required this.color,
+    required this.alignment,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: color,
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary),
+        ),
+      ),
+    );
+  }
+}
+
 class _RequestTile extends ConsumerWidget {
   const _RequestTile({required this.entry});
 
@@ -118,8 +145,9 @@ class _RequestTile extends ConsumerWidget {
     final controller = ref.read(friendsControllerProvider.notifier);
     final busy = ref.watch(friendsControllerProvider).isLoading;
     final incoming = entry.direction == RequestDirection.incoming;
+    final colors = Theme.of(context).colorScheme;
 
-    return ListTile(
+    final tile = ListTile(
       leading: _Avatar(entry: entry),
       title: Text(entry.label),
       subtitle: Text(
@@ -150,6 +178,51 @@ class _RequestTile extends ConsumerWidget {
               child: Text(l10n.friendCancelRequest),
             ),
     );
+
+    if (incoming) {
+      // Swipe right = accept, swipe left = decline (buttons stay as the
+      // discoverable/accessible path; gestures are accelerators).
+      return Dismissible(
+        key: ValueKey('request-${entry.friendshipId}'),
+        background: _SwipeBackground(
+          icon: Icons.check,
+          color: colors.primary,
+          alignment: Alignment.centerLeft,
+        ),
+        secondaryBackground: _SwipeBackground(
+          icon: Icons.close,
+          color: colors.error,
+          alignment: Alignment.centerRight,
+        ),
+        confirmDismiss: (direction) async {
+          if (busy) return false;
+          if (direction == DismissDirection.startToEnd) {
+            await controller.accept(entry.friendshipId);
+          } else {
+            await controller.decline(entry.friendshipId);
+          }
+          return true;
+        },
+        child: tile,
+      );
+    }
+
+    // Outgoing: swipe left = cancel the request.
+    return Dismissible(
+      key: ValueKey('request-${entry.friendshipId}'),
+      direction: DismissDirection.endToStart,
+      background: _SwipeBackground(
+        icon: Icons.undo,
+        color: colors.error,
+        alignment: Alignment.centerRight,
+      ),
+      confirmDismiss: (_) async {
+        if (busy) return false;
+        await controller.remove(entry.friendshipId);
+        return true;
+      },
+      child: tile,
+    );
   }
 }
 
@@ -158,7 +231,8 @@ class _FriendTile extends ConsumerWidget {
 
   final FriendEntry entry;
 
-  Future<void> _confirmRemove(BuildContext context, WidgetRef ref) async {
+  /// True when the user confirms; the caller performs the removal.
+  Future<bool> _confirmRemove(BuildContext context) async {
     final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -177,24 +251,38 @@ class _FriendTile extends ConsumerWidget {
         ],
       ),
     );
-    if (confirmed ?? false) {
+    return confirmed ?? false;
+  }
+
+  Future<bool> _confirmAndRemove(BuildContext context, WidgetRef ref) async {
+    final confirmed = await _confirmRemove(context);
+    if (confirmed) {
       await ref
           .read(friendsControllerProvider.notifier)
           .remove(entry.friendshipId);
     }
+    return confirmed;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    return ListTile(
-      leading: _Avatar(entry: entry),
-      title: Text(entry.label),
-      subtitle: Text('@${entry.username}'),
-      trailing: IconButton(
-        tooltip: l10n.friendRemove,
-        icon: const Icon(Icons.person_remove_outlined),
-        onPressed: () => _confirmRemove(context, ref),
+    final colors = Theme.of(context).colorScheme;
+    // Native gesture: swipe left to remove (confirm dialog guards it).
+    // Long-press is the secondary/accessible path to the same action.
+    return Dismissible(
+      key: ValueKey('friend-${entry.friendshipId}'),
+      direction: DismissDirection.endToStart,
+      background: _SwipeBackground(
+        icon: Icons.person_remove_outlined,
+        color: colors.error,
+        alignment: Alignment.centerRight,
+      ),
+      confirmDismiss: (_) => _confirmAndRemove(context, ref),
+      child: ListTile(
+        leading: _Avatar(entry: entry),
+        title: Text(entry.label),
+        subtitle: Text('@${entry.username}'),
+        onLongPress: () => _confirmAndRemove(context, ref),
       ),
     );
   }
