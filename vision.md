@@ -1,4 +1,4 @@
-# Kept — Ürün Vizyon Dokümanı
+1# Kept — Ürün Vizyon Dokümanı
 
 > Bu doküman, `initial_idea.md` (ilk beyin fırtınası) üzerine yapılan
 > stratejik tartışma sonrası ortaya çıkan **olgunlaşmış vizyonu** özetler.

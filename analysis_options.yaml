@@ -1,0 +1,17 @@
+# Kept — static analysis. Senior-level bar per CLAUDE.md (§7).
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  errors:
+    todo: ignore
+
+linter:
+  rules:
+    # Namespacing constants/factories in a private-constructor class is an
+    # intentional style here (Env, AppTheme).
+    avoid_classes_with_only_static_members: false
+    # This is an app, not a published package — no API-doc requirement.
+    public_member_api_docs: false
