@@ -217,6 +217,12 @@ Every PBI (as we open it for development) must include:
 
 Keep the same rigor for UI PBIs (screens) when we detail them in V1.
 
+**Status tracking (mandatory):** when a PBI's work lands on `main`, mark its status in
+the relevant `pbi/vN.md` **in the same batch of work** — never leave the backlog stale.
+Legend: ✅ done · 🔄 partial/in-progress (say what remains) · ⏳ not started (default,
+unmarked). Honest statuses only: implemented-but-not-verified is 🔄 with a note, not ✅.
+The backlog is the single source of truth for "where are we".
+
 ---
 
 ## 14. How To Work With Me On This Project
