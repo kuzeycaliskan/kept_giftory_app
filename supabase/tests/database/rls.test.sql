@@ -1,0 +1,230 @@
+-- ============================================================================
+-- RLS security tests (pgTAP) — automates the matrix in supabase/README.md.
+-- Run: supabase test db   (local stack must be up)
+--
+-- Actors: alice (sections 'friends'), bob (alice's friend), carol (stranger),
+--         dave (public profile).
+-- Setup runs as postgres (table owner → bypasses RLS); each assertion switches
+-- to the authenticated role with a JWT claim, exactly like PostgREST does.
+-- ============================================================================
+begin;
+
+create extension if not exists pgtap with schema extensions;
+
+select plan(15);
+
+-- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
+insert into auth.users (id, email)
+values
+  ('00000000-0000-0000-0000-00000000000a', 'alice@test.dev'),
+  ('00000000-0000-0000-0000-00000000000b', 'bob@test.dev'),
+  ('00000000-0000-0000-0000-00000000000c', 'carol@test.dev'),
+  ('00000000-0000-0000-0000-00000000000d', 'dave@test.dev');
+
+insert into public.profiles (id, username, profile_visibility, wishlist_visibility, gift_history_visibility)
+values
+  ('00000000-0000-0000-0000-00000000000a', 'alice', 'friends', 'friends', 'friends'),
+  ('00000000-0000-0000-0000-00000000000b', 'bob',   'friends', 'friends', 'friends'),
+  ('00000000-0000-0000-0000-00000000000c', 'carol', 'friends', 'friends', 'friends'),
+  ('00000000-0000-0000-0000-00000000000d', 'dave',  'public',  'friends', 'friends');
+
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-00000000000a',
+        '00000000-0000-0000-0000-00000000000b', 'accepted');
+
+insert into public.wishlist_items (owner_id, title)
+values ('00000000-0000-0000-0000-00000000000a', 'Kindle');
+
+-- A non-surprise gift bob→alice (baseline history row).
+insert into public.gifts (giver_id, recipient_id, item)
+values ('00000000-0000-0000-0000-00000000000b',
+        '00000000-0000-0000-0000-00000000000a', 'AirPods');
+
+-- ── 1-2: profile visibility ─────────────────────────────────────────────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '1: stranger cannot see a friends-only profile'
+);
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000d'),
+  1::bigint,
+  '2: anyone can see a public profile'
+);
+
+-- ── 3-4: wishlist visibility ────────────────────────────────────────────────
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.wishlist_items
+    where owner_id = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '3: friend sees a friends-only wishlist'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.wishlist_items
+    where owner_id = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '4: stranger cannot see a friends-only wishlist'
+);
+
+-- ── 5: cannot write as someone else ─────────────────────────────────────────
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select throws_ok(
+  $$ insert into public.wishlist_items (owner_id, title)
+     values ('00000000-0000-0000-0000-00000000000b', 'sneaky') $$,
+  '42501',
+  'new row violates row-level security policy for table "wishlist_items"',
+  '5: cannot insert a wishlist item for another user'
+);
+
+-- ── 6: giver logs a surprise gift ───────────────────────────────────────────
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gifts (giver_id, recipient_id, item, is_surprise, reveal_at)
+     values ('00000000-0000-0000-0000-00000000000b',
+             '00000000-0000-0000-0000-00000000000a',
+             'Secret watch', true, now() + interval '7 days') $$,
+  '6: giver can log a surprise gift'
+);
+
+-- ── 7: surprise hidden from recipient (whole row, count included) ───────────
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.gifts
+    where recipient_id = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '7: recipient sees only the non-surprise gift before reveal'
+);
+
+-- ── 8: giver still sees both rows ───────────────────────────────────────────
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.gifts
+    where giver_id = '00000000-0000-0000-0000-00000000000b'),
+  2::bigint,
+  '8: giver sees surprise + non-surprise gifts he logged'
+);
+
+-- ── 9: after reveal_at passes, recipient sees it ────────────────────────────
+reset role;
+update public.gifts set reveal_at = now() - interval '1 day'
+  where is_surprise;
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.gifts
+    where recipient_id = '00000000-0000-0000-0000-00000000000a'),
+  2::bigint,
+  '9: recipient sees the surprise after reveal_at'
+);
+
+-- ── 10: only the giver can modify a gift ────────────────────────────────────
+-- The attempt silently matches 0 rows under RLS; verify nothing changed.
+update public.gifts set item = 'hacked'
+ where giver_id = '00000000-0000-0000-0000-00000000000b';
+
+select is(
+  (select count(*) from public.gifts where item = 'hacked'),
+  0::bigint,
+  '10: recipient cannot update gifts logged by the giver'
+);
+
+-- ── 11: cannot send a friend request as someone else ────────────────────────
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select throws_ok(
+  $$ insert into public.friendships (requester_id, addressee_id)
+     values ('00000000-0000-0000-0000-00000000000a',
+             '00000000-0000-0000-0000-00000000000c') $$,
+  '42501',
+  'new row violates row-level security policy for table "friendships"',
+  '11: cannot create a friend request on behalf of another user'
+);
+
+-- ── 12-13: only the addressee can accept ────────────────────────────────────
+reset role;
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-00000000000a',
+        '00000000-0000-0000-0000-00000000000c', 'pending');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+-- Requester's accept attempt matches 0 rows under RLS.
+update public.friendships set status = 'accepted'
+ where requester_id = '00000000-0000-0000-0000-00000000000a'
+   and addressee_id = '00000000-0000-0000-0000-00000000000c';
+
+reset role;
+select is(
+  (select status from public.friendships
+    where requester_id = '00000000-0000-0000-0000-00000000000a'
+      and addressee_id = '00000000-0000-0000-0000-00000000000c'),
+  'pending'::public.friendship_status,
+  '12: requester cannot accept their own request'
+);
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+update public.friendships set status = 'accepted', responded_at = now()
+ where addressee_id = '00000000-0000-0000-0000-00000000000c'
+   and status = 'pending';
+
+reset role;
+select is(
+  (select status from public.friendships
+    where requester_id = '00000000-0000-0000-0000-00000000000a'
+      and addressee_id = '00000000-0000-0000-0000-00000000000c'),
+  'accepted'::public.friendship_status,
+  '13: addressee can accept the request'
+);
+
+-- ── 14-15: account deletion semantics ───────────────────────────────────────
+reset role;
+delete from auth.users where id = '00000000-0000-0000-0000-00000000000b';
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000b'),
+  0::bigint,
+  '14: deleting the auth user cascades to the profile'
+);
+
+select is(
+  (select count(*) from public.gifts
+    where recipient_id = '00000000-0000-0000-0000-00000000000a'
+      and giver_id is null),
+  2::bigint,
+  '15: recipient history survives giver deletion (giver anonymized)'
+);
+
+select * from finish();
+rollback;

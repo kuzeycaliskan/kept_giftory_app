@@ -52,7 +52,11 @@ Default-deny everywhere. Visibility is centralized in helper functions:
 without recursive RLS and without being hijackable). RLS is the primary boundary; the app
 layer defends in depth.
 
-## RLS test matrix (for PO/PM verification)
+## RLS test matrix
+
+> ✅ **Automated:** `tests/database/rls.test.sql` (pgTAP) covers this matrix — run
+> `supabase test db` with the local stack up. 15 assertions, all green as of 2026-09-04.
+> The table below remains as the human-readable spec.
 
 Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then verify:
 
@@ -72,4 +76,5 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 | 12 | Only B (addressee) can accept A→B request | ✅ B accepts / ❌ A "accepts" |
 | 13 | Delete B's account → A's gift from B remains with `giver_id = null` | ✅ history preserved |
 
-> Automate these as `pgTAP` tests (or app-level integration tests) before store submission.
+> Automated in `tests/database/rls.test.sql`; keep the spec and the tests in sync when
+> policies change.
