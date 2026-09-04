@@ -38,6 +38,11 @@ First market: Turkey. Founder is solo/low-budget — cost-awareness is a design 
 | Immutability/models | **freezed** + **json_serializable** |
 | Lint | **very_good_analysis** (or `flutter_lints` at minimum), zero-warning policy |
 
+**Auth note:** use **native** sign-in (`signInWithIdToken`), not web-redirect
+`signInWithOAuth`. Apple needs a raw nonce (random → SHA-256 sent to Apple, raw nonce sent
+to Supabase); Google needs the correct iOS/Web client-ID matrix. This is the most common
+Supabase+Flutter auth rework — get it right up front.
+
 Keep dependencies few and well-maintained. Vet each package (maintenance, popularity,
 null-safety, license) before adding. Pin versions. Prefer the platform/first-party
 solution over a fragile third-party one.
@@ -114,11 +119,18 @@ main.dart
 - **No secrets in the repo.** Use env config (`--dart-define` / env files gitignored).
   Only the Supabase anon key ships in the client (that's expected — it's RLS-gated).
   Service-role keys live only in Edge Functions / server, never in the app.
-- **PII discipline:** phone numbers stored **hashed** (matching only), never shown in
-  profiles, never logged. Follow KVKK/GDPR: consent flows, data deletion (G-71),
-  clear privacy/legal texts (G-74).
+- **PII discipline:** phone numbers stored as a **keyed HMAC** (not bare SHA-256 — a plain
+  hash of a phone number is trivially brute-forceable across a country's ~10⁹ number space).
+  Normalize to E.164 first; keep the HMAC key server-side (Edge Function), never in the client.
+  Contact matching is **server-side** (client sends hashed contacts, server intersects) with
+  rate-limiting + batch caps to prevent an enumeration oracle. Phone never shown in profiles,
+  never logged. Follow KVKK/GDPR: consent flows, clear privacy/legal texts (G-74).
 - Validate and sanitize all user input. Rate-limit sensitive actions server-side.
-- Account deletion must actually delete/anonymize data + media (App Store requirement).
+- **Account deletion** (App Store requirement) runs in a **service-role Edge Function**
+  (client can't call admin delete): delete/anonymize DB rows → enumerate & delete Storage/R2
+  objects (no FK cascade from `auth.users` to Storage; R2 is outside Postgres) → delete the
+  auth user. Set `ON DELETE CASCADE` on the `profiles` FK yourself. Anonymize gifts *given by*
+  the deleted user — don't cascade-delete the recipient's history.
 
 ---
 
