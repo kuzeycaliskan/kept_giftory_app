@@ -34,7 +34,7 @@ void main() {
 
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
-    expect(find.text('Kept — skeleton ready'), findsOneWidget);
+    expect(find.text('Upcoming'), findsOneWidget);
   });
 
   testWidgets('Add opens the quick-add sheet instead of navigating',

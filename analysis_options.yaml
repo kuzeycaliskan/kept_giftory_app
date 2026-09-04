@@ -17,3 +17,6 @@ linter:
     avoid_classes_with_only_static_members: false
     # This is an app, not a published package — no API-doc requirement.
     public_member_api_docs: false
+    # Single-method repository interfaces are an intentional architectural
+    # seam (CLAUDE.md §3), not accidental abstraction.
+    one_member_abstracts: false
