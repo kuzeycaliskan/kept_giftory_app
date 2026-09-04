@@ -41,6 +41,12 @@ class MeScreen extends ConsumerWidget {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.star_outline),
+              title: Text(l10n.wishlistMineTitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/wishlist'),
+            ),
+            ListTile(
               leading: const Icon(Icons.group_outlined),
               title: Text(l10n.meFriends),
               trailing: const Icon(Icons.chevron_right),

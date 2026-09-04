@@ -168,7 +168,46 @@ class AppLocalizationsTr extends AppLocalizations {
   String get wishlistAddTitle => 'Wishlist\'e ekle';
 
   @override
-  String get wishlistComingSoon => 'Wishlist G-41 ile geliyor';
+  String get wishlistMineTitle => 'Wishlist\'im';
+
+  @override
+  String wishlistOfUser(String name) {
+    return '$name · Wishlist';
+  }
+
+  @override
+  String get wishlistEmptyMine => 'Wishlist\'in boş';
+
+  @override
+  String get wishlistEmptyMineHint =>
+      'İstediğin şeyleri ekle — arkadaşların buradan seçer.';
+
+  @override
+  String get wishlistEmptyFriend => 'Henüz bir şey yok';
+
+  @override
+  String get wishlistError => 'Wishlist yüklenemedi';
+
+  @override
+  String get wishlistItemTitleLabel => 'Başlık';
+
+  @override
+  String get wishlistItemUrlLabel => 'Link (isteğe bağlı)';
+
+  @override
+  String get wishlistItemNoteLabel => 'Not (isteğe bağlı)';
+
+  @override
+  String get wishlistTitleRequired => 'Başlık zorunlu';
+
+  @override
+  String get wishlistAddedSnack => 'Wishlist\'ine eklendi';
+
+  @override
+  String get wishlistDeletedSnack => 'Wishlist\'inden çıkarıldı';
+
+  @override
+  String get commonSave => 'Kaydet';
 
   @override
   String get meTitle => 'Ben';

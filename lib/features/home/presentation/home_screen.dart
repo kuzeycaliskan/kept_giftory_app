@@ -156,6 +156,11 @@ class _BirthdayCard extends StatelessWidget {
         subtitle: Text(
           l10n.homeUsernameCountdown(birthday.username, _countdown(context)),
         ),
+        // Tap → the friend's wishlist (pick a gift from what they want).
+        onTap: () => context.push(
+          '/users/${birthday.friendId}/wishlist'
+          '?name=${Uri.encodeComponent(birthday.label)}',
+        ),
         trailing: FilledButton.tonal(
           onPressed: () => context.push('/gifts/log'),
           child: Text(l10n.homeGiftCta),

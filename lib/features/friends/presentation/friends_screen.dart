@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
@@ -282,6 +283,11 @@ class _FriendTile extends ConsumerWidget {
         leading: _Avatar(entry: entry),
         title: Text(entry.label),
         subtitle: Text('@${entry.username}'),
+        // Tap → the friend's wishlist (G-42).
+        onTap: () => context.push(
+          '/users/${entry.profileId}/wishlist'
+          '?name=${Uri.encodeComponent(entry.label)}',
+        ),
         onLongPress: () => _confirmAndRemove(context, ref),
       ),
     );

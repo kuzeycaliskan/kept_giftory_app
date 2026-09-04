@@ -398,11 +398,83 @@ abstract class AppLocalizations {
   /// **'Add to wishlist'**
   String get wishlistAddTitle;
 
-  /// No description provided for @wishlistComingSoon.
+  /// No description provided for @wishlistMineTitle.
   ///
   /// In en, this message translates to:
-  /// **'Wishlist arrives with G-41'**
-  String get wishlistComingSoon;
+  /// **'My wishlist'**
+  String get wishlistMineTitle;
+
+  /// No description provided for @wishlistOfUser.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · Wishlist'**
+  String wishlistOfUser(String name);
+
+  /// No description provided for @wishlistEmptyMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wishlist is empty'**
+  String get wishlistEmptyMine;
+
+  /// No description provided for @wishlistEmptyMineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add things you\'d love to receive — friends pick from here.'**
+  String get wishlistEmptyMineHint;
+
+  /// No description provided for @wishlistEmptyFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get wishlistEmptyFriend;
+
+  /// No description provided for @wishlistError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load wishlist'**
+  String get wishlistError;
+
+  /// No description provided for @wishlistItemTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get wishlistItemTitleLabel;
+
+  /// No description provided for @wishlistItemUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Link (optional)'**
+  String get wishlistItemUrlLabel;
+
+  /// No description provided for @wishlistItemNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get wishlistItemNoteLabel;
+
+  /// No description provided for @wishlistTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Title is required'**
+  String get wishlistTitleRequired;
+
+  /// No description provided for @wishlistAddedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your wishlist'**
+  String get wishlistAddedSnack;
+
+  /// No description provided for @wishlistDeletedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from your wishlist'**
+  String get wishlistDeletedSnack;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
 
   /// No description provided for @meTitle.
   ///

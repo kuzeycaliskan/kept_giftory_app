@@ -168,7 +168,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wishlistAddTitle => 'Add to wishlist';
 
   @override
-  String get wishlistComingSoon => 'Wishlist arrives with G-41';
+  String get wishlistMineTitle => 'My wishlist';
+
+  @override
+  String wishlistOfUser(String name) {
+    return '$name · Wishlist';
+  }
+
+  @override
+  String get wishlistEmptyMine => 'Your wishlist is empty';
+
+  @override
+  String get wishlistEmptyMineHint =>
+      'Add things you\'d love to receive — friends pick from here.';
+
+  @override
+  String get wishlistEmptyFriend => 'Nothing here yet';
+
+  @override
+  String get wishlistError => 'Could not load wishlist';
+
+  @override
+  String get wishlistItemTitleLabel => 'Title';
+
+  @override
+  String get wishlistItemUrlLabel => 'Link (optional)';
+
+  @override
+  String get wishlistItemNoteLabel => 'Note (optional)';
+
+  @override
+  String get wishlistTitleRequired => 'Title is required';
+
+  @override
+  String get wishlistAddedSnack => 'Added to your wishlist';
+
+  @override
+  String get wishlistDeletedSnack => 'Removed from your wishlist';
+
+  @override
+  String get commonSave => 'Save';
 
   @override
   String get meTitle => 'Me';

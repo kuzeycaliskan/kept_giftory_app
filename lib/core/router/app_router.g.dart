@@ -6,7 +6,7 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'48b1f76bc74a0ea31eaefc96706be0bf6ff501c7';
+String _$appRouterHash() => r'6a2f83b0f6070cde45099e41cd7ce119c0f48c76';
 
 /// App navigation graph (G-81).
 ///

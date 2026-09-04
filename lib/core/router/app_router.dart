@@ -13,6 +13,7 @@ import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:kept/features/shell/presentation/app_shell.dart';
 import 'package:kept/features/wishlist/presentation/add_wishlist_item_screen.dart';
+import 'package:kept/features/wishlist/presentation/wishlist_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -109,6 +110,19 @@ GoRouter appRouter(Ref ref) {
         path: '/wishlist/add',
         name: 'add-wishlist-item',
         builder: (context, state) => const AddWishlistItemScreen(),
+      ),
+      GoRoute(
+        path: '/wishlist',
+        name: 'my-wishlist',
+        builder: (context, state) => const WishlistScreen(),
+      ),
+      GoRoute(
+        path: '/users/:uid/wishlist',
+        name: 'friend-wishlist',
+        builder: (context, state) => WishlistScreen(
+          ownerId: state.pathParameters['uid'],
+          ownerLabel: state.uri.queryParameters['name'],
+        ),
       ),
     ],
   );

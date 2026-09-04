@@ -78,7 +78,24 @@
   "logGiftComingSoon": "Gift logging arrives with G-51",
 
   "wishlistAddTitle": "Add to wishlist",
-  "wishlistComingSoon": "Wishlist arrives with G-41",
+  "wishlistMineTitle": "My wishlist",
+  "wishlistOfUser": "{name} · Wishlist",
+  "@wishlistOfUser": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "wishlistEmptyMine": "Your wishlist is empty",
+  "wishlistEmptyMineHint": "Add things you'd love to receive — friends pick from here.",
+  "wishlistEmptyFriend": "Nothing here yet",
+  "wishlistError": "Could not load wishlist",
+  "wishlistItemTitleLabel": "Title",
+  "wishlistItemUrlLabel": "Link (optional)",
+  "wishlistItemNoteLabel": "Note (optional)",
+  "wishlistTitleRequired": "Title is required",
+  "wishlistAddedSnack": "Added to your wishlist",
+  "wishlistDeletedSnack": "Removed from your wishlist",
+  "commonSave": "Save",
 
   "meTitle": "Me",
   "meProfileFallback": "Profile",
