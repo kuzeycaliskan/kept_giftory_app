@@ -40,6 +40,18 @@ class WishlistScreen extends ConsumerWidget {
               ? l10n.wishlistMineTitle
               : l10n.wishlistOfUser(ownerLabel ?? ''),
         ),
+        actions: [
+          // While picking a gift, check what they already received (G-52).
+          if (!_isMine)
+            IconButton(
+              tooltip: l10n.giftHistoryTooltip,
+              icon: const Icon(Icons.history),
+              onPressed: () => context.push(
+                '/users/$ownerId/gifts'
+                '?name=${Uri.encodeComponent(ownerLabel ?? '')}',
+              ),
+            ),
+        ],
       ),
       floatingActionButton: _isMine
           ? FloatingActionButton(

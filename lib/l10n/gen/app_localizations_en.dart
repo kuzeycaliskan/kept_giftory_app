@@ -153,16 +153,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String get giftsTitle => 'Gifts';
 
   @override
+  String get giftsGivenTab => 'Given';
+
+  @override
+  String get giftsReceivedTab => 'Received';
+
+  @override
   String get giftsEmpty => 'No gifts logged yet';
 
   @override
   String get giftsLogFirst => 'Log your first gift';
 
   @override
+  String get giftsReceivedEmpty => 'No gifts received yet';
+
+  @override
+  String get giftsError => 'Could not load gifts';
+
+  @override
+  String get giftAnonymousGiver => 'Someone';
+
+  @override
+  String get giftSurpriseBadge => 'Surprise';
+
+  @override
+  String get giftDeletedSnack => 'Gift removed';
+
+  @override
   String get logGiftTitle => 'Log a gift';
 
   @override
-  String get logGiftComingSoon => 'Gift logging arrives with G-51';
+  String get logGiftRecipientLabel => 'Who is it for?';
+
+  @override
+  String get logGiftRecipientRequired => 'Pick a recipient';
+
+  @override
+  String get logGiftNoFriends =>
+      'Add friends first — gifts are logged for a friend.';
+
+  @override
+  String get logGiftItemLabel => 'Gift';
+
+  @override
+  String get logGiftItemRequired => 'Gift is required';
+
+  @override
+  String get logGiftDateLabel => 'Date';
+
+  @override
+  String get logGiftSurprise => 'Surprise';
+
+  @override
+  String get logGiftSurpriseHint =>
+      'Hidden from the recipient until the reveal date';
+
+  @override
+  String get logGiftRevealDateLabel => 'Reveal date';
+
+  @override
+  String get logGiftSavedSnack => 'Gift logged';
+
+  @override
+  String friendGiftsTitle(String name) {
+    return '$name · Gift history';
+  }
+
+  @override
+  String get friendGiftsEmpty => 'No gift history yet';
+
+  @override
+  String get giftHistoryTooltip => 'Gift history';
 
   @override
   String get wishlistAddTitle => 'Add to wishlist';

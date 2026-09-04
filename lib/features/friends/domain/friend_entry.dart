@@ -15,6 +15,7 @@ class FriendEntry {
     required this.status,
     this.displayName,
     this.avatarUrl,
+    this.birthday,
     this.direction,
   });
 
@@ -23,6 +24,10 @@ class FriendEntry {
   final String username;
   final String? displayName;
   final String? avatarUrl;
+
+  /// Used to default a surprise gift's reveal date (G-51).
+  final DateTime? birthday;
+
   final FriendshipStatus status;
 
   /// Set only when [status] is [FriendshipStatus.pending].

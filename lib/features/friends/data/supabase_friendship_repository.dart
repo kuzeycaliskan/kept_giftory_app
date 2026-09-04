@@ -16,9 +16,9 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
 
   static const _select = 'id, status, requester_id, addressee_id, '
       'requester:profiles!friendships_requester_id_fkey'
-      '(id, username, display_name, avatar_url), '
+      '(id, username, display_name, avatar_url, birthday), '
       'addressee:profiles!friendships_addressee_id_fkey'
-      '(id, username, display_name, avatar_url)';
+      '(id, username, display_name, avatar_url, birthday)';
 
   @override
   Future<Result<List<FriendEntry>>> fetchAll() async {
@@ -47,6 +47,9 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
             username: other['username']! as String,
             displayName: other['display_name'] as String?,
             avatarUrl: other['avatar_url'] as String?,
+            birthday: other['birthday'] == null
+                ? null
+                : DateTime.parse(other['birthday']! as String),
             status: status,
             direction: status == FriendshipStatus.pending
                 ? (incoming

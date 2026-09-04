@@ -72,10 +72,34 @@
   "sampleActivityBirthday": "Selin's birthday is coming up",
 
   "giftsTitle": "Gifts",
+  "giftsGivenTab": "Given",
+  "giftsReceivedTab": "Received",
   "giftsEmpty": "No gifts logged yet",
   "giftsLogFirst": "Log your first gift",
+  "giftsReceivedEmpty": "No gifts received yet",
+  "giftsError": "Could not load gifts",
+  "giftAnonymousGiver": "Someone",
+  "giftSurpriseBadge": "Surprise",
+  "giftDeletedSnack": "Gift removed",
   "logGiftTitle": "Log a gift",
-  "logGiftComingSoon": "Gift logging arrives with G-51",
+  "logGiftRecipientLabel": "Who is it for?",
+  "logGiftRecipientRequired": "Pick a recipient",
+  "logGiftNoFriends": "Add friends first — gifts are logged for a friend.",
+  "logGiftItemLabel": "Gift",
+  "logGiftItemRequired": "Gift is required",
+  "logGiftDateLabel": "Date",
+  "logGiftSurprise": "Surprise",
+  "logGiftSurpriseHint": "Hidden from the recipient until the reveal date",
+  "logGiftRevealDateLabel": "Reveal date",
+  "logGiftSavedSnack": "Gift logged",
+  "friendGiftsTitle": "{name} · Gift history",
+  "@friendGiftsTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "friendGiftsEmpty": "No gift history yet",
+  "giftHistoryTooltip": "Gift history",
 
   "wishlistAddTitle": "Add to wishlist",
   "wishlistMineTitle": "My wishlist",

@@ -153,16 +153,76 @@ class AppLocalizationsTr extends AppLocalizations {
   String get giftsTitle => 'Hediyeler';
 
   @override
+  String get giftsGivenTab => 'Verdiklerim';
+
+  @override
+  String get giftsReceivedTab => 'Aldıklarım';
+
+  @override
   String get giftsEmpty => 'Henüz hediye kaydı yok';
 
   @override
   String get giftsLogFirst => 'İlk hediyeni kaydet';
 
   @override
+  String get giftsReceivedEmpty => 'Henüz kayıtlı hediye yok';
+
+  @override
+  String get giftsError => 'Hediyeler yüklenemedi';
+
+  @override
+  String get giftAnonymousGiver => 'Birisi';
+
+  @override
+  String get giftSurpriseBadge => 'Sürpriz';
+
+  @override
+  String get giftDeletedSnack => 'Hediye kaydı silindi';
+
+  @override
   String get logGiftTitle => 'Hediye kaydet';
 
   @override
-  String get logGiftComingSoon => 'Hediye kaydı G-51 ile geliyor';
+  String get logGiftRecipientLabel => 'Kime?';
+
+  @override
+  String get logGiftRecipientRequired => 'Alıcı seç';
+
+  @override
+  String get logGiftNoFriends =>
+      'Önce arkadaş ekle — hediye bir arkadaş için kaydedilir.';
+
+  @override
+  String get logGiftItemLabel => 'Hediye';
+
+  @override
+  String get logGiftItemRequired => 'Hediye zorunlu';
+
+  @override
+  String get logGiftDateLabel => 'Tarih';
+
+  @override
+  String get logGiftSurprise => 'Sürpriz';
+
+  @override
+  String get logGiftSurpriseHint => 'Açığa çıkma tarihine kadar alıcıdan gizli';
+
+  @override
+  String get logGiftRevealDateLabel => 'Açığa çıkma tarihi';
+
+  @override
+  String get logGiftSavedSnack => 'Hediye kaydedildi';
+
+  @override
+  String friendGiftsTitle(String name) {
+    return '$name · Hediye geçmişi';
+  }
+
+  @override
+  String get friendGiftsEmpty => 'Henüz hediye geçmişi yok';
+
+  @override
+  String get giftHistoryTooltip => 'Hediye geçmişi';
 
   @override
   String get wishlistAddTitle => 'Wishlist\'e ekle';

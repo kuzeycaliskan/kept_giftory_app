@@ -6,6 +6,7 @@ import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
 import 'package:kept/features/friends/presentation/friends_screen.dart';
+import 'package:kept/features/gifts/presentation/friend_gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
 import 'package:kept/features/home/presentation/home_screen.dart';
@@ -122,6 +123,14 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => WishlistScreen(
           ownerId: state.pathParameters['uid'],
           ownerLabel: state.uri.queryParameters['name'],
+        ),
+      ),
+      GoRoute(
+        path: '/users/:uid/gifts',
+        name: 'friend-gifts',
+        builder: (context, state) => FriendGiftsScreen(
+          profileId: state.pathParameters['uid']!,
+          label: state.uri.queryParameters['name'],
         ),
       ),
     ],

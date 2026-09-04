@@ -368,6 +368,18 @@ abstract class AppLocalizations {
   /// **'Gifts'**
   String get giftsTitle;
 
+  /// No description provided for @giftsGivenTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Given'**
+  String get giftsGivenTab;
+
+  /// No description provided for @giftsReceivedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get giftsReceivedTab;
+
   /// No description provided for @giftsEmpty.
   ///
   /// In en, this message translates to:
@@ -380,17 +392,119 @@ abstract class AppLocalizations {
   /// **'Log your first gift'**
   String get giftsLogFirst;
 
+  /// No description provided for @giftsReceivedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No gifts received yet'**
+  String get giftsReceivedEmpty;
+
+  /// No description provided for @giftsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load gifts'**
+  String get giftsError;
+
+  /// No description provided for @giftAnonymousGiver.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone'**
+  String get giftAnonymousGiver;
+
+  /// No description provided for @giftSurpriseBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Surprise'**
+  String get giftSurpriseBadge;
+
+  /// No description provided for @giftDeletedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift removed'**
+  String get giftDeletedSnack;
+
   /// No description provided for @logGiftTitle.
   ///
   /// In en, this message translates to:
   /// **'Log a gift'**
   String get logGiftTitle;
 
-  /// No description provided for @logGiftComingSoon.
+  /// No description provided for @logGiftRecipientLabel.
   ///
   /// In en, this message translates to:
-  /// **'Gift logging arrives with G-51'**
-  String get logGiftComingSoon;
+  /// **'Who is it for?'**
+  String get logGiftRecipientLabel;
+
+  /// No description provided for @logGiftRecipientRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a recipient'**
+  String get logGiftRecipientRequired;
+
+  /// No description provided for @logGiftNoFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friends first — gifts are logged for a friend.'**
+  String get logGiftNoFriends;
+
+  /// No description provided for @logGiftItemLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get logGiftItemLabel;
+
+  /// No description provided for @logGiftItemRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift is required'**
+  String get logGiftItemRequired;
+
+  /// No description provided for @logGiftDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get logGiftDateLabel;
+
+  /// No description provided for @logGiftSurprise.
+  ///
+  /// In en, this message translates to:
+  /// **'Surprise'**
+  String get logGiftSurprise;
+
+  /// No description provided for @logGiftSurpriseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from the recipient until the reveal date'**
+  String get logGiftSurpriseHint;
+
+  /// No description provided for @logGiftRevealDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal date'**
+  String get logGiftRevealDateLabel;
+
+  /// No description provided for @logGiftSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift logged'**
+  String get logGiftSavedSnack;
+
+  /// No description provided for @friendGiftsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · Gift history'**
+  String friendGiftsTitle(String name);
+
+  /// No description provided for @friendGiftsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No gift history yet'**
+  String get friendGiftsEmpty;
+
+  /// No description provided for @giftHistoryTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift history'**
+  String get giftHistoryTooltip;
 
   /// No description provided for @wishlistAddTitle.
   ///
