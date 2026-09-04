@@ -217,9 +217,11 @@ Keep the same rigor for UI PBIs (screens) when we detail them in V1.
 
 ### Reviews: report signal, not noise
 
-When I ask you to review/inspect something (docs, code, a change), and there are **no
-real problems**, just say **"no problems"** (kısaca: sorun yok) and stop. Do **not**
-manufacture findings, invent nitpicks, or surface hypothetical "extra" work to look
-thorough. Only raise something when it's a genuine problem or a real open question that
-needs my decision. Don't drown me in details — give me the signal, not a wall of
-optional extras. If everything's fine, that's a complete and acceptable answer.
+When I ask for — or propose — a review/inspection (docs, code, a change), **you are not
+obligated to produce a finding.** If there's a genuine problem or something that must be
+solved, tell me. If it's clean, just reply **"clean"** (kısaca: temiz) and stop.
+
+- Do **not** manufacture findings, invent nitpicks, or surface hypothetical "extra" work
+  to look thorough. A clean verdict is a complete, acceptable answer.
+- Only raise something when it's a real problem, a real risk, or a real open question
+  that needs my decision. Give me the signal, not a wall of optional extras.
