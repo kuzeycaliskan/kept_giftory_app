@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/error/failure.dart';
+import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/application/sign_in_controller.dart';
 
 /// Sign-in (G-11): Apple + Google only. Strings are placeholders until i18n
@@ -70,6 +72,20 @@ class SignInScreen extends ConsumerWidget {
               if (busy) ...[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
+              ],
+              // Debug builds only: bypass auth to test the app before the
+              // OAuth providers are configured. Stripped from release.
+              if (kDebugMode) ...[
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: busy
+                      ? null
+                      : () {
+                          ref.read(devSessionProvider.notifier).enable();
+                          context.go('/');
+                        },
+                  child: const Text('Continue in dev mode (debug only)'),
+                ),
               ],
             ],
           ),

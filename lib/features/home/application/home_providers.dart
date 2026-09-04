@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
+import 'package:kept/features/auth/application/dev_session.dart';
+import 'package:kept/features/home/data/dev_home_repository.dart';
 import 'package:kept/features/home/data/mock_activity_repository.dart';
 import 'package:kept/features/home/data/supabase_home_repository.dart';
 import 'package:kept/features/home/domain/activity_item.dart';
@@ -11,9 +13,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'home_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-HomeRepository homeRepository(Ref ref) => Env.hasSupabaseConfig
-    ? SupabaseHomeRepository(ref.watch(supabaseClientProvider))
-    : const EmptyHomeRepository();
+HomeRepository homeRepository(Ref ref) {
+  if (!Env.hasSupabaseConfig) return const EmptyHomeRepository();
+  final client = ref.watch(supabaseClientProvider);
+  // Debug-only bypass: no real session but dev mode on → sample data so Home
+  // is testable before OAuth config lands (G-11).
+  if (ref.watch(devSessionProvider) && client.auth.currentUser == null) {
+    return DevHomeRepository();
+  }
+  return SupabaseHomeRepository(client);
+}
 
 @Riverpod(keepAlive: true)
 ActivityRepository activityRepository(Ref ref) =>

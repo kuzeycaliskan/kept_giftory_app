@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/features/activity/presentation/activity_screen.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
+import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
@@ -30,13 +31,14 @@ GoRouter appRouter(Ref ref) {
   final authState = Env.hasSupabaseConfig
       ? ref.watch(authStateProvider)
       : const AsyncValue<String?>.data(null);
+  final devSession = ref.watch(devSessionProvider);
 
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
       if (!Env.hasSupabaseConfig) return null;
 
-      final signedIn = authState.valueOrNull != null;
+      final signedIn = authState.valueOrNull != null || devSession;
       final onSignIn = state.matchedLocation == '/sign-in';
 
       if (!signedIn && !onSignIn) return '/sign-in';

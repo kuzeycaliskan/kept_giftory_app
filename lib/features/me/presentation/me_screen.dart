@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
+import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 
 /// Me tab: profile hub (G-84 will flesh this out with the tabbed profile;
@@ -10,7 +11,8 @@ class MeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = Env.hasSupabaseConfig
+    // Dev session has no real auth user → skip the profile query.
+    final profile = Env.hasSupabaseConfig && !ref.watch(devSessionProvider)
         ? ref.watch(myProfileProvider)
         : const AsyncValue.data(null);
 
