@@ -734,6 +734,66 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get commonCancel;
 
+  /// No description provided for @profileTabWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get profileTabWishlist;
+
+  /// No description provided for @profileTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts'**
+  String get profileTabHistory;
+
+  /// No description provided for @profileTabAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get profileTabAbout;
+
+  /// No description provided for @profileFriendCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} friends'**
+  String profileFriendCount(int count);
+
+  /// No description provided for @profileNotVisible.
+  ///
+  /// In en, this message translates to:
+  /// **'This profile isn\'t visible'**
+  String get profileNotVisible;
+
+  /// No description provided for @profileAboutEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get profileAboutEmpty;
+
+  /// No description provided for @profileAboutBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get profileAboutBirthday;
+
+  /// No description provided for @profileAboutOccupation.
+  ///
+  /// In en, this message translates to:
+  /// **'Occupation'**
+  String get profileAboutOccupation;
+
+  /// No description provided for @friendAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friend'**
+  String get friendAdd;
+
+  /// No description provided for @friendStatusFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendStatusFriends;
+
   /// No description provided for @activityTitle.
   ///
   /// In en, this message translates to:

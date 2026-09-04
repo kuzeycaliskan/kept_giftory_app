@@ -116,6 +116,17 @@
   "friendRemoveConfirmBody": "{name} artık sadece-arkadaşlar bölümlerini göremeyecek.",
   "commonCancel": "Vazgeç",
 
+  "profileTabWishlist": "Wishlist",
+  "profileTabHistory": "Hediyeler",
+  "profileTabAbout": "Hakkında",
+  "profileFriendCount": "{count} arkadaş",
+  "profileNotVisible": "Bu profil görünür değil",
+  "profileAboutEmpty": "Henüz bir şey yok",
+  "profileAboutBirthday": "Doğum günü",
+  "profileAboutOccupation": "Meslek",
+  "friendAdd": "Arkadaş ekle",
+  "friendStatusFriends": "Arkadaşsınız",
+
   "activityTitle": "Aktivite",
   "activityTooltip": "Aktivite",
   "activityEmpty": "Henüz bir şey yok"

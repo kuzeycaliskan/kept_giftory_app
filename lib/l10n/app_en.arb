@@ -152,6 +152,22 @@
   },
   "commonCancel": "Cancel",
 
+  "profileTabWishlist": "Wishlist",
+  "profileTabHistory": "Gifts",
+  "profileTabAbout": "About",
+  "profileFriendCount": "{count} friends",
+  "@profileFriendCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "profileNotVisible": "This profile isn't visible",
+  "profileAboutEmpty": "Nothing here yet",
+  "profileAboutBirthday": "Birthday",
+  "profileAboutOccupation": "Occupation",
+  "friendAdd": "Add friend",
+  "friendStatusFriends": "Friends",
+
   "activityTitle": "Activity",
   "activityTooltip": "Activity",
   "activityEmpty": "Nothing here yet"

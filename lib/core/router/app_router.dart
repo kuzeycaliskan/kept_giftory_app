@@ -12,6 +12,7 @@ import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
 import 'package:kept/features/home/presentation/home_screen.dart';
 import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:kept/features/profile/presentation/user_profile_screen.dart';
 import 'package:kept/features/shell/presentation/app_shell.dart';
 import 'package:kept/features/wishlist/presentation/add_wishlist_item_screen.dart';
 import 'package:kept/features/wishlist/presentation/wishlist_screen.dart';
@@ -129,6 +130,14 @@ GoRouter appRouter(Ref ref) {
         path: '/users/:uid/gifts',
         name: 'friend-gifts',
         builder: (context, state) => FriendGiftsScreen(
+          profileId: state.pathParameters['uid']!,
+          label: state.uri.queryParameters['name'],
+        ),
+      ),
+      GoRoute(
+        path: '/users/:uid',
+        name: 'user-profile',
+        builder: (context, state) => UserProfileScreen(
           profileId: state.pathParameters['uid']!,
           label: state.uri.queryParameters['name'],
         ),

@@ -283,9 +283,9 @@ class _FriendTile extends ConsumerWidget {
         leading: _Avatar(entry: entry),
         title: Text(entry.label),
         subtitle: Text('@${entry.username}'),
-        // Tap → the friend's wishlist (G-42).
+        // Tap → the friend's profile (G-84; wishlist/history live in its tabs).
         onTap: () => context.push(
-          '/users/${entry.profileId}/wishlist'
+          '/users/${entry.profileId}'
           '?name=${Uri.encodeComponent(entry.label)}',
         ),
         onLongPress: () => _confirmAndRemove(context, ref),

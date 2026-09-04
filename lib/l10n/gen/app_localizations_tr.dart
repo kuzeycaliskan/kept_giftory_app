@@ -346,6 +346,38 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commonCancel => 'Vazgeç';
 
   @override
+  String get profileTabWishlist => 'Wishlist';
+
+  @override
+  String get profileTabHistory => 'Hediyeler';
+
+  @override
+  String get profileTabAbout => 'Hakkında';
+
+  @override
+  String profileFriendCount(int count) {
+    return '$count arkadaş';
+  }
+
+  @override
+  String get profileNotVisible => 'Bu profil görünür değil';
+
+  @override
+  String get profileAboutEmpty => 'Henüz bir şey yok';
+
+  @override
+  String get profileAboutBirthday => 'Doğum günü';
+
+  @override
+  String get profileAboutOccupation => 'Meslek';
+
+  @override
+  String get friendAdd => 'Arkadaş ekle';
+
+  @override
+  String get friendStatusFriends => 'Arkadaşsınız';
+
+  @override
   String get activityTitle => 'Aktivite';
 
   @override

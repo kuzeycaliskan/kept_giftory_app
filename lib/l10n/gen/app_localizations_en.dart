@@ -347,6 +347,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonCancel => 'Cancel';
 
   @override
+  String get profileTabWishlist => 'Wishlist';
+
+  @override
+  String get profileTabHistory => 'Gifts';
+
+  @override
+  String get profileTabAbout => 'About';
+
+  @override
+  String profileFriendCount(int count) {
+    return '$count friends';
+  }
+
+  @override
+  String get profileNotVisible => 'This profile isn\'t visible';
+
+  @override
+  String get profileAboutEmpty => 'Nothing here yet';
+
+  @override
+  String get profileAboutBirthday => 'Birthday';
+
+  @override
+  String get profileAboutOccupation => 'Occupation';
+
+  @override
+  String get friendAdd => 'Add friend';
+
+  @override
+  String get friendStatusFriends => 'Friends';
+
+  @override
   String get activityTitle => 'Activity';
 
   @override

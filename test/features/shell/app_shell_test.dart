@@ -30,7 +30,8 @@ void main() {
 
     await tester.tap(find.text('Me'));
     await tester.pumpAndSettle();
-    expect(find.text('Friends'), findsOneWidget);
+    // Backend-less: no profile row → neutral fallback.
+    expect(find.text('Profile'), findsOneWidget);
 
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();

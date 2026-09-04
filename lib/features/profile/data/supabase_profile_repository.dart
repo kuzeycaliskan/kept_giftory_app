@@ -18,11 +18,16 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<Result<Profile?>> fetchMyProfile() async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    return fetchProfile(userId);
+  }
+
+  @override
+  Future<Result<Profile?>> fetchProfile(String profileId) async {
     try {
       final row = await _client
           .from(_table)
           .select()
-          .eq('id', userId)
+          .eq('id', profileId)
           .maybeSingle();
       return Success(row == null ? null : Profile.fromJson(row));
     } on PostgrestException catch (e) {
