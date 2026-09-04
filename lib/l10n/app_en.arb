@@ -84,9 +84,27 @@
   "meProfileFallback": "Profile",
   "meProfileError": "Could not load profile",
   "meFriends": "Friends",
-  "meFriendsComingSoon": "Coming with G-31",
   "meSettings": "Settings",
   "meSettingsComingSoon": "Coming with G-85",
+
+  "friendsTitle": "Friends",
+  "friendsRequestsSection": "Requests",
+  "friendsEmpty": "No friends yet",
+  "friendsEmptyHint": "Kept works with friends — invite yours to get started.",
+  "friendsError": "Could not load friends",
+  "friendAccept": "Accept",
+  "friendDecline": "Decline",
+  "friendCancelRequest": "Cancel request",
+  "friendRemove": "Remove",
+  "friendPendingOutgoing": "Request sent",
+  "friendRemoveConfirmTitle": "Remove friend?",
+  "friendRemoveConfirmBody": "{name} will no longer see your friends-only sections.",
+  "@friendRemoveConfirmBody": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "commonCancel": "Cancel",
 
   "activityTitle": "Activity",
   "activityTooltip": "Activity",

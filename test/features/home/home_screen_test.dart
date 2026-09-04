@@ -75,13 +75,13 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Gift'), findsNWidgets(2));
   });
 
-  testWidgets('tapping Find friends goes to the Me tab', (tester) async {
+  testWidgets('tapping Find friends opens the Friends screen',
+      (tester) async {
     await pumpHome(tester, birthdays: const []);
 
     await tester.tap(find.text('Find friends'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Friends'), findsOneWidget);
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('No friends yet'), findsOneWidget);
   });
 }

@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(17);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -19,18 +19,24 @@ values
   ('00000000-0000-0000-0000-00000000000a', 'alice@test.dev'),
   ('00000000-0000-0000-0000-00000000000b', 'bob@test.dev'),
   ('00000000-0000-0000-0000-00000000000c', 'carol@test.dev'),
-  ('00000000-0000-0000-0000-00000000000d', 'dave@test.dev');
+  ('00000000-0000-0000-0000-00000000000d', 'dave@test.dev'),
+  ('00000000-0000-0000-0000-00000000000e', 'erin@test.dev');
 
 insert into public.profiles (id, username, profile_visibility, wishlist_visibility, gift_history_visibility)
 values
   ('00000000-0000-0000-0000-00000000000a', 'alice', 'friends', 'friends', 'friends'),
   ('00000000-0000-0000-0000-00000000000b', 'bob',   'friends', 'friends', 'friends'),
   ('00000000-0000-0000-0000-00000000000c', 'carol', 'friends', 'friends', 'friends'),
-  ('00000000-0000-0000-0000-00000000000d', 'dave',  'public',  'friends', 'friends');
+  ('00000000-0000-0000-0000-00000000000d', 'dave',  'public',  'friends', 'friends'),
+  ('00000000-0000-0000-0000-00000000000e', 'erin',  'friends', 'friends', 'friends');
 
 insert into public.friendships (requester_id, addressee_id, status)
-values ('00000000-0000-0000-0000-00000000000a',
-        '00000000-0000-0000-0000-00000000000b', 'accepted');
+values
+  ('00000000-0000-0000-0000-00000000000a',
+   '00000000-0000-0000-0000-00000000000b', 'accepted'),
+  -- pending request erin → alice (for tests 16-17)
+  ('00000000-0000-0000-0000-00000000000e',
+   '00000000-0000-0000-0000-00000000000a', 'pending');
 
 insert into public.wishlist_items (owner_id, title)
 values ('00000000-0000-0000-0000-00000000000a', 'Kindle');
@@ -225,6 +231,30 @@ select is(
   2::bigint,
   '15: recipient history survives giver deletion (giver anonymized)'
 );
+
+-- ── 16-17: pending-request parties can see each other's profile (G-31) ──────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000e'),
+  1::bigint,
+  '16: addressee can see the pending requester''s friends-only profile'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '17: requester can see the pending addressee''s friends-only profile'
+);
+
+reset role;
 
 select * from finish();
 rollback;

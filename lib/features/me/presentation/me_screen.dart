@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
@@ -42,7 +43,8 @@ class MeScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.group_outlined),
               title: Text(l10n.meFriends),
-              subtitle: Text(l10n.meFriendsComingSoon),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/friends'),
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),

@@ -183,13 +183,52 @@ class AppLocalizationsTr extends AppLocalizations {
   String get meFriends => 'Arkadaşlar';
 
   @override
-  String get meFriendsComingSoon => 'G-31 ile geliyor';
-
-  @override
   String get meSettings => 'Ayarlar';
 
   @override
   String get meSettingsComingSoon => 'G-85 ile geliyor';
+
+  @override
+  String get friendsTitle => 'Arkadaşlar';
+
+  @override
+  String get friendsRequestsSection => 'İstekler';
+
+  @override
+  String get friendsEmpty => 'Henüz arkadaşın yok';
+
+  @override
+  String get friendsEmptyHint =>
+      'Kept arkadaşlarla çalışır — başlamak için davet et.';
+
+  @override
+  String get friendsError => 'Arkadaşlar yüklenemedi';
+
+  @override
+  String get friendAccept => 'Kabul et';
+
+  @override
+  String get friendDecline => 'Reddet';
+
+  @override
+  String get friendCancelRequest => 'İsteği iptal et';
+
+  @override
+  String get friendRemove => 'Çıkar';
+
+  @override
+  String get friendPendingOutgoing => 'İstek gönderildi';
+
+  @override
+  String get friendRemoveConfirmTitle => 'Arkadaşlıktan çıkarılsın mı?';
+
+  @override
+  String friendRemoveConfirmBody(String name) {
+    return '$name artık sadece-arkadaşlar bölümlerini göremeyecek.';
+  }
+
+  @override
+  String get commonCancel => 'Vazgeç';
 
   @override
   String get activityTitle => 'Aktivite';

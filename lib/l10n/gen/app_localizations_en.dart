@@ -183,13 +183,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get meFriends => 'Friends';
 
   @override
-  String get meFriendsComingSoon => 'Coming with G-31';
-
-  @override
   String get meSettings => 'Settings';
 
   @override
   String get meSettingsComingSoon => 'Coming with G-85';
+
+  @override
+  String get friendsTitle => 'Friends';
+
+  @override
+  String get friendsRequestsSection => 'Requests';
+
+  @override
+  String get friendsEmpty => 'No friends yet';
+
+  @override
+  String get friendsEmptyHint =>
+      'Kept works with friends — invite yours to get started.';
+
+  @override
+  String get friendsError => 'Could not load friends';
+
+  @override
+  String get friendAccept => 'Accept';
+
+  @override
+  String get friendDecline => 'Decline';
+
+  @override
+  String get friendCancelRequest => 'Cancel request';
+
+  @override
+  String get friendRemove => 'Remove';
+
+  @override
+  String get friendPendingOutgoing => 'Request sent';
+
+  @override
+  String get friendRemoveConfirmTitle => 'Remove friend?';
+
+  @override
+  String friendRemoveConfirmBody(String name) {
+    return '$name will no longer see your friends-only sections.';
+  }
+
+  @override
+  String get commonCancel => 'Cancel';
 
   @override
   String get activityTitle => 'Activity';

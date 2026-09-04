@@ -115,7 +115,7 @@ class _UpcomingSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   FilledButton.tonal(
-                    onPressed: () => context.go('/me'),
+                    onPressed: () => context.push('/friends'),
                     child: Text(l10n.homeFindFriends),
                   ),
                 ],

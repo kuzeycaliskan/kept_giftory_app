@@ -5,6 +5,7 @@ import 'package:kept/features/activity/presentation/activity_screen.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
+import 'package:kept/features/friends/presentation/friends_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
 import 'package:kept/features/home/presentation/home_screen.dart';
@@ -93,6 +94,11 @@ GoRouter appRouter(Ref ref) {
         path: '/activity',
         name: 'activity',
         builder: (context, state) => const ActivityScreen(),
+      ),
+      GoRoute(
+        path: '/friends',
+        name: 'friends',
+        builder: (context, state) => const FriendsScreen(),
       ),
       GoRoute(
         path: '/gifts/log',

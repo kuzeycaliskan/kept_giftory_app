@@ -428,12 +428,6 @@ abstract class AppLocalizations {
   /// **'Friends'**
   String get meFriends;
 
-  /// No description provided for @meFriendsComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming with G-31'**
-  String get meFriendsComingSoon;
-
   /// No description provided for @meSettings.
   ///
   /// In en, this message translates to:
@@ -445,6 +439,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming with G-85'**
   String get meSettingsComingSoon;
+
+  /// No description provided for @friendsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendsTitle;
+
+  /// No description provided for @friendsRequestsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get friendsRequestsSection;
+
+  /// No description provided for @friendsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet'**
+  String get friendsEmpty;
+
+  /// No description provided for @friendsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept works with friends — invite yours to get started.'**
+  String get friendsEmptyHint;
+
+  /// No description provided for @friendsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load friends'**
+  String get friendsError;
+
+  /// No description provided for @friendAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get friendAccept;
+
+  /// No description provided for @friendDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get friendDecline;
+
+  /// No description provided for @friendCancelRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get friendCancelRequest;
+
+  /// No description provided for @friendRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get friendRemove;
+
+  /// No description provided for @friendPendingOutgoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get friendPendingOutgoing;
+
+  /// No description provided for @friendRemoveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove friend?'**
+  String get friendRemoveConfirmTitle;
+
+  /// No description provided for @friendRemoveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will no longer see your friends-only sections.'**
+  String friendRemoveConfirmBody(String name);
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
 
   /// No description provided for @activityTitle.
   ///
