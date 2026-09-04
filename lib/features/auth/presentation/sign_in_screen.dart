@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:kept/core/error/failure.dart';
+import 'package:kept/features/auth/application/sign_in_controller.dart';
+
+/// Sign-in (G-11): Apple + Google only. Strings are placeholders until i18n
+/// lands (CLAUDE.md §9); flows fail gracefully while provider config is absent.
+class SignInScreen extends ConsumerWidget {
+  const SignInScreen({super.key});
+
+  Future<void> _handle(
+    BuildContext context,
+    Future<bool> Function() signIn,
+  ) async {
+    final ok = await signIn();
+    if (ok && context.mounted) context.go('/onboarding');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(signInControllerProvider);
+    final controller = ref.read(signInControllerProvider.notifier);
+
+    ref.listen(signInControllerProvider, (_, next) {
+      final error = next.error;
+      if (error is Failure && error.message != 'Sign-in cancelled') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    });
+
+    final busy = state.isLoading;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Kept',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'What you own, your taste, your things.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 48),
+              FilledButton.icon(
+                onPressed: busy
+                    ? null
+                    : () => _handle(context, controller.signInWithApple),
+                icon: const Icon(Icons.apple),
+                label: const Text('Continue with Apple'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: busy
+                    ? null
+                    : () => _handle(context, controller.signInWithGoogle),
+                icon: const Icon(Icons.g_mobiledata),
+                label: const Text('Continue with Google'),
+              ),
+              if (busy) ...[
+                const SizedBox(height: 24),
+                const Center(child: CircularProgressIndicator()),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

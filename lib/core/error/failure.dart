@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 /// Repositories return failures via `Result` instead of throwing for control
 /// flow. Exceptions are reserved for truly exceptional / programmer errors.
 @immutable
-sealed class Failure {
+sealed class Failure implements Exception {
   const Failure(this.message);
 
   /// Human-facing (localizable) description of what went wrong.

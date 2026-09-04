@@ -6,10 +6,15 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'9cb70203dc5c676a4756a5f939109ecd972f1d54';
+String _$appRouterHash() => r'905d77e7587fbb1aad00b3085c6c49ec22e72bf2';
 
-/// App navigation graph. Kept intentionally thin for now; the V1 nav shell
-/// (bottom tabs Home / Gifts / Add / Me) lands with G-81.
+/// App navigation graph. The V1 tab shell (Home / Gifts / Add / Me) lands with
+/// G-81; for now: sign-in → onboarding → home.
+///
+/// Redirect rule: signed-out users can only see /sign-in. Whether onboarding
+/// is complete (profile row exists) is decided post-sign-in by the flow itself.
+/// Backend-less runs (no --dart-define config) skip auth entirely so the app
+/// stays runnable in early dev.
 ///
 /// Copied from [appRouter].
 @ProviderFor(appRouter)
