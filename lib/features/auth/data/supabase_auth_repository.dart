@@ -73,8 +73,8 @@ class SupabaseAuthRepository implements AuthRepository {
     try {
       final signIn = GoogleSignIn.instance;
       if (!_googleInitialized) {
-        final iosClientId = Env.googleIosClientId;
-        final webClientId = Env.googleWebClientId;
+        const iosClientId = Env.googleIosClientId;
+        const webClientId = Env.googleWebClientId;
         await signIn.initialize(
           clientId: iosClientId.isEmpty ? null : iosClientId,
           serverClientId: webClientId.isEmpty ? null : webClientId,
