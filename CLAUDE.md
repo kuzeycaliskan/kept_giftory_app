@@ -227,6 +227,22 @@ Keep the same rigor for UI PBIs (screens) when we detail them in V1.
 - Report outcomes honestly: if tests fail, say so; if something is skipped, say so.
 - Optimize for the senior-engineer bar on every change. Quality over speed.
 
+### Decide, don't poll
+
+This is a professional, market-bound product. The foundation must be settled by best
+practice and the docs — not by asking me about mechanics.
+
+- **Do NOT ask** about decisions already determined by best practice, convention, or the
+  planning docs: branch naming/merge mechanics, file/folder layout, dependency choices,
+  schema/RLS conventions, naming, migration structure, test setup, etc. Make the senior
+  call, do it, and state what you decided in one line.
+- **Do ask** only when it's a genuine product / business / UX decision that's mine to make,
+  or when required information is truly missing and undiscoverable.
+- When something needs *my action* (e.g. create a cloud project, provide a secret, approve a
+  spend), surface it as a clear **next-step note**, not as a blocking multiple-choice gate.
+- Get the foundation right up front (data model, security, architecture) — these are
+  expensive to change later. Design them properly rather than deferring with questions.
+
 ### Reviews: report signal, not noise
 
 When I ask for — or propose — a review/inspection (docs, code, a change), **you are not
