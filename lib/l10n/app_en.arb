@@ -91,6 +91,11 @@
   "logGiftSurprise": "Surprise",
   "logGiftSurpriseHint": "Hidden from the recipient until the reveal date",
   "logGiftRevealDateLabel": "Reveal date",
+  "logGiftRevealDateRequired": "Pick a reveal date",
+  "surpriseOffTitle": "Turn off surprise?",
+  "surpriseOffBody": "Without surprise, the recipient can see this gift in their history immediately.",
+  "surpriseOffDontShowAgain": "Don't show this again",
+  "surpriseOffConfirm": "Turn off",
   "logGiftSavedSnack": "Gift logged",
   "friendGiftsTitle": "{name} · Gift history",
   "@friendGiftsTitle": {

@@ -13,6 +13,7 @@ import 'package:kept/features/gifts/domain/gift_repository.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeGiftRepository implements GiftRepository {
   _FakeGiftRepository({List<GiftEntry>? given, List<GiftEntry>? received})
@@ -95,6 +96,8 @@ const _aliFriend = FriendEntry(
 );
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   group('defaultRevealAt', () {
     test('is next birthday + 1 day', () {
       final reveal =
@@ -148,17 +151,25 @@ void main() {
     expect(find.text('Log your first gift'), findsOneWidget);
   });
 
-  testWidgets('log form requires recipient and item', (tester) async {
+  testWidgets(
+      'log form: surprise on by default, requires recipient/item/reveal date',
+      (tester) async {
     await pump(tester, gifts: _FakeGiftRepository(), initial: '/gifts/log');
+
+    final surprise = tester.widget<SwitchListTile>(
+      find.byType(SwitchListTile),
+    );
+    expect(surprise.value, isTrue);
 
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Pick a recipient'), findsOneWidget);
     expect(find.text('Gift is required'), findsOneWidget);
+    expect(find.text('Pick a reveal date'), findsOneWidget);
   });
 
-  testWidgets('logging a gift stores it and pops back to the list',
+  testWidgets('logging a surprise gift with a reveal date pops back',
       (tester) async {
     final repo = _FakeGiftRepository();
     await pump(tester, gifts: repo);
@@ -171,11 +182,63 @@ void main() {
     await tester.tap(find.text('Ali').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Kindle');
+
+    // Pick the suggested reveal date from the date picker.
+    await tester.tap(find.text('Reveal date'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(repo.given, hasLength(1));
+    expect(repo.given.single.isSurprise, isTrue);
+    expect(repo.given.single.revealAt, isNotNull);
     expect(find.text('Kindle'), findsOneWidget);
+  });
+
+  testWidgets('turning surprise off asks for confirmation', (tester) async {
+    await pump(tester, gifts: _FakeGiftRepository(), initial: '/gifts/log');
+
+    await tester.tap(find.byType(SwitchListTile));
+    await tester.pumpAndSettle();
+    expect(find.text('Turn off surprise?'), findsOneWidget);
+
+    // Cancel keeps surprise on.
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
+      isTrue,
+    );
+
+    // Confirm turns it off.
+    await tester.tap(find.byType(SwitchListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Turn off'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
+      isFalse,
+    );
+  });
+
+  testWidgets('"don\'t show again" skips the confirmation next time',
+      (tester) async {
+    SharedPreferences.setMockInitialValues(
+      {'hide_surprise_off_warning': true},
+    );
+    await pump(tester, gifts: _FakeGiftRepository(), initial: '/gifts/log');
+
+    await tester.tap(find.byType(SwitchListTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Turn off surprise?'), findsNothing);
+    expect(
+      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
+      isFalse,
+    );
   });
 
   testWidgets('surprise gifts carry a badge on the given tab',

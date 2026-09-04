@@ -212,6 +212,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logGiftRevealDateLabel => 'Reveal date';
 
   @override
+  String get logGiftRevealDateRequired => 'Pick a reveal date';
+
+  @override
+  String get surpriseOffTitle => 'Turn off surprise?';
+
+  @override
+  String get surpriseOffBody =>
+      'Without surprise, the recipient can see this gift in their history immediately.';
+
+  @override
+  String get surpriseOffDontShowAgain => 'Don\'t show this again';
+
+  @override
+  String get surpriseOffConfirm => 'Turn off';
+
+  @override
   String get logGiftSavedSnack => 'Gift logged';
 
   @override

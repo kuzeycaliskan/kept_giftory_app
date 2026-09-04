@@ -482,6 +482,36 @@ abstract class AppLocalizations {
   /// **'Reveal date'**
   String get logGiftRevealDateLabel;
 
+  /// No description provided for @logGiftRevealDateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a reveal date'**
+  String get logGiftRevealDateRequired;
+
+  /// No description provided for @surpriseOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off surprise?'**
+  String get surpriseOffTitle;
+
+  /// No description provided for @surpriseOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Without surprise, the recipient can see this gift in their history immediately.'**
+  String get surpriseOffBody;
+
+  /// No description provided for @surpriseOffDontShowAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show this again'**
+  String get surpriseOffDontShowAgain;
+
+  /// No description provided for @surpriseOffConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get surpriseOffConfirm;
+
   /// No description provided for @logGiftSavedSnack.
   ///
   /// In en, this message translates to:

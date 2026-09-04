@@ -211,6 +211,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get logGiftRevealDateLabel => 'Açığa çıkma tarihi';
 
   @override
+  String get logGiftRevealDateRequired => 'Açığa çıkma tarihi seç';
+
+  @override
+  String get surpriseOffTitle => 'Sürpriz kapatılsın mı?';
+
+  @override
+  String get surpriseOffBody =>
+      'Sürpriz kapalıyken alıcı bu hediyeyi geçmişinde hemen görebilir.';
+
+  @override
+  String get surpriseOffDontShowAgain => 'Bir daha gösterme';
+
+  @override
+  String get surpriseOffConfirm => 'Kapat';
+
+  @override
   String get logGiftSavedSnack => 'Hediye kaydedildi';
 
   @override

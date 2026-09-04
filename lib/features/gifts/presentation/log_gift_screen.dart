@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/prefs/prefs_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
@@ -25,15 +26,14 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   String? _recipientId;
   DateTime? _recipientBirthday;
   DateTime _giftDate = DateTime.now();
-  bool _isSurprise = false;
+  // Surprise is the default posture (product decision): logging a gift
+  // shouldn't spoil it. Turning it off requires an explicit confirmation.
+  bool _isSurprise = true;
   DateTime? _revealAt;
-
-  /// Giver-set or the G-51 default (recipient's next birthday + 1 day).
-  DateTime get _effectiveRevealAt =>
-      _revealAt ?? defaultRevealAt(_recipientBirthday, DateTime.now());
 
   bool _itemMissing = false;
   bool _recipientMissing = false;
+  bool _revealMissing = false;
 
   @override
   void dispose() {
@@ -62,11 +62,74 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _revealAt ?? now.add(const Duration(days: 7)),
+      // Suggest the G-51 default (recipient's next birthday + 1 day), but
+      // the user must confirm a date — nothing is submitted silently.
+      initialDate: _revealAt ?? defaultRevealAt(_recipientBirthday, now),
       firstDate: now,
       lastDate: DateTime(now.year + 2),
     );
-    if (picked != null) setState(() => _revealAt = picked);
+    if (picked != null) {
+      setState(() {
+        _revealAt = picked;
+        _revealMissing = false;
+      });
+    }
+  }
+
+  /// Turning surprise OFF needs an explicit confirmation (with an optional
+  /// persisted "don't show again"). Turning it ON is always silent.
+  Future<void> _onSurpriseChanged(bool value) async {
+    if (value) {
+      setState(() => _isSurprise = true);
+      return;
+    }
+    final prefs = await ref.read(sharedPreferencesProvider.future);
+    if (prefs.getBool(PrefKeys.hideSurpriseOffWarning) ?? false) {
+      setState(() => _isSurprise = false);
+      return;
+    }
+    if (!mounted) return;
+    final l10n = context.l10n;
+    var dontShowAgain = false;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(l10n.surpriseOffTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.surpriseOffBody),
+              CheckboxListTile(
+                value: dontShowAgain,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(l10n.surpriseOffDontShowAgain),
+                onChanged: (checked) =>
+                    setDialogState(() => dontShowAgain = checked ?? false),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.surpriseOffConfirm),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (confirmed ?? false) {
+      if (dontShowAgain) {
+        await prefs.setBool(PrefKeys.hideSurpriseOffWarning, true);
+      }
+      if (mounted) setState(() => _isSurprise = false);
+    }
   }
 
   Future<void> _save() async {
@@ -75,8 +138,10 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     setState(() {
       _itemMissing = item.isEmpty;
       _recipientMissing = _recipientId == null;
+      // Reveal date is a conscious choice, never silently defaulted.
+      _revealMissing = _isSurprise && _revealAt == null;
     });
-    if (_itemMissing || _recipientMissing) return;
+    if (_itemMissing || _recipientMissing || _revealMissing) return;
 
     final ok = await ref.read(giftsControllerProvider.notifier).log(
           recipientId: _recipientId!,
@@ -84,7 +149,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           giftDate: _giftDate,
           isSurprise: _isSurprise,
           note: _noteController.text,
-          revealAt: _isSurprise ? _effectiveRevealAt : null,
+          revealAt: _isSurprise ? _revealAt : null,
         );
     if (ok && mounted) {
       ScaffoldMessenger.of(context)
@@ -195,19 +260,31 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
             value: _isSurprise,
             title: Text(l10n.logGiftSurprise),
             subtitle: Text(l10n.logGiftSurpriseHint),
-            onChanged: busy
-                ? null
-                : (value) => setState(() => _isSurprise = value),
+            onChanged: busy ? null : _onSurpriseChanged,
           ),
-          if (_isSurprise)
+          if (_isSurprise) ...[
             OutlinedButton.icon(
               onPressed: busy ? null : _pickRevealDate,
               icon: const Icon(Icons.visibility_outlined),
               label: Text(
-                '${l10n.logGiftRevealDateLabel}: '
-                '${_formatDate(_effectiveRevealAt)}',
+                _revealAt == null
+                    ? l10n.logGiftRevealDateLabel
+                    : '${l10n.logGiftRevealDateLabel}: '
+                        '${_formatDate(_revealAt!)}',
               ),
             ),
+            if (_revealMissing)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 12),
+                child: Text(
+                  l10n.logGiftRevealDateRequired,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
           const SizedBox(height: 24),
           FilledButton(
             onPressed: busy ? null : _save,
