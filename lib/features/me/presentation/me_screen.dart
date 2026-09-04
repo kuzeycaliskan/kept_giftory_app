@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 
@@ -11,17 +12,17 @@ class MeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     // Dev session has no real auth user → skip the profile query.
     final profile = Env.hasSupabaseConfig && !ref.watch(devSessionProvider)
         ? ref.watch(myProfileProvider)
         : const AsyncValue.data(null);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Me')),
+      appBar: AppBar(title: Text(l10n.meTitle)),
       body: profile.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) =>
-            const Center(child: Text('Could not load profile')),
+        error: (error, _) => Center(child: Text(l10n.meProfileError)),
         data: (p) => ListView(
           children: [
             ListTile(
@@ -32,19 +33,21 @@ class MeScreen extends ConsumerWidget {
                       .toUpperCase(),
                 ),
               ),
-              title: Text(p?.displayName ?? p?.username ?? 'Profile'),
+              title: Text(
+                p?.displayName ?? p?.username ?? l10n.meProfileFallback,
+              ),
               subtitle: p == null ? null : Text('@${p.username}'),
             ),
             const Divider(),
-            const ListTile(
-              leading: Icon(Icons.group_outlined),
-              title: Text('Friends'),
-              subtitle: Text('Coming with G-31'),
+            ListTile(
+              leading: const Icon(Icons.group_outlined),
+              title: Text(l10n.meFriends),
+              subtitle: Text(l10n.meFriendsComingSoon),
             ),
-            const ListTile(
-              leading: Icon(Icons.settings_outlined),
-              title: Text('Settings'),
-              subtitle: Text('Coming with G-85'),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: Text(l10n.meSettings),
+              subtitle: Text(l10n.meSettingsComingSoon),
             ),
           ],
         ),

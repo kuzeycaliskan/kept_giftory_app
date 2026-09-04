@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
 
@@ -28,13 +29,17 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
 
     expect(container.read(devSessionProvider), isFalse);
 
-    // Tests run in debug mode, so the button is present.
+    // Tests run in debug mode (and default to en), so the button is present.
     final devButton = find.text('Continue in dev mode (debug only)');
     expect(devButton, findsOneWidget);
 

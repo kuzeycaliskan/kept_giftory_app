@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/activity_item.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
@@ -15,16 +16,17 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     final activity = ref.watch(recentActivityProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kept'),
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            tooltip: 'Activity',
+            tooltip: l10n.activityTooltip,
             onPressed: () => context.push('/activity'),
           ),
         ],
@@ -40,11 +42,14 @@ class HomeScreen extends ConsumerWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
-            const _SectionHeader(title: 'Upcoming'),
+            _SectionHeader(title: l10n.homeUpcomingSection),
             const SizedBox(height: 8),
             _UpcomingSection(state: upcoming),
             const SizedBox(height: 24),
-            const _SectionHeader(title: 'Activity', badge: 'sample'),
+            _SectionHeader(
+              title: l10n.homeActivitySection,
+              badge: l10n.homeSampleBadge,
+            ),
             const SizedBox(height: 8),
             _ActivitySection(state: activity),
           ],
@@ -85,14 +90,13 @@ class _UpcomingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return state.when(
       loading: () => const Padding(
         padding: EdgeInsets.all(24),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (error, _) => const _InlineError(
-        message: 'Could not load upcoming birthdays',
-      ),
+      error: (error, _) => _InlineError(message: l10n.homeUpcomingError),
       data: (birthdays) {
         if (birthdays.isEmpty) {
           return Card(
@@ -102,17 +106,17 @@ class _UpcomingSection extends StatelessWidget {
                 children: [
                   const Icon(Icons.cake_outlined, size: 40),
                   const SizedBox(height: 8),
-                  const Text('No upcoming birthdays yet'),
+                  Text(l10n.homeNoUpcoming),
                   const SizedBox(height: 4),
                   Text(
-                    'Add friends so you never miss a gift day.',
+                    l10n.homeNoUpcomingHint,
                     style: Theme.of(context).textTheme.bodySmall,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   FilledButton.tonal(
                     onPressed: () => context.go('/me'),
-                    child: const Text('Find friends'),
+                    child: Text(l10n.homeFindFriends),
                   ),
                 ],
               ),
@@ -134,24 +138,27 @@ class _BirthdayCard extends StatelessWidget {
 
   final UpcomingBirthday birthday;
 
-  String get _countdown => switch (birthday.daysUntil) {
-        0 => 'Today! 🎂',
-        1 => 'Tomorrow',
-        final d => 'In $d days',
+  String _countdown(BuildContext context) => switch (birthday.daysUntil) {
+        0 => context.l10n.homeCountdownToday,
+        1 => context.l10n.homeCountdownTomorrow,
+        final d => context.l10n.homeCountdownInDays(d),
       };
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       child: ListTile(
         leading: CircleAvatar(
           child: Text(birthday.label.substring(0, 1).toUpperCase()),
         ),
         title: Text(birthday.label),
-        subtitle: Text('@${birthday.username} · $_countdown'),
+        subtitle: Text(
+          l10n.homeUsernameCountdown(birthday.username, _countdown(context)),
+        ),
         trailing: FilledButton.tonal(
           onPressed: () => context.push('/gifts/log'),
-          child: const Text('Gift'),
+          child: Text(l10n.homeGiftCta),
         ),
       ),
     );
@@ -169,21 +176,29 @@ class _ActivitySection extends StatelessWidget {
         ActivityKind.birthdayReminder => Icons.cake_outlined,
       };
 
+  /// V1 renders localized sample copy by kind (mock panel); the V2 event feed
+  /// will carry structured payloads and revisit this mapping (G-210).
+  String _text(BuildContext context, ActivityItem item) => switch (item.kind) {
+        ActivityKind.friendAccepted => context.l10n.sampleActivityFriends,
+        ActivityKind.giftLogged => context.l10n.sampleActivityGift,
+        ActivityKind.birthdayReminder => context.l10n.sampleActivityBirthday,
+      };
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return state.when(
       loading: () => const Padding(
         padding: EdgeInsets.all(24),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (error, _) =>
-          const _InlineError(message: 'Could not load activity'),
+      error: (error, _) => _InlineError(message: l10n.homeActivityError),
       data: (items) {
         if (items.isEmpty) {
-          return const Card(
+          return Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: Text('Nothing happening yet')),
+              padding: const EdgeInsets.all(16),
+              child: Center(child: Text(l10n.homeActivityEmpty)),
             ),
           );
         }
@@ -193,7 +208,7 @@ class _ActivitySection extends StatelessWidget {
               for (final item in items)
                 ListTile(
                   leading: Icon(_icon(item.kind)),
-                  title: Text(item.text),
+                  title: Text(_text(context, item)),
                   dense: true,
                 ),
             ],

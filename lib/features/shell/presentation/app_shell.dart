@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/shell/presentation/quick_add_sheet.dart';
 
 /// V1 navigation shell (G-81): bottom tabs Home / Gifts / ➕ Add / Me.
@@ -33,32 +34,33 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedDestination,
         onDestinationSelected: (index) =>
             _onDestinationSelected(context, index),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: l10n.tabHome,
           ),
           NavigationDestination(
-            icon: Icon(Icons.card_giftcard_outlined),
-            selectedIcon: Icon(Icons.card_giftcard),
-            label: 'Gifts',
+            icon: const Icon(Icons.card_giftcard_outlined),
+            selectedIcon: const Icon(Icons.card_giftcard),
+            label: l10n.tabGifts,
           ),
           NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: 'Add',
+            icon: const Icon(Icons.add_circle_outline),
+            selectedIcon: const Icon(Icons.add_circle),
+            label: l10n.tabAdd,
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Me',
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: l10n.tabMe,
           ),
         ],
       ),

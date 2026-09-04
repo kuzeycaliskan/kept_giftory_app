@@ -58,7 +58,7 @@ class SupabaseAuthRepository implements AuthRepository {
       return _sessionResult(response);
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
-        return const ResultFailure(AuthFailure('Sign-in cancelled'));
+        return const ResultFailure(AuthCancelledFailure());
       }
       return ResultFailure(AuthFailure(e.message));
     } on AuthException catch (e) {
@@ -97,7 +97,7 @@ class SupabaseAuthRepository implements AuthRepository {
       return _sessionResult(response);
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) {
-        return const ResultFailure(AuthFailure('Sign-in cancelled'));
+        return const ResultFailure(AuthCancelledFailure());
       }
       return ResultFailure(
         AuthFailure(e.description ?? 'Google sign-in failed'),

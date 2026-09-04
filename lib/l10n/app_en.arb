@@ -1,0 +1,94 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Kept",
+  "signInTagline": "What you own, your taste, your things.",
+  "signInWithApple": "Continue with Apple",
+  "signInWithGoogle": "Continue with Google",
+  "signInDevMode": "Continue in dev mode (debug only)",
+  "errorSignInFailed": "Sign-in failed. Please try again.",
+
+  "onboardingUsernameTitle": "Choose a username",
+  "onboardingAboutTitle": "About you",
+  "usernameLabel": "Username",
+  "usernameTooShort": "At least {min} characters",
+  "@usernameTooShort": {
+    "placeholders": {
+      "min": { "type": "int" }
+    }
+  },
+  "usernameTooLong": "At most {max} characters",
+  "@usernameTooLong": {
+    "placeholders": {
+      "max": { "type": "int" }
+    }
+  },
+  "usernameInvalidCharacters": "Only letters, numbers and underscore",
+  "usernameTaken": "That username is taken",
+  "usernameCheckFailed": "Could not check availability — try again",
+  "nameOptionalLabel": "Name (optional)",
+  "birthdayRequiredLabel": "Birthday (required)",
+  "continueLabel": "Continue",
+  "finishLabel": "Finish",
+  "errorGeneric": "Something went wrong. Please try again.",
+
+  "tabHome": "Home",
+  "tabGifts": "Gifts",
+  "tabAdd": "Add",
+  "tabMe": "Me",
+
+  "quickAddLogGift": "Log a gift",
+  "quickAddLogGiftSubtitle": "I bought a gift for a friend",
+  "quickAddWishlist": "Add to wishlist",
+  "quickAddWishlistSubtitle": "Something I want",
+
+  "homeUpcomingSection": "Upcoming",
+  "homeActivitySection": "Activity",
+  "homeSampleBadge": "sample",
+  "homeNoUpcoming": "No upcoming birthdays yet",
+  "homeNoUpcomingHint": "Add friends so you never miss a gift day.",
+  "homeFindFriends": "Find friends",
+  "homeCountdownToday": "Today! 🎂",
+  "homeCountdownTomorrow": "Tomorrow",
+  "homeCountdownInDays": "In {days} days",
+  "@homeCountdownInDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeGiftCta": "Gift",
+  "homeUpcomingError": "Could not load upcoming birthdays",
+  "homeActivityError": "Could not load activity",
+  "homeActivityEmpty": "Nothing happening yet",
+  "homeUsernameCountdown": "@{username} · {countdown}",
+  "@homeUsernameCountdown": {
+    "placeholders": {
+      "username": { "type": "String" },
+      "countdown": { "type": "String" }
+    }
+  },
+  "sampleActivityFriends": "Ali and Zeynep became friends",
+  "sampleActivityGift": "Mert logged a gift for Can",
+  "sampleActivityBirthday": "Selin's birthday is coming up",
+
+  "giftsTitle": "Gifts",
+  "giftsEmpty": "No gifts logged yet",
+  "giftsLogFirst": "Log your first gift",
+  "logGiftTitle": "Log a gift",
+  "logGiftComingSoon": "Gift logging arrives with G-51",
+
+  "wishlistAddTitle": "Add to wishlist",
+  "wishlistComingSoon": "Wishlist arrives with G-41",
+
+  "meTitle": "Me",
+  "meProfileFallback": "Profile",
+  "meProfileError": "Could not load profile",
+  "meFriends": "Friends",
+  "meFriendsComingSoon": "Coming with G-31",
+  "meSettings": "Settings",
+  "meSettingsComingSoon": "Coming with G-85",
+
+  "activityTitle": "Activity",
+  "activityTooltip": "Activity",
+  "activityEmpty": "Nothing here yet"
+}

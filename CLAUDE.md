@@ -164,8 +164,12 @@ main.dart
   profile, wishlist, gift history, settings) — we'll detail these together in the V1
   PBIs. Every screen has explicit **loading / empty / error / success** states.
 - **Empty states drive action** (a social app is empty at first — guide to invite).
-- Build **i18n-ready from day one** (`intl`/ARB), even though TR ships first. No
-  hardcoded user-facing strings in widgets.
+- **i18n is live** (`flutter gen-l10n`, ARB): EN template (`lib/l10n/app_en.arb`) +
+  TR (`app_tr.arb`). **Zero hardcoded user-facing strings in widgets** — always
+  `context.l10n.<key>` (extension in `core/l10n/l10n.dart`). Every new string is added
+  to BOTH arb files in the same change; run `flutter gen-l10n` after editing.
+  Failure messages shown to users are localized in the UI layer (typed failures like
+  `AuthCancelledFailure` decide behavior, not string comparison).
 - Accessibility: semantic labels, ≥48dp tap targets, sufficient contrast, respect text
   scaling. Don't ship inaccessible screens.
 - Consistent design system: centralized theme, spacing scale, typography, components in

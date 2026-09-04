@@ -5,6 +5,7 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - "lib/l10n/gen/**"
   errors:
     todo: ignore
     # Freezed constructor-parameter @JsonKey is the documented pattern.

@@ -23,6 +23,11 @@ class AuthFailure extends Failure {
   const AuthFailure([super.message = 'Authentication error']);
 }
 
+/// User dismissed the sign-in dialog — not an error, UI stays silent.
+class AuthCancelledFailure extends AuthFailure {
+  const AuthCancelledFailure() : super('Sign-in cancelled');
+}
+
 class PermissionFailure extends Failure {
   const PermissionFailure([super.message = 'Permission denied']);
 }

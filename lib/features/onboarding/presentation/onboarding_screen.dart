@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/onboarding/application/onboarding_controller.dart';
 import 'package:kept/features/profile/domain/username.dart';
 
@@ -13,13 +15,21 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
+/// Availability outcome for inline feedback (null text = valid & free).
+enum _UsernameFeedback {
+  tooShort,
+  tooLong,
+  invalidCharacters,
+  taken,
+  checkFailed,
+}
+
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _usernameController = TextEditingController();
   final _nameController = TextEditingController();
 
   int _step = 0;
-  String? _usernameFeedback;
-  bool _usernameOk = false;
+  _UsernameFeedback? _feedback;
   DateTime? _birthday;
 
   @override
@@ -29,17 +39,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
+  String? _feedbackText(BuildContext context) => switch (_feedback) {
+        null => null,
+        _UsernameFeedback.tooShort =>
+          context.l10n.usernameTooShort(Username.minLength),
+        _UsernameFeedback.tooLong =>
+          context.l10n.usernameTooLong(Username.maxLength),
+        _UsernameFeedback.invalidCharacters =>
+          context.l10n.usernameInvalidCharacters,
+        _UsernameFeedback.taken => context.l10n.usernameTaken,
+        _UsernameFeedback.checkFailed => context.l10n.usernameCheckFailed,
+      };
+
   Future<void> _validateUsername() async {
     final value = _usernameController.text.trim();
     final error = Username.validate(value);
     if (error != null) {
       setState(() {
-        _usernameOk = false;
-        _usernameFeedback = switch (error) {
-          UsernameError.tooShort => 'At least ${Username.minLength} characters',
-          UsernameError.tooLong => 'At most ${Username.maxLength} characters',
+        _feedback = switch (error) {
+          UsernameError.tooShort => _UsernameFeedback.tooShort,
+          UsernameError.tooLong => _UsernameFeedback.tooLong,
           UsernameError.invalidCharacters =>
-            'Only letters, numbers and underscore',
+            _UsernameFeedback.invalidCharacters,
         };
       });
       return;
@@ -49,14 +70,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         .checkAvailability(value);
     if (!mounted) return;
     setState(() {
-      _usernameOk = free ?? false;
-      _usernameFeedback = switch (free) {
+      _feedback = switch (free) {
         true => null,
-        false => 'That username is taken',
-        null => 'Could not check availability — try again',
+        false => _UsernameFeedback.taken,
+        null => _UsernameFeedback.checkFailed,
       };
     });
-    if (_usernameOk) setState(() => _step = 1);
+    if (_feedback == null) setState(() => _step = 1);
   }
 
   Future<void> _pickBirthday() async {
@@ -84,19 +104,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final state = ref.watch(onboardingControllerProvider);
     final busy = state.isLoading;
 
     ref.listen(onboardingControllerProvider, (_, next) {
       if (next.hasError) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(next.error.toString())));
+            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_step == 0 ? 'Choose a username' : 'About you'),
+        title: Text(
+          _step == 0 ? l10n.onboardingUsernameTitle : l10n.onboardingAboutTitle,
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -108,6 +131,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _usernameStep(bool busy) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -116,30 +140,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           autofocus: true,
           decoration: InputDecoration(
             prefixText: '@',
-            labelText: 'Username',
-            errorText: _usernameFeedback,
+            labelText: l10n.usernameLabel,
+            errorText: _feedbackText(context),
             border: const OutlineInputBorder(),
           ),
-          onChanged: (_) => setState(() => _usernameFeedback = null),
+          onChanged: (_) => setState(() => _feedback = null),
         ),
         const SizedBox(height: 16),
         FilledButton(
           onPressed: busy ? null : _validateUsername,
-          child: const Text('Continue'),
+          child: Text(l10n.continueLabel),
         ),
       ],
     );
   }
 
   Widget _profileStep(bool busy) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(
           controller: _nameController,
-          decoration: const InputDecoration(
-            labelText: 'Name (optional)',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.nameOptionalLabel,
+            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 16),
@@ -148,8 +174,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           icon: const Icon(Icons.cake_outlined),
           label: Text(
             _birthday == null
-                ? 'Birthday (required)'
-                : '${_birthday!.day}.${_birthday!.month}.${_birthday!.year}',
+                ? l10n.birthdayRequiredLabel
+                : DateFormat.yMMMMd(locale).format(_birthday!),
           ),
         ),
         const SizedBox(height: 24),
@@ -161,7 +187,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   width: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Finish'),
+              : Text(l10n.finishLabel),
         ),
       ],
     );

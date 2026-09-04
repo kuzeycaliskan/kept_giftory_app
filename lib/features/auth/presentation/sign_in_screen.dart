@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/error/failure.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/application/sign_in_controller.dart';
 
-/// Sign-in (G-11): Apple + Google only. Strings are placeholders until i18n
-/// lands (CLAUDE.md §9); flows fail gracefully while provider config is absent.
+/// Sign-in (G-11): Apple + Google only. Flows fail gracefully while provider
+/// config is absent.
 class SignInScreen extends ConsumerWidget {
   const SignInScreen({super.key});
 
@@ -21,14 +22,17 @@ class SignInScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final state = ref.watch(signInControllerProvider);
     final controller = ref.read(signInControllerProvider.notifier);
 
     ref.listen(signInControllerProvider, (_, next) {
       final error = next.error;
-      if (error is Failure && error.message != 'Sign-in cancelled') {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.message)));
+      // Cancelled sign-in is the user's own action — stay silent.
+      if (error is Failure && error is! AuthCancelledFailure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorSignInFailed)),
+        );
       }
     });
 
@@ -43,13 +47,13 @@ class SignInScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Kept',
+                l10n.appTitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                'What you own, your taste, your things.',
+                l10n.signInTagline,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -59,7 +63,7 @@ class SignInScreen extends ConsumerWidget {
                     ? null
                     : () => _handle(context, controller.signInWithApple),
                 icon: const Icon(Icons.apple),
-                label: const Text('Continue with Apple'),
+                label: Text(l10n.signInWithApple),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -67,7 +71,7 @@ class SignInScreen extends ConsumerWidget {
                     ? null
                     : () => _handle(context, controller.signInWithGoogle),
                 icon: const Icon(Icons.g_mobiledata),
-                label: const Text('Continue with Google'),
+                label: Text(l10n.signInWithGoogle),
               ),
               if (busy) ...[
                 const SizedBox(height: 24),
@@ -84,7 +88,7 @@ class SignInScreen extends ConsumerWidget {
                           ref.read(devSessionProvider.notifier).enable();
                           context.go('/');
                         },
-                  child: const Text('Continue in dev mode (debug only)'),
+                  child: Text(l10n.signInDevMode),
                 ),
               ],
             ],
