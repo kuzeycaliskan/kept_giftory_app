@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
@@ -21,6 +22,15 @@ class MeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.meTitle),
         actions: [
+          // Interim sign-out until the settings center (G-85) owns it.
+          IconButton(
+            tooltip: l10n.meSignOut,
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await ref.read(authRepositoryProvider).signOut();
+              // Auth state change refreshes the router → back to /sign-in.
+            },
+          ),
           IconButton(
             tooltip: l10n.meSettings,
             icon: const Icon(Icons.settings_outlined),

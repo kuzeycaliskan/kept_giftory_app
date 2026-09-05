@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/onboarding/application/onboarding_controller.dart';
 import 'package:kept/features/profile/domain/username.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
@@ -110,7 +112,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final busy = state.isLoading;
 
     ref.listen(onboardingControllerProvider, (_, next) {
-      if (next.hasError) {
+      final error = next.error;
+      if (error is AuthFailure) {
+        // Ghost session (user deleted server-side): drop it and re-auth.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorSessionInvalid)),
+        );
+        ref.read(authRepositoryProvider).signOut();
+      } else if (next.hasError) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }

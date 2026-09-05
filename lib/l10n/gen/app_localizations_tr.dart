@@ -304,6 +304,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get meSettingsComingSoon => 'G-85 ile geliyor';
 
   @override
+  String get meSignOut => 'Çıkış yap';
+
+  @override
+  String get errorSessionInvalid =>
+      'Oturumun artık geçerli değil — lütfen tekrar giriş yap.';
+
+  @override
   String get friendsTitle => 'Arkadaşlar';
 
   @override

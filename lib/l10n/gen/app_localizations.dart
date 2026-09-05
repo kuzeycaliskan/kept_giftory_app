@@ -656,6 +656,18 @@ abstract class AppLocalizations {
   /// **'Coming with G-85'**
   String get meSettingsComingSoon;
 
+  /// No description provided for @meSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get meSignOut;
+
+  /// No description provided for @errorSessionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session is no longer valid — please sign in again.'**
+  String get errorSessionInvalid;
+
   /// No description provided for @friendsTitle.
   ///
   /// In en, this message translates to:

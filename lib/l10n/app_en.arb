@@ -132,6 +132,8 @@
   "meFriends": "Friends",
   "meSettings": "Settings",
   "meSettingsComingSoon": "Coming with G-85",
+  "meSignOut": "Sign out",
+  "errorSessionInvalid": "Your session is no longer valid — please sign in again.",
 
   "friendsTitle": "Friends",
   "friendsRequestsSection": "Requests",

@@ -305,6 +305,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get meSettingsComingSoon => 'Coming with G-85';
 
   @override
+  String get meSignOut => 'Sign out';
+
+  @override
+  String get errorSessionInvalid =>
+      'Your session is no longer valid — please sign in again.';
+
+  @override
   String get friendsTitle => 'Friends';
 
   @override

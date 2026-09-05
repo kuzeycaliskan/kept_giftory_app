@@ -87,6 +87,11 @@ class SupabaseProfileRepository implements ProfileRepository {
       if (e.code == '23505') {
         return const ResultFailure(ValidationFailure('Username taken'));
       }
+      // 23503 = FK violation on auth.users: the device holds a JWT for a
+      // user deleted server-side (ghost session) — force re-authentication.
+      if (e.code == '23503') {
+        return const ResultFailure(AuthFailure('Session user deleted'));
+      }
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));

@@ -101,6 +101,8 @@
   "meFriends": "Arkadaşlar",
   "meSettings": "Ayarlar",
   "meSettingsComingSoon": "G-85 ile geliyor",
+  "meSignOut": "Çıkış yap",
+  "errorSessionInvalid": "Oturumun artık geçerli değil — lütfen tekrar giriş yap.",
 
   "friendsTitle": "Arkadaşlar",
   "friendsRequestsSection": "İstekler",
