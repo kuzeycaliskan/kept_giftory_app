@@ -71,28 +71,33 @@ class PushSetup extends _$PushSetup {
   @override
   AsyncValue<void> build() => const AsyncData(null);
 
-  /// Returns true when permission was granted and the token stored.
+  /// Returns true when permission was granted. Token storage is best-effort
+  /// here — the card must dismiss on a permission answer no matter what, and
+  /// pushTokenSync self-heals a failed first registration on next launch.
   Future<bool> enable() async {
     state = const AsyncLoading();
+    var granted = false;
     try {
       final messaging = FirebaseMessaging.instance;
       final settings = await messaging.requestPermission();
-      final granted =
+      granted =
           settings.authorizationStatus == AuthorizationStatus.authorized ||
               settings.authorizationStatus == AuthorizationStatus.provisional;
       if (granted) {
-        await syncToken();
-        // Keep the stored token fresh across FCM rotations.
-        messaging.onTokenRefresh.listen((_) => syncToken());
+        try {
+          await syncToken();
+          // Keep the stored token fresh across FCM rotations.
+          messaging.onTokenRefresh.listen((_) => syncToken());
+        } catch (_) {
+          // e.g. APNs token not ready yet — pushTokenSync will retry.
+        }
       }
+    } finally {
       await _markDismissed();
       state = const AsyncData(null);
       ref.invalidate(shouldShowPushPrimingProvider);
-      return granted;
-    } catch (e, st) {
-      state = AsyncError(e, st);
-      return false;
     }
+    return granted;
   }
 
   /// "Later": hide the card without prompting; re-enable lives in G-63/G-85.
