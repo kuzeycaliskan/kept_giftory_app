@@ -32,13 +32,21 @@ Future<bool> shouldShowPushPriming(Ref ref) async {
   final client = ref.watch(supabaseClientProvider);
   if (client.auth.currentUser == null) return false;
 
-  final prefs = await ref.watch(sharedPreferencesProvider.future);
-  if (prefs.getBool(PrefKeys.pushPrimingDismissed) ?? false) return false;
+  final status =
+      (await FirebaseMessaging.instance.getNotificationSettings())
+          .authorizationStatus;
 
-  final settings =
-      await FirebaseMessaging.instance.getNotificationSettings();
-  return settings.authorizationStatus == AuthorizationStatus.notDetermined ||
-      settings.authorizationStatus == AuthorizationStatus.denied;
+  // Never asked → always offer: "Later" isn't a real decision yet, so the
+  // dismissal flag doesn't suppress the card here.
+  if (status == AuthorizationStatus.notDetermined) return true;
+
+  // Actively denied → respect the dismissal (re-enable via settings, G-85).
+  if (status == AuthorizationStatus.denied) {
+    final prefs = await ref.watch(sharedPreferencesProvider.future);
+    return !(prefs.getBool(PrefKeys.pushPrimingDismissed) ?? false);
+  }
+
+  return false; // authorized / provisional
 }
 
 /// Silent token sync: when permission is already granted, keep the stored
