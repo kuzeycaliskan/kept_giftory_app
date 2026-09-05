@@ -9,21 +9,31 @@ import 'package:kept/features/auth/application/sign_in_controller.dart';
 
 /// Sign-in (G-11): Apple + Google only. Flows fail gracefully while provider
 /// config is absent.
-class SignInScreen extends ConsumerWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
-  Future<void> _handle(
-    BuildContext context,
-    Future<bool> Function() signIn,
-  ) async {
+  @override
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  /// True between a successful sign-in and the router taking us away — the
+  /// async redirect fetches the profile first, so keep the spinner up
+  /// instead of an idle-looking screen.
+  bool _navigating = false;
+
+  Future<void> _handle(Future<bool> Function() signIn) async {
     final ok = await signIn();
-    // The router's redirect decides where to land: onboarding for accounts
-    // without a profile row, Home for returning users.
-    if (ok && context.mounted) context.go('/');
+    if (ok && mounted) {
+      setState(() => _navigating = true);
+      // The router's redirect decides where to land: onboarding for accounts
+      // without a profile row, Home for returning users.
+      context.go('/');
+    }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final state = ref.watch(signInControllerProvider);
     final controller = ref.read(signInControllerProvider.notifier);
@@ -38,7 +48,7 @@ class SignInScreen extends ConsumerWidget {
       }
     });
 
-    final busy = state.isLoading;
+    final busy = state.isLoading || _navigating;
 
     return Scaffold(
       body: SafeArea(
@@ -63,7 +73,7 @@ class SignInScreen extends ConsumerWidget {
               FilledButton.icon(
                 onPressed: busy
                     ? null
-                    : () => _handle(context, controller.signInWithApple),
+                    : () => _handle(controller.signInWithApple),
                 icon: const Icon(Icons.apple),
                 label: Text(l10n.signInWithApple),
               ),
@@ -71,7 +81,7 @@ class SignInScreen extends ConsumerWidget {
               OutlinedButton.icon(
                 onPressed: busy
                     ? null
-                    : () => _handle(context, controller.signInWithGoogle),
+                    : () => _handle(controller.signInWithGoogle),
                 icon: const Icon(Icons.g_mobiledata),
                 label: Text(l10n.signInWithGoogle),
               ),
