@@ -42,7 +42,9 @@ dependencies:
   google_sign_in: ^7.2.0
   intl: ^0.20.2
   json_annotation: ^4.9.0
+  qr_flutter: ^4.1.0
   riverpod_annotation: ^2.6.1
+  share_plus: ^11.1.0
   shared_preferences: ^2.5.5
   sign_in_with_apple: ^7.0.1
   supabase_flutter: ^2.8.0
@@ -98,3 +100,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Pin path_provider platform packages to pre-native-assets versions: the
+# newer jni/objective_c chain pulls `hooks`, whose dot-shorthand syntax
+# crashes the analyzer bundled with our (Dart 3.10-pinned) codegen toolchain.
+# Drop these overrides after `flutter upgrade` + Riverpod 3.x migration.
+dependency_overrides:
+  path_provider_android: 2.2.17
+  path_provider_foundation: 2.4.1

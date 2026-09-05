@@ -794,6 +794,66 @@ abstract class AppLocalizations {
   /// **'Friends'**
   String get friendStatusFriends;
 
+  /// No description provided for @inviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends'**
+  String get inviteTitle;
+
+  /// No description provided for @inviteYourCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Your invite code'**
+  String get inviteYourCode;
+
+  /// No description provided for @inviteShareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share code'**
+  String get inviteShareButton;
+
+  /// No description provided for @inviteShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join me on Kept! My invite code: {code}'**
+  String inviteShareMessage(String code);
+
+  /// No description provided for @inviteEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a code?'**
+  String get inviteEnterTitle;
+
+  /// No description provided for @inviteCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code'**
+  String get inviteCodeLabel;
+
+  /// No description provided for @inviteRedeemButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friend'**
+  String get inviteRedeemButton;
+
+  /// No description provided for @inviteRedeemSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re now friends with {name} 🎉'**
+  String inviteRedeemSuccess(String name);
+
+  /// No description provided for @inviteInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code didn\'t work — check it and try again'**
+  String get inviteInvalidCode;
+
+  /// No description provided for @inviteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your invite code'**
+  String get inviteError;
+
   /// No description provided for @activityTitle.
   ///
   /// In en, this message translates to:

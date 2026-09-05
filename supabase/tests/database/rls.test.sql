@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(18);
+select plan(21);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -267,6 +267,46 @@ select throws_ok(
   null,
   '18: username uniqueness is case-insensitive (ALICE vs alice)'
 );
+
+-- ── 19-21: invite redemption (G-34) ─────────────────────────────────────────
+update public.profiles
+   set invite_code = 'DAVECODE'
+ where id = '00000000-0000-0000-0000-00000000000d';
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select lives_ok(
+  $$ select * from public.redeem_invite('davecode') $$,
+  '19: redeeming a valid code (case-insensitive) succeeds'
+);
+
+reset role;
+select is(
+  (select status from public.friendships
+    where least(requester_id, addressee_id) =
+          least('00000000-0000-0000-0000-00000000000c'::uuid,
+                '00000000-0000-0000-0000-00000000000d'::uuid)
+      and greatest(requester_id, addressee_id) =
+          greatest('00000000-0000-0000-0000-00000000000c'::uuid,
+                   '00000000-0000-0000-0000-00000000000d'::uuid)),
+  'accepted'::public.friendship_status,
+  '20: redemption creates an accepted friendship'
+);
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select throws_ok(
+  $$ select * from public.redeem_invite('DAVECODE') $$,
+  'P0001',
+  'invite_self',
+  '21: redeeming your own code fails'
+);
+
+reset role;
 
 select * from finish();
 rollback;

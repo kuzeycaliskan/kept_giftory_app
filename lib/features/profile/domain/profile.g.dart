@@ -31,6 +31,7 @@ _$ProfileImpl _$$ProfileImplFromJson(
         json['gift_history_visibility'],
       ) ??
       Visibility.friends,
+  inviteCode: json['invite_code'] as String?,
 );
 
 Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
@@ -47,6 +48,7 @@ Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
       'wishlist_visibility': _$VisibilityEnumMap[instance.wishlistVisibility]!,
       'gift_history_visibility':
           _$VisibilityEnumMap[instance.giftHistoryVisibility]!,
+      'invite_code': instance.inviteCode,
     };
 
 const _$VisibilityEnumMap = {

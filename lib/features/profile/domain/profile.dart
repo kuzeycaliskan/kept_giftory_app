@@ -33,6 +33,7 @@ class Profile with _$Profile {
     @JsonKey(name: 'gift_history_visibility')
     @Default(Visibility.friends)
     Visibility giftHistoryVisibility,
+    @JsonKey(name: 'invite_code') String? inviteCode,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) =>

@@ -127,6 +127,17 @@
   "friendAdd": "Arkadaş ekle",
   "friendStatusFriends": "Arkadaşsınız",
 
+  "inviteTitle": "Arkadaşlarını davet et",
+  "inviteYourCode": "Davet kodun",
+  "inviteShareButton": "Kodu paylaş",
+  "inviteShareMessage": "Kept'e katıl! Davet kodum: {code}",
+  "inviteEnterTitle": "Kodun mu var?",
+  "inviteCodeLabel": "Davet kodu",
+  "inviteRedeemButton": "Arkadaş ekle",
+  "inviteRedeemSuccess": "{name} ile artık arkadaşsınız 🎉",
+  "inviteInvalidCode": "Kod işe yaramadı — kontrol edip tekrar dene",
+  "inviteError": "Davet kodun yüklenemedi",
+
   "activityTitle": "Aktivite",
   "activityTooltip": "Aktivite",
   "activityEmpty": "Henüz bir şey yok"

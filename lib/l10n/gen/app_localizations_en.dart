@@ -379,6 +379,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get friendStatusFriends => 'Friends';
 
   @override
+  String get inviteTitle => 'Invite friends';
+
+  @override
+  String get inviteYourCode => 'Your invite code';
+
+  @override
+  String get inviteShareButton => 'Share code';
+
+  @override
+  String inviteShareMessage(String code) {
+    return 'Join me on Kept! My invite code: $code';
+  }
+
+  @override
+  String get inviteEnterTitle => 'Have a code?';
+
+  @override
+  String get inviteCodeLabel => 'Invite code';
+
+  @override
+  String get inviteRedeemButton => 'Add friend';
+
+  @override
+  String inviteRedeemSuccess(String name) {
+    return 'You\'re now friends with $name 🎉';
+  }
+
+  @override
+  String get inviteInvalidCode =>
+      'That code didn\'t work — check it and try again';
+
+  @override
+  String get inviteError => 'Could not load your invite code';
+
+  @override
   String get activityTitle => 'Activity';
 
   @override

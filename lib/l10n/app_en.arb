@@ -168,6 +168,27 @@
   "friendAdd": "Add friend",
   "friendStatusFriends": "Friends",
 
+  "inviteTitle": "Invite friends",
+  "inviteYourCode": "Your invite code",
+  "inviteShareButton": "Share code",
+  "inviteShareMessage": "Join me on Kept! My invite code: {code}",
+  "@inviteShareMessage": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "inviteEnterTitle": "Have a code?",
+  "inviteCodeLabel": "Invite code",
+  "inviteRedeemButton": "Add friend",
+  "inviteRedeemSuccess": "You're now friends with {name} 🎉",
+  "@inviteRedeemSuccess": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "inviteInvalidCode": "That code didn't work — check it and try again",
+  "inviteError": "Could not load your invite code",
+
   "activityTitle": "Activity",
   "activityTooltip": "Activity",
   "activityEmpty": "Nothing here yet"

@@ -23,7 +23,16 @@ class FriendsScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.friendsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.friendsTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.inviteTitle,
+            icon: const Icon(Icons.person_add_outlined),
+            onPressed: () => context.push('/invite'),
+          ),
+        ],
+      ),
       body: entries.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(l10n.friendsError)),
@@ -50,6 +59,12 @@ class FriendsScreen extends ConsumerWidget {
                       l10n.friendsEmptyHint,
                       style: Theme.of(context).textTheme.bodySmall,
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.tonalIcon(
+                      onPressed: () => context.push('/invite'),
+                      icon: const Icon(Icons.person_add_outlined),
+                      label: Text(l10n.inviteTitle),
                     ),
                   ],
                 ),

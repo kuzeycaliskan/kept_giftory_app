@@ -37,6 +37,8 @@ mixin _$Profile {
   Visibility get wishlistVisibility => throw _privateConstructorUsedError;
   @JsonKey(name: 'gift_history_visibility')
   Visibility get giftHistoryVisibility => throw _privateConstructorUsedError;
+  @JsonKey(name: 'invite_code')
+  String? get inviteCode => throw _privateConstructorUsedError;
 
   /// Serializes this Profile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -64,6 +66,7 @@ abstract class $ProfileCopyWith<$Res> {
     @JsonKey(name: 'profile_visibility') Visibility profileVisibility,
     @JsonKey(name: 'wishlist_visibility') Visibility wishlistVisibility,
     @JsonKey(name: 'gift_history_visibility') Visibility giftHistoryVisibility,
+    @JsonKey(name: 'invite_code') String? inviteCode,
   });
 }
 
@@ -93,6 +96,7 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
     Object? profileVisibility = null,
     Object? wishlistVisibility = null,
     Object? giftHistoryVisibility = null,
+    Object? inviteCode = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -140,6 +144,10 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
                 ? _value.giftHistoryVisibility
                 : giftHistoryVisibility // ignore: cast_nullable_to_non_nullable
                       as Visibility,
+            inviteCode: freezed == inviteCode
+                ? _value.inviteCode
+                : inviteCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -166,6 +174,7 @@ abstract class _$$ProfileImplCopyWith<$Res> implements $ProfileCopyWith<$Res> {
     @JsonKey(name: 'profile_visibility') Visibility profileVisibility,
     @JsonKey(name: 'wishlist_visibility') Visibility wishlistVisibility,
     @JsonKey(name: 'gift_history_visibility') Visibility giftHistoryVisibility,
+    @JsonKey(name: 'invite_code') String? inviteCode,
   });
 }
 
@@ -194,6 +203,7 @@ class __$$ProfileImplCopyWithImpl<$Res>
     Object? profileVisibility = null,
     Object? wishlistVisibility = null,
     Object? giftHistoryVisibility = null,
+    Object? inviteCode = freezed,
   }) {
     return _then(
       _$ProfileImpl(
@@ -241,6 +251,10 @@ class __$$ProfileImplCopyWithImpl<$Res>
             ? _value.giftHistoryVisibility
             : giftHistoryVisibility // ignore: cast_nullable_to_non_nullable
                   as Visibility,
+        inviteCode: freezed == inviteCode
+            ? _value.inviteCode
+            : inviteCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -264,6 +278,7 @@ class _$ProfileImpl implements _Profile {
     this.wishlistVisibility = Visibility.friends,
     @JsonKey(name: 'gift_history_visibility')
     this.giftHistoryVisibility = Visibility.friends,
+    @JsonKey(name: 'invite_code') this.inviteCode,
   });
 
   factory _$ProfileImpl.fromJson(Map<String, dynamic> json) =>
@@ -296,10 +311,13 @@ class _$ProfileImpl implements _Profile {
   @override
   @JsonKey(name: 'gift_history_visibility')
   final Visibility giftHistoryVisibility;
+  @override
+  @JsonKey(name: 'invite_code')
+  final String? inviteCode;
 
   @override
   String toString() {
-    return 'Profile(id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl, birthday: $birthday, gender: $gender, occupation: $occupation, bio: $bio, profileVisibility: $profileVisibility, wishlistVisibility: $wishlistVisibility, giftHistoryVisibility: $giftHistoryVisibility)';
+    return 'Profile(id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl, birthday: $birthday, gender: $gender, occupation: $occupation, bio: $bio, profileVisibility: $profileVisibility, wishlistVisibility: $wishlistVisibility, giftHistoryVisibility: $giftHistoryVisibility, inviteCode: $inviteCode)';
   }
 
   @override
@@ -325,7 +343,9 @@ class _$ProfileImpl implements _Profile {
             (identical(other.wishlistVisibility, wishlistVisibility) ||
                 other.wishlistVisibility == wishlistVisibility) &&
             (identical(other.giftHistoryVisibility, giftHistoryVisibility) ||
-                other.giftHistoryVisibility == giftHistoryVisibility));
+                other.giftHistoryVisibility == giftHistoryVisibility) &&
+            (identical(other.inviteCode, inviteCode) ||
+                other.inviteCode == inviteCode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -343,6 +363,7 @@ class _$ProfileImpl implements _Profile {
     profileVisibility,
     wishlistVisibility,
     giftHistoryVisibility,
+    inviteCode,
   );
 
   /// Create a copy of Profile
@@ -373,6 +394,7 @@ abstract class _Profile implements Profile {
     @JsonKey(name: 'wishlist_visibility') final Visibility wishlistVisibility,
     @JsonKey(name: 'gift_history_visibility')
     final Visibility giftHistoryVisibility,
+    @JsonKey(name: 'invite_code') final String? inviteCode,
   }) = _$ProfileImpl;
 
   factory _Profile.fromJson(Map<String, dynamic> json) = _$ProfileImpl.fromJson;
@@ -404,6 +426,9 @@ abstract class _Profile implements Profile {
   @override
   @JsonKey(name: 'gift_history_visibility')
   Visibility get giftHistoryVisibility;
+  @override
+  @JsonKey(name: 'invite_code')
+  String? get inviteCode;
 
   /// Create a copy of Profile
   /// with the given fields replaced by the non-null parameter values.

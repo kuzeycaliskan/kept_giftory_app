@@ -378,6 +378,40 @@ class AppLocalizationsTr extends AppLocalizations {
   String get friendStatusFriends => 'Arkadaşsınız';
 
   @override
+  String get inviteTitle => 'Arkadaşlarını davet et';
+
+  @override
+  String get inviteYourCode => 'Davet kodun';
+
+  @override
+  String get inviteShareButton => 'Kodu paylaş';
+
+  @override
+  String inviteShareMessage(String code) {
+    return 'Kept\'e katıl! Davet kodum: $code';
+  }
+
+  @override
+  String get inviteEnterTitle => 'Kodun mu var?';
+
+  @override
+  String get inviteCodeLabel => 'Davet kodu';
+
+  @override
+  String get inviteRedeemButton => 'Arkadaş ekle';
+
+  @override
+  String inviteRedeemSuccess(String name) {
+    return '$name ile artık arkadaşsınız 🎉';
+  }
+
+  @override
+  String get inviteInvalidCode => 'Kod işe yaramadı — kontrol edip tekrar dene';
+
+  @override
+  String get inviteError => 'Davet kodun yüklenemedi';
+
+  @override
   String get activityTitle => 'Aktivite';
 
   @override
