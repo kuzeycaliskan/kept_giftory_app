@@ -5,6 +5,7 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/activity_item.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/push/application/push_providers.dart';
 
 /// Home dashboard (G-82).
 ///
@@ -42,6 +43,7 @@ class HomeScreen extends ConsumerWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
+            const _PushPrimingCard(),
             _SectionHeader(title: l10n.homeUpcomingSection),
             const SizedBox(height: 8),
             _UpcomingSection(state: upcoming),
@@ -52,6 +54,65 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             _ActivitySection(state: activity),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Soft-ask before the OS notification prompt (G-61): explains the value
+/// (birthday reminders) and only then triggers the system dialog. Hidden
+/// once granted or dismissed; re-enabling lives in settings (G-63/G-85).
+class _PushPrimingCard extends ConsumerWidget {
+  const _PushPrimingCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final show = ref.watch(shouldShowPushPrimingProvider);
+    if (show.valueOrNull != true) return const SizedBox.shrink();
+
+    final setup = ref.read(pushSetupProvider.notifier);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.notifications_active_outlined),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.pushPrimingTitle,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.pushPrimingBody,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: setup.dismiss,
+                  child: Text(l10n.pushPrimingLater),
+                ),
+                const SizedBox(width: 8),
+                FilledButton.tonal(
+                  onPressed: setup.enable,
+                  child: Text(l10n.pushPrimingEnable),
+                ),
+              ],
+            ),
           ],
         ),
       ),

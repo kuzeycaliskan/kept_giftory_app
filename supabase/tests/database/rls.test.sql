@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(23);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -304,6 +304,31 @@ select throws_ok(
   'P0001',
   'invite_self',
   '21: redeeming your own code fails'
+);
+
+reset role;
+
+-- ── 22-23: device tokens are owner-only (G-61) ──────────────────────────────
+insert into public.device_tokens (token, user_id, platform)
+values ('tok-alice-1', '00000000-0000-0000-0000-00000000000a', 'android');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.device_tokens),
+  1::bigint,
+  '22: owner sees their own device token'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.device_tokens),
+  0::bigint,
+  '23: other users cannot see the token'
 );
 
 reset role;

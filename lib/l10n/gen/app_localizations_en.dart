@@ -98,6 +98,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUpcomingSection => 'Upcoming';
 
   @override
+  String get pushPrimingTitle => 'Never miss a gift day';
+
+  @override
+  String get pushPrimingBody =>
+      'Turn on notifications and we\'ll remind you before friends\' birthdays.';
+
+  @override
+  String get pushPrimingEnable => 'Turn on';
+
+  @override
+  String get pushPrimingLater => 'Later';
+
+  @override
   String get homeActivitySection => 'Activity';
 
   @override

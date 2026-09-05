@@ -13,4 +13,5 @@ Future<SharedPreferences> sharedPreferences(Ref ref) =>
 /// Preference keys live here so they're greppable and collision-free.
 abstract final class PrefKeys {
   static const hideSurpriseOffWarning = 'hide_surprise_off_warning';
+  static const pushPrimingDismissed = 'push_priming_dismissed';
 }

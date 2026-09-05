@@ -33,6 +33,10 @@
   "quickAddWishlistSubtitle": "İstediğim bir şey",
 
   "homeUpcomingSection": "Yaklaşanlar",
+  "pushPrimingTitle": "Hiçbir hediye gününü kaçırma",
+  "pushPrimingBody": "Bildirimleri aç, arkadaşlarının doğum günlerinden önce hatırlatalım.",
+  "pushPrimingEnable": "Aç",
+  "pushPrimingLater": "Sonra",
   "homeActivitySection": "Aktivite",
   "homeSampleBadge": "örnek",
   "homeNoUpcoming": "Yaklaşan doğum günü yok",

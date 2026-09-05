@@ -266,6 +266,30 @@ abstract class AppLocalizations {
   /// **'Upcoming'**
   String get homeUpcomingSection;
 
+  /// No description provided for @pushPrimingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Never miss a gift day'**
+  String get pushPrimingTitle;
+
+  /// No description provided for @pushPrimingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications and we\'ll remind you before friends\' birthdays.'**
+  String get pushPrimingBody;
+
+  /// No description provided for @pushPrimingEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get pushPrimingEnable;
+
+  /// No description provided for @pushPrimingLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get pushPrimingLater;
+
   /// No description provided for @homeActivitySection.
   ///
   /// In en, this message translates to:

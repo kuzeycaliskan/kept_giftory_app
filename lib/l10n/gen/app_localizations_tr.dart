@@ -97,6 +97,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeUpcomingSection => 'Yaklaşanlar';
 
   @override
+  String get pushPrimingTitle => 'Hiçbir hediye gününü kaçırma';
+
+  @override
+  String get pushPrimingBody =>
+      'Bildirimleri aç, arkadaşlarının doğum günlerinden önce hatırlatalım.';
+
+  @override
+  String get pushPrimingEnable => 'Aç';
+
+  @override
+  String get pushPrimingLater => 'Sonra';
+
+  @override
   String get homeActivitySection => 'Aktivite';
 
   @override

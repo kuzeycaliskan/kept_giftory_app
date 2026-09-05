@@ -43,6 +43,10 @@
   "quickAddWishlistSubtitle": "Something I want",
 
   "homeUpcomingSection": "Upcoming",
+  "pushPrimingTitle": "Never miss a gift day",
+  "pushPrimingBody": "Turn on notifications and we'll remind you before friends' birthdays.",
+  "pushPrimingEnable": "Turn on",
+  "pushPrimingLater": "Later",
   "homeActivitySection": "Activity",
   "homeSampleBadge": "sample",
   "homeNoUpcoming": "No upcoming birthdays yet",

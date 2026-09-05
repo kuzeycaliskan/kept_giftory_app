@@ -11,7 +11,7 @@ String _$appRouterHash() => r'417cf93f6860aa4e6df876680658d0724e7ba3c6';
 /// App navigation graph (G-81).
 ///
 /// The router is created ONCE (keepAlive) — auth/dev-session changes tick a
-/// [refreshListenable] instead of rebuilding the router, so navigation state
+/// refresh listenable instead of rebuilding the router, so navigation state
 /// survives sign-in events (rebuilding used to reset to '/' and skip
 /// onboarding).
 ///
