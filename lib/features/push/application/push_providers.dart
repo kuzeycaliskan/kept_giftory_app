@@ -130,7 +130,12 @@ class PushSetup extends _$PushSetup {
   Future<void> syncToken() async {
     final messaging = FirebaseMessaging.instance;
     if (Platform.isIOS) {
-      for (var attempt = 0; attempt < 10; attempt++) {
+      // Ensure the device is registered with APNs. requestPermission() is
+      // idempotent (no prompt when already granted) and triggers
+      // registerForRemoteNotifications — without it the APNs token never
+      // arrives on a launch that skipped the permission ask.
+      await messaging.requestPermission();
+      for (var attempt = 0; attempt < 15; attempt++) {
         if (await messaging.getAPNSToken() != null) break;
         await Future<void>.delayed(const Duration(seconds: 1));
       }
@@ -138,6 +143,7 @@ class PushSetup extends _$PushSetup {
         debugPrint('pushTokenSync: APNs token never arrived');
         return;
       }
+      debugPrint('pushTokenSync: APNs token acquired');
     }
     final token = await messaging.getToken();
     debugPrint('pushTokenSync: fcm token ${token == null ? 'NULL' : 'ok'}');
