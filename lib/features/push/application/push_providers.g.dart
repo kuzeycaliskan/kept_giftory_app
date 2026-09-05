@@ -45,6 +45,28 @@ final shouldShowPushPrimingProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ShouldShowPushPrimingRef = AutoDisposeFutureProviderRef<bool>;
+String _$pushTokenSyncHash() => r'9c942e21836470c88121711c825611864dd82454';
+
+/// Silent token sync: when permission is already granted, keep the stored
+/// token fresh on app start (covers FCM rotation, reinstalls, and the case
+/// where the first registration failed — e.g. iOS before the APNs
+/// entitlement existed). Watched fire-and-forget from Home.
+///
+/// Copied from [pushTokenSync].
+@ProviderFor(pushTokenSync)
+final pushTokenSyncProvider = FutureProvider<void>.internal(
+  pushTokenSync,
+  name: r'pushTokenSyncProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$pushTokenSyncHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PushTokenSyncRef = FutureProviderRef<void>;
 String _$pushSetupHash() => r'a3bf32a9e379056562d2d0015294f72192368fc2';
 
 /// Push setup actions driven by the priming card (G-61): soft-ask happened in

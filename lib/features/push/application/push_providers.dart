@@ -39,6 +39,31 @@ Future<bool> shouldShowPushPriming(Ref ref) async {
       settings.authorizationStatus == AuthorizationStatus.denied;
 }
 
+/// Silent token sync: when permission is already granted, keep the stored
+/// token fresh on app start (covers FCM rotation, reinstalls, and the case
+/// where the first registration failed — e.g. iOS before the APNs
+/// entitlement existed). Watched fire-and-forget from Home.
+@Riverpod(keepAlive: true)
+Future<void> pushTokenSync(Ref ref) async {
+  if (!Env.hasSupabaseConfig) return;
+  final client = ref.watch(supabaseClientProvider);
+  if (client.auth.currentUser == null) return;
+  try {
+    final settings =
+        await FirebaseMessaging.instance.getNotificationSettings();
+    final granted =
+        settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional;
+    if (!granted) return;
+    await ref.read(pushSetupProvider.notifier).syncToken();
+    FirebaseMessaging.instance
+        .onTokenRefresh
+        .listen((_) => ref.read(pushSetupProvider.notifier).syncToken());
+  } catch (_) {
+    // Push is a degradation; never let it break Home.
+  }
+}
+
 /// Push setup actions driven by the priming card (G-61): soft-ask happened in
 /// UI, this triggers the OS prompt and registers the token on success.
 @riverpod

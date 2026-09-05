@@ -20,6 +20,8 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     final activity = ref.watch(recentActivityProvider);
+    // Fire-and-forget: refresh the stored FCM token when permission exists.
+    ref.watch(pushTokenSyncProvider);
 
     return Scaffold(
       appBar: AppBar(
