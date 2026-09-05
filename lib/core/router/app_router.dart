@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/env/env.dart';
@@ -13,6 +14,7 @@ import 'package:kept/features/home/presentation/home_screen.dart';
 import 'package:kept/features/invite/presentation/invite_screen.dart';
 import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
 import 'package:kept/features/shell/presentation/app_shell.dart';
 import 'package:kept/features/wishlist/presentation/add_wishlist_item_screen.dart';
@@ -23,31 +25,54 @@ part 'app_router.g.dart';
 
 /// App navigation graph (G-81).
 ///
-/// Tab shell (Home / Gifts / Me as stateful branches; ➕ Add is an action, not
-/// a branch) + full-screen routes above the shell (sign-in, onboarding,
-/// activity, quick-add targets).
+/// The router is created ONCE (keepAlive) — auth/dev-session changes tick a
+/// refresh listenable instead of rebuilding the router, so navigation state
+/// survives sign-in events (rebuilding used to reset to '/' and skip
+/// onboarding).
 ///
-/// Redirect rule: signed-out users can only see /sign-in. Whether onboarding
-/// is complete (profile row exists) is decided post-sign-in by the flow
-/// itself. Backend-less runs (no --dart-define config) skip auth entirely so
-/// the app stays runnable in early dev.
-@riverpod
+/// Redirect rules:
+///  * signed-out → only /sign-in;
+///  * signed-in without a profile row → /onboarding (async check, cached by
+///    myProfileProvider);
+///  * signed-in with a profile → /sign-in and /onboarding bounce to '/'.
+/// Backend-less runs (no --dart-define config) skip auth entirely.
+@Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
-  final authState = Env.hasSupabaseConfig
-      ? ref.watch(authStateProvider)
-      : const AsyncValue<String?>.data(null);
-  final devSession = ref.watch(devSessionProvider);
+  final refresh = ValueNotifier(0);
+  ref
+    ..onDispose(refresh.dispose)
+    ..listen(authStateProvider, (_, __) => refresh.value++)
+    ..listen(devSessionProvider, (_, __) => refresh.value++);
 
   return GoRouter(
     initialLocation: '/',
-    redirect: (context, state) {
+    refreshListenable: refresh,
+    redirect: (context, state) async {
       if (!Env.hasSupabaseConfig) return null;
 
-      final signedIn = authState.valueOrNull != null || devSession;
-      final onSignIn = state.matchedLocation == '/sign-in';
+      final devSession = ref.read(devSessionProvider);
+      final signedIn =
+          ref.read(authStateProvider).valueOrNull != null || devSession;
+      final location = state.matchedLocation;
+      final onSignIn = location == '/sign-in';
+      final onOnboarding = location == '/onboarding';
 
-      if (!signedIn && !onSignIn) return '/sign-in';
-      if (signedIn && onSignIn) return '/';
+      if (!signedIn) return onSignIn ? null : '/sign-in';
+
+      // Dev session has no profile machinery — just keep it off /sign-in.
+      if (devSession && ref.read(authStateProvider).valueOrNull == null) {
+        return onSignIn ? '/' : null;
+      }
+
+      try {
+        final profile = await ref.read(myProfileProvider.future);
+        if (profile == null) return onOnboarding ? null : '/onboarding';
+      } catch (_) {
+        // Profile check failed (e.g. offline): don't trap the user.
+        return onSignIn ? '/' : null;
+      }
+
+      if (onSignIn || onOnboarding) return '/';
       return null;
     },
     routes: [

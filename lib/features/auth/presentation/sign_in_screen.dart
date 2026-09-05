@@ -17,7 +17,9 @@ class SignInScreen extends ConsumerWidget {
     Future<bool> Function() signIn,
   ) async {
     final ok = await signIn();
-    if (ok && context.mounted) context.go('/onboarding');
+    // The router's redirect decides where to land: onboarding for accounts
+    // without a profile row, Home for returning users.
+    if (ok && context.mounted) context.go('/');
   }
 
   @override
