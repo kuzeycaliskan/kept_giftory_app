@@ -70,14 +70,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 48),
-              FilledButton.icon(
-                onPressed: busy
-                    ? null
-                    : () => _handle(controller.signInWithApple),
-                icon: const Icon(Icons.apple),
-                label: Text(l10n.signInWithApple),
-              ),
-              const SizedBox(height: 12),
+              // Apple sign-in is iOS-only for now: Android needs the web
+              // flow (Service ID + redirect domain — pending getkept domain).
+              // Apple's "offer Apple too" rule applies only to the App Store.
+              if (defaultTargetPlatform == TargetPlatform.iOS) ...[
+                FilledButton.icon(
+                  onPressed: busy
+                      ? null
+                      : () => _handle(controller.signInWithApple),
+                  icon: const Icon(Icons.apple),
+                  label: Text(l10n.signInWithApple),
+                ),
+                const SizedBox(height: 12),
+              ],
               OutlinedButton.icon(
                 onPressed: busy
                     ? null
