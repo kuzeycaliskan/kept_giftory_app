@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -90,13 +91,10 @@ class PushSetup extends _$PushSetup {
           settings.authorizationStatus == AuthorizationStatus.authorized ||
               settings.authorizationStatus == AuthorizationStatus.provisional;
       if (granted) {
-        try {
-          await syncToken();
-          // Keep the stored token fresh across FCM rotations.
-          messaging.onTokenRefresh.listen((_) => syncToken());
-        } catch (_) {
-          // e.g. APNs token not ready yet — pushTokenSync will retry.
-        }
+        // Fire-and-forget: token sync polls for the APNs token (up to ~10s on
+        // iOS) — never block the card dismissal on it.
+        unawaited(syncToken());
+        messaging.onTokenRefresh.listen((_) => syncToken());
       }
     } finally {
       await _markDismissed();
