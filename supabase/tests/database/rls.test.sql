@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(17);
+select plan(18);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -255,6 +255,18 @@ select is(
 );
 
 reset role;
+
+-- ── 18: usernames are case-insensitively unique (G-12) ──────────────────────
+insert into auth.users (id, email)
+values ('00000000-0000-0000-0000-0000000000f0', 'frank@test.dev');
+
+select throws_ok(
+  $$ insert into public.profiles (id, username)
+     values ('00000000-0000-0000-0000-0000000000f0', 'ALICE') $$,
+  '23505',
+  null,
+  '18: username uniqueness is case-insensitive (ALICE vs alice)'
+);
 
 select * from finish();
 rollback;
