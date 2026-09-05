@@ -106,6 +106,26 @@ void main() {
     expect(find.text('No friends yet'), findsOneWidget);
   });
 
+  testWidgets('pull-to-refresh works on the empty state', (tester) async {
+    final repo = _FakeFriendshipRepository([]);
+    await pumpFriends(tester, repo);
+    expect(find.text('No friends yet'), findsOneWidget);
+
+    // A friend appears remotely (e.g. invite redeemed on another device)…
+    repo.entries = [friend];
+
+    // …and pulling down fetches it without leaving the screen.
+    await tester.fling(
+      find.text('No friends yet'),
+      const Offset(0, 400),
+      1000,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ali'), findsOneWidget);
+    expect(find.text('No friends yet'), findsNothing);
+  });
+
   testWidgets('sections split requests and friends', (tester) async {
     await pumpFriends(tester, _FakeFriendshipRepository([incoming, friend]));
 

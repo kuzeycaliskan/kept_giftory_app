@@ -33,51 +33,54 @@ class FriendsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: entries.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text(l10n.friendsError)),
-        data: (all) {
-          final requests = all
-              .where((e) => e.status == FriendshipStatus.pending)
-              .toList();
-          final friends = all
-              .where((e) => e.status == FriendshipStatus.accepted)
-              .toList();
+      // Pull-to-refresh works in EVERY state (incl. empty/error) — a redeemed
+      // invite on another device must be fetchable without leaving the screen.
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(friendEntriesProvider);
+          await ref.read(friendEntriesProvider.future);
+        },
+        child: entries.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) =>
+              _FullHeightScrollable(child: Text(l10n.friendsError)),
+          data: (all) {
+            final requests = all
+                .where((e) => e.status == FriendshipStatus.pending)
+                .toList();
+            final friends = all
+                .where((e) => e.status == FriendshipStatus.accepted)
+                .toList();
 
-          if (all.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.group_outlined, size: 56),
-                    const SizedBox(height: 12),
-                    Text(l10n.friendsEmpty),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.friendsEmptyHint,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton.tonalIcon(
-                      onPressed: () => context.push('/invite'),
-                      icon: const Icon(Icons.person_add_outlined),
-                      label: Text(l10n.inviteTitle),
-                    ),
-                  ],
+            if (all.isEmpty) {
+              return _FullHeightScrollable(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.group_outlined, size: 56),
+                      const SizedBox(height: 12),
+                      Text(l10n.friendsEmpty),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.friendsEmptyHint,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton.tonalIcon(
+                        onPressed: () => context.push('/invite'),
+                        icon: const Icon(Icons.person_add_outlined),
+                        label: Text(l10n.inviteTitle),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(friendEntriesProvider);
-              await ref.read(friendEntriesProvider.future);
-            },
-            child: ListView(
+            return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
@@ -88,9 +91,32 @@ class FriendsScreen extends ConsumerWidget {
                 ],
                 for (final e in friends) _FriendTile(entry: e),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Makes a centered message pull-to-refreshable: an always-scrollable list
+/// whose single child fills the viewport.
+class _FullHeightScrollable extends StatelessWidget {
+  const _FullHeightScrollable({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: constraints.maxHeight,
+            child: Center(child: child),
+          ),
+        ],
       ),
     );
   }
