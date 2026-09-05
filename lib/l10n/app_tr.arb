@@ -115,6 +115,7 @@
   "friendRemoveConfirmTitle": "Arkadaşlıktan çıkarılsın mı?",
   "friendRemoveConfirmBody": "{name} artık sadece-arkadaşlar bölümlerini göremeyecek.",
   "commonCancel": "Vazgeç",
+  "commonDone": "Tamam",
 
   "profileTabWishlist": "Wishlist",
   "profileTabHistory": "Hediyeler",

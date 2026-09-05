@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/onboarding/application/onboarding_controller.dart';
 import 'package:kept/features/profile/domain/username.dart';
+import 'package:kept/shared/widgets/kept_date_picker.dart';
 
 /// Onboarding (G-87 lite): step 1 username (G-12), step 2 basics (G-13).
 /// Birthday is required — it is the retention engine.
@@ -81,9 +82,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _pickBirthday() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(now.year - 25),
+    final picked = await showKeptDatePicker(
+      context,
+      initialDate: _birthday ?? DateTime(now.year - 25),
       firstDate: DateTime(now.year - 120),
       lastDate: now,
     );

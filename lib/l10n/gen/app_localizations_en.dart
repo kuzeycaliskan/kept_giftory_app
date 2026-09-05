@@ -347,6 +347,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonCancel => 'Cancel';
 
   @override
+  String get commonDone => 'Done';
+
+  @override
   String get profileTabWishlist => 'Wishlist';
 
   @override

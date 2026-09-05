@@ -183,10 +183,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Kindle');
 
-    // Pick the suggested reveal date from the date picker.
+    // Pick the suggested reveal date from the wheel-picker sheet.
     await tester.tap(find.text('Reveal date'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('OK'));
+    await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Save'));

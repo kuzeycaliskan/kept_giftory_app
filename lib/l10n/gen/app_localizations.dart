@@ -734,6 +734,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get commonCancel;
 
+  /// No description provided for @commonDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get commonDone;
+
   /// No description provided for @profileTabWishlist.
   ///
   /// In en, this message translates to:

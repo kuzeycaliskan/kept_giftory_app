@@ -8,6 +8,7 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
+import 'package:kept/shared/widgets/kept_date_picker.dart';
 
 /// Log-a-gift form (G-51): recipient (an accepted friend), item, date,
 /// optional note, surprise flag + reveal date (default: recipient's next
@@ -49,8 +50,8 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
 
   Future<void> _pickGiftDate() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showKeptDatePicker(
+      context,
       initialDate: _giftDate,
       firstDate: DateTime(now.year - 5),
       lastDate: now,
@@ -60,8 +61,8 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
 
   Future<void> _pickRevealDate() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showKeptDatePicker(
+      context,
       // Suggest the G-51 default (recipient's next birthday + 1 day), but
       // the user must confirm a date — nothing is submitted silently.
       initialDate: _revealAt ?? defaultRevealAt(_recipientBirthday, now),

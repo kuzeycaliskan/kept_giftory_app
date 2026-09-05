@@ -346,6 +346,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commonCancel => 'Vazgeç';
 
   @override
+  String get commonDone => 'Tamam';
+
+  @override
   String get profileTabWishlist => 'Wishlist';
 
   @override
