@@ -78,3 +78,17 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 
 > Automated in `tests/database/rls.test.sql`; keep the spec and the tests in sync when
 > policies change.
+
+## Birthday reminders (G-62)
+
+- **Function:** `functions/birthday-reminders` — daily dispatch. Istanbul TZ,
+  reminder at T-5 days (REMINDER_DAYS env), Feb-29 → Mar 1, suppressed when the
+  friend already logged a gift this cycle (45d), idempotent via
+  `birthday_reminder_log` (PK dedupe), stale FCM tokens auto-deleted.
+- **Secrets (per env):** `CRON_SECRET`, `FCM_SERVICE_ACCOUNT` via
+  `supabase secrets set`; cron secret also in Vault as `birthday_cron_secret`.
+- **Schedule (cloud, one-time — done 2026-09-05):** pg_cron job
+  `birthday-reminders-daily` at `0 6 * * *` UTC (=09:00 Istanbul) calling the
+  function through pg_net with the Vault-held header secret.
+- **Test:** `curl "$FN_URL?dry=1" -H "x-cron-secret: $SECRET"` → plan without
+  sending. Wrong secret → 403.
