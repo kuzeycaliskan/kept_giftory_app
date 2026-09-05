@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
@@ -54,13 +55,18 @@ Future<void> pushTokenSync(Ref ref) async {
     final granted =
         settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional;
-    if (!granted) return;
+    if (!granted) {
+      debugPrint('pushTokenSync: permission not granted '
+          '(${settings.authorizationStatus})');
+      return;
+    }
     await ref.read(pushSetupProvider.notifier).syncToken();
     FirebaseMessaging.instance
         .onTokenRefresh
         .listen((_) => ref.read(pushSetupProvider.notifier).syncToken());
-  } catch (_) {
+  } catch (e) {
     // Push is a degradation; never let it break Home.
+    debugPrint('pushTokenSync failed: $e');
   }
 }
 
@@ -112,12 +118,31 @@ class PushSetup extends _$PushSetup {
   }
 
   /// Fetch the current FCM token and upsert it for the signed-in user.
+  ///
+  /// iOS quirk: FCM can't mint a token until Apple delivers the APNs token,
+  /// which arrives asynchronously after launch — poll briefly before asking.
   Future<void> syncToken() async {
-    final token = await FirebaseMessaging.instance.getToken();
+    final messaging = FirebaseMessaging.instance;
+    if (Platform.isIOS) {
+      for (var attempt = 0; attempt < 10; attempt++) {
+        if (await messaging.getAPNSToken() != null) break;
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      if (await messaging.getAPNSToken() == null) {
+        debugPrint('pushTokenSync: APNs token never arrived');
+        return;
+      }
+    }
+    final token = await messaging.getToken();
+    debugPrint('pushTokenSync: fcm token ${token == null ? 'NULL' : 'ok'}');
     if (token == null) return;
-    await ref.read(pushTokenRepositoryProvider).register(
+    final result = await ref.read(pushTokenRepositoryProvider).register(
           token: token,
           platform: Platform.isIOS ? 'ios' : 'android',
         );
+    result.when(
+      success: (_) => debugPrint('pushTokenSync: registered'),
+      failure: (f) => debugPrint('pushTokenSync: register failed: $f'),
+    );
   }
 }
