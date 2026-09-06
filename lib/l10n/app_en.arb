@@ -137,6 +137,13 @@
   "meSettings": "Settings",
   "meSettingsComingSoon": "Coming with G-85",
   "meSignOut": "Sign out",
+  "settingsTitle": "Settings",
+  "settingsAccountSection": "Account",
+  "settingsDeleteAccount": "Delete account",
+  "deleteAccountConfirmTitle": "Delete your account?",
+  "deleteAccountConfirmBody": "This is permanent. Your profile, wishlist, friends and received gifts are deleted. Gifts you gave friends stay in their history, anonymized.",
+  "deleteAccountConfirm": "Delete permanently",
+  "deleteAccountError": "Could not delete your account — please try again.",
   "errorSessionInvalid": "Your session is no longer valid — please sign in again.",
 
   "friendsTitle": "Friends",

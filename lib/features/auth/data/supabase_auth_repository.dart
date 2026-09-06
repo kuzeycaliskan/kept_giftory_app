@@ -121,6 +121,24 @@ class SupabaseAuthRepository implements AuthRepository {
     }
   }
 
+  @override
+  Future<Result<void>> deleteAccount() async {
+    try {
+      final response = await _client.functions.invoke('delete-account');
+      if (response.status != 200) {
+        return const ResultFailure(UnknownFailure('Account deletion failed'));
+      }
+      await _client.auth.signOut();
+      return const Success(null);
+    } on FunctionException catch (e) {
+      return ResultFailure(
+        NetworkFailure(e.details?.toString() ?? 'Function error'),
+      );
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
   Result<String> _sessionResult(AuthResponse response) {
     final userId = response.user?.id;
     if (userId == null) {

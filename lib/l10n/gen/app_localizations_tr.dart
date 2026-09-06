@@ -320,6 +320,28 @@ class AppLocalizationsTr extends AppLocalizations {
   String get meSignOut => 'Çıkış yap';
 
   @override
+  String get settingsTitle => 'Ayarlar';
+
+  @override
+  String get settingsAccountSection => 'Hesap';
+
+  @override
+  String get settingsDeleteAccount => 'Hesabı sil';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Hesabın silinsin mi?';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'Bu işlem kalıcıdır. Profilin, wishlist\'in, arkadaşların ve aldığın hediyeler silinir. Arkadaşlarına verdiğin hediyeler onların geçmişinde anonim olarak kalır.';
+
+  @override
+  String get deleteAccountConfirm => 'Kalıcı olarak sil';
+
+  @override
+  String get deleteAccountError => 'Hesabın silinemedi — lütfen tekrar dene.';
+
+  @override
   String get errorSessionInvalid =>
       'Oturumun artık geçerli değil — lütfen tekrar giriş yap.';
 

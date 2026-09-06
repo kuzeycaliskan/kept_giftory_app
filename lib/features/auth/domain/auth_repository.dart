@@ -18,4 +18,9 @@ abstract interface class AuthRepository {
   Future<Result<String>> signInWithGoogle();
 
   Future<Result<void>> signOut();
+
+  /// Permanently delete the account (service-role Edge Function) then sign out.
+  /// Irreversible: profile, wishlist, friendships, received gifts are removed;
+  /// gifts the user gave are anonymized (G-71).
+  Future<Result<void>> deleteAccount();
 }

@@ -25,7 +25,7 @@ final pushTokenRepositoryProvider = Provider<PushTokenRepository>.internal(
 // ignore: unused_element
 typedef PushTokenRepositoryRef = ProviderRef<PushTokenRepository>;
 String _$shouldShowPushPrimingHash() =>
-    r'468e6b34c1540c54719f982b8058a4c900e7ce58';
+    r'9ec5373e4f6bdf8ae4f33e58147a57646c39fcb6';
 
 /// Whether the Home priming card should show: signed-in real session, push
 /// permission not granted yet, and the user hasn't dismissed the card.
@@ -45,7 +45,7 @@ final shouldShowPushPrimingProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ShouldShowPushPrimingRef = AutoDisposeFutureProviderRef<bool>;
-String _$pushTokenSyncHash() => r'9c942e21836470c88121711c825611864dd82454';
+String _$pushTokenSyncHash() => r'613e2fde1cb12c27e57016930655b7813266ae29';
 
 /// Silent token sync: when permission is already granted, keep the stored
 /// token fresh on app start (covers FCM rotation, reinstalls, and the case
@@ -67,7 +67,7 @@ final pushTokenSyncProvider = FutureProvider<void>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef PushTokenSyncRef = FutureProviderRef<void>;
-String _$pushSetupHash() => r'a3bf32a9e379056562d2d0015294f72192368fc2';
+String _$pushSetupHash() => r'b6ba9277968cf999f8cc2bc5f0f3ffb52fcecf95';
 
 /// Push setup actions driven by the priming card (G-61): soft-ask happened in
 /// UI, this triggers the OS prompt and registers the token on success.

@@ -16,6 +16,7 @@ import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
+import 'package:kept/features/settings/presentation/settings_screen.dart';
 import 'package:kept/features/shell/presentation/app_shell.dart';
 import 'package:kept/features/wishlist/presentation/add_wishlist_item_screen.dart';
 import 'package:kept/features/wishlist/presentation/wishlist_screen.dart';
@@ -133,6 +134,11 @@ GoRouter appRouter(Ref ref) {
         path: '/invite',
         name: 'invite',
         builder: (context, state) => const InviteScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: '/gifts/log',

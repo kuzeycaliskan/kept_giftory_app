@@ -321,6 +321,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get meSignOut => 'Sign out';
 
   @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAccountSection => 'Account';
+
+  @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'This is permanent. Your profile, wishlist, friends and received gifts are deleted. Gifts you gave friends stay in their history, anonymized.';
+
+  @override
+  String get deleteAccountConfirm => 'Delete permanently';
+
+  @override
+  String get deleteAccountError =>
+      'Could not delete your account — please try again.';
+
+  @override
   String get errorSessionInvalid =>
       'Your session is no longer valid — please sign in again.';
 

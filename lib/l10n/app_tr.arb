@@ -106,6 +106,13 @@
   "meSettings": "Ayarlar",
   "meSettingsComingSoon": "G-85 ile geliyor",
   "meSignOut": "Çıkış yap",
+  "settingsTitle": "Ayarlar",
+  "settingsAccountSection": "Hesap",
+  "settingsDeleteAccount": "Hesabı sil",
+  "deleteAccountConfirmTitle": "Hesabın silinsin mi?",
+  "deleteAccountConfirmBody": "Bu işlem kalıcıdır. Profilin, wishlist'in, arkadaşların ve aldığın hediyeler silinir. Arkadaşlarına verdiğin hediyeler onların geçmişinde anonim olarak kalır.",
+  "deleteAccountConfirm": "Kalıcı olarak sil",
+  "deleteAccountError": "Hesabın silinemedi — lütfen tekrar dene.",
   "errorSessionInvalid": "Oturumun artık geçerli değil — lütfen tekrar giriş yap.",
 
   "friendsTitle": "Arkadaşlar",
