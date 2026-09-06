@@ -18,6 +18,14 @@ class Env {
   static const String googleIosClientId =
       String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
 
+  /// Public legal pages (G-74). Hosted on the marketing site; also the URLs
+  /// submitted to the App Store / Play Console. Draft content — pending legal
+  /// review before launch.
+  static const String privacyPolicyUrl =
+      'https://kuzeycaliskan.github.io/kept/privacy.html';
+  static const String termsOfUseUrl =
+      'https://kuzeycaliskan.github.io/kept/terms.html';
+
   /// Whether Supabase credentials were provided at build time.
   static bool get hasSupabaseConfig =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;

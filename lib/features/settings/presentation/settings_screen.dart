@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Settings hub (G-85 lite): account actions today (sign out, delete account
 /// — G-71). Privacy toggles (G-22), notification prefs (G-63) and legal texts
@@ -59,6 +61,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Future<void> _openUrl(String url) async {
+    final ok = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.legalOpenError)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -68,6 +81,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           ListView(
             children: [
+              _SectionLabel(l10n.settingsLegalSection),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: Text(l10n.legalPrivacyPolicy),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => _openUrl(Env.privacyPolicyUrl),
+              ),
+              ListTile(
+                leading: const Icon(Icons.description_outlined),
+                title: Text(l10n.legalTermsOfUse),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => _openUrl(Env.termsOfUseUrl),
+              ),
+              const Divider(),
               _SectionLabel(l10n.settingsAccountSection),
               ListTile(
                 leading: const Icon(Icons.logout),

@@ -113,6 +113,10 @@
   "deleteAccountConfirmBody": "Bu işlem kalıcıdır. Profilin, wishlist'in, arkadaşların ve aldığın hediyeler silinir. Arkadaşlarına verdiğin hediyeler onların geçmişinde anonim olarak kalır.",
   "deleteAccountConfirm": "Kalıcı olarak sil",
   "deleteAccountError": "Hesabın silinemedi — lütfen tekrar dene.",
+  "settingsLegalSection": "Yasal",
+  "legalPrivacyPolicy": "Gizlilik Politikası",
+  "legalTermsOfUse": "Kullanım Şartları",
+  "legalOpenError": "Sayfa açılamadı.",
   "errorSessionInvalid": "Oturumun artık geçerli değil — lütfen tekrar giriş yap.",
 
   "friendsTitle": "Arkadaşlar",

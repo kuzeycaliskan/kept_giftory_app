@@ -144,6 +144,10 @@
   "deleteAccountConfirmBody": "This is permanent. Your profile, wishlist, friends and received gifts are deleted. Gifts you gave friends stay in their history, anonymized.",
   "deleteAccountConfirm": "Delete permanently",
   "deleteAccountError": "Could not delete your account — please try again.",
+  "settingsLegalSection": "Legal",
+  "legalPrivacyPolicy": "Privacy Policy",
+  "legalTermsOfUse": "Terms of Use",
+  "legalOpenError": "Couldn't open the page.",
   "errorSessionInvalid": "Your session is no longer valid — please sign in again.",
 
   "friendsTitle": "Friends",

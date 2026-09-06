@@ -344,6 +344,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not delete your account — please try again.';
 
   @override
+  String get settingsLegalSection => 'Legal';
+
+  @override
+  String get legalPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get legalTermsOfUse => 'Terms of Use';
+
+  @override
+  String get legalOpenError => 'Couldn\'t open the page.';
+
+  @override
   String get errorSessionInvalid =>
       'Your session is no longer valid — please sign in again.';
 

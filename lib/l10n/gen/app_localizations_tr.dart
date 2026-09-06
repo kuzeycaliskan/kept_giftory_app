@@ -342,6 +342,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deleteAccountError => 'Hesabın silinemedi — lütfen tekrar dene.';
 
   @override
+  String get settingsLegalSection => 'Yasal';
+
+  @override
+  String get legalPrivacyPolicy => 'Gizlilik Politikası';
+
+  @override
+  String get legalTermsOfUse => 'Kullanım Şartları';
+
+  @override
+  String get legalOpenError => 'Sayfa açılamadı.';
+
+  @override
   String get errorSessionInvalid =>
       'Oturumun artık geçerli değil — lütfen tekrar giriş yap.';
 

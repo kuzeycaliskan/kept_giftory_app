@@ -728,6 +728,30 @@ abstract class AppLocalizations {
   /// **'Could not delete your account — please try again.'**
   String get deleteAccountError;
 
+  /// No description provided for @settingsLegalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get settingsLegalSection;
+
+  /// No description provided for @legalPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get legalPrivacyPolicy;
+
+  /// No description provided for @legalTermsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get legalTermsOfUse;
+
+  /// No description provided for @legalOpenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the page.'**
+  String get legalOpenError;
+
   /// No description provided for @errorSessionInvalid.
   ///
   /// In en, this message translates to:
