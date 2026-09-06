@@ -42,7 +42,7 @@
   "homeNoUpcoming": "Yaklaşan doğum günü yok",
   "homeNoUpcomingHint": "Arkadaş ekle, hiçbir hediye gününü kaçırma.",
   "homeFindFriends": "Arkadaş bul",
-  "homeCountdownToday": "Bugün! 🎂",
+  "homeCountdownToday": "Bugün!",
   "homeCountdownTomorrow": "Yarın",
   "homeCountdownInDays": "{days} gün sonra",
   "homeGiftCta": "Hediye",
@@ -152,7 +152,7 @@
   "inviteEnterTitle": "Kodun mu var?",
   "inviteCodeLabel": "Davet kodu",
   "inviteRedeemButton": "Arkadaş ekle",
-  "inviteRedeemSuccess": "{name} ile artık arkadaşsınız 🎉",
+  "inviteRedeemSuccess": "{name} ile artık arkadaşsınız",
   "inviteInvalidCode": "Kod işe yaramadı — kontrol edip tekrar dene",
   "inviteError": "Davet kodun yüklenemedi",
 

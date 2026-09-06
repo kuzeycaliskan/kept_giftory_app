@@ -126,7 +126,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeFindFriends => 'Arkadaş bul';
 
   @override
-  String get homeCountdownToday => 'Bugün! 🎂';
+  String get homeCountdownToday => 'Bugün!';
 
   @override
   String get homeCountdownTomorrow => 'Yarın';
@@ -459,7 +459,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String inviteRedeemSuccess(String name) {
-    return '$name ile artık arkadaşsınız 🎉';
+    return '$name ile artık arkadaşsınız';
   }
 
   @override

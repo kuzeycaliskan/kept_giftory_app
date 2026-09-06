@@ -52,7 +52,7 @@
   "homeNoUpcoming": "No upcoming birthdays yet",
   "homeNoUpcomingHint": "Add friends so you never miss a gift day.",
   "homeFindFriends": "Find friends",
-  "homeCountdownToday": "Today! 🎂",
+  "homeCountdownToday": "Today!",
   "homeCountdownTomorrow": "Tomorrow",
   "homeCountdownInDays": "In {days} days",
   "@homeCountdownInDays": {
@@ -198,7 +198,7 @@
   "inviteEnterTitle": "Have a code?",
   "inviteCodeLabel": "Invite code",
   "inviteRedeemButton": "Add friend",
-  "inviteRedeemSuccess": "You're now friends with {name} 🎉",
+  "inviteRedeemSuccess": "You're now friends with {name}",
   "@inviteRedeemSuccess": {
     "placeholders": {
       "name": { "type": "String" }

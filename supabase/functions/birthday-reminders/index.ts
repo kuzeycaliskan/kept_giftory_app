@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
         message: {
           token: t.token,
           notification: {
-            title: "🎁 Kept",
+            title: "Kept",
             body:
               `${t.birthday_label} doğum gününe ${REMINDER_DAYS} gün kaldı! ` +
               "Hediye fikirlerine göz at.",

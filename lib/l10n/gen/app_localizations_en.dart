@@ -126,7 +126,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeFindFriends => 'Find friends';
 
   @override
-  String get homeCountdownToday => 'Today! 🎂';
+  String get homeCountdownToday => 'Today!';
 
   @override
   String get homeCountdownTomorrow => 'Tomorrow';
@@ -461,7 +461,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String inviteRedeemSuccess(String name) {
-    return 'You\'re now friends with $name 🎉';
+    return 'You\'re now friends with $name';
   }
 
   @override

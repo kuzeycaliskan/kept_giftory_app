@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeCountdownToday.
   ///
   /// In en, this message translates to:
-  /// **'Today! 🎂'**
+  /// **'Today!'**
   String get homeCountdownToday;
 
   /// No description provided for @homeCountdownTomorrow.
@@ -947,7 +947,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteRedeemSuccess.
   ///
   /// In en, this message translates to:
-  /// **'You\'re now friends with {name} 🎉'**
+  /// **'You\'re now friends with {name}'**
   String inviteRedeemSuccess(String name);
 
   /// No description provided for @inviteInvalidCode.
