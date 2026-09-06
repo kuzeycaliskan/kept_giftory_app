@@ -174,5 +174,12 @@
   "visibilityFriends": "Arkadaşlar",
   "visibilityPrivate": "Kapalı",
   "privacyUpdateError": "Ayar kaydedilemedi — lütfen tekrar dene.",
-  "privacyCapNote": "Profilin yalnızca arkadaşlarına görünürken diğer bölümler bundan daha açık olamaz — önce profilini Herkese açık yap."
+  "privacyCapNote": "Profilin yalnızca arkadaşlarına görünürken diğer bölümler bundan daha açık olamaz — önce profilini Herkese açık yap.",
+
+  "searchTooltip": "Kişi ara",
+  "searchHint": "Kullanıcı adı veya isimle ara",
+  "searchClear": "Aramayı temizle",
+  "searchPrompt": "Aramak için en az 2 karakter yaz",
+  "searchEmpty": "Kimse bulunamadı — yazımı kontrol et ya da davet et!",
+  "searchError": "Arama başarısız — lütfen tekrar dene."
 }

@@ -527,4 +527,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyCapNote =>
       'While your profile is visible to friends only, other sections can\'t be more open than that — set your profile to Public first.';
+
+  @override
+  String get searchTooltip => 'Search people';
+
+  @override
+  String get searchHint => 'Search by username or name';
+
+  @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get searchPrompt => 'Type at least 2 characters to search';
+
+  @override
+  String get searchEmpty => 'No one found — check the spelling or invite them!';
+
+  @override
+  String get searchError => 'Search failed — please try again.';
 }

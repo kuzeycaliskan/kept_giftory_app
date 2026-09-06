@@ -130,6 +130,39 @@ class SupabaseProfileRepository implements ProfileRepository {
     }
   }
 
+  /// Max results per search — plenty for a type-ahead list, keeps the query
+  /// bounded (CLAUDE.md §10: never load unbounded collections).
+  static const _searchLimit = 20;
+
+  @override
+  Future<Result<List<Profile>>> searchProfiles(String query) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return const Success([]);
+    // Escape ilike wildcards (literal search) and strip characters that
+    // would break PostgREST's or() filter syntax.
+    final escaped = trimmed
+        .replaceAll(RegExp('[,()]'), '')
+        .replaceAll('%', r'\%')
+        .replaceAll('_', r'\_');
+    if (escaped.isEmpty) return const Success([]);
+    try {
+      final rows = await _client
+          .from(_table)
+          .select()
+          .neq('id', userId)
+          .or('username.ilike.%$escaped%,display_name.ilike.%$escaped%')
+          .order('username', ascending: true)
+          .limit(_searchLimit);
+      return Success(rows.map(Profile.fromJson).toList());
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
   @override
   Future<Result<Profile>> updateProfile(Profile profile) async {
     final userId = _client.auth.currentUser?.id;

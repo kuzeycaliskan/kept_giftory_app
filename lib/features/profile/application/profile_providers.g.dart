@@ -194,5 +194,143 @@ class _UserProfileProviderElement
   String get profileId => (origin as UserProfileProvider).profileId;
 }
 
+String _$profileSearchHash() => r'9d356c10ff7072d606a7de0cfa989805e567ac6b';
+
+/// Username / display-name search results (G-32). The screen debounces input
+/// before touching this family, so each distinct query hits the network once.
+///
+/// Copied from [profileSearch].
+@ProviderFor(profileSearch)
+const profileSearchProvider = ProfileSearchFamily();
+
+/// Username / display-name search results (G-32). The screen debounces input
+/// before touching this family, so each distinct query hits the network once.
+///
+/// Copied from [profileSearch].
+class ProfileSearchFamily extends Family<AsyncValue<List<Profile>>> {
+  /// Username / display-name search results (G-32). The screen debounces input
+  /// before touching this family, so each distinct query hits the network once.
+  ///
+  /// Copied from [profileSearch].
+  const ProfileSearchFamily();
+
+  /// Username / display-name search results (G-32). The screen debounces input
+  /// before touching this family, so each distinct query hits the network once.
+  ///
+  /// Copied from [profileSearch].
+  ProfileSearchProvider call(String query) {
+    return ProfileSearchProvider(query);
+  }
+
+  @override
+  ProfileSearchProvider getProviderOverride(
+    covariant ProfileSearchProvider provider,
+  ) {
+    return call(provider.query);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'profileSearchProvider';
+}
+
+/// Username / display-name search results (G-32). The screen debounces input
+/// before touching this family, so each distinct query hits the network once.
+///
+/// Copied from [profileSearch].
+class ProfileSearchProvider extends AutoDisposeFutureProvider<List<Profile>> {
+  /// Username / display-name search results (G-32). The screen debounces input
+  /// before touching this family, so each distinct query hits the network once.
+  ///
+  /// Copied from [profileSearch].
+  ProfileSearchProvider(String query)
+    : this._internal(
+        (ref) => profileSearch(ref as ProfileSearchRef, query),
+        from: profileSearchProvider,
+        name: r'profileSearchProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$profileSearchHash,
+        dependencies: ProfileSearchFamily._dependencies,
+        allTransitiveDependencies:
+            ProfileSearchFamily._allTransitiveDependencies,
+        query: query,
+      );
+
+  ProfileSearchProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.query,
+  }) : super.internal();
+
+  final String query;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<Profile>> Function(ProfileSearchRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ProfileSearchProvider._internal(
+        (ref) => create(ref as ProfileSearchRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        query: query,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<Profile>> createElement() {
+    return _ProfileSearchProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProfileSearchProvider && other.query == query;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ProfileSearchRef on AutoDisposeFutureProviderRef<List<Profile>> {
+  /// The parameter `query` of this provider.
+  String get query;
+}
+
+class _ProfileSearchProviderElement
+    extends AutoDisposeFutureProviderElement<List<Profile>>
+    with ProfileSearchRef {
+  _ProfileSearchProviderElement(super.provider);
+
+  @override
+  String get query => (origin as ProfileSearchProvider).query;
+}
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

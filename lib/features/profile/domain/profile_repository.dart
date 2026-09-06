@@ -28,4 +28,8 @@ abstract interface class ProfileRepository {
     Visibility? wishlist,
     Visibility? giftHistory,
   });
+
+  /// Username / display-name search (G-32), excluding the caller. RLS scopes
+  /// results to what the caller may see (public profiles, friends, pending).
+  Future<Result<List<Profile>>> searchProfiles(String query);
 }

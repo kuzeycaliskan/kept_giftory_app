@@ -1069,6 +1069,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'While your profile is visible to friends only, other sections can\'t be more open than that — set your profile to Public first.'**
   String get privacyCapNote;
+
+  /// No description provided for @searchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get searchTooltip;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by username or name'**
+  String get searchHint;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
+  /// No description provided for @searchPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 characters to search'**
+  String get searchPrompt;
+
+  /// No description provided for @searchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found — check the spelling or invite them!'**
+  String get searchEmpty;
+
+  /// No description provided for @searchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed — please try again.'**
+  String get searchError;
 }
 
 class _AppLocalizationsDelegate

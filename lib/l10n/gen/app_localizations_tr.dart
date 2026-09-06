@@ -523,4 +523,23 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get privacyCapNote =>
       'Profilin yalnızca arkadaşlarına görünürken diğer bölümler bundan daha açık olamaz — önce profilini Herkese açık yap.';
+
+  @override
+  String get searchTooltip => 'Kişi ara';
+
+  @override
+  String get searchHint => 'Kullanıcı adı veya isimle ara';
+
+  @override
+  String get searchClear => 'Aramayı temizle';
+
+  @override
+  String get searchPrompt => 'Aramak için en az 2 karakter yaz';
+
+  @override
+  String get searchEmpty =>
+      'Kimse bulunamadı — yazımı kontrol et ya da davet et!';
+
+  @override
+  String get searchError => 'Arama başarısız — lütfen tekrar dene.';
 }

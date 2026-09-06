@@ -41,3 +41,17 @@ Future<Profile?> userProfile(Ref ref, String profileId) async {
     failure: (failure) => throw failure,
   );
 }
+
+/// Username / display-name search results (G-32). The screen debounces input
+/// before touching this family, so each distinct query hits the network once.
+@riverpod
+Future<List<Profile>> profileSearch(Ref ref, String query) async {
+  if (query.trim().length < 2) return const [];
+  final result = await ref
+      .watch(profileRepositoryProvider)
+      .searchProfiles(query);
+  return result.when(
+    success: (profiles) => profiles,
+    failure: (failure) => throw failure,
+  );
+}

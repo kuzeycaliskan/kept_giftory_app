@@ -60,6 +60,10 @@ class _FakeProfileRepository implements ProfileRepository {
     );
     return Success(me);
   }
+
+  @override
+  Future<Result<List<Profile>>> searchProfiles(String query) async =>
+      const Success([]);
 }
 
 const _me = Profile(id: 'me', username: 'you');

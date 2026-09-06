@@ -70,6 +70,21 @@ class DevProfileRepository implements ProfileRepository {
     );
     return Success(_me);
   }
+
+  @override
+  Future<Result<List<Profile>>> searchProfiles(String query) async {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return const Success([]);
+    return Success(
+      _others.values
+          .where(
+            (p) =>
+                p.username.contains(q) ||
+                (p.displayName?.toLowerCase().contains(q) ?? false),
+          )
+          .toList(),
+    );
+  }
 }
 
 /// Backend-less fallback (no --dart-define config).
@@ -104,4 +119,8 @@ class EmptyProfileRepository implements ProfileRepository {
     Visibility? wishlist,
     Visibility? giftHistory,
   }) async => const ResultFailure(AuthFailure('No backend configured'));
+
+  @override
+  Future<Result<List<Profile>>> searchProfiles(String query) async =>
+      const Success([]);
 }

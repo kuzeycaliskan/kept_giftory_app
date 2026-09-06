@@ -5,8 +5,8 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 
-/// Friends screen (G-31): incoming/outgoing requests + accepted friends.
-/// Search (G-32) and contact matching (G-33) will extend this screen.
+/// Friends screen (G-31): incoming/outgoing requests + accepted friends,
+/// with username search (G-32). Contact matching (G-33) will extend it.
 class FriendsScreen extends ConsumerWidget {
   const FriendsScreen({super.key});
 
@@ -27,6 +27,11 @@ class FriendsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.friendsTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.searchTooltip,
+            icon: const Icon(Icons.search),
+            onPressed: () => context.push('/friends/search'),
+          ),
           IconButton(
             tooltip: l10n.inviteTitle,
             icon: const Icon(Icons.person_add_outlined),

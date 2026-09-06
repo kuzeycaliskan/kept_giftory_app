@@ -45,6 +45,10 @@ class _FakeProfileRepository implements ProfileRepository {
     Visibility? wishlist,
     Visibility? giftHistory,
   }) async => Success(other ?? const Profile(id: 'x', username: 'x'));
+
+  @override
+  Future<Result<List<Profile>>> searchProfiles(String query) async =>
+      const Success([]);
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
