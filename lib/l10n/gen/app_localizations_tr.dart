@@ -476,4 +476,47 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get activityEmpty => 'Henüz bir şey yok';
+
+  @override
+  String get settingsPrivacySection => 'Mahremiyet';
+
+  @override
+  String get privacyTitle => 'Mahremiyet';
+
+  @override
+  String get privacyEntry => 'Profilimi kimler görebilir';
+
+  @override
+  String get privacyIntro =>
+      'Profilinin her bölümünü kimlerin görebileceğini seç. Değişiklikler anında uygulanır.';
+
+  @override
+  String get privacyProfile => 'Profil';
+
+  @override
+  String get privacyProfileDesc => 'Adın, fotoğrafın ve hakkında bilgilerin';
+
+  @override
+  String get privacyWishlist => 'Wishlist';
+
+  @override
+  String get privacyWishlistDesc => 'Almak istediğin şeyler';
+
+  @override
+  String get privacyGiftHistory => 'Hediye geçmişi';
+
+  @override
+  String get privacyGiftHistoryDesc => 'Verdiğin ve aldığın hediyeler';
+
+  @override
+  String get visibilityPublic => 'Herkese açık';
+
+  @override
+  String get visibilityFriends => 'Arkadaşlar';
+
+  @override
+  String get visibilityPrivate => 'Kapalı';
+
+  @override
+  String get privacyUpdateError => 'Ayar kaydedilemedi — lütfen tekrar dene.';
 }

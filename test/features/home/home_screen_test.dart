@@ -15,8 +15,7 @@ class _FakeHomeRepository implements HomeRepository {
   @override
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
-  }) async =>
-      Success(birthdays);
+  }) async => Success(birthdays);
 }
 
 void main() {
@@ -27,8 +26,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          homeRepositoryProvider
-              .overrideWithValue(_FakeHomeRepository(birthdays)),
+          homeRepositoryProvider.overrideWithValue(
+            _FakeHomeRepository(birthdays),
+          ),
         ],
         child: const KeptApp(),
       ),
@@ -36,8 +36,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('empty upcoming section drives friend discovery',
-      (tester) async {
+  testWidgets('empty upcoming section drives friend discovery', (tester) async {
     await pumpHome(tester, birthdays: const []);
 
     expect(find.text('No upcoming birthdays yet'), findsOneWidget);
@@ -75,8 +74,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Gift'), findsNWidgets(2));
   });
 
-  testWidgets('tapping Find friends opens the Friends screen',
-      (tester) async {
+  testWidgets('tapping Find friends opens the Friends screen', (tester) async {
     await pumpHome(tester, birthdays: const []);
 
     await tester.tap(find.text('Find friends'));

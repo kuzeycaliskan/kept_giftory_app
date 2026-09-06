@@ -17,8 +17,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeGiftRepository implements GiftRepository {
   _FakeGiftRepository({List<GiftEntry>? given, List<GiftEntry>? received})
-      : given = given ?? [],
-        received = received ?? [];
+    : given = given ?? [],
+      received = received ?? [];
 
   final List<GiftEntry> given;
   final List<GiftEntry> received;
@@ -71,16 +71,14 @@ class _FakeFriendshipRepository implements FriendshipRepository {
   Future<Result<List<FriendEntry>>> fetchAll() async => Success(entries);
 
   @override
-  Future<Result<void>> accept(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> accept(String friendshipId) async => const Success(null);
 
   @override
   Future<Result<void>> decline(String friendshipId) async =>
       const Success(null);
 
   @override
-  Future<Result<void>> remove(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> remove(String friendshipId) async => const Success(null);
 
   @override
   Future<Result<void>> sendRequest(String profileId) async =>
@@ -100,8 +98,10 @@ void main() {
 
   group('defaultRevealAt', () {
     test('is next birthday + 1 day', () {
-      final reveal =
-          defaultRevealAt(DateTime(1995, 9, 10), DateTime(2026, 9, 4));
+      final reveal = defaultRevealAt(
+        DateTime(1995, 9, 10),
+        DateTime(2026, 9, 4),
+      );
       expect(reveal, DateTime(2026, 9, 11));
     });
 
@@ -121,18 +121,16 @@ void main() {
       initialLocation: initial,
       routes: [
         GoRoute(path: '/gifts', builder: (_, __) => const GiftsScreen()),
-        GoRoute(
-          path: '/gifts/log',
-          builder: (_, __) => const LogGiftScreen(),
-        ),
+        GoRoute(path: '/gifts/log', builder: (_, __) => const LogGiftScreen()),
       ],
     );
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           giftRepositoryProvider.overrideWithValue(gifts),
-          friendshipRepositoryProvider
-              .overrideWithValue(_FakeFriendshipRepository(friends)),
+          friendshipRepositoryProvider.overrideWithValue(
+            _FakeFriendshipRepository(friends),
+          ),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -152,25 +150,27 @@ void main() {
   });
 
   testWidgets(
-      'log form: surprise on by default, requires recipient/item/reveal date',
-      (tester) async {
-    await pump(tester, gifts: _FakeGiftRepository(), initial: '/gifts/log');
+    'log form: surprise on by default, requires recipient/item/reveal date',
+    (tester) async {
+      await pump(tester, gifts: _FakeGiftRepository(), initial: '/gifts/log');
 
-    final surprise = tester.widget<SwitchListTile>(
-      find.byType(SwitchListTile),
-    );
-    expect(surprise.value, isTrue);
+      final surprise = tester.widget<SwitchListTile>(
+        find.byType(SwitchListTile),
+      );
+      expect(surprise.value, isTrue);
 
-    await tester.tap(find.text('Save'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Pick a recipient'), findsOneWidget);
-    expect(find.text('Gift is required'), findsOneWidget);
-    expect(find.text('Pick a reveal date'), findsOneWidget);
-  });
+      expect(find.text('Pick a recipient'), findsOneWidget);
+      expect(find.text('Gift is required'), findsOneWidget);
+      expect(find.text('Pick a reveal date'), findsOneWidget);
+    },
+  );
 
-  testWidgets('logging a surprise gift with a reveal date pops back',
-      (tester) async {
+  testWidgets('logging a surprise gift with a reveal date pops back', (
+    tester,
+  ) async {
     final repo = _FakeGiftRepository();
     await pump(tester, gifts: repo);
 
@@ -224,11 +224,10 @@ void main() {
     );
   });
 
-  testWidgets('"don\'t show again" skips the confirmation next time',
-      (tester) async {
-    SharedPreferences.setMockInitialValues(
-      {'hide_surprise_off_warning': true},
-    );
+  testWidgets('"don\'t show again" skips the confirmation next time', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({'hide_surprise_off_warning': true});
     await pump(tester, gifts: _FakeGiftRepository(), initial: '/gifts/log');
 
     await tester.tap(find.byType(SwitchListTile));
@@ -241,8 +240,7 @@ void main() {
     );
   });
 
-  testWidgets('surprise gifts carry a badge on the given tab',
-      (tester) async {
+  testWidgets('surprise gifts carry a badge on the given tab', (tester) async {
     await pump(
       tester,
       gifts: _FakeGiftRepository(

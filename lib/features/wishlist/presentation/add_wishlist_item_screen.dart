@@ -36,14 +36,17 @@ class _AddWishlistItemScreenState extends ConsumerState<AddWishlistItemScreen> {
       setState(() => _titleMissing = true);
       return;
     }
-    final ok = await ref.read(wishlistControllerProvider.notifier).add(
+    final ok = await ref
+        .read(wishlistControllerProvider.notifier)
+        .add(
           title: title,
           note: _noteController.text,
           url: _urlController.text,
         );
     if (ok && mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.wishlistAddedSnack)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.wishlistAddedSnack)));
       context.pop();
     }
   }
@@ -56,8 +59,9 @@ class _AddWishlistItemScreenState extends ConsumerState<AddWishlistItemScreen> {
 
     ref.listen(wishlistControllerProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 

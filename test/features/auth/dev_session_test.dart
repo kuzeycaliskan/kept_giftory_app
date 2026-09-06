@@ -7,18 +7,16 @@ import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
 
 void main() {
-  testWidgets('dev-mode button enables the dev session (debug builds)',
-      (tester) async {
+  testWidgets('dev-mode button enables the dev session (debug builds)', (
+    tester,
+  ) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final router = GoRouter(
       initialLocation: '/sign-in',
       routes: [
-        GoRoute(
-          path: '/sign-in',
-          builder: (_, __) => const SignInScreen(),
-        ),
+        GoRoute(path: '/sign-in', builder: (_, __) => const SignInScreen()),
         GoRoute(
           path: '/',
           builder: (_, __) => const Scaffold(body: Text('home')),

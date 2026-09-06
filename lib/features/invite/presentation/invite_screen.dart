@@ -29,14 +29,13 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
     final l10n = context.l10n;
     final code = _codeController.text.trim();
     if (code.isEmpty) return;
-    final name =
-        await ref.read(inviteControllerProvider.notifier).redeem(code);
+    final name = await ref.read(inviteControllerProvider.notifier).redeem(code);
     if (!mounted) return;
     if (name != null) {
       _codeController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.inviteRedeemSuccess(name))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.inviteRedeemSuccess(name))));
     }
   }
 
@@ -50,13 +49,13 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
     ref.listen(inviteControllerProvider, (_, next) {
       final error = next.error;
       if (error is ValidationFailure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.inviteInvalidCode)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.inviteInvalidCode)));
       } else if (error is Failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorGeneric)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 
@@ -92,10 +91,9 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
                   SelectableText(
                     code,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(letterSpacing: 4),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineSmall?.copyWith(letterSpacing: 4),
                   ),
                   const SizedBox(height: 12),
                   FilledButton.tonalIcon(

@@ -33,8 +33,9 @@ Future<Profile?> myProfile(Ref ref) async {
 /// Another user's profile; null when RLS hides it (G-84).
 @riverpod
 Future<Profile?> userProfile(Ref ref, String profileId) async {
-  final result =
-      await ref.watch(profileRepositoryProvider).fetchProfile(profileId);
+  final result = await ref
+      .watch(profileRepositoryProvider)
+      .fetchProfile(profileId);
   return result.when(
     success: (profile) => profile,
     failure: (failure) => throw failure,

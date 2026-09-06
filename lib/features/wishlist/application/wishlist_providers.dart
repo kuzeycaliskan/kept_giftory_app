@@ -34,8 +34,9 @@ Future<List<WishlistItem>> myWishlist(Ref ref) async {
 /// A friend's wishlist; RLS decides what the caller may see.
 @riverpod
 Future<List<WishlistItem>> friendWishlist(Ref ref, String profileId) async {
-  final result =
-      await ref.watch(wishlistRepositoryProvider).fetchFor(profileId);
+  final result = await ref
+      .watch(wishlistRepositoryProvider)
+      .fetchFor(profileId);
   return result.when(
     success: (list) => list,
     failure: (failure) => throw failure,
@@ -48,11 +49,7 @@ class WishlistController extends _$WishlistController {
   AsyncValue<void> build() => const AsyncData(null);
 
   /// True on success (form pops on true).
-  Future<bool> add({
-    required String title,
-    String? note,
-    String? url,
-  }) async {
+  Future<bool> add({required String title, String? note, String? url}) async {
     state = const AsyncLoading();
     final result = await ref
         .read(wishlistRepositoryProvider)

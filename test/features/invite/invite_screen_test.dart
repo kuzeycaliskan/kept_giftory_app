@@ -21,9 +21,7 @@ class _FakeInviteRepository implements InviteRepository {
   @override
   Future<Result<RedeemedInvite>> redeem(String code) async {
     if (code.trim().toUpperCase() == validCode) {
-      return const Success(
-        RedeemedInvite(inviterId: 'x', label: 'Selin'),
-      );
+      return const Success(RedeemedInvite(inviterId: 'x', label: 'Selin'));
     }
     return const ResultFailure(ValidationFailure('invite_not_found'));
   }
@@ -60,8 +58,7 @@ void main() {
     expect(find.text('Share code'), findsOneWidget);
   });
 
-  testWidgets('redeeming a valid code reports the new friend',
-      (tester) async {
+  testWidgets('redeeming a valid code reports the new friend', (tester) async {
     await pump(tester);
 
     await tester.enterText(
@@ -84,9 +81,6 @@ void main() {
     await tester.tap(find.text('Add friend'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.textContaining("That code didn't work"),
-      findsOneWidget,
-    );
+    expect(find.textContaining("That code didn't work"), findsOneWidget);
   });
 }

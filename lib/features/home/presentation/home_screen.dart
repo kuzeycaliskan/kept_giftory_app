@@ -187,9 +187,7 @@ class _UpcomingSection extends StatelessWidget {
           );
         }
         return Column(
-          children: [
-            for (final b in birthdays) _BirthdayCard(birthday: b),
-          ],
+          children: [for (final b in birthdays) _BirthdayCard(birthday: b)],
         );
       },
     );
@@ -202,10 +200,10 @@ class _BirthdayCard extends StatelessWidget {
   final UpcomingBirthday birthday;
 
   String _countdown(BuildContext context) => switch (birthday.daysUntil) {
-        0 => context.l10n.homeCountdownToday,
-        1 => context.l10n.homeCountdownTomorrow,
-        final d => context.l10n.homeCountdownInDays(d),
-      };
+    0 => context.l10n.homeCountdownToday,
+    1 => context.l10n.homeCountdownTomorrow,
+    final d => context.l10n.homeCountdownInDays(d),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -239,18 +237,18 @@ class _ActivitySection extends StatelessWidget {
   final AsyncValue<List<ActivityItem>> state;
 
   IconData _icon(ActivityKind kind) => switch (kind) {
-        ActivityKind.friendAccepted => Icons.group_add_outlined,
-        ActivityKind.giftLogged => Icons.card_giftcard_outlined,
-        ActivityKind.birthdayReminder => Icons.cake_outlined,
-      };
+    ActivityKind.friendAccepted => Icons.group_add_outlined,
+    ActivityKind.giftLogged => Icons.card_giftcard_outlined,
+    ActivityKind.birthdayReminder => Icons.cake_outlined,
+  };
 
   /// V1 renders localized sample copy by kind (mock panel); the V2 event feed
   /// will carry structured payloads and revisit this mapping (G-210).
   String _text(BuildContext context, ActivityItem item) => switch (item.kind) {
-        ActivityKind.friendAccepted => context.l10n.sampleActivityFriends,
-        ActivityKind.giftLogged => context.l10n.sampleActivityGift,
-        ActivityKind.birthdayReminder => context.l10n.sampleActivityBirthday,
-      };
+    ActivityKind.friendAccepted => context.l10n.sampleActivityFriends,
+    ActivityKind.giftLogged => context.l10n.sampleActivityGift,
+    ActivityKind.birthdayReminder => context.l10n.sampleActivityBirthday,
+  };
 
   @override
   Widget build(BuildContext context) {

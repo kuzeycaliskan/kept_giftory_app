@@ -8,10 +8,10 @@ class QuickAddSheet extends StatelessWidget {
   const QuickAddSheet({super.key});
 
   static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
-        context: context,
-        showDragHandle: true,
-        builder: (_) => const QuickAddSheet(),
-      );
+    context: context,
+    showDragHandle: true,
+    builder: (_) => const QuickAddSheet(),
+  );
 
   @override
   Widget build(BuildContext context) {

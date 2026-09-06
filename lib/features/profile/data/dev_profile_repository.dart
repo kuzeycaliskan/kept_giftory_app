@@ -1,3 +1,4 @@
+import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/profile/domain/profile.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
@@ -6,7 +7,8 @@ import 'package:kept/features/profile/domain/profile_repository.dart';
 class DevProfileRepository implements ProfileRepository {
   const DevProfileRepository();
 
-  static final Profile _me = Profile(
+  // Mutable so dev-session visibility edits survive screen rebuilds.
+  static Profile _me = Profile(
     id: 'dev-me',
     username: 'you',
     displayName: 'You (dev)',
@@ -49,12 +51,25 @@ class DevProfileRepository implements ProfileRepository {
     required String username,
     String? displayName,
     DateTime? birthday,
-  }) async =>
-      Success(_me);
+  }) async => Success(_me);
 
   @override
   Future<Result<Profile>> updateProfile(Profile profile) async =>
       Success(profile);
+
+  @override
+  Future<Result<Profile>> updateVisibility({
+    Visibility? profile,
+    Visibility? wishlist,
+    Visibility? giftHistory,
+  }) async {
+    _me = _me.copyWith(
+      profileVisibility: profile ?? _me.profileVisibility,
+      wishlistVisibility: wishlist ?? _me.wishlistVisibility,
+      giftHistoryVisibility: giftHistory ?? _me.giftHistoryVisibility,
+    );
+    return Success(_me);
+  }
 }
 
 /// Backend-less fallback (no --dart-define config).
@@ -77,10 +92,16 @@ class EmptyProfileRepository implements ProfileRepository {
     required String username,
     String? displayName,
     DateTime? birthday,
-  }) async =>
-      Success(Profile(id: 'noop', username: username));
+  }) async => Success(Profile(id: 'noop', username: username));
 
   @override
   Future<Result<Profile>> updateProfile(Profile profile) async =>
       Success(profile);
+
+  @override
+  Future<Result<Profile>> updateVisibility({
+    Visibility? profile,
+    Visibility? wishlist,
+    Visibility? giftHistory,
+  }) async => const ResultFailure(AuthFailure('No backend configured'));
 }

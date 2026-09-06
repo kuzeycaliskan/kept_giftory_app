@@ -209,5 +209,20 @@
 
   "activityTitle": "Activity",
   "activityTooltip": "Activity",
-  "activityEmpty": "Nothing here yet"
+  "activityEmpty": "Nothing here yet",
+
+  "settingsPrivacySection": "Privacy",
+  "privacyTitle": "Privacy",
+  "privacyEntry": "Who can see my profile",
+  "privacyIntro": "Choose who can see each part of your profile. Changes apply immediately.",
+  "privacyProfile": "Profile",
+  "privacyProfileDesc": "Your name, photo and about info",
+  "privacyWishlist": "Wishlist",
+  "privacyWishlistDesc": "Items you'd love to receive",
+  "privacyGiftHistory": "Gift history",
+  "privacyGiftHistoryDesc": "Gifts you've given and received",
+  "visibilityPublic": "Public",
+  "visibilityFriends": "Friends",
+  "visibilityPrivate": "Private",
+  "privacyUpdateError": "Couldn't save the setting — please try again."
 }

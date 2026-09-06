@@ -28,8 +28,9 @@ class WishlistScreen extends ConsumerWidget {
 
     ref.listen(wishlistControllerProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 
@@ -169,9 +170,9 @@ class _DismissibleItemTile extends ConsumerWidget {
       confirmDismiss: (_) async {
         await ref.read(wishlistControllerProvider.notifier).delete(item.id);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.wishlistDeletedSnack)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.wishlistDeletedSnack)));
         }
         return true;
       },

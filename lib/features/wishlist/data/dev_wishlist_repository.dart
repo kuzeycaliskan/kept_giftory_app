@@ -88,8 +88,7 @@ class EmptyWishlistRepository implements WishlistRepository {
     required String title,
     String? note,
     String? url,
-  }) async =>
-      Success(WishlistItem(id: 'noop', ownerId: 'noop', title: title));
+  }) async => Success(WishlistItem(id: 'noop', ownerId: 'noop', title: title));
 
   @override
   Future<Result<void>> delete(String itemId) async => const Success(null);

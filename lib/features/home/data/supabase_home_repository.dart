@@ -12,7 +12,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// a friend whose profile is hidden from us simply drops out of the list.
 class SupabaseHomeRepository implements HomeRepository {
   SupabaseHomeRepository(this._client, {DateTime Function()? now})
-      : _now = now ?? DateTime.now;
+    : _now = now ?? DateTime.now;
 
   final SupabaseClient _client;
   final DateTime Function() _now;
@@ -56,8 +56,7 @@ class SupabaseHomeRepository implements HomeRepository {
           birthday: birthday,
           daysUntil: daysUntilBirthday(birthday, today),
         );
-      }).toList()
-        ..sort((a, b) => a.daysUntil.compareTo(b.daysUntil));
+      }).toList()..sort((a, b) => a.daysUntil.compareTo(b.daysUntil));
 
       return Success(upcoming.take(limit).toList());
     } on PostgrestException catch (e) {

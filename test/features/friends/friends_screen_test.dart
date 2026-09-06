@@ -38,15 +38,13 @@ class _FakeFriendshipRepository implements FriendshipRepository {
 
   @override
   Future<Result<void>> decline(String friendshipId) async {
-    entries =
-        entries.where((e) => e.friendshipId != friendshipId).toList();
+    entries = entries.where((e) => e.friendshipId != friendshipId).toList();
     return const Success(null);
   }
 
   @override
   Future<Result<void>> remove(String friendshipId) async {
-    entries =
-        entries.where((e) => e.friendshipId != friendshipId).toList();
+    entries = entries.where((e) => e.friendshipId != friendshipId).toList();
     return const Success(null);
   }
 
@@ -63,17 +61,12 @@ void main() {
     final router = GoRouter(
       initialLocation: '/friends',
       routes: [
-        GoRoute(
-          path: '/friends',
-          builder: (_, __) => const FriendsScreen(),
-        ),
+        GoRoute(path: '/friends', builder: (_, __) => const FriendsScreen()),
       ],
     );
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          friendshipRepositoryProvider.overrideWithValue(repo),
-        ],
+        overrides: [friendshipRepositoryProvider.overrideWithValue(repo)],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -115,11 +108,7 @@ void main() {
     repo.entries = [friend];
 
     // …and pulling down fetches it without leaving the screen.
-    await tester.fling(
-      find.text('No friends yet'),
-      const Offset(0, 400),
-      1000,
-    );
+    await tester.fling(find.text('No friends yet'), const Offset(0, 400), 1000);
     await tester.pumpAndSettle();
 
     expect(find.text('Ali'), findsOneWidget);
@@ -146,8 +135,9 @@ void main() {
     expect(find.byIcon(Icons.check_circle_outline), findsNothing);
   });
 
-  testWidgets('swiping a friend left asks for confirmation, then removes',
-      (tester) async {
+  testWidgets('swiping a friend left asks for confirmation, then removes', (
+    tester,
+  ) async {
     final repo = _FakeFriendshipRepository([friend]);
     await pumpFriends(tester, repo);
 
@@ -169,8 +159,9 @@ void main() {
     expect(find.text('No friends yet'), findsOneWidget);
   });
 
-  testWidgets('long-pressing a friend opens the same confirmation',
-      (tester) async {
+  testWidgets('long-pressing a friend opens the same confirmation', (
+    tester,
+  ) async {
     await pumpFriends(tester, _FakeFriendshipRepository([friend]));
 
     await tester.longPress(find.text('Ali'));

@@ -17,8 +17,9 @@ class FriendsScreen extends ConsumerWidget {
 
     ref.listen(friendsControllerProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 
@@ -143,9 +144,7 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      child: Text(entry.label.substring(0, 1).toUpperCase()),
-    );
+    return CircleAvatar(child: Text(entry.label.substring(0, 1).toUpperCase()));
   }
 }
 
@@ -202,8 +201,9 @@ class _RequestTile extends ConsumerWidget {
                 IconButton(
                   tooltip: l10n.friendAccept,
                   icon: const Icon(Icons.check_circle_outline),
-                  onPressed:
-                      busy ? null : () => controller.accept(entry.friendshipId),
+                  onPressed: busy
+                      ? null
+                      : () => controller.accept(entry.friendshipId),
                 ),
                 IconButton(
                   tooltip: l10n.friendDecline,
@@ -215,8 +215,9 @@ class _RequestTile extends ConsumerWidget {
               ],
             )
           : TextButton(
-              onPressed:
-                  busy ? null : () => controller.remove(entry.friendshipId),
+              onPressed: busy
+                  ? null
+                  : () => controller.remove(entry.friendshipId),
               child: Text(l10n.friendCancelRequest),
             ),
     );

@@ -31,25 +31,16 @@ void main() {
 
   group('daysUntilBirthday', () {
     test('is 0 on the day', () {
-      expect(
-        daysUntilBirthday(DateTime(1995, 9, 4), DateTime(2026, 9, 4)),
-        0,
-      );
+      expect(daysUntilBirthday(DateTime(1995, 9, 4), DateTime(2026, 9, 4)), 0);
     });
 
     test('is 1 the day before', () {
-      expect(
-        daysUntilBirthday(DateTime(1995, 9, 5), DateTime(2026, 9, 4)),
-        1,
-      );
+      expect(daysUntilBirthday(DateTime(1995, 9, 5), DateTime(2026, 9, 4)), 1);
     });
 
     test('ignores the time of day', () {
       expect(
-        daysUntilBirthday(
-          DateTime(1995, 9, 5),
-          DateTime(2026, 9, 4, 23, 59),
-        ),
+        daysUntilBirthday(DateTime(1995, 9, 5), DateTime(2026, 9, 4, 23, 59)),
         1,
       );
     });

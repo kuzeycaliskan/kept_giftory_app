@@ -158,5 +158,20 @@
 
   "activityTitle": "Aktivite",
   "activityTooltip": "Aktivite",
-  "activityEmpty": "Henüz bir şey yok"
+  "activityEmpty": "Henüz bir şey yok",
+
+  "settingsPrivacySection": "Mahremiyet",
+  "privacyTitle": "Mahremiyet",
+  "privacyEntry": "Profilimi kimler görebilir",
+  "privacyIntro": "Profilinin her bölümünü kimlerin görebileceğini seç. Değişiklikler anında uygulanır.",
+  "privacyProfile": "Profil",
+  "privacyProfileDesc": "Adın, fotoğrafın ve hakkında bilgilerin",
+  "privacyWishlist": "Wishlist",
+  "privacyWishlistDesc": "Almak istediğin şeyler",
+  "privacyGiftHistory": "Hediye geçmişi",
+  "privacyGiftHistoryDesc": "Verdiğin ve aldığın hediyeler",
+  "visibilityPublic": "Herkese açık",
+  "visibilityFriends": "Arkadaşlar",
+  "visibilityPrivate": "Kapalı",
+  "privacyUpdateError": "Ayar kaydedilemedi — lütfen tekrar dene."
 }

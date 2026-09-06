@@ -20,4 +20,12 @@ abstract interface class ProfileRepository {
   });
 
   Future<Result<Profile>> updateProfile(Profile profile);
+
+  /// Partial update of the caller's section-visibility settings (G-22).
+  /// Only non-null sections are written; RLS applies the change immediately.
+  Future<Result<Profile>> updateVisibility({
+    Visibility? profile,
+    Visibility? wishlist,
+    Visibility? giftHistory,
+  });
 }

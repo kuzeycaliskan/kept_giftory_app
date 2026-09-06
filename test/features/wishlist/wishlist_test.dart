@@ -12,7 +12,7 @@ import 'package:kept/features/wishlist/presentation/wishlist_screen.dart';
 
 class _FakeWishlistRepository implements WishlistRepository {
   _FakeWishlistRepository({List<WishlistItem>? mine, this.friendItems})
-      : mine = mine ?? [];
+    : mine = mine ?? [];
 
   final List<WishlistItem> mine;
   final List<WishlistItem>? friendItems;
@@ -55,10 +55,7 @@ void main() {
     final router = GoRouter(
       initialLocation: initial,
       routes: [
-        GoRoute(
-          path: '/wishlist',
-          builder: (_, __) => const WishlistScreen(),
-        ),
+        GoRoute(path: '/wishlist', builder: (_, __) => const WishlistScreen()),
         GoRoute(
           path: '/wishlist/add',
           builder: (_, __) => const AddWishlistItemScreen(),

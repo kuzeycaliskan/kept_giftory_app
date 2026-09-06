@@ -14,7 +14,8 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
 
   final SupabaseClient _client;
 
-  static const _select = 'id, status, requester_id, addressee_id, '
+  static const _select =
+      'id, status, requester_id, addressee_id, '
       'requester:profiles!friendships_requester_id_fkey'
       '(id, username, display_name, avatar_url, birthday), '
       'addressee:profiles!friendships_addressee_id_fkey'
@@ -25,17 +26,18 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
     try {
-      final rows = await _client
-          .from('friendships')
-          .select(_select)
-          .inFilter('status', ['pending', 'accepted']);
+      final rows = await _client.from('friendships').select(_select).inFilter(
+        'status',
+        ['pending', 'accepted'],
+      );
 
       final entries = <FriendEntry>[];
       for (final row in rows) {
         final requesterId = row['requester_id']! as String;
         final incoming = requesterId != userId;
-        final other = (incoming ? row['requester'] : row['addressee'])
-            as Map<String, dynamic>?;
+        final other =
+            (incoming ? row['requester'] : row['addressee'])
+                as Map<String, dynamic>?;
         if (other == null) continue; // other profile hidden by RLS
         final status = row['status'] == 'accepted'
             ? FriendshipStatus.accepted
@@ -53,8 +55,8 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
             status: status,
             direction: status == FriendshipStatus.pending
                 ? (incoming
-                    ? RequestDirection.incoming
-                    : RequestDirection.outgoing)
+                      ? RequestDirection.incoming
+                      : RequestDirection.outgoing)
                 : null,
           ),
         );

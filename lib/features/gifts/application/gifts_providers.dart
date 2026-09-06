@@ -64,7 +64,9 @@ class GiftsController extends _$GiftsController {
     DateTime? revealAt,
   }) async {
     state = const AsyncLoading();
-    final result = await ref.read(giftRepositoryProvider).log(
+    final result = await ref
+        .read(giftRepositoryProvider)
+        .log(
           recipientId: recipientId,
           item: item,
           giftDate: giftDate,

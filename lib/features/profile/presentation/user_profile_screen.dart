@@ -58,44 +58,42 @@ class _FriendshipAction extends ConsumerWidget {
       loading: () => const SizedBox.shrink(),
       error: (error, _) => const SizedBox.shrink(),
       data: (all) {
-        final entry =
-            all.where((e) => e.profileId == profileId).firstOrNull;
+        final entry = all.where((e) => e.profileId == profileId).firstOrNull;
 
         if (entry == null) {
           return FilledButton.tonalIcon(
-            onPressed:
-                busy ? null : () => controller.sendRequest(profileId),
+            onPressed: busy ? null : () => controller.sendRequest(profileId),
             icon: const Icon(Icons.person_add_outlined),
             label: Text(l10n.friendAdd),
           );
         }
         return switch ((entry.status, entry.direction)) {
           (FriendshipStatus.accepted, _) => Chip(
-              avatar: const Icon(Icons.check, size: 18),
-              label: Text(l10n.friendStatusFriends),
-            ),
+            avatar: const Icon(Icons.check, size: 18),
+            label: Text(l10n.friendStatusFriends),
+          ),
           (FriendshipStatus.pending, RequestDirection.outgoing) => Chip(
-              avatar: const Icon(Icons.schedule, size: 18),
-              label: Text(l10n.friendPendingOutgoing),
-            ),
+            avatar: const Icon(Icons.schedule, size: 18),
+            label: Text(l10n.friendPendingOutgoing),
+          ),
           (FriendshipStatus.pending, _) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FilledButton.tonal(
-                  onPressed: busy
-                      ? null
-                      : () => controller.accept(entry.friendshipId),
-                  child: Text(l10n.friendAccept),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton(
-                  onPressed: busy
-                      ? null
-                      : () => controller.decline(entry.friendshipId),
-                  child: Text(l10n.friendDecline),
-                ),
-              ],
-            ),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FilledButton.tonal(
+                onPressed: busy
+                    ? null
+                    : () => controller.accept(entry.friendshipId),
+                child: Text(l10n.friendAccept),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton(
+                onPressed: busy
+                    ? null
+                    : () => controller.decline(entry.friendshipId),
+                child: Text(l10n.friendDecline),
+              ),
+            ],
+          ),
           _ => const SizedBox.shrink(),
         };
       },

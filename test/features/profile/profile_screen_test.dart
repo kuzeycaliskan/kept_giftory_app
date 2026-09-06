@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Visibility;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -33,12 +33,18 @@ class _FakeProfileRepository implements ProfileRepository {
     required String username,
     String? displayName,
     DateTime? birthday,
-  }) async =>
-      Success(Profile(id: 'x', username: username));
+  }) async => Success(Profile(id: 'x', username: username));
 
   @override
   Future<Result<Profile>> updateProfile(Profile profile) async =>
       Success(profile);
+
+  @override
+  Future<Result<Profile>> updateVisibility({
+    Visibility? profile,
+    Visibility? wishlist,
+    Visibility? giftHistory,
+  }) async => Success(other ?? const Profile(id: 'x', username: 'x'));
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
@@ -57,16 +63,14 @@ class _FakeFriendshipRepository implements FriendshipRepository {
   }
 
   @override
-  Future<Result<void>> accept(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> accept(String friendshipId) async => const Success(null);
 
   @override
   Future<Result<void>> decline(String friendshipId) async =>
       const Success(null);
 
   @override
-  Future<Result<void>> remove(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> remove(String friendshipId) async => const Success(null);
 }
 
 const _ali = Profile(
@@ -98,8 +102,9 @@ void main() {
       ProviderScope(
         overrides: [
           profileRepositoryProvider.overrideWithValue(profiles),
-          friendshipRepositoryProvider
-              .overrideWithValue(friendships ?? _FakeFriendshipRepository()),
+          friendshipRepositoryProvider.overrideWithValue(
+            friendships ?? _FakeFriendshipRepository(),
+          ),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -111,8 +116,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('renders header, tabs and Add friend for a stranger',
-      (tester) async {
+  testWidgets('renders header, tabs and Add friend for a stranger', (
+    tester,
+  ) async {
     final friendships = _FakeFriendshipRepository();
     await pump(
       tester,

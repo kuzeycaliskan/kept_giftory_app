@@ -479,4 +479,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activityEmpty => 'Nothing here yet';
+
+  @override
+  String get settingsPrivacySection => 'Privacy';
+
+  @override
+  String get privacyTitle => 'Privacy';
+
+  @override
+  String get privacyEntry => 'Who can see my profile';
+
+  @override
+  String get privacyIntro =>
+      'Choose who can see each part of your profile. Changes apply immediately.';
+
+  @override
+  String get privacyProfile => 'Profile';
+
+  @override
+  String get privacyProfileDesc => 'Your name, photo and about info';
+
+  @override
+  String get privacyWishlist => 'Wishlist';
+
+  @override
+  String get privacyWishlistDesc => 'Items you\'d love to receive';
+
+  @override
+  String get privacyGiftHistory => 'Gift history';
+
+  @override
+  String get privacyGiftHistoryDesc => 'Gifts you\'ve given and received';
+
+  @override
+  String get visibilityPublic => 'Public';
+
+  @override
+  String get visibilityFriends => 'Friends';
+
+  @override
+  String get visibilityPrivate => 'Private';
+
+  @override
+  String get privacyUpdateError =>
+      'Couldn\'t save the setting — please try again.';
 }

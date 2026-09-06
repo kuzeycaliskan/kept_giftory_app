@@ -53,8 +53,7 @@ class NoopPushTokenRepository implements PushTokenRepository {
   Future<Result<void>> register({
     required String token,
     required String platform,
-  }) async =>
-      const Success(null);
+  }) async => const Success(null);
 
   @override
   Future<Result<void>> unregister(String token) async => const Success(null);

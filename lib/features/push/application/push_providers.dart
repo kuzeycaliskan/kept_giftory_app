@@ -32,9 +32,8 @@ Future<bool> shouldShowPushPriming(Ref ref) async {
   final client = ref.watch(supabaseClientProvider);
   if (client.auth.currentUser == null) return false;
 
-  final status =
-      (await FirebaseMessaging.instance.getNotificationSettings())
-          .authorizationStatus;
+  final status = (await FirebaseMessaging.instance.getNotificationSettings())
+      .authorizationStatus;
 
   // Never asked → always offer: "Later" isn't a real decision yet, so the
   // dismissal flag doesn't suppress the card here.
@@ -59,20 +58,21 @@ Future<void> pushTokenSync(Ref ref) async {
   final client = ref.watch(supabaseClientProvider);
   if (client.auth.currentUser == null) return;
   try {
-    final settings =
-        await FirebaseMessaging.instance.getNotificationSettings();
+    final settings = await FirebaseMessaging.instance.getNotificationSettings();
     final granted =
         settings.authorizationStatus == AuthorizationStatus.authorized ||
-            settings.authorizationStatus == AuthorizationStatus.provisional;
+        settings.authorizationStatus == AuthorizationStatus.provisional;
     if (!granted) {
-      debugPrint('pushTokenSync: permission not granted '
-          '(${settings.authorizationStatus})');
+      debugPrint(
+        'pushTokenSync: permission not granted '
+        '(${settings.authorizationStatus})',
+      );
       return;
     }
     await ref.read(pushSetupProvider.notifier).syncToken();
-    FirebaseMessaging.instance
-        .onTokenRefresh
-        .listen((_) => ref.read(pushSetupProvider.notifier).syncToken());
+    FirebaseMessaging.instance.onTokenRefresh.listen(
+      (_) => ref.read(pushSetupProvider.notifier).syncToken(),
+    );
   } catch (e) {
     // Push is a degradation; never let it break Home.
     debugPrint('pushTokenSync failed: $e');
@@ -97,7 +97,7 @@ class PushSetup extends _$PushSetup {
       final settings = await messaging.requestPermission();
       granted =
           settings.authorizationStatus == AuthorizationStatus.authorized ||
-              settings.authorizationStatus == AuthorizationStatus.provisional;
+          settings.authorizationStatus == AuthorizationStatus.provisional;
       if (granted) {
         // Fire-and-forget: token sync polls for the APNs token (up to ~10s on
         // iOS) — never block the card dismissal on it.
@@ -148,10 +148,9 @@ class PushSetup extends _$PushSetup {
     final token = await messaging.getToken();
     debugPrint('pushTokenSync: fcm token ${token == null ? 'NULL' : 'ok'}');
     if (token == null) return;
-    final result = await ref.read(pushTokenRepositoryProvider).register(
-          token: token,
-          platform: Platform.isIOS ? 'ios' : 'android',
-        );
+    final result = await ref
+        .read(pushTokenRepositoryProvider)
+        .register(token: token, platform: Platform.isIOS ? 'ios' : 'android');
     result.when(
       success: (_) => debugPrint('pushTokenSync: registered'),
       failure: (f) => debugPrint('pushTokenSync: register failed: $f'),

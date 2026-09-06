@@ -60,10 +60,11 @@ class _MeQuickLinks extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final friendCount = ref.watch(friendEntriesProvider).maybeWhen(
-          data: (all) => all
-              .where((e) => e.status == FriendshipStatus.accepted)
-              .length,
+    final friendCount = ref
+        .watch(friendEntriesProvider)
+        .maybeWhen(
+          data: (all) =>
+              all.where((e) => e.status == FriendshipStatus.accepted).length,
           orElse: () => null,
         );
 

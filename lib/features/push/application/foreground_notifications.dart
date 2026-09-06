@@ -40,7 +40,8 @@ class ForegroundNotifications {
 
     await plugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(_channel);
 
     final instance = ForegroundNotifications._(plugin);

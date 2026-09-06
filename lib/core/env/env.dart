@@ -7,16 +7,19 @@ class Env {
 
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 
-  static const String supabaseAnonKey =
-      String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const String supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+  );
 
   /// Google OAuth client ids (G-11). Empty until created in Google Cloud;
   /// native Google sign-in needs the WEB client id as `serverClientId` so the
   /// resulting idToken is accepted by Supabase.
-  static const String googleWebClientId =
-      String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
-  static const String googleIosClientId =
-      String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
+  static const String googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+  );
+  static const String googleIosClientId = String.fromEnvironment(
+    'GOOGLE_IOS_CLIENT_ID',
+  );
 
   /// Public legal pages (G-74). Hosted on the marketing site; also the URLs
   /// submitted to the App Store / Play Console. Draft content — pending legal

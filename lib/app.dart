@@ -42,8 +42,9 @@ class _KeptAppState extends ConsumerState<KeptApp> {
       final initial = await FirebaseMessaging.instance.getInitialMessage();
       if (initial != null) _routeFromData(initial.data);
       // Background → foreground via notification tap.
-      FirebaseMessaging.onMessageOpenedApp
-          .listen((message) => _routeFromData(message.data));
+      FirebaseMessaging.onMessageOpenedApp.listen(
+        (message) => _routeFromData(message.data),
+      );
     } catch (e) {
       debugPrint('Push navigation hook failed: $e');
     }

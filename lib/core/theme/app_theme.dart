@@ -8,7 +8,7 @@ class AppTheme {
   static const Color _seed = Color(0xFF6C4DF6);
 
   static ThemeData light() => ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: _seed),
-        useMaterial3: true,
-      );
+    colorScheme: ColorScheme.fromSeed(seedColor: _seed),
+    useMaterial3: true,
+  );
 }

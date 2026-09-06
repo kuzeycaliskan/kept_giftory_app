@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Settings hub (G-85 lite): account actions today (sign out, delete account
-/// — G-71). Privacy toggles (G-22), notification prefs (G-63) and legal texts
-/// (G-74) land here next.
+/// Settings hub (G-85 lite): privacy (G-22), legal texts (G-74) and account
+/// actions (sign out, delete account — G-71). Notification prefs (G-63) land
+/// here next.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -55,9 +56,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       // Success: signOut inside deleteAccount flips auth state → router
       // redirects to /sign-in on its own.
       success: (_) {},
-      failure: (_) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deleteAccountError)),
-      ),
+      failure: (_) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.deleteAccountError))),
     );
   }
 
@@ -67,8 +68,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       mode: LaunchMode.externalApplication,
     );
     if (!ok && mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.legalOpenError)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.legalOpenError)));
     }
   }
 
@@ -81,6 +83,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           ListView(
             children: [
+              _SectionLabel(l10n.settingsPrivacySection),
+              ListTile(
+                leading: const Icon(Icons.visibility_outlined),
+                title: Text(l10n.privacyEntry),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.pushNamed('settings-privacy'),
+              ),
+              const Divider(),
               _SectionLabel(l10n.settingsLegalSection),
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
@@ -134,10 +144,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+      child: Text(text, style: Theme.of(context).textTheme.titleSmall),
     );
   }
 }

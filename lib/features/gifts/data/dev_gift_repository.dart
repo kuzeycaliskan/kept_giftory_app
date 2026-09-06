@@ -49,9 +49,9 @@ class DevGiftRepository implements GiftRepository {
 
   @override
   Future<Result<List<GiftEntry>>> fetchFor(String profileId) async => Success([
-        for (final g in _given)
-          if (g.counterpartId == profileId && !g.isPendingSurprise) g,
-      ]);
+    for (final g in _given)
+      if (g.counterpartId == profileId && !g.isPendingSurprise) g,
+  ]);
 
   @override
   Future<Result<GiftEntry>> log({
@@ -105,15 +105,14 @@ class EmptyGiftRepository implements GiftRepository {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
-  }) async =>
-      Success(
-        GiftEntry(
-          id: 'noop',
-          item: item,
-          giftDate: giftDate,
-          isSurprise: isSurprise,
-        ),
-      );
+  }) async => Success(
+    GiftEntry(
+      id: 'noop',
+      item: item,
+      giftDate: giftDate,
+      isSurprise: isSurprise,
+    ),
+  );
 
   @override
   Future<Result<void>> delete(String giftId) async => const Success(null);

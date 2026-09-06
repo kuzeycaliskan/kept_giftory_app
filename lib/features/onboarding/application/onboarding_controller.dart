@@ -13,8 +13,9 @@ class OnboardingController extends _$OnboardingController {
 
   /// True when the username is free (used for inline feedback).
   Future<bool?> checkAvailability(String username) async {
-    final result =
-        await ref.read(profileRepositoryProvider).isUsernameAvailable(username);
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .isUsernameAvailable(username);
     return result.when(success: (free) => free, failure: (_) => null);
   }
 
@@ -26,7 +27,9 @@ class OnboardingController extends _$OnboardingController {
     DateTime? birthday,
   }) async {
     state = const AsyncLoading();
-    final result = await ref.read(profileRepositoryProvider).createProfile(
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .createProfile(
           username: username,
           displayName: displayName,
           birthday: birthday,

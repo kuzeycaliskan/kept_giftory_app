@@ -42,6 +42,5 @@ class EmptyHomeRepository implements HomeRepository {
   @override
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
-  }) async =>
-      const Success([]);
+  }) async => const Success([]);
 }

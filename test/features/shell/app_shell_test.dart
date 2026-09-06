@@ -38,8 +38,9 @@ void main() {
     expect(find.text('Upcoming'), findsOneWidget);
   });
 
-  testWidgets('Add opens the quick-add sheet instead of navigating',
-      (tester) async {
+  testWidgets('Add opens the quick-add sheet instead of navigating', (
+    tester,
+  ) async {
     await pumpApp(tester);
 
     await tester.tap(find.text('Add'));

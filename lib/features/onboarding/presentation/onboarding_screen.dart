@@ -43,16 +43,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   String? _feedbackText(BuildContext context) => switch (_feedback) {
-        null => null,
-        _UsernameFeedback.tooShort =>
-          context.l10n.usernameTooShort(Username.minLength),
-        _UsernameFeedback.tooLong =>
-          context.l10n.usernameTooLong(Username.maxLength),
-        _UsernameFeedback.invalidCharacters =>
-          context.l10n.usernameInvalidCharacters,
-        _UsernameFeedback.taken => context.l10n.usernameTaken,
-        _UsernameFeedback.checkFailed => context.l10n.usernameCheckFailed,
-      };
+    null => null,
+    _UsernameFeedback.tooShort => context.l10n.usernameTooShort(
+      Username.minLength,
+    ),
+    _UsernameFeedback.tooLong => context.l10n.usernameTooLong(
+      Username.maxLength,
+    ),
+    _UsernameFeedback.invalidCharacters =>
+      context.l10n.usernameInvalidCharacters,
+    _UsernameFeedback.taken => context.l10n.usernameTaken,
+    _UsernameFeedback.checkFailed => context.l10n.usernameCheckFailed,
+  };
 
   Future<void> _validateUsername() async {
     final value = _usernameController.text.trim();
@@ -94,14 +96,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _submit() async {
-    final profile =
-        await ref.read(onboardingControllerProvider.notifier).submit(
-              username: _usernameController.text.trim(),
-              displayName: _nameController.text.trim().isEmpty
-                  ? null
-                  : _nameController.text.trim(),
-              birthday: _birthday,
-            );
+    final profile = await ref
+        .read(onboardingControllerProvider.notifier)
+        .submit(
+          username: _usernameController.text.trim(),
+          displayName: _nameController.text.trim().isEmpty
+              ? null
+              : _nameController.text.trim(),
+          birthday: _birthday,
+        );
     if (profile != null && mounted) context.go('/');
   }
 
@@ -115,13 +118,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final error = next.error;
       if (error is AuthFailure) {
         // Ghost session (user deleted server-side): drop it and re-auth.
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorSessionInvalid)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorSessionInvalid)));
         ref.read(authRepositoryProvider).signOut();
       } else if (next.hasError) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 

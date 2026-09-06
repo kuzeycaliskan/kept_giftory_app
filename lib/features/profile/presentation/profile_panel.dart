@@ -83,10 +83,7 @@ class _ProfileHeader extends StatelessWidget {
             style: theme.textTheme.titleLarge,
           ),
           Text('@${profile.username}', style: theme.textTheme.bodyMedium),
-          if (trailing != null) ...[
-            const SizedBox(height: 12),
-            trailing!,
-          ],
+          if (trailing != null) ...[const SizedBox(height: 12), trailing!],
         ],
       ),
     );
@@ -122,10 +119,10 @@ class _WishlistTab extends ConsumerWidget {
   }
 
   Widget _wishlistTile(WishlistItem item) => ListTile(
-        leading: const Icon(Icons.card_giftcard_outlined),
-        title: Text(item.title),
-        subtitle: item.note == null ? null : Text(item.note!),
-      );
+    leading: const Icon(Icons.card_giftcard_outlined),
+    title: Text(item.title),
+    subtitle: item.note == null ? null : Text(item.note!),
+  );
 }
 
 class _HistoryTab extends ConsumerWidget {
@@ -160,15 +157,14 @@ class _HistoryTab extends ConsumerWidget {
     AppLocalizations l10n,
     String locale,
     GiftEntry gift,
-  ) =>
-      ListTile(
-        leading: const Icon(Icons.redeem_outlined),
-        title: Text(gift.item),
-        subtitle: Text(
-          '${gift.counterpartLabel ?? l10n.giftAnonymousGiver} · '
-          '${DateFormat.yMMMd(locale).format(gift.giftDate)}',
-        ),
-      );
+  ) => ListTile(
+    leading: const Icon(Icons.redeem_outlined),
+    title: Text(gift.item),
+    subtitle: Text(
+      '${gift.counterpartLabel ?? l10n.giftAnonymousGiver} · '
+      '${DateFormat.yMMMd(locale).format(gift.giftDate)}',
+    ),
+  );
 }
 
 class _AboutTab extends StatelessWidget {
@@ -190,9 +186,7 @@ class _AboutTab extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.cake_outlined),
           title: Text(l10n.profileAboutBirthday),
-          subtitle: Text(
-            DateFormat.MMMMd(locale).format(profile.birthday!),
-          ),
+          subtitle: Text(DateFormat.MMMMd(locale).format(profile.birthday!)),
         ),
       if (profile.occupation != null)
         ListTile(

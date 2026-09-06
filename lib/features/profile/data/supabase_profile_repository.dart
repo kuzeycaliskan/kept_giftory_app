@@ -99,6 +99,38 @@ class SupabaseProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> updateVisibility({
+    Visibility? profile,
+    Visibility? wishlist,
+    Visibility? giftHistory,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    // Enum names match the Postgres enum labels — see profile.dart.
+    final patch = {
+      if (profile != null) 'profile_visibility': profile.name,
+      if (wishlist != null) 'wishlist_visibility': wishlist.name,
+      if (giftHistory != null) 'gift_history_visibility': giftHistory.name,
+    };
+    if (patch.isEmpty) {
+      return const ResultFailure(ValidationFailure('Nothing to update'));
+    }
+    try {
+      final row = await _client
+          .from(_table)
+          .update(patch)
+          .eq('id', userId)
+          .select()
+          .single();
+      return Success(Profile.fromJson(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Result<Profile>> updateProfile(Profile profile) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));

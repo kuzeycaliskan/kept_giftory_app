@@ -144,7 +144,9 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     });
     if (_itemMissing || _recipientMissing || _revealMissing) return;
 
-    final ok = await ref.read(giftsControllerProvider.notifier).log(
+    final ok = await ref
+        .read(giftsControllerProvider.notifier)
+        .log(
           recipientId: _recipientId!,
           item: item,
           giftDate: _giftDate,
@@ -153,8 +155,9 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           revealAt: _isSurprise ? _revealAt : null,
         );
     if (ok && mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.logGiftSavedSnack)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.logGiftSavedSnack)));
       context.pop();
     }
   }
@@ -168,8 +171,9 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
 
     ref.listen(giftsControllerProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 
@@ -186,10 +190,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(
-                  l10n.logGiftNoFriends,
-                  textAlign: TextAlign.center,
-                ),
+                child: Text(l10n.logGiftNoFriends, textAlign: TextAlign.center),
               ),
             );
           }
@@ -208,16 +209,14 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
             initialValue: _recipientId,
             decoration: InputDecoration(
               labelText: l10n.logGiftRecipientLabel,
-              errorText:
-                  _recipientMissing ? l10n.logGiftRecipientRequired : null,
+              errorText: _recipientMissing
+                  ? l10n.logGiftRecipientRequired
+                  : null,
               border: const OutlineInputBorder(),
             ),
             items: [
               for (final f in friends)
-                DropdownMenuItem(
-                  value: f.profileId,
-                  child: Text(f.label),
-                ),
+                DropdownMenuItem(value: f.profileId, child: Text(f.label)),
             ],
             onChanged: (value) => setState(() {
               _recipientId = value;
@@ -271,7 +270,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
                 _revealAt == null
                     ? l10n.logGiftRevealDateLabel
                     : '${l10n.logGiftRevealDateLabel}: '
-                        '${_formatDate(_revealAt!)}',
+                          '${_formatDate(_revealAt!)}',
               ),
             ),
             if (_revealMissing)

@@ -27,8 +27,9 @@ class _GiftsScreenState extends ConsumerState<GiftsScreen> {
 
     ref.listen(giftsControllerProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
 
@@ -63,8 +64,7 @@ class _GiftsScreenState extends ConsumerState<GiftsScreen> {
           ),
           Expanded(
             child: items.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(l10n.giftsError)),
               data: (list) {
                 if (list.isEmpty) return _EmptyState(given: _showGiven);
@@ -138,9 +138,7 @@ class _GiftTile extends StatelessWidget {
     final date = DateFormat.yMMMd(locale).format(gift.giftDate);
 
     return ListTile(
-      leading: Icon(
-        given ? Icons.north_east : Icons.south_west,
-      ),
+      leading: Icon(given ? Icons.north_east : Icons.south_west),
       title: Text(gift.item),
       subtitle: Text('$counterpart · $date'),
       trailing: gift.isPendingSurprise
@@ -179,9 +177,9 @@ class _DismissibleGiftTile extends ConsumerWidget {
       confirmDismiss: (_) async {
         await ref.read(giftsControllerProvider.notifier).delete(gift.id);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.giftDeletedSnack)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.giftDeletedSnack)));
         }
         return true;
       },

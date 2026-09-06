@@ -9,53 +9,51 @@ class DevFriendshipRepository implements FriendshipRepository {
 
   @override
   Future<Result<List<FriendEntry>>> fetchAll() async => const Success([
-        FriendEntry(
-          friendshipId: 'dev-f1',
-          profileId: 'dev-ali',
-          username: 'ali',
-          displayName: 'Ali',
-          status: FriendshipStatus.accepted,
-        ),
-        FriendEntry(
-          friendshipId: 'dev-f2',
-          profileId: 'dev-zeynep',
-          username: 'zeynep',
-          displayName: 'Zeynep',
-          status: FriendshipStatus.accepted,
-        ),
-        FriendEntry(
-          friendshipId: 'dev-f3',
-          profileId: 'dev-selin',
-          username: 'selin',
-          displayName: 'Selin',
-          status: FriendshipStatus.pending,
-          direction: RequestDirection.incoming,
-        ),
-        FriendEntry(
-          friendshipId: 'dev-f4',
-          profileId: 'dev-mert',
-          username: 'mert',
-          displayName: 'Mert',
-          status: FriendshipStatus.pending,
-          direction: RequestDirection.outgoing,
-        ),
-      ]);
+    FriendEntry(
+      friendshipId: 'dev-f1',
+      profileId: 'dev-ali',
+      username: 'ali',
+      displayName: 'Ali',
+      status: FriendshipStatus.accepted,
+    ),
+    FriendEntry(
+      friendshipId: 'dev-f2',
+      profileId: 'dev-zeynep',
+      username: 'zeynep',
+      displayName: 'Zeynep',
+      status: FriendshipStatus.accepted,
+    ),
+    FriendEntry(
+      friendshipId: 'dev-f3',
+      profileId: 'dev-selin',
+      username: 'selin',
+      displayName: 'Selin',
+      status: FriendshipStatus.pending,
+      direction: RequestDirection.incoming,
+    ),
+    FriendEntry(
+      friendshipId: 'dev-f4',
+      profileId: 'dev-mert',
+      username: 'mert',
+      displayName: 'Mert',
+      status: FriendshipStatus.pending,
+      direction: RequestDirection.outgoing,
+    ),
+  ]);
 
   @override
   Future<Result<void>> sendRequest(String profileId) async =>
       const Success(null);
 
   @override
-  Future<Result<void>> accept(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> accept(String friendshipId) async => const Success(null);
 
   @override
   Future<Result<void>> decline(String friendshipId) async =>
       const Success(null);
 
   @override
-  Future<Result<void>> remove(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> remove(String friendshipId) async => const Success(null);
 }
 
 /// Backend-less fallback (no --dart-define config).
@@ -70,14 +68,12 @@ class EmptyFriendshipRepository implements FriendshipRepository {
       const Success(null);
 
   @override
-  Future<Result<void>> accept(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> accept(String friendshipId) async => const Success(null);
 
   @override
   Future<Result<void>> decline(String friendshipId) async =>
       const Success(null);
 
   @override
-  Future<Result<void>> remove(String friendshipId) async =>
-      const Success(null);
+  Future<Result<void>> remove(String friendshipId) async => const Success(null);
 }

@@ -979,6 +979,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing here yet'**
   String get activityEmpty;
+
+  /// No description provided for @settingsPrivacySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacySection;
+
+  /// No description provided for @privacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacyTitle;
+
+  /// No description provided for @privacyEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see my profile'**
+  String get privacyEntry;
+
+  /// No description provided for @privacyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who can see each part of your profile. Changes apply immediately.'**
+  String get privacyIntro;
+
+  /// No description provided for @privacyProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get privacyProfile;
+
+  /// No description provided for @privacyProfileDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, photo and about info'**
+  String get privacyProfileDesc;
+
+  /// No description provided for @privacyWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get privacyWishlist;
+
+  /// No description provided for @privacyWishlistDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Items you\'d love to receive'**
+  String get privacyWishlistDesc;
+
+  /// No description provided for @privacyGiftHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift history'**
+  String get privacyGiftHistory;
+
+  /// No description provided for @privacyGiftHistoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts you\'ve given and received'**
+  String get privacyGiftHistoryDesc;
+
+  /// No description provided for @visibilityPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get visibilityPublic;
+
+  /// No description provided for @visibilityFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get visibilityFriends;
+
+  /// No description provided for @visibilityPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get visibilityPrivate;
+
+  /// No description provided for @privacyUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the setting — please try again.'**
+  String get privacyUpdateError;
 }
 
 class _AppLocalizationsDelegate

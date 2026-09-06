@@ -11,10 +11,12 @@ class SupabaseGiftRepository implements GiftRepository {
 
   final SupabaseClient _client;
 
-  static const _giverSelect = 'id, item, note, gift_date, is_surprise, '
+  static const _giverSelect =
+      'id, item, note, gift_date, is_surprise, '
       'reveal_at, giver_id, '
       'giver:profiles!gifts_giver_id_fkey(id, username, display_name)';
-  static const _recipientSelect = 'id, item, note, gift_date, is_surprise, '
+  static const _recipientSelect =
+      'id, item, note, gift_date, is_surprise, '
       'reveal_at, recipient_id, '
       'recipient:profiles!gifts_recipient_id_fkey(id, username, display_name)';
 
@@ -28,9 +30,9 @@ class SupabaseGiftRepository implements GiftRepository {
           .select(_recipientSelect)
           .eq('giver_id', userId)
           .order('gift_date', ascending: false);
-      return Success(
-        [for (final r in rows) _entry(r, counterpartKey: 'recipient')],
-      );
+      return Success([
+        for (final r in rows) _entry(r, counterpartKey: 'recipient'),
+      ]);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
@@ -56,9 +58,9 @@ class SupabaseGiftRepository implements GiftRepository {
           .select(_giverSelect)
           .eq('recipient_id', recipientId)
           .order('gift_date', ascending: false);
-      return Success(
-        [for (final r in rows) _entry(r, counterpartKey: 'giver')],
-      );
+      return Success([
+        for (final r in rows) _entry(r, counterpartKey: 'giver'),
+      ]);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
@@ -66,10 +68,7 @@ class SupabaseGiftRepository implements GiftRepository {
     }
   }
 
-  GiftEntry _entry(
-    Map<String, dynamic> row, {
-    required String counterpartKey,
-  }) {
+  GiftEntry _entry(Map<String, dynamic> row, {required String counterpartKey}) {
     final counterpart = row[counterpartKey] as Map<String, dynamic>?;
     return GiftEntry(
       id: row['id']! as String,
@@ -84,7 +83,7 @@ class SupabaseGiftRepository implements GiftRepository {
       counterpartLabel: counterpart == null
           ? null
           : (counterpart['display_name'] as String?) ??
-              (counterpart['username'] as String?),
+                (counterpart['username'] as String?),
     );
   }
 

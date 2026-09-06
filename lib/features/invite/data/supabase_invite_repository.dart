@@ -31,14 +31,16 @@ class SupabaseInviteRepository implements InviteRepository {
   @override
   Future<Result<RedeemedInvite>> redeem(String code) async {
     try {
-      final rows = await _client
-          .rpc<List<dynamic>>('redeem_invite', params: {'code': code.trim()});
+      final rows = await _client.rpc<List<dynamic>>(
+        'redeem_invite',
+        params: {'code': code.trim()},
+      );
       final row = rows.first as Map<String, dynamic>;
       return Success(
         RedeemedInvite(
           inviterId: row['inviter_id']! as String,
-          label: (row['display_name'] as String?) ??
-              (row['username']! as String),
+          label:
+              (row['display_name'] as String?) ?? (row['username']! as String),
         ),
       );
     } on PostgrestException catch (e) {

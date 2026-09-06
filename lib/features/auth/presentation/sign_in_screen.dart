@@ -42,9 +42,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       final error = next.error;
       // Cancelled sign-in is the user's own action — stay silent.
       if (error is Failure && error is! AuthCancelledFailure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorSignInFailed)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorSignInFailed)));
       }
     });
 

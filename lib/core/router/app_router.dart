@@ -16,6 +16,7 @@ import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
+import 'package:kept/features/settings/presentation/privacy_screen.dart';
 import 'package:kept/features/settings/presentation/settings_screen.dart';
 import 'package:kept/features/shell/presentation/app_shell.dart';
 import 'package:kept/features/wishlist/presentation/add_wishlist_item_screen.dart';
@@ -139,6 +140,13 @@ GoRouter appRouter(Ref ref) {
         path: '/settings',
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'privacy',
+            name: 'settings-privacy',
+            builder: (context, state) => const PrivacyScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/gifts/log',
