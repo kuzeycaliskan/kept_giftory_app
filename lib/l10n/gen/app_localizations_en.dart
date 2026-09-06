@@ -126,7 +126,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeFindFriends => 'Find friends';
 
   @override
-  String get homeCountdownToday => 'Today!';
+  String get homeCountdownToday => 'Today! 🎂';
 
   @override
   String get homeCountdownTomorrow => 'Tomorrow';

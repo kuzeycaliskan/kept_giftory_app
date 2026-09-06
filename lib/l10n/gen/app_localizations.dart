@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeCountdownToday.
   ///
   /// In en, this message translates to:
-  /// **'Today!'**
+  /// **'Today! 🎂'**
   String get homeCountdownToday;
 
   /// No description provided for @homeCountdownTomorrow.

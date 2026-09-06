@@ -126,7 +126,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeFindFriends => 'Arkadaş bul';
 
   @override
-  String get homeCountdownToday => 'Bugün!';
+  String get homeCountdownToday => 'Bugün! 🎂';
 
   @override
   String get homeCountdownTomorrow => 'Yarın';
