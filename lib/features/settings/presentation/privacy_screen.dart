@@ -40,6 +40,11 @@ class PrivacyScreen extends ConsumerWidget {
                 .setVisibility(section, value);
           }
 
+          // Sections can never be more open than the profile (RLS enforces
+          // min(profile, section)); mirror that rule here so the UI never
+          // promises visibility the server won't grant.
+          final profileIsFriendsOnly =
+              profile.profileVisibility != Visibility.public;
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
@@ -66,6 +71,7 @@ class PrivacyScreen extends ConsumerWidget {
                 title: l10n.privacyWishlist,
                 subtitle: l10n.privacyWishlistDesc,
                 value: profile.wishlistVisibility,
+                allowPublic: !profileIsFriendsOnly,
                 enabled: !saving,
                 onChanged: (value) => set(PrivacySection.wishlist, value),
               ),
@@ -73,9 +79,20 @@ class PrivacyScreen extends ConsumerWidget {
                 title: l10n.privacyGiftHistory,
                 subtitle: l10n.privacyGiftHistoryDesc,
                 value: profile.giftHistoryVisibility,
+                allowPublic: !profileIsFriendsOnly,
                 enabled: !saving,
                 onChanged: (value) => set(PrivacySection.giftHistory, value),
               ),
+              if (profileIsFriendsOnly)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  child: Text(
+                    l10n.privacyCapNote,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
             ],
           );
         },
@@ -92,6 +109,7 @@ class _VisibilityTile extends StatelessWidget {
     required this.enabled,
     required this.onChanged,
     this.allowPrivate = true,
+    this.allowPublic = true,
   });
 
   final String title;
@@ -99,11 +117,18 @@ class _VisibilityTile extends StatelessWidget {
   final Visibility value;
   final bool enabled;
   final bool allowPrivate;
+  final bool allowPublic;
   final ValueChanged<Visibility> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // Show the effective value: a stored 'public' under a friends-only
+    // profile acts as 'friends' (the stored preference survives server-side
+    // and comes back when the profile opens up again).
+    final effective = !allowPublic && value == Visibility.public
+        ? Visibility.friends
+        : value;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Column(
@@ -123,6 +148,7 @@ class _VisibilityTile extends StatelessWidget {
               ButtonSegment(
                 value: Visibility.public,
                 label: Text(l10n.visibilityPublic),
+                enabled: allowPublic,
               ),
               ButtonSegment(
                 value: Visibility.friends,
@@ -134,7 +160,7 @@ class _VisibilityTile extends StatelessWidget {
                   label: Text(l10n.visibilityPrivate),
                 ),
             ],
-            selected: {value},
+            selected: {effective},
             onSelectionChanged: enabled
                 ? (selection) => onChanged(selection.single)
                 : null,

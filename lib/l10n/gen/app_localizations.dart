@@ -1063,6 +1063,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save the setting — please try again.'**
   String get privacyUpdateError;
+
+  /// No description provided for @privacyCapNote.
+  ///
+  /// In en, this message translates to:
+  /// **'While your profile is visible to friends only, other sections can\'t be more open than that — set your profile to Public first.'**
+  String get privacyCapNote;
 }
 
 class _AppLocalizationsDelegate

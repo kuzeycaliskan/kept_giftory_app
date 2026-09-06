@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(23);
+select plan(26);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -329,6 +329,45 @@ select is(
   (select count(*) from public.device_tokens),
   0::bigint,
   '23: other users cannot see the token'
+);
+
+reset role;
+
+-- ── 24-26: sections are capped by profile visibility ────────────────────────
+-- alice: profile stays 'friends' but wishlist/history flip to 'public'.
+-- A stranger must STILL see nothing (min(profile, section) rule); a friend
+-- keeps access. State at this point: carol became alice's friend (test 13),
+-- bob was deleted (test 14) — so the stranger here is dave.
+update public.profiles
+   set wishlist_visibility = 'public', gift_history_visibility = 'public'
+ where id = '00000000-0000-0000-0000-00000000000a';
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.wishlist_items
+    where owner_id = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '24: public wishlist behind a friends-only profile stays hidden from strangers'
+);
+
+select is(
+  (select count(*) from public.gifts
+    where recipient_id = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '25: public gift history behind a friends-only profile stays hidden from strangers'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.wishlist_items
+    where owner_id = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '26: friend still sees the wishlist under the visibility cap'
 );
 
 reset role;

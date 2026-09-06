@@ -523,4 +523,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyUpdateError =>
       'Couldn\'t save the setting — please try again.';
+
+  @override
+  String get privacyCapNote =>
+      'While your profile is visible to friends only, other sections can\'t be more open than that — set your profile to Public first.';
 }

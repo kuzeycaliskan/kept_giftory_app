@@ -173,5 +173,6 @@
   "visibilityPublic": "Herkese açık",
   "visibilityFriends": "Arkadaşlar",
   "visibilityPrivate": "Kapalı",
-  "privacyUpdateError": "Ayar kaydedilemedi — lütfen tekrar dene."
+  "privacyUpdateError": "Ayar kaydedilemedi — lütfen tekrar dene.",
+  "privacyCapNote": "Profilin yalnızca arkadaşlarına görünürken diğer bölümler bundan daha açık olamaz — önce profilini Herkese açık yap."
 }

@@ -64,6 +64,13 @@ class _FakeProfileRepository implements ProfileRepository {
 
 const _me = Profile(id: 'me', username: 'you');
 
+/// Fully open profile — sections aren't capped, all segments tappable.
+const _openMe = Profile(
+  id: 'me',
+  username: 'you',
+  profileVisibility: Visibility.public,
+);
+
 void main() {
   Future<void> pump(
     WidgetTester tester,
@@ -97,7 +104,7 @@ void main() {
   testWidgets('changing wishlist visibility hits only that section', (
     tester,
   ) async {
-    final repository = _FakeProfileRepository(me: _me);
+    final repository = _FakeProfileRepository(me: _openMe);
     await pump(tester, repository);
 
     // Middle row's "Public" segment (rows are ordered profile/wishlist/gifts).
@@ -122,4 +129,24 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'friends-only profile caps sections: Public disabled, cap note shown',
+    (tester) async {
+      // Stored wishlist 'public' under a friends-only profile must display as
+      // the effective 'friends' and refuse new Public selections.
+      final repository = _FakeProfileRepository(
+        me: _me.copyWith(wishlistVisibility: Visibility.public),
+      );
+      await pump(tester, repository);
+
+      // Cap note is visible.
+      expect(find.textContaining('set your profile to Public'), findsOneWidget);
+
+      // Tapping the wishlist row's Public segment does nothing (disabled).
+      await tester.tap(find.text('Public').at(1), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(repository.updates, isEmpty);
+    },
+  );
 }

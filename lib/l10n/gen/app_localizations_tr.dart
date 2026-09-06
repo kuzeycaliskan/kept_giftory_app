@@ -519,4 +519,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get privacyUpdateError => 'Ayar kaydedilemedi — lütfen tekrar dene.';
+
+  @override
+  String get privacyCapNote =>
+      'Profilin yalnızca arkadaşlarına görünürken diğer bölümler bundan daha açık olamaz — önce profilini Herkese açık yap.';
 }
