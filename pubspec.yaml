@@ -36,6 +36,7 @@ dependencies:
     sdk: flutter
   # Riverpod pinned to 2.x: the 3.x/4.x code-gen toolchain requires Dart >=3.12,
   # current SDK is 3.10.7. Bump after `flutter upgrade`.
+  flutter_local_notifications: ^17.2.4
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^2.6.1
