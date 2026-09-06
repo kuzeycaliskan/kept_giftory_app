@@ -545,4 +545,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchError => 'Search failed — please try again.';
+
+  @override
+  String get profilePrivateTitle => 'This profile is private';
+
+  @override
+  String get profilePrivateBody =>
+      'Add them as a friend to see their profile, wishlist and gift history.';
 }

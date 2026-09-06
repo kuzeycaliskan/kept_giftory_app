@@ -542,4 +542,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get searchError => 'Arama başarısız — lütfen tekrar dene.';
+
+  @override
+  String get profilePrivateTitle => 'Bu profil gizli';
+
+  @override
+  String get profilePrivateBody =>
+      'Profilini, wishlist\'ini ve hediye geçmişini görmek için arkadaş olarak ekle.';
 }

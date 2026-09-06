@@ -181,5 +181,7 @@
   "searchClear": "Aramayı temizle",
   "searchPrompt": "Aramak için en az 2 karakter yaz",
   "searchEmpty": "Kimse bulunamadı — yazımı kontrol et ya da davet et!",
-  "searchError": "Arama başarısız — lütfen tekrar dene."
+  "searchError": "Arama başarısız — lütfen tekrar dene.",
+  "profilePrivateTitle": "Bu profil gizli",
+  "profilePrivateBody": "Profilini, wishlist'ini ve hediye geçmişini görmek için arkadaş olarak ekle."
 }

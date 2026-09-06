@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
-import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 
 /// Username / display-name search (G-32). Results respect RLS: only profiles
 /// the caller may see (public, friends, pending parties) come back. Tapping a
@@ -90,8 +90,7 @@ class _SearchResults extends ConsumerWidget {
         return ListView.builder(
           itemCount: profiles.length,
           itemBuilder: (context, index) {
-            final profile = profiles[index];
-            return _ResultTile(profile: profile);
+            return _ResultTile(card: profiles[index]);
           },
         );
       },
@@ -100,20 +99,20 @@ class _SearchResults extends ConsumerWidget {
 }
 
 class _ResultTile extends StatelessWidget {
-  const _ResultTile({required this.profile});
+  const _ResultTile({required this.card});
 
-  final Profile profile;
+  final ProfileCard card;
 
   @override
   Widget build(BuildContext context) {
-    final name = profile.displayName ?? profile.username;
+    final name = card.displayName ?? card.username;
     return ListTile(
       leading: CircleAvatar(child: Text(name.characters.first.toUpperCase())),
       title: Text(name),
-      subtitle: Text('@${profile.username}'),
+      subtitle: Text('@${card.username}'),
       onTap: () => context.push(
         Uri(
-          path: '/users/${profile.id}',
+          path: '/users/${card.id}',
           queryParameters: {'name': name},
         ).toString(),
       ),

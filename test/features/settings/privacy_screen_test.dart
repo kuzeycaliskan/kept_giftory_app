@@ -6,6 +6,7 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 import 'package:kept/features/settings/presentation/privacy_screen.dart';
 
@@ -62,8 +63,12 @@ class _FakeProfileRepository implements ProfileRepository {
   }
 
   @override
-  Future<Result<List<Profile>>> searchProfiles(String query) async =>
+  Future<Result<List<ProfileCard>>> searchProfiles(String query) async =>
       const Success([]);
+
+  @override
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId) async =>
+      const Success(null);
 }
 
 const _me = Profile(id: 'me', username: 'you');

@@ -9,13 +9,17 @@ import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
 
 class _FakeProfileRepository implements ProfileRepository {
-  _FakeProfileRepository({this.other});
+  _FakeProfileRepository({this.other, this.card});
 
   final Profile? other;
+
+  /// Card returned when the full profile is hidden (private-profile state).
+  final ProfileCard? card;
 
   @override
   Future<Result<Profile?>> fetchMyProfile() async => const Success(null);
@@ -47,8 +51,12 @@ class _FakeProfileRepository implements ProfileRepository {
   }) async => Success(other ?? const Profile(id: 'x', username: 'x'));
 
   @override
-  Future<Result<List<Profile>>> searchProfiles(String query) async =>
+  Future<Result<List<ProfileCard>>> searchProfiles(String query) async =>
       const Success([]);
+
+  @override
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId) async =>
+      Success(card);
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
@@ -171,9 +179,39 @@ void main() {
     expect(find.text('Designer'), findsOneWidget);
   });
 
-  testWidgets('hidden profile renders the not-visible state', (tester) async {
+  testWidgets('deleted user (no card either) renders the not-visible state', (
+    tester,
+  ) async {
     await pump(tester, profiles: _FakeProfileRepository());
 
     expect(find.text("This profile isn't visible"), findsOneWidget);
   });
+
+  testWidgets(
+    'private profile shows the card, notice and a working Add friend',
+    (tester) async {
+      final friendships = _FakeFriendshipRepository();
+      await pump(
+        tester,
+        profiles: _FakeProfileRepository(
+          card: const ProfileCard(
+            id: 'ali-id',
+            username: 'ali',
+            displayName: 'Ali',
+          ),
+        ),
+        friendships: friendships,
+      );
+
+      expect(find.text('Ali'), findsWidgets);
+      expect(find.text('@ali'), findsOneWidget);
+      expect(find.text('This profile is private'), findsOneWidget);
+      // Full-profile details must NOT leak into the private state.
+      expect(find.text('Wishlist'), findsNothing);
+
+      await tester.tap(find.text('Add friend'));
+      await tester.pumpAndSettle();
+      expect(friendships.sentRequests, ['ali-id']);
+    },
+  );
 }

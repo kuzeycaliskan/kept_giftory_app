@@ -194,7 +194,7 @@ class _UserProfileProviderElement
   String get profileId => (origin as UserProfileProvider).profileId;
 }
 
-String _$profileSearchHash() => r'9d356c10ff7072d606a7de0cfa989805e567ac6b';
+String _$profileSearchHash() => r'0741c9f1f4e70400ad7311e6ac89552ad5c34eda';
 
 /// Username / display-name search results (G-32). The screen debounces input
 /// before touching this family, so each distinct query hits the network once.
@@ -207,7 +207,7 @@ const profileSearchProvider = ProfileSearchFamily();
 /// before touching this family, so each distinct query hits the network once.
 ///
 /// Copied from [profileSearch].
-class ProfileSearchFamily extends Family<AsyncValue<List<Profile>>> {
+class ProfileSearchFamily extends Family<AsyncValue<List<ProfileCard>>> {
   /// Username / display-name search results (G-32). The screen debounces input
   /// before touching this family, so each distinct query hits the network once.
   ///
@@ -248,7 +248,8 @@ class ProfileSearchFamily extends Family<AsyncValue<List<Profile>>> {
 /// before touching this family, so each distinct query hits the network once.
 ///
 /// Copied from [profileSearch].
-class ProfileSearchProvider extends AutoDisposeFutureProvider<List<Profile>> {
+class ProfileSearchProvider
+    extends AutoDisposeFutureProvider<List<ProfileCard>> {
   /// Username / display-name search results (G-32). The screen debounces input
   /// before touching this family, so each distinct query hits the network once.
   ///
@@ -281,7 +282,7 @@ class ProfileSearchProvider extends AutoDisposeFutureProvider<List<Profile>> {
 
   @override
   Override overrideWith(
-    FutureOr<List<Profile>> Function(ProfileSearchRef provider) create,
+    FutureOr<List<ProfileCard>> Function(ProfileSearchRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -298,7 +299,7 @@ class ProfileSearchProvider extends AutoDisposeFutureProvider<List<Profile>> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<Profile>> createElement() {
+  AutoDisposeFutureProviderElement<List<ProfileCard>> createElement() {
     return _ProfileSearchProviderElement(this);
   }
 
@@ -318,18 +319,155 @@ class ProfileSearchProvider extends AutoDisposeFutureProvider<List<Profile>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ProfileSearchRef on AutoDisposeFutureProviderRef<List<Profile>> {
+mixin ProfileSearchRef on AutoDisposeFutureProviderRef<List<ProfileCard>> {
   /// The parameter `query` of this provider.
   String get query;
 }
 
 class _ProfileSearchProviderElement
-    extends AutoDisposeFutureProviderElement<List<Profile>>
+    extends AutoDisposeFutureProviderElement<List<ProfileCard>>
     with ProfileSearchRef {
   _ProfileSearchProviderElement(super.provider);
 
   @override
   String get query => (origin as ProfileSearchProvider).query;
+}
+
+String _$profileCardHash() => r'f48f519a5a6994be8a4fa11c38100e8bc21322cc';
+
+/// Minimal card for a user whose full profile is RLS-hidden — powers the
+/// private-profile state (avatar + name + request button, G-32).
+///
+/// Copied from [profileCard].
+@ProviderFor(profileCard)
+const profileCardProvider = ProfileCardFamily();
+
+/// Minimal card for a user whose full profile is RLS-hidden — powers the
+/// private-profile state (avatar + name + request button, G-32).
+///
+/// Copied from [profileCard].
+class ProfileCardFamily extends Family<AsyncValue<ProfileCard?>> {
+  /// Minimal card for a user whose full profile is RLS-hidden — powers the
+  /// private-profile state (avatar + name + request button, G-32).
+  ///
+  /// Copied from [profileCard].
+  const ProfileCardFamily();
+
+  /// Minimal card for a user whose full profile is RLS-hidden — powers the
+  /// private-profile state (avatar + name + request button, G-32).
+  ///
+  /// Copied from [profileCard].
+  ProfileCardProvider call(String profileId) {
+    return ProfileCardProvider(profileId);
+  }
+
+  @override
+  ProfileCardProvider getProviderOverride(
+    covariant ProfileCardProvider provider,
+  ) {
+    return call(provider.profileId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'profileCardProvider';
+}
+
+/// Minimal card for a user whose full profile is RLS-hidden — powers the
+/// private-profile state (avatar + name + request button, G-32).
+///
+/// Copied from [profileCard].
+class ProfileCardProvider extends AutoDisposeFutureProvider<ProfileCard?> {
+  /// Minimal card for a user whose full profile is RLS-hidden — powers the
+  /// private-profile state (avatar + name + request button, G-32).
+  ///
+  /// Copied from [profileCard].
+  ProfileCardProvider(String profileId)
+    : this._internal(
+        (ref) => profileCard(ref as ProfileCardRef, profileId),
+        from: profileCardProvider,
+        name: r'profileCardProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$profileCardHash,
+        dependencies: ProfileCardFamily._dependencies,
+        allTransitiveDependencies: ProfileCardFamily._allTransitiveDependencies,
+        profileId: profileId,
+      );
+
+  ProfileCardProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.profileId,
+  }) : super.internal();
+
+  final String profileId;
+
+  @override
+  Override overrideWith(
+    FutureOr<ProfileCard?> Function(ProfileCardRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ProfileCardProvider._internal(
+        (ref) => create(ref as ProfileCardRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        profileId: profileId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ProfileCard?> createElement() {
+    return _ProfileCardProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProfileCardProvider && other.profileId == profileId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, profileId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ProfileCardRef on AutoDisposeFutureProviderRef<ProfileCard?> {
+  /// The parameter `profileId` of this provider.
+  String get profileId;
+}
+
+class _ProfileCardProviderElement
+    extends AutoDisposeFutureProviderElement<ProfileCard?>
+    with ProfileCardRef {
+  _ProfileCardProviderElement(super.provider);
+
+  @override
+  String get profileId => (origin as ProfileCardProvider).profileId;
 }
 
 // ignore_for_file: type=lint

@@ -1,6 +1,7 @@
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 import 'package:kept/features/profile/domain/username.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -130,32 +131,43 @@ class SupabaseProfileRepository implements ProfileRepository {
     }
   }
 
-  /// Max results per search — plenty for a type-ahead list, keeps the query
-  /// bounded (CLAUDE.md §10: never load unbounded collections).
-  static const _searchLimit = 20;
+  @override
+  Future<Result<List<ProfileCard>>> searchProfiles(String query) async {
+    if (_client.auth.currentUser == null) {
+      return const ResultFailure(AuthFailure('Signed out'));
+    }
+    if (query.trim().isEmpty) return const Success([]);
+    // Escaping, min length, self-exclusion and the 20-row cap live in the
+    // SECURITY DEFINER function — the single discovery surface (G-32).
+    try {
+      final rows = await _client.rpc<List<dynamic>>(
+        'search_profiles',
+        params: {'q': query.trim()},
+      );
+      return Success(
+        rows
+            .map((row) => ProfileCard.fromJson(row as Map<String, dynamic>))
+            .toList(),
+      );
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
 
   @override
-  Future<Result<List<Profile>>> searchProfiles(String query) async {
-    final userId = _client.auth.currentUser?.id;
-    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
-    final trimmed = query.trim();
-    if (trimmed.isEmpty) return const Success([]);
-    // Escape ilike wildcards (literal search) and strip characters that
-    // would break PostgREST's or() filter syntax.
-    final escaped = trimmed
-        .replaceAll(RegExp('[,()]'), '')
-        .replaceAll('%', r'\%')
-        .replaceAll('_', r'\_');
-    if (escaped.isEmpty) return const Success([]);
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId) async {
+    if (_client.auth.currentUser == null) {
+      return const ResultFailure(AuthFailure('Signed out'));
+    }
     try {
-      final rows = await _client
-          .from(_table)
-          .select()
-          .neq('id', userId)
-          .or('username.ilike.%$escaped%,display_name.ilike.%$escaped%')
-          .order('username', ascending: true)
-          .limit(_searchLimit);
-      return Success(rows.map(Profile.fromJson).toList());
+      final rows = await _client.rpc<List<dynamic>>(
+        'profile_card',
+        params: {'target': profileId},
+      );
+      if (rows.isEmpty) return const Success(null);
+      return Success(ProfileCard.fromJson(rows.first as Map<String, dynamic>));
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {

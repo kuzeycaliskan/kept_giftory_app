@@ -1,5 +1,6 @@
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 
 /// Profile data boundary (G-12/G-13/G-84).
 abstract interface class ProfileRepository {
@@ -29,7 +30,12 @@ abstract interface class ProfileRepository {
     Visibility? giftHistory,
   });
 
-  /// Username / display-name search (G-32), excluding the caller. RLS scopes
-  /// results to what the caller may see (public profiles, friends, pending).
-  Future<Result<List<Profile>>> searchProfiles(String query);
+  /// Username / display-name search (G-32), excluding the caller. Every
+  /// profile is discoverable (Instagram-style) but only as a minimal card;
+  /// visibility gates the full profile, not existence.
+  Future<Result<List<ProfileCard>>> searchProfiles(String query);
+
+  /// Minimal card for one user — renders the private-profile state when the
+  /// full row is RLS-hidden. Null when the user doesn't exist.
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId);
 }

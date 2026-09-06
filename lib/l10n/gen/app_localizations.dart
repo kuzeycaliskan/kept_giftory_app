@@ -1105,6 +1105,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search failed — please try again.'**
   String get searchError;
+
+  /// No description provided for @profilePrivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This profile is private'**
+  String get profilePrivateTitle;
+
+  /// No description provided for @profilePrivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add them as a friend to see their profile, wishlist and gift history.'**
+  String get profilePrivateBody;
 }
 
 class _AppLocalizationsDelegate

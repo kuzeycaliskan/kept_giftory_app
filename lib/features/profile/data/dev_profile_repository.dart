@@ -1,6 +1,7 @@
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 
 /// Debug-only sample profiles so the dev session renders full profile UIs.
@@ -72,7 +73,7 @@ class DevProfileRepository implements ProfileRepository {
   }
 
   @override
-  Future<Result<List<Profile>>> searchProfiles(String query) async {
+  Future<Result<List<ProfileCard>>> searchProfiles(String query) async {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return const Success([]);
     return Success(
@@ -82,9 +83,23 @@ class DevProfileRepository implements ProfileRepository {
                 p.username.contains(q) ||
                 (p.displayName?.toLowerCase().contains(q) ?? false),
           )
+          .map(_card)
           .toList(),
     );
   }
+
+  @override
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId) async {
+    final profile = _others[profileId];
+    return Success(profile == null ? null : _card(profile));
+  }
+
+  static ProfileCard _card(Profile p) => ProfileCard(
+    id: p.id,
+    username: p.username,
+    displayName: p.displayName,
+    avatarUrl: p.avatarUrl,
+  );
 }
 
 /// Backend-less fallback (no --dart-define config).
@@ -121,6 +136,10 @@ class EmptyProfileRepository implements ProfileRepository {
   }) async => const ResultFailure(AuthFailure('No backend configured'));
 
   @override
-  Future<Result<List<Profile>>> searchProfiles(String query) async =>
+  Future<Result<List<ProfileCard>>> searchProfiles(String query) async =>
       const Success([]);
+
+  @override
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId) async =>
+      const Success(null);
 }

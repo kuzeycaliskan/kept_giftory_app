@@ -232,5 +232,7 @@
   "searchClear": "Clear search",
   "searchPrompt": "Type at least 2 characters to search",
   "searchEmpty": "No one found — check the spelling or invite them!",
-  "searchError": "Search failed — please try again."
+  "searchError": "Search failed — please try again.",
+  "profilePrivateTitle": "This profile is private",
+  "profilePrivateBody": "Add them as a friend to see their profile, wishlist and gift history."
 }

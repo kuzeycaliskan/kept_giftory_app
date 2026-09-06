@@ -8,17 +8,18 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/friends/presentation/friend_search_screen.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 
 class _FakeProfileRepository implements ProfileRepository {
   _FakeProfileRepository({this.results = const [], this.failSearch = false});
 
-  final List<Profile> results;
+  final List<ProfileCard> results;
   final bool failSearch;
   final List<String> queries = [];
 
   @override
-  Future<Result<List<Profile>>> searchProfiles(String query) async {
+  Future<Result<List<ProfileCard>>> searchProfiles(String query) async {
     queries.add(query);
     if (failSearch) return const ResultFailure(NetworkFailure('offline'));
     final q = query.toLowerCase();
@@ -61,10 +62,14 @@ class _FakeProfileRepository implements ProfileRepository {
     Visibility? wishlist,
     Visibility? giftHistory,
   }) async => const Success(Profile(id: 'x', username: 'x'));
+
+  @override
+  Future<Result<ProfileCard?>> fetchProfileCard(String profileId) async =>
+      const Success(null);
 }
 
-const _ali = Profile(id: 'ali-id', username: 'ali', displayName: 'Ali');
-const _alice = Profile(id: 'alice-id', username: 'alice');
+const _ali = ProfileCard(id: 'ali-id', username: 'ali', displayName: 'Ali');
+const _alice = ProfileCard(id: 'alice-id', username: 'alice');
 
 void main() {
   String? pushedLocation;

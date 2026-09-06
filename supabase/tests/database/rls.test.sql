@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(26);
+select plan(29);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -368,6 +368,36 @@ select is(
     where owner_id = '00000000-0000-0000-0000-00000000000a'),
   1::bigint,
   '26: friend still sees the wishlist under the visibility cap'
+);
+
+reset role;
+
+-- ── 27-29: discoverability (G-32) — every profile searchable as a card ──────
+-- dave is still a stranger to alice; alice's profile is friends-only, yet
+-- search_profiles/profile_card must surface her minimal card. The full row
+-- stays RLS-hidden (test 1 covers that).
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.search_profiles('ali')
+    where username = 'alice'),
+  1::bigint,
+  '27: stranger finds a friends-only profile in search (card only)'
+);
+
+select is(
+  (select username from public.profile_card(
+    '00000000-0000-0000-0000-00000000000a')),
+  'alice',
+  '28: stranger can fetch the minimal card of a friends-only profile'
+);
+
+select is(
+  (select count(*) from public.search_profiles('a')),
+  0::bigint,
+  '29: sub-2-char queries return nothing (enumeration guard)'
 );
 
 reset role;

@@ -5,6 +5,7 @@ import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/data/supabase_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -45,13 +46,26 @@ Future<Profile?> userProfile(Ref ref, String profileId) async {
 /// Username / display-name search results (G-32). The screen debounces input
 /// before touching this family, so each distinct query hits the network once.
 @riverpod
-Future<List<Profile>> profileSearch(Ref ref, String query) async {
+Future<List<ProfileCard>> profileSearch(Ref ref, String query) async {
   if (query.trim().length < 2) return const [];
   final result = await ref
       .watch(profileRepositoryProvider)
       .searchProfiles(query);
   return result.when(
-    success: (profiles) => profiles,
+    success: (cards) => cards,
+    failure: (failure) => throw failure,
+  );
+}
+
+/// Minimal card for a user whose full profile is RLS-hidden — powers the
+/// private-profile state (avatar + name + request button, G-32).
+@riverpod
+Future<ProfileCard?> profileCard(Ref ref, String profileId) async {
+  final result = await ref
+      .watch(profileRepositoryProvider)
+      .fetchProfileCard(profileId);
+  return result.when(
+    success: (card) => card,
     failure: (failure) => throw failure,
   );
 }
