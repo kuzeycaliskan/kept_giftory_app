@@ -183,5 +183,23 @@
   "searchEmpty": "Kimse bulunamadı — yazımı kontrol et ya da davet et!",
   "searchError": "Arama başarısız — lütfen tekrar dene.",
   "profilePrivateTitle": "Bu profil gizli",
-  "profilePrivateBody": "Profilini, wishlist'ini ve hediye geçmişini görmek için arkadaş olarak ekle."
+  "profilePrivateBody": "Profilini, wishlist'ini ve hediye geçmişini görmek için arkadaş olarak ekle.",
+
+  "safetyMenuTooltip": "Diğer seçenekler",
+  "blockAction": "Engelle",
+  "blockConfirmTitle": "Bu kullanıcı engellensin mi?",
+  "blockConfirmBody": "Birbirinizi hiçbir yerde görmezsiniz — profil, arama veya istekler — ve mevcut arkadaşlık kaldırılır. Kendisine bildirim gitmez. Daha sonra Ayarlar'dan engeli kaldırabilirsin.",
+  "blockSuccess": "Kullanıcı engellendi.",
+  "blockedUsersTitle": "Engellenen kullanıcılar",
+  "blockedUsersEmpty": "Kimseyi engellemedin.",
+  "blockedUsersUnblock": "Engeli kaldır",
+  "reportAction": "Şikayet et",
+  "reportTitle": "Bu kullanıcıyı şikayet et",
+  "reportReasonSpam": "Spam",
+  "reportReasonHarassment": "Taciz veya zorbalık",
+  "reportReasonInappropriate": "Uygunsuz içerik",
+  "reportReasonOther": "Başka bir şey",
+  "reportDetailsLabel": "Ayrıntılar (isteğe bağlı)",
+  "reportSubmit": "Şikayeti gönder",
+  "reportSuccess": "Teşekkürler — bu şikayeti inceleyeceğiz."
 }

@@ -5,10 +5,12 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/profile_panel.dart';
+import 'package:kept/features/safety/application/safety_providers.dart';
+import 'package:kept/features/safety/presentation/report_sheet.dart';
 
 /// Another user's profile (G-84). Sections are RLS-scoped; a friends-only
 /// profile renders the private-card state (avatar + name + request button,
-/// Instagram-style — G-32). The ⋯ block/report menu arrives with G-72/G-73.
+/// Instagram-style — G-32). ⋯ menu: block (G-72) / report (G-73).
 class UserProfileScreen extends ConsumerWidget {
   const UserProfileScreen({required this.profileId, this.label, super.key});
 
@@ -21,7 +23,10 @@ class UserProfileScreen extends ConsumerWidget {
     final profile = ref.watch(userProfileProvider(profileId));
 
     return Scaffold(
-      appBar: AppBar(title: Text(label ?? '')),
+      appBar: AppBar(
+        title: Text(label ?? ''),
+        actions: [_SafetyMenu(profileId: profileId)],
+      ),
       body: profile.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(l10n.errorGeneric)),
@@ -109,6 +114,69 @@ class _PrivateProfileBody extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// ⋯ app-bar menu: block (G-72) and report (G-73).
+class _SafetyMenu extends ConsumerWidget {
+  const _SafetyMenu({required this.profileId});
+
+  final String profileId;
+
+  Future<void> _confirmBlock(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.blockConfirmTitle),
+        content: Text(l10n.blockConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.blockAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final ok = await ref
+        .read(safetyControllerProvider.notifier)
+        .block(profileId);
+    if (ok) {
+      // The profile is invisible to us now — leave it.
+      if (navigator.canPop()) navigator.pop();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.blockSuccess)));
+    } else {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    return PopupMenuButton<void>(
+      tooltip: l10n.safetyMenuTooltip,
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          onTap: () => _confirmBlock(context, ref),
+          child: Text(l10n.blockAction),
+        ),
+        PopupMenuItem(
+          onTap: () => showReportSheet(context, profileId),
+          child: Text(l10n.reportAction),
+        ),
+      ],
     );
   }
 }

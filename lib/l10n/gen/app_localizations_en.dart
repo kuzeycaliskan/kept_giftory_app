@@ -552,4 +552,56 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profilePrivateBody =>
       'Add them as a friend to see their profile, wishlist and gift history.';
+
+  @override
+  String get safetyMenuTooltip => 'More options';
+
+  @override
+  String get blockAction => 'Block';
+
+  @override
+  String get blockConfirmTitle => 'Block this user?';
+
+  @override
+  String get blockConfirmBody =>
+      'You won\'t see each other anywhere — profiles, search or requests — and any friendship is removed. They won\'t be notified. You can unblock them later in Settings.';
+
+  @override
+  String get blockSuccess => 'User blocked.';
+
+  @override
+  String get blockedUsersTitle => 'Blocked users';
+
+  @override
+  String get blockedUsersEmpty => 'You haven\'t blocked anyone.';
+
+  @override
+  String get blockedUsersUnblock => 'Unblock';
+
+  @override
+  String get reportAction => 'Report';
+
+  @override
+  String get reportTitle => 'Report this user';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get reportReasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get reportReasonOther => 'Something else';
+
+  @override
+  String get reportDetailsLabel => 'Details (optional)';
+
+  @override
+  String get reportSubmit => 'Send report';
+
+  @override
+  String get reportSuccess => 'Thanks — we\'ll review this report.';
 }

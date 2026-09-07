@@ -1117,6 +1117,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add them as a friend to see their profile, wishlist and gift history.'**
   String get profilePrivateBody;
+
+  /// No description provided for @safetyMenuTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get safetyMenuTooltip;
+
+  /// No description provided for @blockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get blockAction;
+
+  /// No description provided for @blockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this user?'**
+  String get blockConfirmTitle;
+
+  /// No description provided for @blockConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You won\'t see each other anywhere — profiles, search or requests — and any friendship is removed. They won\'t be notified. You can unblock them later in Settings.'**
+  String get blockConfirmBody;
+
+  /// No description provided for @blockSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked.'**
+  String get blockSuccess;
+
+  /// No description provided for @blockedUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked users'**
+  String get blockedUsersTitle;
+
+  /// No description provided for @blockedUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t blocked anyone.'**
+  String get blockedUsersEmpty;
+
+  /// No description provided for @blockedUsersUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get blockedUsersUnblock;
+
+  /// No description provided for @reportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportAction;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this user'**
+  String get reportTitle;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
+  String get reportReasonHarassment;
+
+  /// No description provided for @reportReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate content'**
+  String get reportReasonInappropriate;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get reportDetailsLabel;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportSubmit;
+
+  /// No description provided for @reportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — we\'ll review this report.'**
+  String get reportSuccess;
 }
 
 class _AppLocalizationsDelegate

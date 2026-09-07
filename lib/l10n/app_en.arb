@@ -234,5 +234,23 @@
   "searchEmpty": "No one found — check the spelling or invite them!",
   "searchError": "Search failed — please try again.",
   "profilePrivateTitle": "This profile is private",
-  "profilePrivateBody": "Add them as a friend to see their profile, wishlist and gift history."
+  "profilePrivateBody": "Add them as a friend to see their profile, wishlist and gift history.",
+
+  "safetyMenuTooltip": "More options",
+  "blockAction": "Block",
+  "blockConfirmTitle": "Block this user?",
+  "blockConfirmBody": "You won't see each other anywhere — profiles, search or requests — and any friendship is removed. They won't be notified. You can unblock them later in Settings.",
+  "blockSuccess": "User blocked.",
+  "blockedUsersTitle": "Blocked users",
+  "blockedUsersEmpty": "You haven't blocked anyone.",
+  "blockedUsersUnblock": "Unblock",
+  "reportAction": "Report",
+  "reportTitle": "Report this user",
+  "reportReasonSpam": "Spam",
+  "reportReasonHarassment": "Harassment or bullying",
+  "reportReasonInappropriate": "Inappropriate content",
+  "reportReasonOther": "Something else",
+  "reportDetailsLabel": "Details (optional)",
+  "reportSubmit": "Send report",
+  "reportSuccess": "Thanks — we'll review this report."
 }

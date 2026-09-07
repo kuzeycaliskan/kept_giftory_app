@@ -17,6 +17,7 @@ import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
+import 'package:kept/features/safety/presentation/blocked_users_screen.dart';
 import 'package:kept/features/settings/presentation/privacy_screen.dart';
 import 'package:kept/features/settings/presentation/settings_screen.dart';
 import 'package:kept/features/shell/presentation/app_shell.dart';
@@ -153,6 +154,11 @@ GoRouter appRouter(Ref ref) {
             path: 'privacy',
             name: 'settings-privacy',
             builder: (context, state) => const PrivacyScreen(),
+          ),
+          GoRoute(
+            path: 'blocked',
+            name: 'settings-blocked',
+            builder: (context, state) => const BlockedUsersScreen(),
           ),
         ],
       ),

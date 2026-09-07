@@ -549,4 +549,56 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get profilePrivateBody =>
       'Profilini, wishlist\'ini ve hediye geçmişini görmek için arkadaş olarak ekle.';
+
+  @override
+  String get safetyMenuTooltip => 'Diğer seçenekler';
+
+  @override
+  String get blockAction => 'Engelle';
+
+  @override
+  String get blockConfirmTitle => 'Bu kullanıcı engellensin mi?';
+
+  @override
+  String get blockConfirmBody =>
+      'Birbirinizi hiçbir yerde görmezsiniz — profil, arama veya istekler — ve mevcut arkadaşlık kaldırılır. Kendisine bildirim gitmez. Daha sonra Ayarlar\'dan engeli kaldırabilirsin.';
+
+  @override
+  String get blockSuccess => 'Kullanıcı engellendi.';
+
+  @override
+  String get blockedUsersTitle => 'Engellenen kullanıcılar';
+
+  @override
+  String get blockedUsersEmpty => 'Kimseyi engellemedin.';
+
+  @override
+  String get blockedUsersUnblock => 'Engeli kaldır';
+
+  @override
+  String get reportAction => 'Şikayet et';
+
+  @override
+  String get reportTitle => 'Bu kullanıcıyı şikayet et';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonHarassment => 'Taciz veya zorbalık';
+
+  @override
+  String get reportReasonInappropriate => 'Uygunsuz içerik';
+
+  @override
+  String get reportReasonOther => 'Başka bir şey';
+
+  @override
+  String get reportDetailsLabel => 'Ayrıntılar (isteğe bağlı)';
+
+  @override
+  String get reportSubmit => 'Şikayeti gönder';
+
+  @override
+  String get reportSuccess => 'Teşekkürler — bu şikayeti inceleyeceğiz.';
 }

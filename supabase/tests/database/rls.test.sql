@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(31);
+select plan(39);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -432,6 +432,88 @@ select lives_ok(
      values ('00000000-0000-0000-0000-00000000000e',
              '00000000-0000-0000-0000-00000000000a') $$,
   '31: the pair can re-request after a decline (no unique-pair block)'
+);
+
+reset role;
+
+-- ── 32-38: block + report (G-72/G-73) ───────────────────────────────────────
+-- carol and dave are friends (invite redemption, test 20). Dave blocks
+-- carol: friendship severed, mutual invisibility (dave's profile is PUBLIC
+-- yet carol loses it), no re-request, gone from search. Unblock restores
+-- the public view. Reports: insert-only, no reading back.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select lives_ok(
+  $$ select public.block_user('00000000-0000-0000-0000-00000000000c') $$,
+  '32: blocking succeeds'
+);
+
+reset role;
+select is(
+  (select count(*) from public.friendships
+    where least(requester_id, addressee_id) =
+          least('00000000-0000-0000-0000-00000000000c'::uuid,
+                '00000000-0000-0000-0000-00000000000d'::uuid)
+      and greatest(requester_id, addressee_id) =
+          greatest('00000000-0000-0000-0000-00000000000c'::uuid,
+                   '00000000-0000-0000-0000-00000000000d'::uuid)),
+  0::bigint,
+  '33: blocking severs the existing friendship'
+);
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000d'),
+  0::bigint,
+  '34: blocked user loses even a PUBLIC profile'
+);
+
+select is(
+  (select count(*) from public.search_profiles('dave')),
+  0::bigint,
+  '35: blocked user cannot find the blocker in search'
+);
+
+select throws_ok(
+  $$ insert into public.friendships (requester_id, addressee_id)
+     values ('00000000-0000-0000-0000-00000000000c',
+             '00000000-0000-0000-0000-00000000000d') $$,
+  '42501',
+  'new row violates row-level security policy for table "friendships"',
+  '36: blocked pair cannot create a new friend request'
+);
+
+-- Reports: carol reports erin; the row is write-only for users.
+select lives_ok(
+  $$ insert into public.reports (reporter_id, reported_id, reason)
+     values ('00000000-0000-0000-0000-00000000000c',
+             '00000000-0000-0000-0000-00000000000e', 'spam') $$,
+  '37: reporting a user succeeds'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+-- Unblock restores the public profile for the formerly blocked side.
+select lives_ok(
+  $$ select public.unblock_user('00000000-0000-0000-0000-00000000000c') $$,
+  '38: unblocking succeeds'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.profiles
+    where id = '00000000-0000-0000-0000-00000000000d'),
+  1::bigint,
+  '39: unblock restores visibility of the public profile'
 );
 
 reset role;

@@ -90,6 +90,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.pushNamed('settings-privacy'),
               ),
+              ListTile(
+                leading: const Icon(Icons.block_outlined),
+                title: Text(l10n.blockedUsersTitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.pushNamed('settings-blocked'),
+              ),
               const Divider(),
               _SectionLabel(l10n.settingsLegalSection),
               ListTile(
