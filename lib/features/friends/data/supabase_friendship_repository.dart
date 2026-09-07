@@ -96,9 +96,25 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
   Future<Result<void>> accept(String friendshipId) =>
       _respond(friendshipId, 'accepted');
 
+  /// Declining DELETES the row instead of flipping status to 'declined': the
+  /// unique-pair index would otherwise block any future request between the
+  /// two forever (the declined row is invisible in the UI but still owns the
+  /// pair). Persistent unwanted requests are a block concern (G-72).
   @override
-  Future<Result<void>> decline(String friendshipId) =>
-      _respond(friendshipId, 'declined');
+  Future<Result<void>> decline(String friendshipId) async {
+    try {
+      await _client
+          .from('friendships')
+          .delete()
+          .eq('id', friendshipId)
+          .eq('status', 'pending');
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
 
   Future<Result<void>> _respond(String friendshipId, String status) async {
     try {

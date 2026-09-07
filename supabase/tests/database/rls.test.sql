@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(29);
+select plan(31);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -398,6 +398,41 @@ select is(
   (select count(*) from public.search_profiles('a')),
   0::bigint,
   '29: sub-2-char queries return nothing (enumeration guard)'
+);
+
+reset role;
+
+-- ── 30-31: decline deletes the row so the pair can re-request ───────────────
+-- erin→alice is still pending (fixture). Alice (addressee) declines by
+-- deleting under RLS; erin can then send a fresh request — the unique-pair
+-- index no longer blocks it.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+delete from public.friendships
+ where addressee_id = '00000000-0000-0000-0000-00000000000a'
+   and requester_id = '00000000-0000-0000-0000-00000000000e'
+   and status = 'pending';
+
+reset role;
+select is(
+  (select count(*) from public.friendships
+    where requester_id = '00000000-0000-0000-0000-00000000000e'
+      and addressee_id = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '30: addressee can decline (delete) a pending request under RLS'
+);
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.friendships (requester_id, addressee_id)
+     values ('00000000-0000-0000-0000-00000000000e',
+             '00000000-0000-0000-0000-00000000000a') $$,
+  '31: the pair can re-request after a decline (no unique-pair block)'
 );
 
 reset role;
