@@ -199,6 +199,12 @@ class _RequestTile extends ConsumerWidget {
       subtitle: Text(
         incoming ? '@${entry.username}' : l10n.friendPendingOutgoing,
       ),
+      // Tap → the requester's profile: who is asking matters before deciding
+      // (pending parties may see each other's profile — G-31).
+      onTap: () => context.push(
+        '/users/${entry.profileId}'
+        '?name=${Uri.encodeComponent(entry.label)}',
+      ),
       trailing: incoming
           ? Row(
               mainAxisSize: MainAxisSize.min,

@@ -54,6 +54,8 @@ class _FakeFriendshipRepository implements FriendshipRepository {
 }
 
 void main() {
+  String? pushedLocation;
+
   Future<void> pumpFriends(
     WidgetTester tester,
     _FakeFriendshipRepository repo,
@@ -62,6 +64,13 @@ void main() {
       initialLocation: '/friends',
       routes: [
         GoRoute(path: '/friends', builder: (_, __) => const FriendsScreen()),
+        GoRoute(
+          path: '/users/:uid',
+          builder: (_, state) {
+            pushedLocation = state.uri.toString();
+            return const Scaffold(body: Text('profile screen'));
+          },
+        ),
       ],
     );
     await tester.pumpWidget(
@@ -121,6 +130,17 @@ void main() {
     expect(find.text('Requests'), findsOneWidget);
     expect(find.text('Selin'), findsOneWidget);
     expect(find.text('Ali'), findsOneWidget);
+  });
+
+  testWidgets('tapping a request row opens the requester profile', (
+    tester,
+  ) async {
+    await pumpFriends(tester, _FakeFriendshipRepository([incoming]));
+
+    await tester.tap(find.text('Selin'));
+    await tester.pumpAndSettle();
+
+    expect(pushedLocation, '/users/p1?name=Selin');
   });
 
   testWidgets('accepting a request moves it to friends', (tester) async {
