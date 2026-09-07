@@ -35,10 +35,23 @@ class SupabaseFriendshipRepository implements FriendshipRepository {
       for (final row in rows) {
         final requesterId = row['requester_id']! as String;
         final incoming = requesterId != userId;
-        final other =
+        var other =
             (incoming ? row['requester'] : row['addressee'])
                 as Map<String, dynamic>?;
-        if (other == null) continue; // other profile hidden by RLS
+        // Pending counterpart with a private profile: the join is RLS-hidden
+        // (full profile unlocks only on acceptance) — render from the
+        // minimal card instead so the request row still shows who's asking.
+        if (other == null) {
+          final counterpartId = incoming
+              ? requesterId
+              : row['addressee_id']! as String;
+          final cards = await _client.rpc<List<dynamic>>(
+            'profile_card',
+            params: {'target': counterpartId},
+          );
+          if (cards.isEmpty) continue; // user deleted
+          other = cards.first as Map<String, dynamic>;
+        }
         final status = row['status'] == 'accepted'
             ? FriendshipStatus.accepted
             : FriendshipStatus.pending;

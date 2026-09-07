@@ -232,7 +232,9 @@ select is(
   '15: recipient history survives giver deletion (giver anonymized)'
 );
 
--- ── 16-17: pending-request parties can see each other's profile (G-31) ──────
+-- ── 16-17: pending does NOT unlock the full profile — card only ─────────────
+-- Sending a request is unilateral; full details unlock on acceptance. The
+-- request UI renders pending counterparts from profile_card.
 set local role authenticated;
 set local "request.jwt.claims" =
   '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
@@ -240,18 +242,15 @@ set local "request.jwt.claims" =
 select is(
   (select count(*) from public.profiles
     where id = '00000000-0000-0000-0000-00000000000e'),
-  1::bigint,
-  '16: addressee can see the pending requester''s friends-only profile'
+  0::bigint,
+  '16: pending request does not expose the requester''s full profile'
 );
 
-set local "request.jwt.claims" =
-  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
-
 select is(
-  (select count(*) from public.profiles
-    where id = '00000000-0000-0000-0000-00000000000a'),
-  1::bigint,
-  '17: requester can see the pending addressee''s friends-only profile'
+  (select username from public.profile_card(
+    '00000000-0000-0000-0000-00000000000e')),
+  'erin',
+  '17: addressee can still fetch the pending requester''s card'
 );
 
 reset role;
