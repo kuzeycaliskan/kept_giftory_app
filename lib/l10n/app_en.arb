@@ -259,7 +259,7 @@
   "notifBirthdayRemindersDesc": "Get notified a few days before a friend's birthday",
 
   "editProfileTitle": "Edit profile",
-  "editProfileUsernameLocked": "Usernames can't be changed.",
+  "editProfileUsernameLocked": "Username can't be changed.",
   "editProfileBioLabel": "Bio",
   "editProfileSaved": "Profile updated."
 }

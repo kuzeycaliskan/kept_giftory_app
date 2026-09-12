@@ -138,6 +138,6 @@ void main() {
       find.widgetWithText(TextField, 'kuzey'),
     );
     expect(username.enabled, isFalse);
-    expect(find.textContaining("Usernames can't be changed"), findsOneWidget);
+    expect(find.textContaining("Username can't be changed"), findsOneWidget);
   });
 }
