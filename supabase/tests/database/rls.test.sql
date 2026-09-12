@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(39);
+select plan(41);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -517,6 +517,35 @@ select is(
 );
 
 reset role;
+
+-- ── 40-41: notification prefs gate reminder dispatch (G-63) ─────────────────
+-- alice + erin are friends again (test 31 re-request → accept it as alice),
+-- erin has a birthday; alice's device token exists from test 22. Flipping
+-- alice's pref off removes her from the dispatch targets.
+update public.friendships set status = 'accepted'
+ where requester_id = '00000000-0000-0000-0000-00000000000e'
+   and addressee_id = '00000000-0000-0000-0000-00000000000a';
+update public.profiles set birthday = date '1995-06-15'
+ where id = '00000000-0000-0000-0000-00000000000e';
+
+select is(
+  (select count(*) from public.birthday_reminder_targets(
+     '06-15', false, date '2026-06-15')
+    where notified_user = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '40: reminders-enabled friend is a dispatch target'
+);
+
+update public.profiles set birthday_reminders_enabled = false
+ where id = '00000000-0000-0000-0000-00000000000a';
+
+select is(
+  (select count(*) from public.birthday_reminder_targets(
+     '06-15', false, date '2026-06-15')
+    where notified_user = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '41: opting out removes the friend from dispatch targets'
+);
 
 select * from finish();
 rollback;

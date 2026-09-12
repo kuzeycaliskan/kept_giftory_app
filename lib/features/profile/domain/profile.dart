@@ -34,6 +34,9 @@ class Profile with _$Profile {
     @Default(Visibility.friends)
     Visibility giftHistoryVisibility,
     @JsonKey(name: 'invite_code') String? inviteCode,
+    @JsonKey(name: 'birthday_reminders_enabled')
+    @Default(true)
+    bool birthdayRemindersEnabled,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) =>

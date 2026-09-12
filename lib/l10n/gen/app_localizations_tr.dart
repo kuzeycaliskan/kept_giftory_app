@@ -601,4 +601,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get reportSuccess => 'Teşekkürler — bu şikayeti inceleyeceğiz.';
+
+  @override
+  String get settingsNotificationsSection => 'Bildirimler';
+
+  @override
+  String get notifBirthdayReminders => 'Doğum günü hatırlatmaları';
+
+  @override
+  String get notifBirthdayRemindersDesc =>
+      'Bir arkadaşının doğum gününden birkaç gün önce bildirim al';
 }

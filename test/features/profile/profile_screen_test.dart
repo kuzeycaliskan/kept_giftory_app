@@ -52,6 +52,10 @@ class _FakeProfileRepository implements ProfileRepository {
   }) async => Success(other ?? const Profile(id: 'x', username: 'x'));
 
   @override
+  Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async =>
+      const Success(Profile(id: 'x', username: 'x'));
+
+  @override
   Future<Result<List<ProfileCard>>> searchProfiles(String query) async =>
       const Success([]);
 

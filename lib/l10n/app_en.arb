@@ -252,5 +252,9 @@
   "reportReasonOther": "Something else",
   "reportDetailsLabel": "Details (optional)",
   "reportSubmit": "Send report",
-  "reportSuccess": "Thanks — we'll review this report."
+  "reportSuccess": "Thanks — we'll review this report.",
+
+  "settingsNotificationsSection": "Notifications",
+  "notifBirthdayReminders": "Birthday reminders",
+  "notifBirthdayRemindersDesc": "Get notified a few days before a friend's birthday"
 }

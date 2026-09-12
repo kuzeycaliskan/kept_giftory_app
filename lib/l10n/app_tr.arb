@@ -201,5 +201,9 @@
   "reportReasonOther": "Başka bir şey",
   "reportDetailsLabel": "Ayrıntılar (isteğe bağlı)",
   "reportSubmit": "Şikayeti gönder",
-  "reportSuccess": "Teşekkürler — bu şikayeti inceleyeceğiz."
+  "reportSuccess": "Teşekkürler — bu şikayeti inceleyeceğiz.",
+
+  "settingsNotificationsSection": "Bildirimler",
+  "notifBirthdayReminders": "Doğum günü hatırlatmaları",
+  "notifBirthdayRemindersDesc": "Bir arkadaşının doğum gününden birkaç gün önce bildirim al"
 }

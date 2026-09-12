@@ -32,6 +32,7 @@ _$ProfileImpl _$$ProfileImplFromJson(
       ) ??
       Visibility.friends,
   inviteCode: json['invite_code'] as String?,
+  birthdayRemindersEnabled: json['birthday_reminders_enabled'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
@@ -49,6 +50,7 @@ Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
       'gift_history_visibility':
           _$VisibilityEnumMap[instance.giftHistoryVisibility]!,
       'invite_code': instance.inviteCode,
+      'birthday_reminders_enabled': instance.birthdayRemindersEnabled,
     };
 
 const _$VisibilityEnumMap = {

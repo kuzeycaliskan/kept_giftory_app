@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
+import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/settings/application/notification_prefs_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Settings hub (G-85 lite): privacy (G-22), legal texts (G-74) and account
@@ -97,6 +99,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () => context.pushNamed('settings-blocked'),
               ),
               const Divider(),
+              _SectionLabel(l10n.settingsNotificationsSection),
+              const _BirthdayRemindersSwitch(),
+              const Divider(),
               _SectionLabel(l10n.settingsLegalSection),
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
@@ -137,6 +142,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// G-63: birthday-reminder pushes on/off. The dispatch query respects this
+/// server-side; the switch reflects the profile row.
+class _BirthdayRemindersSwitch extends ConsumerWidget {
+  const _BirthdayRemindersSwitch();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final profile = ref.watch(myProfileProvider);
+    final saving = ref.watch(notificationPrefsControllerProvider).isLoading;
+
+    ref.listen(notificationPrefsControllerProvider, (_, next) {
+      if (next.hasError) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+      }
+    });
+
+    // Backend-less / not onboarded: show the row disabled at its default.
+    final enabled = profile.valueOrNull?.birthdayRemindersEnabled ?? true;
+    final interactive = !saving && profile.valueOrNull != null;
+
+    return SwitchListTile(
+      secondary: const Icon(Icons.cake_outlined),
+      title: Text(l10n.notifBirthdayReminders),
+      subtitle: Text(l10n.notifBirthdayRemindersDesc),
+      value: enabled,
+      onChanged: interactive
+          ? (value) => ref
+                .read(notificationPrefsControllerProvider.notifier)
+                .setBirthdayReminders(enabled: value)
+          : null,
     );
   }
 }

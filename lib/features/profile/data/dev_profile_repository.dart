@@ -73,6 +73,12 @@ class DevProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async {
+    _me = _me.copyWith(birthdayRemindersEnabled: enabled);
+    return Success(_me);
+  }
+
+  @override
   Future<Result<List<ProfileCard>>> searchProfiles(String query) async {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return const Success([]);
@@ -134,6 +140,10 @@ class EmptyProfileRepository implements ProfileRepository {
     Visibility? wishlist,
     Visibility? giftHistory,
   }) async => const ResultFailure(AuthFailure('No backend configured'));
+
+  @override
+  Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async =>
+      const ResultFailure(AuthFailure('No backend configured'));
 
   @override
   Future<Result<List<ProfileCard>>> searchProfiles(String query) async =>

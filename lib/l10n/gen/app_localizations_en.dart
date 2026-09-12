@@ -604,4 +604,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportSuccess => 'Thanks — we\'ll review this report.';
+
+  @override
+  String get settingsNotificationsSection => 'Notifications';
+
+  @override
+  String get notifBirthdayReminders => 'Birthday reminders';
+
+  @override
+  String get notifBirthdayRemindersDesc =>
+      'Get notified a few days before a friend\'s birthday';
 }

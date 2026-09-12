@@ -1219,6 +1219,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thanks — we\'ll review this report.'**
   String get reportSuccess;
+
+  /// No description provided for @settingsNotificationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsSection;
+
+  /// No description provided for @notifBirthdayReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday reminders'**
+  String get notifBirthdayReminders;
+
+  /// No description provided for @notifBirthdayRemindersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified a few days before a friend\'s birthday'**
+  String get notifBirthdayRemindersDesc;
 }
 
 class _AppLocalizationsDelegate
