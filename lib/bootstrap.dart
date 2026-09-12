@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/app.dart';
@@ -15,6 +16,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// runs without push rather than crashing.
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Backend-less mode is a DEV convenience only. A release build without
+  // Supabase config is always a build mistake (forgotten
+  // --dart-define-from-file=.env) — fail loudly instead of shipping a
+  // hollow app to TestFlight/stores.
+  if (kReleaseMode && !Env.hasSupabaseConfig) {
+    throw StateError(
+      'Release build without Supabase config. '
+      'Build with: flutter build ipa|appbundle --dart-define-from-file=.env',
+    );
+  }
 
   if (Env.hasSupabaseConfig) {
     await Supabase.initialize(
