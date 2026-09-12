@@ -20,7 +20,13 @@ class FriendGiftsScreen extends ConsumerWidget {
     final history = ref.watch(friendGiftHistoryProvider(profileId));
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.friendGiftsTitle(label ?? ''))),
+      appBar: AppBar(
+        title: Text(
+          l10n.friendGiftsTitle(label ?? ''),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
       body: history.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(l10n.giftsError)),

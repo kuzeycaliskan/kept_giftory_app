@@ -33,8 +33,26 @@ Renk rolleri `ColorScheme` üzerinden okunur (`colorScheme.primary`, `.error`,
 ## 3. Tipografi
 
 Sistem fontu (SF / Roboto). Hiyerarşi boyut değil **ağırlıkla** kurulur:
-başlıklar w700, vurgu w600, gövde w400. `textTheme`'den okunur; ekranda
-`fontSize:` yazmak yasak (tema zaten ölçekliyor).
+başlıklar w700, vurgu w600, gövde w400. Ekranlar `textTheme` rollerinden okur;
+ekranda `fontSize:` yazmak yasak (tema zaten ölçekliyor).
+
+**Rol tablosu — tutarlılık buradan denetlenir:**
+
+| Yüzey | Rol / boyut |
+|---|---|
+| App bar başlığı | 20 w700 (temada sabit) |
+| Ekran içi isim / büyük başlık | `titleLarge` (22) |
+| Bölüm başlığı | `titleMedium` w700 |
+| Liste bölüm etiketi | `titleSmall` |
+| Liste satır başlığı | ListTile varsayılanı (`bodyLarge`) |
+| Gövde / açıklama | `bodyMedium` |
+| Yardımcı / ikincil | `bodySmall` + `onSurfaceVariant` |
+| Buton & sekme etiketi | 14 w600 (temada sabit) |
+
+⚠️ **Component theme tuzağı:** `ThemeData()`'nın ham `textTheme`'i build öncesi
+geometri içermez (boyutlar null). Component theme'lerde stil `base.textTheme`'den
+TÜRETİLMEZ — açık `fontSize` yazılır. (App bar başlığının 14'e düşmesi bu tuzaktan
+çıktı; regresyon testi `test/core/theme/app_theme_test.dart`.)
 
 ## 4. Bileşen kuralları
 
@@ -54,12 +72,28 @@ başlıklar w700, vurgu w600, gövde w400. `textTheme`'den okunur; ekranda
 - **Boş durumlar:** ikon + tek cümle + (varsa) tek CTA. Vaaz yok.
 - **Avatar:** daire, baş harf fallback'i `primaryContainer` zemin + `primary` metin.
 
-## 5. Hareket
+## 5. Taşma (overflow) — sıfır tolerans
+
+**Hiçbir koşulda RenderFlex overflow (sarı-siyah şerit) veya kırpılmış metin
+kabul edilmez.** Her ekran, uzun içerikle ve büyük yazı ölçeğiyle ayakta kalacak
+şekilde tasarlanır:
+
+- `Row` içindeki her `Text` ya `Expanded`/`Flexible` içindedir ya da sabit-genişlik
+  garantilidir. Çıplak `Text` + `Row` kombinasyonu yazılmaz.
+- Kullanıcı üretimi metin (isim, kullanıcı adı, başlık, not) tek satırlıksa
+  `maxLines: 1 + TextOverflow.ellipsis`; çok satırlıksa `maxLines` sınırlı.
+  App bar başlıkları her zaman tek satır + ellipsis.
+- Sabit yükseklik verilen kutulara metin konmaz; içerik `ListView`/`SingleChildScrollView`
+  ile kaydırılabilir olur (küçük ekran + klavye senaryosu dahil).
+- Test/geliştirmede uzun isim ("Wolfeschlegelsteinhausenbergerdorff") ve
+  `textScaleFactor 1.3+` ile en az bir kez bakılır.
+
+## 6. Hareket
 
 Varsayılan Material geçişleri; süre eklenmez, custom animasyon V1'de yok.
 Yükleme: ortalanmış `CircularProgressIndicator` (tema rengi), skeleton V2.
 
-## 6. Yapılmayacaklar
+## 7. Yapılmayacaklar
 
 - `Colors.xxx` doğrudan kullanımı (`Colors.transparent` hariç) — rol tabanlı oku.
 - Ekran içinde `TextStyle(fontSize: ...)`, ad-hoc `BorderRadius`, `elevation`.

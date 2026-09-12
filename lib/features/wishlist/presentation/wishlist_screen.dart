@@ -40,6 +40,8 @@ class WishlistScreen extends ConsumerWidget {
           _isMine
               ? l10n.wishlistMineTitle
               : l10n.wishlistOfUser(ownerLabel ?? ''),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         actions: [
           // While picking a gift, check what they already received (G-52).

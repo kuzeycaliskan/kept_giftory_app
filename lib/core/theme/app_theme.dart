@@ -76,15 +76,19 @@ class AppTheme {
       scaffoldBackgroundColor: scheme.surface,
 
       // Flat app bar: surface color, no elevation, no scroll tint.
+      // NOTE: component-theme text styles must carry EXPLICIT sizes —
+      // base.textTheme has no geometry before build (sizes are null), so
+      // deriving from it silently falls back to 14sp (design.md §3).
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: base.textTheme.titleLarge?.copyWith(
-          color: scheme.onSurface,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
           fontWeight: FontWeight.w700,
+          color: scheme.onSurface,
         ),
       ),
 
@@ -99,7 +103,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: pillShape,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           padding: const EdgeInsets.symmetric(
             horizontal: KeptSpacing.xl,
             vertical: KeptSpacing.md,
@@ -110,7 +114,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           shape: pillShape,
           side: BorderSide(color: scheme.outlineVariant),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           padding: const EdgeInsets.symmetric(
             horizontal: KeptSpacing.xl,
             vertical: KeptSpacing.md,
@@ -120,7 +124,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           shape: pillShape,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 
@@ -184,8 +188,11 @@ class AppTheme {
         unselectedLabelColor: scheme.onSurfaceVariant,
         indicatorColor: scheme.primary,
         dividerColor: scheme.outlineVariant,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
       ),
 
       snackBarTheme: SnackBarThemeData(
@@ -213,7 +220,7 @@ class AppTheme {
           selectedBackgroundColor: scheme.primaryContainer,
           selectedForegroundColor: scheme.onPrimaryContainer,
           side: BorderSide(color: scheme.outlineVariant),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 

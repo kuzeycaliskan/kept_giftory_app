@@ -25,7 +25,7 @@ class UserProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(label ?? ''),
+        title: Text(label ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [_SafetyMenu(profileId: profileId)],
       ),
       body: profile.when(
