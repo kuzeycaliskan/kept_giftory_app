@@ -265,6 +265,16 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           if (_isSurprise) ...[
             OutlinedButton.icon(
               onPressed: busy ? null : _pickRevealDate,
+              // Missing-and-required mirrors the text-field error look:
+              // red frame + red content, not just the helper line.
+              style: _revealMissing
+                  ? OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    )
+                  : null,
               icon: const Icon(Icons.visibility_outlined),
               label: Text(
                 _revealAt == null
@@ -278,9 +288,8 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
                 padding: const EdgeInsets.only(top: 4, left: 12),
                 child: Text(
                   l10n.logGiftRevealDateRequired,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.error,
-                    fontSize: 12,
                   ),
                 ),
               ),
