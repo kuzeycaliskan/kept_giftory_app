@@ -189,6 +189,15 @@ class _FriendshipAction extends ConsumerWidget {
 
   final String profileId;
 
+  /// Accepting (or declining) changes what RLS lets us see of this profile —
+  /// refetch it in place so the screen updates without leaving and returning.
+  Future<void> _respond(WidgetRef ref, Future<void> Function() action) async {
+    await action();
+    ref
+      ..invalidate(userProfileProvider(profileId))
+      ..invalidate(profileCardProvider(profileId));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
@@ -224,14 +233,20 @@ class _FriendshipAction extends ConsumerWidget {
               FilledButton.tonal(
                 onPressed: busy
                     ? null
-                    : () => controller.accept(entry.friendshipId),
+                    : () => _respond(
+                        ref,
+                        () => controller.accept(entry.friendshipId),
+                      ),
                 child: Text(l10n.friendAccept),
               ),
               const SizedBox(width: 8),
               OutlinedButton(
                 onPressed: busy
                     ? null
-                    : () => controller.decline(entry.friendshipId),
+                    : () => _respond(
+                        ref,
+                        () => controller.decline(entry.friendshipId),
+                      ),
                 child: Text(l10n.friendDecline),
               ),
             ],

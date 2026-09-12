@@ -16,7 +16,8 @@ import 'package:kept/features/profile/presentation/user_profile_screen.dart';
 class _FakeProfileRepository implements ProfileRepository {
   _FakeProfileRepository({this.other, this.card});
 
-  final Profile? other;
+  /// Mutable: tests flip it to simulate RLS unlocking after an accept.
+  Profile? other;
 
   /// Card returned when the full profile is hidden (private-profile state).
   final ProfileCard? card;
@@ -60,10 +61,13 @@ class _FakeProfileRepository implements ProfileRepository {
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
-  _FakeFriendshipRepository({this.entries = const []});
+  _FakeFriendshipRepository({this.entries = const [], this.onAccept});
 
-  final List<FriendEntry> entries;
+  List<FriendEntry> entries;
   final List<String> sentRequests = [];
+
+  /// Lets tests mimic server-side effects of accepting (RLS unlock).
+  final void Function()? onAccept;
 
   @override
   Future<Result<List<FriendEntry>>> fetchAll() async => Success(entries);
@@ -75,7 +79,10 @@ class _FakeFriendshipRepository implements FriendshipRepository {
   }
 
   @override
-  Future<Result<void>> accept(String friendshipId) async => const Success(null);
+  Future<Result<void>> accept(String friendshipId) async {
+    onAccept?.call();
+    return const Success(null);
+  }
 
   @override
   Future<Result<void>> decline(String friendshipId) async =>
@@ -214,4 +221,52 @@ void main() {
       expect(friendships.sentRequests, ['ali-id']);
     },
   );
+
+  testWidgets('accepting from the private state reveals the profile in place', (
+    tester,
+  ) async {
+    final profiles = _FakeProfileRepository(
+      card: const ProfileCard(
+        id: 'ali-id',
+        username: 'ali',
+        displayName: 'Ali',
+      ),
+    );
+    const incoming = FriendEntry(
+      friendshipId: 'f1',
+      profileId: 'ali-id',
+      username: 'ali',
+      displayName: 'Ali',
+      status: FriendshipStatus.pending,
+      direction: RequestDirection.incoming,
+    );
+    late final _FakeFriendshipRepository friendships;
+    friendships = _FakeFriendshipRepository(
+      entries: const [incoming],
+      // Server side of an accept: friendship flips, RLS unlocks the profile.
+      onAccept: () {
+        profiles.other = _ali;
+        friendships.entries = const [
+          FriendEntry(
+            friendshipId: 'f1',
+            profileId: 'ali-id',
+            username: 'ali',
+            displayName: 'Ali',
+            status: FriendshipStatus.accepted,
+          ),
+        ];
+      },
+    );
+    await pump(tester, profiles: profiles, friendships: friendships);
+
+    expect(find.text('This profile is private'), findsOneWidget);
+
+    await tester.tap(find.text('Accept'));
+    await tester.pumpAndSettle();
+
+    // Full profile appears without leaving the screen.
+    expect(find.text('This profile is private'), findsNothing);
+    expect(find.text('@ali'), findsOneWidget);
+    expect(find.text('Wishlist'), findsOneWidget);
+  });
 }
