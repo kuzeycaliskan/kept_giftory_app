@@ -58,6 +58,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Brand mark (decorative — the title below carries semantics).
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset(
+                    'assets/branding/icon.png',
+                    width: 96,
+                    height: 96,
+                    excludeFromSemantics: true,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(
                 l10n.appTitle,
                 textAlign: TextAlign.center,
