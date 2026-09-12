@@ -290,18 +290,6 @@ abstract class AppLocalizations {
   /// **'Later'**
   String get pushPrimingLater;
 
-  /// No description provided for @homeActivitySection.
-  ///
-  /// In en, this message translates to:
-  /// **'Activity'**
-  String get homeActivitySection;
-
-  /// No description provided for @homeSampleBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'sample'**
-  String get homeSampleBadge;
-
   /// No description provided for @homeNoUpcoming.
   ///
   /// In en, this message translates to:
@@ -350,41 +338,11 @@ abstract class AppLocalizations {
   /// **'Could not load upcoming birthdays'**
   String get homeUpcomingError;
 
-  /// No description provided for @homeActivityError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load activity'**
-  String get homeActivityError;
-
-  /// No description provided for @homeActivityEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing happening yet'**
-  String get homeActivityEmpty;
-
   /// No description provided for @homeUsernameCountdown.
   ///
   /// In en, this message translates to:
   /// **'@{username} · {countdown}'**
   String homeUsernameCountdown(String username, String countdown);
-
-  /// No description provided for @sampleActivityFriends.
-  ///
-  /// In en, this message translates to:
-  /// **'Ali and Zeynep became friends'**
-  String get sampleActivityFriends;
-
-  /// No description provided for @sampleActivityGift.
-  ///
-  /// In en, this message translates to:
-  /// **'Mert logged a gift for Can'**
-  String get sampleActivityGift;
-
-  /// No description provided for @sampleActivityBirthday.
-  ///
-  /// In en, this message translates to:
-  /// **'Selin\'s birthday is coming up'**
-  String get sampleActivityBirthday;
 
   /// No description provided for @giftsTitle.
   ///

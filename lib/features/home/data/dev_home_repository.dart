@@ -34,3 +34,14 @@ class DevHomeRepository implements HomeRepository {
     ]);
   }
 }
+
+/// Backend-less fallback so the app stays runnable without --dart-define
+/// config (mirrors the router's guard).
+class EmptyHomeRepository implements HomeRepository {
+  const EmptyHomeRepository();
+
+  @override
+  Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
+    int limit = 10,
+  }) async => const Success([]);
+}

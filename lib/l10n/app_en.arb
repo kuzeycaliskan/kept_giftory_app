@@ -47,8 +47,6 @@
   "pushPrimingBody": "Turn on notifications and we'll remind you before friends' birthdays.",
   "pushPrimingEnable": "Turn on",
   "pushPrimingLater": "Later",
-  "homeActivitySection": "Activity",
-  "homeSampleBadge": "sample",
   "homeNoUpcoming": "No upcoming birthdays yet",
   "homeNoUpcomingHint": "Add friends so you never miss a gift day.",
   "homeFindFriends": "Find friends",
@@ -62,8 +60,6 @@
   },
   "homeGiftCta": "Gift",
   "homeUpcomingError": "Could not load upcoming birthdays",
-  "homeActivityError": "Could not load activity",
-  "homeActivityEmpty": "Nothing happening yet",
   "homeUsernameCountdown": "@{username} · {countdown}",
   "@homeUsernameCountdown": {
     "placeholders": {
@@ -71,9 +67,6 @@
       "countdown": { "type": "String" }
     }
   },
-  "sampleActivityFriends": "Ali and Zeynep became friends",
-  "sampleActivityGift": "Mert logged a gift for Can",
-  "sampleActivityBirthday": "Selin's birthday is coming up",
 
   "giftsTitle": "Gifts",
   "giftsGivenTab": "Given",

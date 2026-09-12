@@ -110,12 +110,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pushPrimingLater => 'Sonra';
 
   @override
-  String get homeActivitySection => 'Aktivite';
-
-  @override
-  String get homeSampleBadge => 'örnek';
-
-  @override
   String get homeNoUpcoming => 'Yaklaşan doğum günü yok';
 
   @override
@@ -143,24 +137,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeUpcomingError => 'Yaklaşan doğum günleri yüklenemedi';
 
   @override
-  String get homeActivityError => 'Aktivite yüklenemedi';
-
-  @override
-  String get homeActivityEmpty => 'Henüz bir hareket yok';
-
-  @override
   String homeUsernameCountdown(String username, String countdown) {
     return '@$username · $countdown';
   }
-
-  @override
-  String get sampleActivityFriends => 'Ali ile Zeynep arkadaş oldu';
-
-  @override
-  String get sampleActivityGift => 'Mert, Can\'a hediye kaydetti';
-
-  @override
-  String get sampleActivityBirthday => 'Selin\'in doğum günü yaklaşıyor';
 
   @override
   String get giftsTitle => 'Hediyeler';

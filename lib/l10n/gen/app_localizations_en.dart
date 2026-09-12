@@ -111,12 +111,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushPrimingLater => 'Later';
 
   @override
-  String get homeActivitySection => 'Activity';
-
-  @override
-  String get homeSampleBadge => 'sample';
-
-  @override
   String get homeNoUpcoming => 'No upcoming birthdays yet';
 
   @override
@@ -143,24 +137,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUpcomingError => 'Could not load upcoming birthdays';
 
   @override
-  String get homeActivityError => 'Could not load activity';
-
-  @override
-  String get homeActivityEmpty => 'Nothing happening yet';
-
-  @override
   String homeUsernameCountdown(String username, String countdown) {
     return '@$username · $countdown';
   }
-
-  @override
-  String get sampleActivityFriends => 'Ali and Zeynep became friends';
-
-  @override
-  String get sampleActivityGift => 'Mert logged a gift for Can';
-
-  @override
-  String get sampleActivityBirthday => 'Selin\'s birthday is coming up';
 
   @override
   String get giftsTitle => 'Gifts';

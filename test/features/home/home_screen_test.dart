@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kept/app.dart';
 import 'package:kept/core/error/result.dart';
+import 'package:kept/features/friends/application/friends_providers.dart';
+import 'package:kept/features/friends/domain/friend_entry.dart';
+import 'package:kept/features/friends/domain/friendship_repository.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
@@ -18,16 +21,43 @@ class _FakeHomeRepository implements HomeRepository {
   }) async => Success(birthdays);
 }
 
+class _FakeFriendshipRepository implements FriendshipRepository {
+  _FakeFriendshipRepository(this.entries);
+
+  final List<FriendEntry> entries;
+
+  @override
+  Future<Result<List<FriendEntry>>> fetchAll() async => Success(entries);
+
+  @override
+  Future<Result<void>> accept(String friendshipId) async => const Success(null);
+
+  @override
+  Future<Result<void>> decline(String friendshipId) async =>
+      const Success(null);
+
+  @override
+  Future<Result<void>> remove(String friendshipId) async => const Success(null);
+
+  @override
+  Future<Result<void>> sendRequest(String profileId) async =>
+      const Success(null);
+}
+
 void main() {
   Future<void> pumpHome(
     WidgetTester tester, {
     required List<UpcomingBirthday> birthdays,
+    List<FriendEntry> friendEntries = const [],
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           homeRepositoryProvider.overrideWithValue(
             _FakeHomeRepository(birthdays),
+          ),
+          friendshipRepositoryProvider.overrideWithValue(
+            _FakeFriendshipRepository(friendEntries),
           ),
         ],
         child: const KeptApp(),
@@ -41,9 +71,8 @@ void main() {
 
     expect(find.text('No upcoming birthdays yet'), findsOneWidget);
     expect(find.text('Find friends'), findsOneWidget);
-    // Mock activity panel renders with its sample badge.
-    expect(find.text('Activity'), findsOneWidget);
-    expect(find.text('sample'), findsOneWidget);
+    // The mock activity panel is gone (G-86) — no sample badge anywhere.
+    expect(find.text('sample'), findsNothing);
   });
 
   testWidgets('shows birthday cards sorted with countdown', (tester) async {
@@ -81,5 +110,28 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No friends yet'), findsOneWidget);
+  });
+
+  testWidgets('bell shows a badge with the pending-request count', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      birthdays: const [],
+      friendEntries: const [
+        FriendEntry(
+          friendshipId: 'f1',
+          profileId: 'p1',
+          username: 'selin',
+          displayName: 'Selin',
+          status: FriendshipStatus.pending,
+          direction: RequestDirection.incoming,
+        ),
+      ],
+    );
+
+    final badge = tester.widget<Badge>(find.byType(Badge));
+    expect(badge.isLabelVisible, isTrue);
+    expect(find.text('1'), findsOneWidget);
   });
 }

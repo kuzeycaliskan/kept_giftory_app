@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/friends/application/friends_providers.dart';
+import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
-import 'package:kept/features/home/domain/activity_item.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/push/application/push_providers.dart';
 
 /// Home dashboard (G-82).
 ///
-/// Upper "Upcoming" section shows real data (friends' birthdays). Lower
-/// "Activity" panel is a scaffold fed by mock content until V2 (G-210) — it
-/// carries a "sample" badge so testers don't mistake it for real events.
+/// Shows friends' upcoming birthdays; the bell (with a pending-request
+/// badge) opens the Activity center (G-86). A social activity feed arrives
+/// with V2 (G-210).
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -19,7 +20,17 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final upcoming = ref.watch(upcomingBirthdaysProvider);
-    final activity = ref.watch(recentActivityProvider);
+    final pendingRequests =
+        ref
+            .watch(friendEntriesProvider)
+            .valueOrNull
+            ?.where(
+              (e) =>
+                  e.status == FriendshipStatus.pending &&
+                  e.direction == RequestDirection.incoming,
+            )
+            .length ??
+        0;
     // Fire-and-forget: refresh the stored FCM token when permission exists.
     ref.watch(pushTokenSyncProvider);
 
@@ -28,7 +39,11 @@ class HomeScreen extends ConsumerWidget {
         title: Text(l10n.appTitle),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: Badge(
+              isLabelVisible: pendingRequests > 0,
+              label: Text('$pendingRequests'),
+              child: const Icon(Icons.notifications_outlined),
+            ),
             tooltip: l10n.activityTooltip,
             onPressed: () => context.push('/activity'),
           ),
@@ -38,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(upcomingBirthdaysProvider)
-            ..invalidate(recentActivityProvider);
+            ..invalidate(friendEntriesProvider);
           await ref.read(upcomingBirthdaysProvider.future);
         },
         child: ListView(
@@ -49,13 +64,6 @@ class HomeScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.homeUpcomingSection),
             const SizedBox(height: 8),
             _UpcomingSection(state: upcoming),
-            const SizedBox(height: 24),
-            _SectionHeader(
-              title: l10n.homeActivitySection,
-              badge: l10n.homeSampleBadge,
-            ),
-            const SizedBox(height: 8),
-            _ActivitySection(state: activity),
           ],
         ),
       ),
@@ -123,26 +131,13 @@ class _PushPrimingCard extends ConsumerWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.badge});
+  const _SectionHeader({required this.title});
 
   final String title;
-  final String? badge;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
-        if (badge != null) ...[
-          const SizedBox(width: 8),
-          Chip(
-            label: Text(badge!),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ],
-      ],
-    );
+    return Text(title, style: Theme.of(context).textTheme.titleMedium);
   }
 }
 
@@ -227,60 +222,6 @@ class _BirthdayCard extends StatelessWidget {
           child: Text(l10n.homeGiftCta),
         ),
       ),
-    );
-  }
-}
-
-class _ActivitySection extends StatelessWidget {
-  const _ActivitySection({required this.state});
-
-  final AsyncValue<List<ActivityItem>> state;
-
-  IconData _icon(ActivityKind kind) => switch (kind) {
-    ActivityKind.friendAccepted => Icons.group_add_outlined,
-    ActivityKind.giftLogged => Icons.card_giftcard_outlined,
-    ActivityKind.birthdayReminder => Icons.cake_outlined,
-  };
-
-  /// V1 renders localized sample copy by kind (mock panel); the V2 event feed
-  /// will carry structured payloads and revisit this mapping (G-210).
-  String _text(BuildContext context, ActivityItem item) => switch (item.kind) {
-    ActivityKind.friendAccepted => context.l10n.sampleActivityFriends,
-    ActivityKind.giftLogged => context.l10n.sampleActivityGift,
-    ActivityKind.birthdayReminder => context.l10n.sampleActivityBirthday,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return state.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(24),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      error: (error, _) => _InlineError(message: l10n.homeActivityError),
-      data: (items) {
-        if (items.isEmpty) {
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(child: Text(l10n.homeActivityEmpty)),
-            ),
-          );
-        }
-        return Card(
-          child: Column(
-            children: [
-              for (final item in items)
-                ListTile(
-                  leading: Icon(_icon(item.kind)),
-                  title: Text(_text(context, item)),
-                  dense: true,
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
