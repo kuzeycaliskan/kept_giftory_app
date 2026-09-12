@@ -84,19 +84,19 @@ void main() {
     final safety = _FakeSafetyRepository();
     await pumpProfile(tester, safety);
 
-    await tester.tap(find.byType(PopupMenuButton<void>));
+    await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Block'));
     await tester.pumpAndSettle();
 
     // Confirm dialog: cancel leaves the repo untouched.
     expect(find.text('Block this user?'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
+    await tester.tap(find.text('Cancel').last);
     await tester.pumpAndSettle();
     expect(safety.blockedIds, isEmpty);
 
     // Again, but confirmed this time.
-    await tester.tap(find.byType(PopupMenuButton<void>));
+    await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Block'));
     await tester.pumpAndSettle();
@@ -113,7 +113,7 @@ void main() {
     final safety = _FakeSafetyRepository();
     await pumpProfile(tester, safety);
 
-    await tester.tap(find.byType(PopupMenuButton<void>));
+    await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Report'));
     await tester.pumpAndSettle();

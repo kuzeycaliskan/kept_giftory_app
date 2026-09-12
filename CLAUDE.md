@@ -174,6 +174,11 @@ main.dart
   scaling. Don't ship inaccessible screens.
 - Consistent design system: centralized theme, spacing scale, typography, components in
   `shared/`. No ad-hoc colors/sizes.
+- **`design.md` is the binding UI contract (Kept Design Language v1).** Every screen and
+  component follows it: tokens from `core/theme/kept_tokens.dart`, colors only via
+  `ColorScheme` roles, context menus via `showKeptActionSheet` (never `PopupMenuButton`),
+  pill buttons, flat app bars, both light AND dark themes verified. If a rule doesn't
+  fit, change `design.md` + the theme together — never carve a screen-local exception.
 
 ---
 

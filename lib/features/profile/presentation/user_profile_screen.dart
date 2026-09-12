@@ -7,6 +7,7 @@ import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/profile_panel.dart';
 import 'package:kept/features/safety/application/safety_providers.dart';
 import 'package:kept/features/safety/presentation/report_sheet.dart';
+import 'package:kept/shared/widgets/kept_action_sheet.dart';
 
 /// Another user's profile (G-84). Sections are RLS-scoped; a friends-only
 /// profile renders the private-card state (avatar + name + request button,
@@ -165,18 +166,25 @@ class _SafetyMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    return PopupMenuButton<void>(
+    return IconButton(
       tooltip: l10n.safetyMenuTooltip,
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          onTap: () => _confirmBlock(context, ref),
-          child: Text(l10n.blockAction),
-        ),
-        PopupMenuItem(
-          onTap: () => showReportSheet(context, profileId),
-          child: Text(l10n.reportAction),
-        ),
-      ],
+      icon: const Icon(Icons.more_horiz),
+      onPressed: () => showKeptActionSheet(
+        context,
+        actions: [
+          KeptSheetAction(
+            icon: Icons.block_outlined,
+            label: l10n.blockAction,
+            destructive: true,
+            onTap: () => _confirmBlock(context, ref),
+          ),
+          KeptSheetAction(
+            icon: Icons.flag_outlined,
+            label: l10n.reportAction,
+            onTap: () => showReportSheet(context, profileId),
+          ),
+        ],
+      ),
     );
   }
 }
