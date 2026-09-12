@@ -8,9 +8,9 @@ import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/settings/application/notification_prefs_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Settings hub (G-85 lite): privacy (G-22), legal texts (G-74) and account
-/// actions (sign out, delete account — G-71). Notification prefs (G-63) land
-/// here next.
+/// Settings hub (G-85): privacy (G-22), blocked users (G-72), notification
+/// prefs (G-63), legal texts (G-74) and account actions (sign out, delete
+/// account — G-71). Profile editing (G-23) lands here next.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
