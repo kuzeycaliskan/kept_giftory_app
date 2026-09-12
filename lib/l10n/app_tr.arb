@@ -205,5 +205,9 @@
 
   "settingsNotificationsSection": "Bildirimler",
   "notifBirthdayReminders": "Doğum günü hatırlatmaları",
-  "notifBirthdayRemindersDesc": "Bir arkadaşının doğum gününden birkaç gün önce bildirim al"
+  "notifBirthdayRemindersDesc": "Bir arkadaşının doğum gününden birkaç gün önce bildirim al",
+
+  "editProfileTitle": "Profili düzenle",
+  "editProfileBioLabel": "Hakkında",
+  "editProfileSaved": "Profil güncellendi."
 }

@@ -1237,6 +1237,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get notified a few days before a friend\'s birthday'**
   String get notifBirthdayRemindersDesc;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @editProfileBioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get editProfileBioLabel;
+
+  /// No description provided for @editProfileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get editProfileSaved;
 }
 
 class _AppLocalizationsDelegate

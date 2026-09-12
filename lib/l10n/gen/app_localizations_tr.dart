@@ -611,4 +611,13 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get notifBirthdayRemindersDesc =>
       'Bir arkadaşının doğum gününden birkaç gün önce bildirim al';
+
+  @override
+  String get editProfileTitle => 'Profili düzenle';
+
+  @override
+  String get editProfileBioLabel => 'Hakkında';
+
+  @override
+  String get editProfileSaved => 'Profil güncellendi.';
 }

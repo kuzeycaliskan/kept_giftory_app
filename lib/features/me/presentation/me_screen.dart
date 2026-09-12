@@ -22,6 +22,11 @@ class MeScreen extends ConsumerWidget {
         title: Text(l10n.meTitle),
         actions: [
           IconButton(
+            tooltip: l10n.editProfileTitle,
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () => context.push('/profile/edit'),
+          ),
+          IconButton(
             tooltip: l10n.meSettings,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push('/settings'),

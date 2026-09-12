@@ -614,4 +614,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notifBirthdayRemindersDesc =>
       'Get notified a few days before a friend\'s birthday';
+
+  @override
+  String get editProfileTitle => 'Edit profile';
+
+  @override
+  String get editProfileBioLabel => 'Bio';
+
+  @override
+  String get editProfileSaved => 'Profile updated.';
 }

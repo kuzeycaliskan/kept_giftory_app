@@ -118,6 +118,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const Divider(),
               _SectionLabel(l10n.settingsAccountSection),
               ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: Text(l10n.editProfileTitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.pushNamed('profile-edit'),
+              ),
+              ListTile(
                 leading: const Icon(Icons.logout),
                 title: Text(l10n.meSignOut),
                 onTap: _busy ? null : _signOut,

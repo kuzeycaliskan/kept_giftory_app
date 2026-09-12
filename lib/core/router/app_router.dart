@@ -16,6 +16,7 @@ import 'package:kept/features/invite/presentation/invite_screen.dart';
 import 'package:kept/features/me/presentation/me_screen.dart';
 import 'package:kept/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/profile/presentation/edit_profile_screen.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
 import 'package:kept/features/safety/presentation/blocked_users_screen.dart';
 import 'package:kept/features/settings/presentation/privacy_screen.dart';
@@ -144,6 +145,11 @@ GoRouter appRouter(Ref ref) {
         path: '/invite',
         name: 'invite',
         builder: (context, state) => const InviteScreen(),
+      ),
+      GoRoute(
+        path: '/profile/edit',
+        name: 'profile-edit',
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: '/settings',

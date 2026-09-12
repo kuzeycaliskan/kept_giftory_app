@@ -256,5 +256,9 @@
 
   "settingsNotificationsSection": "Notifications",
   "notifBirthdayReminders": "Birthday reminders",
-  "notifBirthdayRemindersDesc": "Get notified a few days before a friend's birthday"
+  "notifBirthdayRemindersDesc": "Get notified a few days before a friend's birthday",
+
+  "editProfileTitle": "Edit profile",
+  "editProfileBioLabel": "Bio",
+  "editProfileSaved": "Profile updated."
 }

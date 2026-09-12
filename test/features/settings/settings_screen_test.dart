@@ -125,6 +125,7 @@ void main() {
   testWidgets('sign out calls the repository', (tester) async {
     final repo = _FakeAuthRepository();
     await pump(tester, repo);
+    await scrollTo(tester, 'Sign out');
 
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
