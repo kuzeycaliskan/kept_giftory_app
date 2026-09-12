@@ -616,8 +616,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editProfileTitle => 'Profili düzenle';
 
   @override
-  String get editProfileUsernameLocked =>
-      'Kullanıcı adı değiştirilemez. Değişiklik için bize yaz: kuzyagame1@gmail.com';
+  String get editProfileUsernameLocked => 'Kullanıcı adı değiştirilemez.';
 
   @override
   String get editProfileBioLabel => 'Hakkında';

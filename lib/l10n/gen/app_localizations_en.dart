@@ -619,8 +619,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editProfileTitle => 'Edit profile';
 
   @override
-  String get editProfileUsernameLocked =>
-      'Usernames can\'t be changed. Need a change? Contact us at kuzyagame1@gmail.com';
+  String get editProfileUsernameLocked => 'Usernames can\'t be changed.';
 
   @override
   String get editProfileBioLabel => 'Bio';
