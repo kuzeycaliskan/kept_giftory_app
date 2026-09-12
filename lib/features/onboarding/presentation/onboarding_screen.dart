@@ -129,16 +129,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _step == 0 ? l10n.onboardingUsernameTitle : l10n.onboardingAboutTitle,
+    // The username is permanent once the profile is created — step 2 must
+    // offer a way back so a typo caught late is still fixable. System back
+    // returns to step 1 too instead of leaving the app.
+    return PopScope(
+      canPop: _step == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) setState(() => _step = 0);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: _step == 1
+              ? BackButton(onPressed: () => setState(() => _step = 0))
+              : null,
+          title: Text(
+            _step == 0
+                ? l10n.onboardingUsernameTitle
+                : l10n.onboardingAboutTitle,
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: _step == 0 ? _usernameStep(busy) : _profileStep(busy),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: _step == 0 ? _usernameStep(busy) : _profileStep(busy),
+          ),
         ),
       ),
     );
@@ -190,6 +204,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             _birthday == null
                 ? l10n.birthdayRequiredLabel
                 : DateFormat.yMMMMd(locale).format(_birthday!),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.onboardingBirthdayWhy,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 24),

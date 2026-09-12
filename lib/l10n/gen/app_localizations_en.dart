@@ -62,6 +62,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get birthdayRequiredLabel => 'Birthday (required)';
 
   @override
+  String get onboardingBirthdayWhy =>
+      'So friends never miss your day — we remind them before your birthday.';
+
+  @override
   String get continueLabel => 'Continue';
 
   @override

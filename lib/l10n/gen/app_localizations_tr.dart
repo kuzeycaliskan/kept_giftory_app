@@ -61,6 +61,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get birthdayRequiredLabel => 'Doğum günü (zorunlu)';
 
   @override
+  String get onboardingBirthdayWhy =>
+      'Arkadaşların gününü kaçırmasın — doğum gününden önce onlara hatırlatırız.';
+
+  @override
   String get continueLabel => 'Devam';
 
   @override

@@ -28,6 +28,7 @@
   "usernameCheckFailed": "Could not check availability — try again",
   "nameOptionalLabel": "Name (optional)",
   "birthdayRequiredLabel": "Birthday (required)",
+  "onboardingBirthdayWhy": "So friends never miss your day — we remind them before your birthday.",
   "continueLabel": "Continue",
   "finishLabel": "Finish",
   "errorGeneric": "Something went wrong. Please try again.",

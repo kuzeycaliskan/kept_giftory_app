@@ -18,6 +18,7 @@
   "usernameCheckFailed": "Uygunluk kontrol edilemedi — tekrar dene",
   "nameOptionalLabel": "İsim (isteğe bağlı)",
   "birthdayRequiredLabel": "Doğum günü (zorunlu)",
+  "onboardingBirthdayWhy": "Arkadaşların gününü kaçırmasın — doğum gününden önce onlara hatırlatırız.",
   "continueLabel": "Devam",
   "finishLabel": "Bitir",
   "errorGeneric": "Bir şeyler ters gitti. Lütfen tekrar dene.",

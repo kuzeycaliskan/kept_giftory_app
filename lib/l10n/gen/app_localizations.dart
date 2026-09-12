@@ -194,6 +194,12 @@ abstract class AppLocalizations {
   /// **'Birthday (required)'**
   String get birthdayRequiredLabel;
 
+  /// No description provided for @onboardingBirthdayWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'So friends never miss your day — we remind them before your birthday.'**
+  String get onboardingBirthdayWhy;
+
   /// No description provided for @continueLabel.
   ///
   /// In en, this message translates to:
