@@ -6,6 +6,8 @@ Outputs (1024x1024):
   assets/branding/icon_android_bg.png  adaptive-icon background (gradient)
   assets/branding/icon_android_fg.png  adaptive-icon foreground (transparent,
                                        glyph scaled into the 66% safe zone)
+  assets/branding/icon_mark.png        in-app brand mark (transparent bg,
+                                       violet stem + gold ribbon — app bar)
 
 Run: python3 tool/generate_icon.py   (then: dart run flutter_launcher_icons)
 """
@@ -18,6 +20,7 @@ C = 1024 * S
 CLEAR = (0, 0, 0, 0)
 
 WHITE = (255, 255, 255, 255)
+VIOLET = (108, 77, 246, 255)
 VIOLET_TL = (128, 96, 255, 255)
 VIOLET_BR = (76, 44, 216, 255)
 GOLD = (255, 199, 89, 255)
@@ -54,7 +57,7 @@ def arm(d, p1, p2, r, fill, notch_polys):
     ])
 
 
-def glyph_layers():
+def glyph_layers(stem_color=WHITE):
     """(ribbon, stem, stem_shadow_on_ribbon) transparent layers."""
     w = int(150 * S)
     r = w // 2
@@ -79,9 +82,9 @@ def glyph_layers():
 
     stem = Image.new('RGBA', (C, C), CLEAR)
     ds = ImageDraw.Draw(stem)
-    ds.line([(stem_x, 256 * S), (stem_x, 768 * S)], fill=WHITE, width=w)
+    ds.line([(stem_x, 256 * S), (stem_x, 768 * S)], fill=stem_color, width=w)
     for y in (256 * S, 768 * S):
-        ds.ellipse([stem_x - r, y - r, stem_x + r, y + r], fill=WHITE)
+        ds.ellipse([stem_x - r, y - r, stem_x + r, y + r], fill=stem_color)
 
     stem_sh = Image.new('RGBA', (C, C), CLEAR)
     stem_sh.paste(Image.new('RGBA', (C, C), (30, 12, 90, 90)),
@@ -127,6 +130,22 @@ def main():
     off = (C - small.width) // 2
     fg.paste(small, (off, off), small)
     save(fg, 'icon_android_fg.png')
+
+    # In-app brand mark: transparent bg, violet stem so it reads on light
+    # AND dark surfaces; tight-cropped with a small margin.
+    m_ribbon, m_stem, m_sh = glyph_layers(stem_color=VIOLET)
+    mark = compose_glyph(m_ribbon, m_stem, m_sh)
+    box = mark.getbbox()
+    pad = int(20 * S)
+    side = max(box[2] - box[0], box[3] - box[1]) + 2 * pad
+    sq = Image.new('RGBA', (side, side), CLEAR)
+    sq.paste(mark.crop(box),
+             ((side - (box[2] - box[0])) // 2, (side - (box[3] - box[1])) // 2),
+             mark.crop(box))
+    sq = sq.resize((512, 512), Image.LANCZOS)
+    path = os.path.join(OUT, 'icon_mark.png')
+    sq.save(path)
+    print('wrote', os.path.relpath(path))
 
 
 if __name__ == '__main__':

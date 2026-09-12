@@ -36,7 +36,21 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appTitle),
+        // Brand mark + wordmark: a new brand teaches its symbol by pairing
+        // it with the name (mark is decorative; the text carries semantics).
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/branding/icon_mark.png',
+              width: 28,
+              height: 28,
+              excludeFromSemantics: true,
+            ),
+            const SizedBox(width: 8),
+            Text(l10n.appTitle),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Badge(
