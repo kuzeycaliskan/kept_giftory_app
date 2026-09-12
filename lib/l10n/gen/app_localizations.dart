@@ -266,6 +266,18 @@ abstract class AppLocalizations {
   /// **'Something I want'**
   String get quickAddWishlistSubtitle;
 
+  /// No description provided for @quickAddFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a friend'**
+  String get quickAddFriend;
+
+  /// No description provided for @quickAddFriendSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by username or share your invite code'**
+  String get quickAddFriendSubtitle;
+
   /// No description provided for @homeUpcomingSection.
   ///
   /// In en, this message translates to:

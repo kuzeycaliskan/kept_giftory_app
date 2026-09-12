@@ -98,6 +98,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quickAddWishlistSubtitle => 'İstediğim bir şey';
 
   @override
+  String get quickAddFriend => 'Arkadaş ekle';
+
+  @override
+  String get quickAddFriendSubtitle =>
+      'Kullanıcı adıyla ara veya davet kodunu paylaş';
+
+  @override
   String get homeUpcomingSection => 'Yaklaşanlar';
 
   @override

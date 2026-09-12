@@ -99,6 +99,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAddWishlistSubtitle => 'Something I want';
 
   @override
+  String get quickAddFriend => 'Add a friend';
+
+  @override
+  String get quickAddFriendSubtitle =>
+      'Search by username or share your invite code';
+
+  @override
   String get homeUpcomingSection => 'Upcoming';
 
   @override

@@ -48,8 +48,14 @@ void main() {
 
     expect(find.text('Log a gift'), findsOneWidget);
     expect(find.text('Add to wishlist'), findsOneWidget);
+    expect(find.text('Add a friend'), findsOneWidget);
     // Shell is still on Home underneath.
     expect(find.byType(NavigationBar), findsOneWidget);
+
+    // The friend row leads to the Friends hub (search + invite + requests).
+    await tester.tap(find.text('Add a friend'));
+    await tester.pumpAndSettle();
+    expect(find.text('No friends yet'), findsOneWidget);
   });
 
   testWidgets('activity bell opens the activity screen', (tester) async {

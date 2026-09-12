@@ -38,6 +38,15 @@ class QuickAddSheet extends StatelessWidget {
               context.push('/wishlist/add');
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.person_add_outlined),
+            title: Text(l10n.quickAddFriend),
+            subtitle: Text(l10n.quickAddFriendSubtitle),
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/friends');
+            },
+          ),
           const SizedBox(height: 8),
         ],
       ),

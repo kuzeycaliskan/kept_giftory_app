@@ -53,6 +53,11 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            tooltip: l10n.friendsTitle,
+            icon: const Icon(Icons.person_add_outlined),
+            onPressed: () => context.push('/friends'),
+          ),
+          IconButton(
             icon: Badge(
               isLabelVisible: pendingRequests > 0,
               label: Text('$pendingRequests'),

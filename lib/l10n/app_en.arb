@@ -42,6 +42,8 @@
   "quickAddLogGiftSubtitle": "I bought a gift for a friend",
   "quickAddWishlist": "Add to wishlist",
   "quickAddWishlistSubtitle": "Something I want",
+  "quickAddFriend": "Add a friend",
+  "quickAddFriendSubtitle": "Search by username or share your invite code",
 
   "homeUpcomingSection": "Upcoming",
   "pushPrimingTitle": "Never miss a gift day",
