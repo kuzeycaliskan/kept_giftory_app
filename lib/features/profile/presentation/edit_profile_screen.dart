@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/profile/application/edit_profile_controller.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
-import 'package:kept/features/profile/domain/username.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
 
-/// Edit own profile (G-23): username, display name, birthday, occupation,
-/// bio. Visibility lives in Settings → Privacy (G-22); avatar arrives with
-/// the V2 media pipeline.
+/// Edit own profile (G-23): display name, birthday, occupation, bio.
+/// Username is shown read-only — it's identity, locked in V1 (support
+/// handles changes). Visibility lives in Settings → Privacy (G-22); avatar
+/// arrives with the V2 media pipeline.
 class EditProfileScreen extends ConsumerWidget {
   const EditProfileScreen({super.key});
 
@@ -57,7 +56,6 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
   late final TextEditingController _occupation;
   late final TextEditingController _bio;
   late DateTime? _birthday;
-  String? _usernameError;
 
   @override
   void initState() {
@@ -77,15 +75,6 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     _occupation.dispose();
     _bio.dispose();
     super.dispose();
-  }
-
-  String? _localizedUsernameError(UsernameError error) {
-    final l10n = context.l10n;
-    return switch (error) {
-      UsernameError.tooShort => l10n.usernameTooShort(Username.minLength),
-      UsernameError.tooLong => l10n.usernameTooLong(Username.maxLength),
-      UsernameError.invalidCharacters => l10n.usernameInvalidCharacters,
-    };
   }
 
   String? _trimmedOrNull(TextEditingController controller) {
@@ -109,16 +98,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
-    final username = _username.text.trim();
-    final formatError = Username.validate(username);
-    if (formatError != null) {
-      setState(() => _usernameError = _localizedUsernameError(formatError));
-      return;
-    }
-    setState(() => _usernameError = null);
-
     final edited = widget.initial.copyWith(
-      username: username,
       displayName: _trimmedOrNull(_displayName),
       birthday: _birthday,
       occupation: _trimmedOrNull(_occupation),
@@ -131,12 +111,6 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     if (ok) {
       navigator.pop();
       messenger.showSnackBar(SnackBar(content: Text(l10n.editProfileSaved)));
-      return;
-    }
-    final failure = ref.read(editProfileControllerProvider).error;
-    if (failure is ValidationFailure) {
-      // The only save-time validation left is the unique username.
-      setState(() => _usernameError = l10n.usernameTaken);
     } else {
       messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
@@ -161,14 +135,16 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Username is identity — read-only in V1 (invite codes, search and
+          // mentions hang off it). Changes go through support for now.
           TextField(
             controller: _username,
-            enabled: !busy,
-            autocorrect: false,
+            enabled: false,
             decoration: InputDecoration(
               labelText: l10n.usernameLabel,
               prefixText: '@',
-              errorText: _usernameError,
+              helperText: l10n.editProfileUsernameLocked,
+              helperMaxLines: 2,
               border: const OutlineInputBorder(),
             ),
           ),

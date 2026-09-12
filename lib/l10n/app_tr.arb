@@ -208,6 +208,7 @@
   "notifBirthdayRemindersDesc": "Bir arkadaşının doğum gününden birkaç gün önce bildirim al",
 
   "editProfileTitle": "Profili düzenle",
+  "editProfileUsernameLocked": "Kullanıcı adı değiştirilemez. Değişiklik için bize yaz: kuzyagame1@gmail.com",
   "editProfileBioLabel": "Hakkında",
   "editProfileSaved": "Profil güncellendi."
 }

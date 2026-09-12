@@ -259,6 +259,7 @@
   "notifBirthdayRemindersDesc": "Get notified a few days before a friend's birthday",
 
   "editProfileTitle": "Edit profile",
+  "editProfileUsernameLocked": "Usernames can't be changed. Need a change? Contact us at kuzyagame1@gmail.com",
   "editProfileBioLabel": "Bio",
   "editProfileSaved": "Profile updated."
 }

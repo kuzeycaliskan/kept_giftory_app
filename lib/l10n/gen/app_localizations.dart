@@ -1244,6 +1244,12 @@ abstract class AppLocalizations {
   /// **'Edit profile'**
   String get editProfileTitle;
 
+  /// No description provided for @editProfileUsernameLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Usernames can\'t be changed. Need a change? Contact us at kuzyagame1@gmail.com'**
+  String get editProfileUsernameLocked;
+
   /// No description provided for @editProfileBioLabel.
   ///
   /// In en, this message translates to:

@@ -198,17 +198,14 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<Result<Profile>> updateProfile(Profile profile) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
-    final usernameError = Username.validate(profile.username);
-    if (usernameError != null) {
-      return const ResultFailure(ValidationFailure('Invalid username'));
-    }
     try {
-      // Only the G-23 editable columns — visibility, invite code and avatar
-      // have their own dedicated paths. Explicit nulls clear optional fields.
+      // Only the G-23 editable columns. Username is deliberately absent —
+      // it's identity, locked in V1 (changes go through support). Visibility,
+      // invite code and avatar have their own dedicated paths. Explicit
+      // nulls clear optional fields.
       final row = await _client
           .from(_table)
           .update({
-            'username': profile.username,
             'display_name': profile.displayName,
             'birthday': profile.birthday?.toIso8601String().substring(0, 10),
             'occupation': profile.occupation,
@@ -219,10 +216,6 @@ class SupabaseProfileRepository implements ProfileRepository {
           .single();
       return Success(Profile.fromJson(row));
     } on PostgrestException catch (e) {
-      // 23505 = case-insensitive unique index → username taken.
-      if (e.code == '23505') {
-        return const ResultFailure(ValidationFailure('Username taken'));
-      }
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));
