@@ -1,5 +1,6 @@
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
+import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 
@@ -33,6 +34,50 @@ class DevHomeRepository implements HomeRepository {
       sample('mert', 'Mert', 12),
     ]);
   }
+
+  @override
+  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
+    int limit = 6,
+  }) async {
+    final now = _now();
+    return Success([
+      FriendWishlistItem(
+        itemId: 'dev-w1',
+        title: 'Kayak gözlüğü',
+        ownerId: 'dev-zeynep',
+        ownerUsername: 'zeynep',
+        ownerDisplayName: 'Zeynep',
+        createdAt: now.subtract(const Duration(hours: 3)),
+      ),
+      FriendWishlistItem(
+        itemId: 'dev-w2',
+        title: 'Mekanik klavye',
+        ownerId: 'dev-ali',
+        ownerUsername: 'ali',
+        ownerDisplayName: 'Ali',
+        createdAt: now.subtract(const Duration(days: 1)),
+      ),
+    ]);
+  }
+
+  @override
+  Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async {
+    final now = _now();
+    return Success([
+      HomeEvent(
+        kind: HomeEventKind.giftReceived,
+        at: now.subtract(const Duration(hours: 5)),
+        actorId: 'dev-mert',
+        actorLabel: 'Mert',
+      ),
+      HomeEvent(
+        kind: HomeEventKind.friendAccepted,
+        at: now.subtract(const Duration(days: 2)),
+        actorId: 'dev-ali',
+        actorLabel: 'Ali',
+      ),
+    ]);
+  }
 }
 
 /// Backend-less fallback so the app stays runnable without --dart-define
@@ -44,4 +89,13 @@ class EmptyHomeRepository implements HomeRepository {
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
   }) async => const Success([]);
+
+  @override
+  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
+    int limit = 6,
+  }) async => const Success([]);
+
+  @override
+  Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async =>
+      const Success([]);
 }

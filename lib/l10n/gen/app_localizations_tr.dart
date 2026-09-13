@@ -108,6 +108,39 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeUpcomingSection => 'Yaklaşanlar';
 
   @override
+  String get homeWishlistSection => 'Arkadaşlarının isteklerinden';
+
+  @override
+  String get homeWishlistError => 'Arkadaş istekleri yüklenemedi';
+
+  @override
+  String get homeWishlistEmptyNudge =>
+      'Arkadaşlarından henüz istek yok — çevren büyüdükçe hediye fikirleri burada birikir.';
+
+  @override
+  String get homeActivitySection => 'Aktivite';
+
+  @override
+  String get homeActivityError => 'Aktivite yüklenemedi';
+
+  @override
+  String get homeActivityEmptyNudge =>
+      'Şimdilik sessiz — arkadaş ekledikçe burası hareketlenir.';
+
+  @override
+  String homeEventFriend(String name) {
+    return '$name ile arkadaş oldunuz';
+  }
+
+  @override
+  String homeEventGift(String name) {
+    return '$name sana bir hediye kaydetti';
+  }
+
+  @override
+  String get homeInviteCta => 'Davet et';
+
+  @override
   String get pushPrimingTitle => 'Hiçbir hediye gününü kaçırma';
 
   @override

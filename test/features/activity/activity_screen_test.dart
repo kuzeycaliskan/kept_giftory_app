@@ -9,6 +9,7 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
 import 'package:kept/features/home/application/home_providers.dart';
+import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 
@@ -53,6 +54,15 @@ class _FakeHomeRepository implements HomeRepository {
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
   }) async => Success(birthdays);
+
+  @override
+  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
+    int limit = 6,
+  }) async => const Success([]);
+
+  @override
+  Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async =>
+      const Success([]);
 }
 
 const _request = FriendEntry(

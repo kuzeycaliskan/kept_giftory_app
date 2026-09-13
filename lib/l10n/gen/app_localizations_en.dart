@@ -109,6 +109,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUpcomingSection => 'Upcoming';
 
   @override
+  String get homeWishlistSection => 'From friends\' wishlists';
+
+  @override
+  String get homeWishlistError => 'Could not load friends\' wishes';
+
+  @override
+  String get homeWishlistEmptyNudge =>
+      'No wishes from friends yet — gift ideas pile up here as your circle grows.';
+
+  @override
+  String get homeActivitySection => 'Activity';
+
+  @override
+  String get homeActivityError => 'Could not load activity';
+
+  @override
+  String get homeActivityEmptyNudge =>
+      'Quiet for now — things happen here as you add friends.';
+
+  @override
+  String homeEventFriend(String name) {
+    return 'You and $name became friends';
+  }
+
+  @override
+  String homeEventGift(String name) {
+    return '$name logged a gift for you';
+  }
+
+  @override
+  String get homeInviteCta => 'Invite';
+
+  @override
   String get pushPrimingTitle => 'Never miss a gift day';
 
   @override

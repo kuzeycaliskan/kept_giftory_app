@@ -46,6 +46,25 @@
   "quickAddFriendSubtitle": "Search by username or share your invite code",
 
   "homeUpcomingSection": "Upcoming",
+  "homeWishlistSection": "From friends' wishlists",
+  "homeWishlistError": "Could not load friends' wishes",
+  "homeWishlistEmptyNudge": "No wishes from friends yet — gift ideas pile up here as your circle grows.",
+  "homeActivitySection": "Activity",
+  "homeActivityError": "Could not load activity",
+  "homeActivityEmptyNudge": "Quiet for now — things happen here as you add friends.",
+  "homeEventFriend": "You and {name} became friends",
+  "@homeEventFriend": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "homeEventGift": "{name} logged a gift for you",
+  "@homeEventGift": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "homeInviteCta": "Invite",
   "pushPrimingTitle": "Never miss a gift day",
   "pushPrimingBody": "Turn on notifications and we'll remind you before friends' birthdays.",
   "pushPrimingEnable": "Turn on",

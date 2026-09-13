@@ -7,18 +7,34 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
 import 'package:kept/features/home/application/home_providers.dart';
+import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 
 class _FakeHomeRepository implements HomeRepository {
-  _FakeHomeRepository(this.birthdays);
+  _FakeHomeRepository(
+    this.birthdays, {
+    this.wishlistItems = const [],
+    this.events = const [],
+  });
 
   final List<UpcomingBirthday> birthdays;
+  final List<FriendWishlistItem> wishlistItems;
+  final List<HomeEvent> events;
 
   @override
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
   }) async => Success(birthdays);
+
+  @override
+  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
+    int limit = 6,
+  }) async => Success(wishlistItems);
+
+  @override
+  Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async =>
+      Success(events);
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
@@ -49,12 +65,18 @@ void main() {
     WidgetTester tester, {
     required List<UpcomingBirthday> birthdays,
     List<FriendEntry> friendEntries = const [],
+    List<FriendWishlistItem> wishlistItems = const [],
+    List<HomeEvent> events = const [],
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           homeRepositoryProvider.overrideWithValue(
-            _FakeHomeRepository(birthdays),
+            _FakeHomeRepository(
+              birthdays,
+              wishlistItems: wishlistItems,
+              events: events,
+            ),
           ),
           friendshipRepositoryProvider.overrideWithValue(
             _FakeFriendshipRepository(friendEntries),
@@ -133,5 +155,67 @@ void main() {
     final badge = tester.widget<Badge>(find.byType(Badge));
     expect(badge.isLabelVisible, isTrue);
     expect(find.text('1'), findsOneWidget);
+  });
+
+  const acceptedFriend = FriendEntry(
+    friendshipId: 'f9',
+    profileId: 'p9',
+    username: 'zeynep',
+    displayName: 'Zeynep',
+    status: FriendshipStatus.accepted,
+  );
+
+  testWidgets('with friends, wishlist feed and activity render real rows', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      birthdays: const [],
+      friendEntries: const [acceptedFriend],
+      wishlistItems: [
+        FriendWishlistItem(
+          itemId: 'w1',
+          title: 'Ski goggles',
+          ownerId: 'p9',
+          ownerUsername: 'zeynep',
+          ownerDisplayName: 'Zeynep',
+          createdAt: DateTime(2026, 9, 12),
+        ),
+      ],
+      events: [
+        HomeEvent(
+          kind: HomeEventKind.giftReceived,
+          at: DateTime(2026, 9, 11),
+          actorId: 'p9',
+          actorLabel: 'Zeynep',
+        ),
+      ],
+    );
+
+    expect(find.text("From friends' wishlists"), findsOneWidget);
+    expect(find.text('Ski goggles'), findsOneWidget);
+    expect(find.text('Activity'), findsOneWidget);
+    expect(find.text('Zeynep logged a gift for you'), findsOneWidget);
+  });
+
+  testWidgets('empty sections nudge toward inviting, not hide', (tester) async {
+    await pumpHome(
+      tester,
+      birthdays: const [],
+      friendEntries: const [acceptedFriend],
+    );
+
+    expect(find.text('Invite'), findsNWidgets(2));
+    expect(find.textContaining('gift ideas pile up'), findsOneWidget);
+  });
+
+  testWidgets('cold start (no friends) hides sections, shows one CTA', (
+    tester,
+  ) async {
+    await pumpHome(tester, birthdays: const []);
+
+    expect(find.text('Find friends'), findsOneWidget);
+    expect(find.text("From friends' wishlists"), findsNothing);
+    expect(find.text('Activity'), findsNothing);
   });
 }

@@ -5,6 +5,7 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
+import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/push/application/push_providers.dart';
 
@@ -20,10 +21,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final upcoming = ref.watch(upcomingBirthdaysProvider);
+    final wishlistFeed = ref.watch(friendWishlistFeedProvider);
+    final events = ref.watch(homeEventsProvider);
+    final friendEntries = ref.watch(friendEntriesProvider);
     final pendingRequests =
-        ref
-            .watch(friendEntriesProvider)
-            .valueOrNull
+        friendEntries.valueOrNull
             ?.where(
               (e) =>
                   e.status == FriendshipStatus.pending &&
@@ -31,6 +33,13 @@ class HomeScreen extends ConsumerWidget {
             )
             .length ??
         0;
+    // Cold start: no accepted friends → one focused invite card instead of
+    // three empty sections all begging separately (G-36).
+    final hasFriends =
+        friendEntries.valueOrNull?.any(
+          (e) => e.status == FriendshipStatus.accepted,
+        ) ??
+        true;
     // Fire-and-forget: refresh the stored FCM token when permission exists.
     ref.watch(pushTokenSyncProvider);
 
@@ -72,6 +81,8 @@ class HomeScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(upcomingBirthdaysProvider)
+            ..invalidate(friendWishlistFeedProvider)
+            ..invalidate(homeEventsProvider)
             ..invalidate(friendEntriesProvider);
           await ref.read(upcomingBirthdaysProvider.future);
         },
@@ -83,6 +94,16 @@ class HomeScreen extends ConsumerWidget {
             _SectionHeader(title: l10n.homeUpcomingSection),
             const SizedBox(height: 8),
             _UpcomingSection(state: upcoming),
+            if (hasFriends) ...[
+              const SizedBox(height: 24),
+              _SectionHeader(title: l10n.homeWishlistSection),
+              const SizedBox(height: 8),
+              _WishlistFeedSection(state: wishlistFeed),
+              const SizedBox(height: 24),
+              _SectionHeader(title: l10n.homeActivitySection),
+              const SizedBox(height: 8),
+              _EventsSection(state: events),
+            ],
           ],
         ),
       ),
@@ -260,6 +281,147 @@ class _InlineError extends StatelessWidget {
             const Icon(Icons.error_outline),
             const SizedBox(width: 12),
             Expanded(child: Text(message)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Friends' latest wishlist additions — the discovery half of Home (G-82).
+class _WishlistFeedSection extends StatelessWidget {
+  const _WishlistFeedSection({required this.state});
+
+  final AsyncValue<List<FriendWishlistItem>> state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return state.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(24),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => _InlineError(message: l10n.homeWishlistError),
+      data: (items) {
+        if (items.isEmpty) {
+          return _InviteNudge(message: l10n.homeWishlistEmptyNudge);
+        }
+        return Column(
+          children: [
+            for (final item in items)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.star_outline),
+                title: Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  '@${item.ownerUsername}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () => context.push(
+                  '/users/${item.ownerId}'
+                  '?name=${Uri.encodeComponent(item.ownerLabel)}',
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// My real social events (new friendships, gifts logged for me). The full
+/// social feed arrives with V2 (G-210).
+class _EventsSection extends StatelessWidget {
+  const _EventsSection({required this.state});
+
+  final AsyncValue<List<HomeEvent>> state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return state.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(24),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => _InlineError(message: l10n.homeActivityError),
+      data: (events) {
+        if (events.isEmpty) {
+          return _InviteNudge(message: l10n.homeActivityEmptyNudge);
+        }
+        return Column(
+          children: [
+            for (final event in events)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(switch (event.kind) {
+                  HomeEventKind.friendAccepted => Icons.group_add_outlined,
+                  HomeEventKind.giftReceived => Icons.card_giftcard_outlined,
+                }),
+                title: Text(
+                  switch (event.kind) {
+                    HomeEventKind.friendAccepted => l10n.homeEventFriend(
+                      event.actorLabel ?? l10n.giftAnonymousGiver,
+                    ),
+                    HomeEventKind.giftReceived => l10n.homeEventGift(
+                      event.actorLabel ?? l10n.giftAnonymousGiver,
+                    ),
+                  },
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: event.actorId == null
+                    ? null
+                    : () => context.push(
+                        '/users/${event.actorId}'
+                        '?name=${Uri.encodeComponent(event.actorLabel ?? '')}',
+                      ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Compact growth nudge for an empty section: content here comes from
+/// friends, so the fix is inviting more of them (G-36).
+class _InviteNudge extends StatelessWidget {
+  const _InviteNudge({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.person_add_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            TextButton(
+              onPressed: () => context.push('/invite'),
+              child: Text(context.l10n.homeInviteCta),
+            ),
           ],
         ),
       ),

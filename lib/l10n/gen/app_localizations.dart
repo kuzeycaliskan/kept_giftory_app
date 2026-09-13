@@ -284,6 +284,60 @@ abstract class AppLocalizations {
   /// **'Upcoming'**
   String get homeUpcomingSection;
 
+  /// No description provided for @homeWishlistSection.
+  ///
+  /// In en, this message translates to:
+  /// **'From friends\' wishlists'**
+  String get homeWishlistSection;
+
+  /// No description provided for @homeWishlistError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load friends\' wishes'**
+  String get homeWishlistError;
+
+  /// No description provided for @homeWishlistEmptyNudge.
+  ///
+  /// In en, this message translates to:
+  /// **'No wishes from friends yet — gift ideas pile up here as your circle grows.'**
+  String get homeWishlistEmptyNudge;
+
+  /// No description provided for @homeActivitySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get homeActivitySection;
+
+  /// No description provided for @homeActivityError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load activity'**
+  String get homeActivityError;
+
+  /// No description provided for @homeActivityEmptyNudge.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet for now — things happen here as you add friends.'**
+  String get homeActivityEmptyNudge;
+
+  /// No description provided for @homeEventFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'You and {name} became friends'**
+  String homeEventFriend(String name);
+
+  /// No description provided for @homeEventGift.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} logged a gift for you'**
+  String homeEventGift(String name);
+
+  /// No description provided for @homeInviteCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get homeInviteCta;
+
   /// No description provided for @pushPrimingTitle.
   ///
   /// In en, this message translates to:
