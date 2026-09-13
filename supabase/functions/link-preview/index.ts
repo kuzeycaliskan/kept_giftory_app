@@ -54,7 +54,15 @@ Deno.serve(async (req) => {
   if (userError || !userData.user) return json(401, { error: "unauthorized" });
   const userId = userData.user.id;
 
-  const { url: rawUrl } = await req.json().catch(() => ({ url: null }));
+  const body = await req.json().catch(() => ({}));
+  const rawUrl = body?.url;
+  // Client-extracted metadata fallback (G-211): bot-walled shops (Akamai on
+  // Trendyol/Hepsiburada) block ALL server-side fetching, so the app pulls
+  // the page in a hidden WebView and sends the OG fields here. The server
+  // still validates the URL, rate-limits, and downloads the image itself.
+  // Trust note: meta is user-supplied content (same trust level as free
+  // text); worst case is a cosmetic wrong title in the shared cache.
+  const clientMeta = body?.meta;
   if (typeof rawUrl !== "string") return json(400, { error: "bad_request" });
 
   const url = validateTargetUrl(rawUrl.trim());
@@ -90,17 +98,30 @@ Deno.serve(async (req) => {
     .delete()
     .lt("requested_at", minuteAgo);
 
-  // Fetch + parse the page.
-  const res = await guardedFetch(url);
-  if (!res) return json(422, { error: "fetch_failed" });
-  const contentType = res.headers.get("content-type") ?? "";
-  if (!contentType.includes("text/html")) {
-    return json(422, { error: "not_html" });
+  // Metadata: client-supplied (bot-walled sites) or fetched+parsed here.
+  let meta: { title?: string; image?: string; price?: string; site?: string };
+  if (clientMeta && typeof clientMeta === "object") {
+    const str = (v: unknown) =>
+      typeof v === "string" && v.trim() ? v.trim() : undefined;
+    meta = {
+      title: str(clientMeta.title),
+      image: str(clientMeta.image),
+      price: str(clientMeta.price),
+      site: str(clientMeta.site),
+    };
+    if (!meta.title) return json(422, { error: "no_metadata" });
+  } else {
+    const res = await guardedFetch(url);
+    if (!res) return json(422, { error: "fetch_failed" });
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("text/html")) {
+      return json(422, { error: "not_html" });
+    }
+    const bytes = await readCapped(res, MAX_HTML_BYTES);
+    if (!bytes) return json(422, { error: "too_large" });
+    meta = parseMeta(new TextDecoder().decode(bytes));
+    if (!meta.title) return json(422, { error: "no_metadata" });
   }
-  const bytes = await readCapped(res, MAX_HTML_BYTES);
-  if (!bytes) return json(422, { error: "too_large" });
-  const meta = parseMeta(new TextDecoder().decode(bytes));
-  if (!meta.title) return json(422, { error: "no_metadata" });
 
   // Server-side image download → public bucket (clients never hotlink).
   let imagePath: string | null = null;

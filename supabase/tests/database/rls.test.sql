@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(41);
+select plan(43);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -546,6 +546,24 @@ select is(
   0::bigint,
   '41: opting out removes the friend from dispatch targets'
 );
+
+-- ── 42-43: service_role can write the link-preview tables (G-211) ───────────
+-- Regression for the 42501 cloud failure: RLS bypass ≠ table grants.
+set local role service_role;
+
+select lives_ok(
+  $$ insert into public.link_previews (url_hash, url, title)
+     values ('grant-test-hash', 'https://example.com/x', 'Grant test') $$,
+  '42: service_role can insert link previews'
+);
+
+select lives_ok(
+  $$ insert into public.link_preview_requests (user_id)
+     values ('00000000-0000-0000-0000-00000000000a') $$,
+  '43: service_role can insert link-preview rate rows'
+);
+
+reset role;
 
 select * from finish();
 rollback;
