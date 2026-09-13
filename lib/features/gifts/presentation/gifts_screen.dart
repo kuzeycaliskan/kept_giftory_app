@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/shared/widgets/link_preview_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Gifts tab (G-51/G-52): Given / Received segments. In V3 this evolves into
 /// the event hub.
@@ -173,9 +175,12 @@ class _GiftTile extends StatelessWidget {
     final counterpart = gift.counterpartLabel ?? l10n.giftAnonymousGiver;
     final date = DateFormat.yMMMd(locale).format(gift.giftDate);
 
+    final preview = gift.preview;
     return ListTile(
-      leading: Icon(given ? Icons.north_east : Icons.south_west),
-      title: Text(gift.item),
+      leading: preview == null
+          ? Icon(given ? Icons.north_east : Icons.south_west)
+          : LinkPreviewThumb(preview: preview),
+      title: Text(gift.item, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text('$counterpart · $date'),
       trailing: gift.isPendingSurprise
           ? Chip(
@@ -183,6 +188,12 @@ class _GiftTile extends StatelessWidget {
               visualDensity: VisualDensity.compact,
             )
           : null,
+      onTap: preview?.url == null
+          ? null
+          : () => launchUrl(
+              Uri.parse(preview!.url!),
+              mode: LaunchMode.externalApplication,
+            ),
     );
   }
 }

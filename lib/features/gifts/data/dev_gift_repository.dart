@@ -61,6 +61,7 @@ class DevGiftRepository implements GiftRepository {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
+    String? linkPreviewId,
   }) async {
     final entry = GiftEntry(
       id: 'dev-new-${_nextId++}',
@@ -105,6 +106,7 @@ class EmptyGiftRepository implements GiftRepository {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
+    String? linkPreviewId,
   }) async => Success(
     GiftEntry(
       id: 'noop',

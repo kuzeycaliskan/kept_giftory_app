@@ -235,6 +235,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get logGiftItemRequired => 'Hediye zorunlu';
 
   @override
+  String get logGiftLinkLabel => 'Link (isteğe bağlı)';
+
+  @override
   String get logGiftDateLabel => 'Tarih';
 
   @override

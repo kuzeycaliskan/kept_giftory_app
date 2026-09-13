@@ -99,3 +99,33 @@ class LinkPreviewCard extends StatelessWidget {
     );
   }
 }
+
+/// Compact 40dp thumbnail for list-tile leadings (gift rows).
+class LinkPreviewThumb extends StatelessWidget {
+  const LinkPreviewThumb({required this.preview, super.key});
+
+  final LinkPreview preview;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fallback = ColoredBox(
+      color: scheme.surfaceContainerLow,
+      child: Icon(Icons.link, color: scheme.onSurfaceVariant, size: 20),
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: preview.imagePath == null
+            ? fallback
+            : Image.network(
+                Env.linkPreviewImageUrl(preview.imagePath!),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => fallback,
+              ),
+      ),
+    );
+  }
+}

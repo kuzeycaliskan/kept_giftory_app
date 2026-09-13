@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:kept/features/link_preview/domain/link_preview.dart';
 
 /// A gift row shaped for the UI: the counterpart is already resolved
 /// (recipient when listing given gifts, giver when listing received/history).
@@ -15,6 +16,7 @@ class GiftEntry {
     this.revealAt,
     this.counterpartId,
     this.counterpartLabel,
+    this.preview,
   });
 
   final String id;
@@ -25,6 +27,9 @@ class GiftEntry {
   final DateTime? revealAt;
   final String? counterpartId;
   final String? counterpartLabel;
+
+  /// Attached product preview (G-211); null for free-text gifts.
+  final LinkPreview? preview;
 
   /// Still hidden from the recipient (giver-side badge).
   bool get isPendingSurprise =>

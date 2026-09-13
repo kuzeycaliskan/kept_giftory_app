@@ -21,6 +21,7 @@ abstract interface class GiftRepository {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
+    String? linkPreviewId,
   });
 
   /// Giver-only (RLS enforced).

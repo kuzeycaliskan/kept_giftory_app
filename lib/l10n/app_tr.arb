@@ -75,6 +75,7 @@
   "logGiftNoFriends": "Önce arkadaş ekle — hediye bir arkadaş için kaydedilir.",
   "logGiftItemLabel": "Hediye",
   "logGiftItemRequired": "Hediye zorunlu",
+  "logGiftLinkLabel": "Link (isteğe bağlı)",
   "logGiftDateLabel": "Tarih",
   "logGiftSurprise": "Sürpriz",
   "logGiftSurpriseHint": "Açığa çıkma tarihine kadar alıcıdan gizli",

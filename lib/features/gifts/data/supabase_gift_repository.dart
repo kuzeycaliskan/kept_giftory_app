@@ -2,6 +2,7 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
+import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Supabase-backed [GiftRepository]. Counterpart profiles come via embedded
@@ -14,11 +15,13 @@ class SupabaseGiftRepository implements GiftRepository {
   static const _giverSelect =
       'id, item, note, gift_date, is_surprise, '
       'reveal_at, giver_id, '
-      'giver:profiles!gifts_giver_id_fkey(id, username, display_name)';
+      'giver:profiles!gifts_giver_id_fkey(id, username, display_name), '
+      ' preview:link_previews(id, url, title, image_path, price, site)';
   static const _recipientSelect =
       'id, item, note, gift_date, is_surprise, '
       'reveal_at, recipient_id, '
-      'recipient:profiles!gifts_recipient_id_fkey(id, username, display_name)';
+      'recipient:profiles!gifts_recipient_id_fkey(id, username, display_name), '
+      ' preview:link_previews(id, url, title, image_path, price, site)';
 
   @override
   Future<Result<List<GiftEntry>>> fetchGiven() async {
@@ -84,6 +87,9 @@ class SupabaseGiftRepository implements GiftRepository {
           ? null
           : (counterpart['display_name'] as String?) ??
                 (counterpart['username'] as String?),
+      preview: row['preview'] == null
+          ? null
+          : LinkPreview.fromJson(row['preview'] as Map<String, dynamic>),
     );
   }
 
@@ -95,6 +101,7 @@ class SupabaseGiftRepository implements GiftRepository {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
+    String? linkPreviewId,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
@@ -116,6 +123,7 @@ class SupabaseGiftRepository implements GiftRepository {
             'is_surprise': isSurprise,
             if (isSurprise) 'reveal_at': revealAt!.toUtc().toIso8601String(),
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+            if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
           })
           .select(_recipientSelect)
           .single();

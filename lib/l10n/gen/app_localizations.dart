@@ -512,6 +512,12 @@ abstract class AppLocalizations {
   /// **'Gift is required'**
   String get logGiftItemRequired;
 
+  /// No description provided for @logGiftLinkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Link (optional)'**
+  String get logGiftLinkLabel;
+
   /// No description provided for @logGiftDateLabel.
   ///
   /// In en, this message translates to:

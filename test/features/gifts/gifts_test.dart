@@ -13,12 +13,17 @@ import 'package:kept/features/gifts/domain/gift_repository.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
+import 'package:kept/features/link_preview/application/link_preview_providers.dart';
+import 'package:kept/features/link_preview/domain/link_preview.dart';
+import 'package:kept/features/link_preview/domain/link_preview_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeGiftRepository implements GiftRepository {
   _FakeGiftRepository({List<GiftEntry>? given, List<GiftEntry>? received})
     : given = given ?? [],
       received = received ?? [];
+
+  String? lastLinkPreviewId;
 
   final List<GiftEntry> given;
   final List<GiftEntry> received;
@@ -41,7 +46,9 @@ class _FakeGiftRepository implements GiftRepository {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
+    String? linkPreviewId,
   }) async {
+    lastLinkPreviewId = linkPreviewId;
     final entry = GiftEntry(
       id: 'new-${given.length}',
       item: item,
@@ -93,6 +100,15 @@ const _aliFriend = FriendEntry(
   status: FriendshipStatus.accepted,
 );
 
+class _FakeLinkPreviewRepository implements LinkPreviewRepository {
+  _FakeLinkPreviewRepository({this.preview});
+
+  final LinkPreview? preview;
+
+  @override
+  Future<LinkPreview?> fetch(String url) async => preview;
+}
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -116,6 +132,7 @@ void main() {
     required _FakeGiftRepository gifts,
     List<FriendEntry> friends = const [_aliFriend],
     String initial = '/gifts',
+    _FakeLinkPreviewRepository? linkPreviews,
   }) async {
     final router = GoRouter(
       initialLocation: initial,
@@ -130,6 +147,9 @@ void main() {
           giftRepositoryProvider.overrideWithValue(gifts),
           friendshipRepositoryProvider.overrideWithValue(
             _FakeFriendshipRepository(friends),
+          ),
+          linkPreviewRepositoryProvider.overrideWithValue(
+            linkPreviews ?? _FakeLinkPreviewRepository(),
           ),
         ],
         child: MaterialApp.router(
@@ -159,6 +179,16 @@ void main() {
       );
       expect(surprise.value, isTrue);
 
+      await tester.scrollUntilVisible(
+        find.text('Save'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.scrollUntilVisible(
+        find.text('Save'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
@@ -189,6 +219,11 @@ void main() {
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.text('Save'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
@@ -341,5 +376,85 @@ void main() {
     await tester.fling(find.byType(PageView), const Offset(400, 0), 1000);
     await tester.pumpAndSettle();
     expect(find.text('Tennis racket'), findsOneWidget);
+  });
+
+  const racketPreview = LinkPreview(
+    id: 'lp-9',
+    url: 'https://shop.example.com/racket',
+    title: 'Babolat Pure Drive',
+    price: '1.299,00 TL',
+    site: 'shop.example.com',
+  );
+
+  testWidgets('log form attaches a fetched preview to the gift', (
+    tester,
+  ) async {
+    final repo = _FakeGiftRepository();
+    await pump(
+      tester,
+      gifts: repo,
+      linkPreviews: _FakeLinkPreviewRepository(preview: racketPreview),
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Who is it for?'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ali').last);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Link (optional)'),
+      'https://shop.example.com/racket',
+    );
+    await tester.pump(const Duration(milliseconds: 700)); // debounce
+    await tester.pumpAndSettle();
+    // Empty item field inherited the product title.
+    expect(find.text('Babolat Pure Drive'), findsWidgets);
+
+    await tester.scrollUntilVisible(
+      find.text('Reveal date'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Reveal date'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Save'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(repo.lastLinkPreviewId, 'lp-9');
+  });
+
+  testWidgets('gift rows with a preview render its thumbnail info', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      gifts: _FakeGiftRepository(
+        given: [
+          GiftEntry(
+            id: 'g7',
+            item: 'Babolat Pure Drive',
+            giftDate: DateTime(2026, 8),
+            isSurprise: false,
+            counterpartLabel: 'Ali',
+            preview: racketPreview,
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('Babolat Pure Drive'), findsOneWidget);
+    // Thumbnail widget present (link icon fallback without image).
+    expect(find.byIcon(Icons.link), findsOneWidget);
   });
 }

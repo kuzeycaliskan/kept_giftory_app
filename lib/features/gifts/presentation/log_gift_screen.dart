@@ -8,7 +8,9 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
+import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
+import 'package:kept/shared/widgets/link_preview_field.dart';
 
 /// Log-a-gift form (G-51): recipient (an accepted friend), item, date,
 /// optional note, surprise flag + reveal date (default: recipient's next
@@ -22,7 +24,9 @@ class LogGiftScreen extends ConsumerStatefulWidget {
 
 class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   final _itemController = TextEditingController();
+  final _linkController = TextEditingController();
   final _noteController = TextEditingController();
+  LinkPreview? _preview;
 
   String? _recipientId;
   DateTime? _recipientBirthday;
@@ -39,8 +43,20 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   @override
   void dispose() {
     _itemController.dispose();
+    _linkController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  void _onPreviewChanged(LinkPreview? preview) {
+    setState(() {
+      _preview = preview;
+      // Convenience: an empty item field inherits the product title.
+      if (preview?.title != null && _itemController.text.trim().isEmpty) {
+        _itemController.text = preview!.title!;
+        _itemMissing = false;
+      }
+    });
   }
 
   String _formatDate(DateTime date) {
@@ -153,6 +169,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           isSurprise: _isSurprise,
           note: _noteController.text,
           revealAt: _isSurprise ? _revealAt : null,
+          linkPreviewId: _preview?.id,
         );
     if (ok && mounted) {
       ScaffoldMessenger.of(
@@ -239,6 +256,13 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
             onChanged: (_) {
               if (_itemMissing) setState(() => _itemMissing = false);
             },
+          ),
+          const SizedBox(height: 16),
+          LinkPreviewField(
+            controller: _linkController,
+            label: l10n.logGiftLinkLabel,
+            enabled: !busy,
+            onPreviewChanged: _onPreviewChanged,
           ),
           const SizedBox(height: 16),
           OutlinedButton.icon(

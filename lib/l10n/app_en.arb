@@ -106,6 +106,7 @@
   "logGiftNoFriends": "Add friends first — gifts are logged for a friend.",
   "logGiftItemLabel": "Gift",
   "logGiftItemRequired": "Gift is required",
+  "logGiftLinkLabel": "Link (optional)",
   "logGiftDateLabel": "Date",
   "logGiftSurprise": "Surprise",
   "logGiftSurpriseHint": "Hidden from the recipient until the reveal date",

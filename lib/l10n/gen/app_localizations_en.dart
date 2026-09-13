@@ -235,6 +235,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logGiftItemRequired => 'Gift is required';
 
   @override
+  String get logGiftLinkLabel => 'Link (optional)';
+
+  @override
   String get logGiftDateLabel => 'Date';
 
   @override

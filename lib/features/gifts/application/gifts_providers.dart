@@ -62,6 +62,7 @@ class GiftsController extends _$GiftsController {
     required bool isSurprise,
     String? note,
     DateTime? revealAt,
+    String? linkPreviewId,
   }) async {
     state = const AsyncLoading();
     final result = await ref
@@ -70,6 +71,7 @@ class GiftsController extends _$GiftsController {
           recipientId: recipientId,
           item: item,
           giftDate: giftDate,
+          linkPreviewId: linkPreviewId,
           isSurprise: isSurprise,
           note: note,
           revealAt: revealAt,
