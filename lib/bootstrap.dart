@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,11 +43,30 @@ Future<void> bootstrap() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      _wireCrashlytics();
     } catch (e) {
-      // Push is a degradation, not a hard dependency.
+      // Push/crash reporting are degradations, not hard dependencies.
       debugPrint('Firebase init failed — continuing without push: $e');
     }
   }
 
   runApp(const ProviderScope(child: KeptApp()));
+}
+
+/// Crash reporting (G-05): release builds only — debug noise stays local.
+/// No PII is attached: Crashlytics receives anonymous crash/stack data
+/// (privacy policy notes the processor).
+void _wireCrashlytics() {
+  final crashlytics = FirebaseCrashlytics.instance;
+  // ignore: avoid_redundant_argument_values
+  unawaited(crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode));
+  if (kDebugMode) return;
+
+  // Flutter framework errors (build/layout/gesture).
+  FlutterError.onError = crashlytics.recordFlutterFatalError;
+  // Uncaught async/zone errors.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    unawaited(crashlytics.recordError(error, stack, fatal: true));
+    return true;
+  };
 }
