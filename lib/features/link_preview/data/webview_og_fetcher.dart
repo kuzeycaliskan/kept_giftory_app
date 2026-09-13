@@ -22,9 +22,26 @@ class WebviewOgFetcher {
       "meta[property='" + p + "'],meta[name='" + p + "']");
     return e ? e.getAttribute("content") : null;
   };
+  var img = m("og:image") || m("og:image:url") || m("twitter:image");
+  if (!img) {
+    var l = document.querySelector("link[rel='image_src']");
+    if (l) img = l.getAttribute("href");
+  }
+  if (!img) {
+    // Fallback: largest rendered image on the page (product hero).
+    var best = null, bestArea = 40000; // require at least ~200x200
+    document.querySelectorAll("img").forEach(function (e) {
+      var a = (e.naturalWidth || 0) * (e.naturalHeight || 0);
+      if (a > bestArea && e.src && e.src.indexOf("http") === 0) {
+        best = e.src; bestArea = a;
+      }
+    });
+    img = best;
+  }
+  if (img && img.indexOf("//") === 0) img = "https:" + img;
   return JSON.stringify({
     title: m("og:title") || m("twitter:title") || document.title || null,
-    image: m("og:image") || m("og:image:url") || m("twitter:image") || null,
+    image: img || null,
     price: m("product:price:amount") || m("og:price:amount") || null,
     site: m("og:site_name") || location.hostname || null,
   });

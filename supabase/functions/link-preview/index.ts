@@ -15,6 +15,7 @@ import {
   guardedFetch,
   parseMeta,
   readCapped,
+  sniffImage,
   validateTargetUrl,
 } from "./guards.ts";
 
@@ -73,13 +74,16 @@ Deno.serve(async (req) => {
   const normalized = url.toString();
   const urlHash = await sha256Hex(normalized);
 
-  // Cache hit → no rate-limit charge, no refetch.
+  // Cache hit → no rate-limit charge, no refetch. A meta call may still
+  // proceed to ENRICH a cached row that lacks its image.
   const { data: cached } = await admin
     .from("link_previews")
     .select("id, title, image_path, price, site")
     .eq("url_hash", urlHash)
     .maybeSingle();
-  if (cached) return json(200, { preview: cached, cached: true });
+  if (cached && !(clientMeta && cached.image_path === null)) {
+    return json(200, { preview: cached, cached: true });
+  }
 
   // Rate limit: N fetches per user per minute.
   const minuteAgo = new Date(Date.now() - 60_000).toISOString();
@@ -123,9 +127,30 @@ Deno.serve(async (req) => {
     if (!meta.title) return json(422, { error: "no_metadata" });
   }
 
-  // Server-side image download → public bucket (clients never hotlink).
+  // Image: prefer client-supplied bytes (bot-walled CDNs), else download
+  // here. Bytes are size-capped and magic-byte sniffed — declared types
+  // are never trusted.
   let imagePath: string | null = null;
-  if (meta.image) {
+  const b64 = clientMeta?.image_b64;
+  if (typeof b64 === "string" && b64.length <= MAX_IMAGE_BYTES * 1.4) {
+    try {
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const ext = bytes.length <= MAX_IMAGE_BYTES ? sniffImage(bytes) : null;
+      if (ext) {
+        const path = `${urlHash}.${ext}`;
+        const { error: upErr } = await admin.storage
+          .from("link-previews")
+          .upload(path, bytes, {
+            contentType: ext === "jpg" ? "image/jpeg" : `image/${ext}`,
+            upsert: true,
+          });
+        if (!upErr) imagePath = path;
+      }
+    } catch (_) {
+      // invalid base64 → treated as no image
+    }
+  }
+  if (imagePath === null && meta.image) {
     const imgUrl = validateTargetUrl(new URL(meta.image, url).toString());
     if (imgUrl) {
       const imgRes = await guardedFetch(imgUrl);

@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:kept/features/link_preview/data/webview_og_fetcher.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
@@ -15,6 +19,12 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
   final SupabaseClient _client;
   final WebviewOgFetcher _ogFetcher;
 
+  /// URLs already enriched this session — an image-less cached preview
+  /// triggers the WebView path once, not on every keystroke/paste.
+  static final Set<String> _enriched = {};
+
+  static const _maxImageBytes = 300 * 1024;
+
   @override
   Future<LinkPreview?> fetch(String url) async {
     final trimmed = url.trim();
@@ -26,13 +36,62 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
     }
     // 1) Server-side fetch (cached, SSRF-guarded) — primary path.
     final server = await _invoke({'url': trimmed});
-    if (server != null) return server;
+    if (server != null &&
+        (server.imagePath != null || _enriched.contains(trimmed))) {
+      return server;
+    }
 
-    // 2) Bot-walled site? Extract on-device via hidden WebView, let the
-    //    server validate/store (and download the image itself).
+    // 2) Bot-walled site or image-less cache: extract on-device via hidden
+    //    WebView; the device also downloads the image bytes (some CDNs
+    //    require a browserly referer the server can't fake) and the server
+    //    validates + stores everything.
+    _enriched.add(trimmed);
     final meta = await _ogFetcher.fetch(trimmed);
-    if (meta == null) return null;
-    return _invoke({'url': trimmed, 'meta': meta});
+    if (meta == null) return server;
+    final imageB64 = await _downloadImage(meta['image'], referer: trimmed);
+    final enriched = await _invoke({
+      'url': trimmed,
+      'meta': {...meta, if (imageB64 != null) 'image_b64': imageB64},
+    });
+    return enriched ?? server;
+  }
+
+  /// Fetches the product image on-device (≤300KB) and base64-encodes it.
+  Future<String?> _downloadImage(String? url, {required String referer}) async {
+    if (url == null) return null;
+    final parsed = Uri.tryParse(url);
+    final schemeOk =
+        parsed != null && (parsed.isScheme('http') || parsed.isScheme('https'));
+    if (!schemeOk) {
+      return null;
+    }
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 6);
+    try {
+      final request = await client.getUrl(parsed);
+      request.headers
+        ..set(
+          HttpHeaders.userAgentHeader,
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X)',
+        )
+        ..set(HttpHeaders.refererHeader, referer)
+        ..set(HttpHeaders.acceptHeader, 'image/*');
+      final response = await request.close().timeout(
+        const Duration(seconds: 8),
+      );
+      if (response.statusCode != 200) return null;
+      final builder = BytesBuilder(copy: false);
+      await for (final chunk in response) {
+        builder.add(chunk);
+        if (builder.length > _maxImageBytes) return null;
+      }
+      final bytes = builder.takeBytes();
+      return bytes.isEmpty ? null : base64Encode(bytes);
+    } catch (e) {
+      debugPrint('preview image download failed: $e');
+      return null;
+    } finally {
+      client.close(force: true);
+    }
   }
 
   Future<LinkPreview?> _invoke(Map<String, dynamic> body) async {
