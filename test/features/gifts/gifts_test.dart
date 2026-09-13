@@ -303,4 +303,43 @@ void main() {
     expect(find.text('Board game'), findsOneWidget);
     expect(find.textContaining('Someone'), findsOneWidget);
   });
+
+  testWidgets('horizontal swipe moves between given and received', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      gifts: _FakeGiftRepository(
+        given: [
+          GiftEntry(
+            id: 'g1',
+            item: 'Tennis racket',
+            giftDate: DateTime(2026, 6),
+            isSurprise: false,
+            counterpartLabel: 'Ali',
+          ),
+        ],
+        received: [
+          GiftEntry(
+            id: 'r1',
+            item: 'Board game',
+            giftDate: DateTime(2026, 7),
+            isSurprise: false,
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('Tennis racket'), findsOneWidget);
+
+    // Swipe left → Received page, segment follows.
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Board game'), findsOneWidget);
+
+    // Swipe right → back to Given.
+    await tester.fling(find.byType(PageView), const Offset(400, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Tennis racket'), findsOneWidget);
+  });
 }

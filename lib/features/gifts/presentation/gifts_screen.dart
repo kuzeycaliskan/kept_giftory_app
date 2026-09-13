@@ -17,13 +17,26 @@ class GiftsScreen extends ConsumerStatefulWidget {
 
 class _GiftsScreenState extends ConsumerState<GiftsScreen> {
   bool _showGiven = true;
+  final _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _select({required bool given}) {
+    setState(() => _showGiven = given);
+    _pageController.animateToPage(
+      given ? 0 : 1,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final items = _showGiven
-        ? ref.watch(givenGiftsProvider)
-        : ref.watch(receivedGiftsProvider);
 
     ref.listen(giftsControllerProvider, (_, next) {
       if (next.hasError) {
@@ -59,39 +72,62 @@ class _GiftsScreenState extends ConsumerState<GiftsScreen> {
               ],
               selected: {_showGiven},
               onSelectionChanged: (selection) =>
-                  setState(() => _showGiven = selection.first),
+                  _select(given: selection.first),
             ),
           ),
+          // Horizontal swipe moves between the two lists; the segment stays
+          // in sync. Row-level Dismissibles win the gesture arena on rows,
+          // so swipe-to-delete keeps working.
           Expanded(
-            child: items.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text(l10n.giftsError)),
-              data: (list) {
-                if (list.isEmpty) return _EmptyState(given: _showGiven);
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    final provider = _showGiven
-                        ? givenGiftsProvider
-                        : receivedGiftsProvider;
-                    ref.invalidate(provider);
-                    await ref.read(provider.future);
-                  },
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 88),
-                    children: [
-                      for (final gift in list)
-                        _showGiven
-                            ? _DismissibleGiftTile(gift: gift)
-                            : _GiftTile(gift: gift, given: false),
-                    ],
-                  ),
-                );
-              },
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (page) => setState(() => _showGiven = page == 0),
+              children: const [
+                _GiftListPage(given: true),
+                _GiftListPage(given: false),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// One page of the Given/Received pager, with its own async states.
+class _GiftListPage extends ConsumerWidget {
+  const _GiftListPage({required this.given});
+
+  final bool given;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final provider = given ? givenGiftsProvider : receivedGiftsProvider;
+    final items = ref.watch(provider);
+
+    return items.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(child: Text(l10n.giftsError)),
+      data: (list) {
+        if (list.isEmpty) return _EmptyState(given: given);
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(provider);
+            await ref.read(provider.future);
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 88),
+            children: [
+              for (final gift in list)
+                given
+                    ? _DismissibleGiftTile(gift: gift)
+                    : _GiftTile(gift: gift, given: false),
+            ],
+          ),
+        );
+      },
     );
   }
 }
