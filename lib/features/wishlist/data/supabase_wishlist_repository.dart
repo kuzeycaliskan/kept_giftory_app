@@ -27,7 +27,9 @@ class SupabaseWishlistRepository implements WishlistRepository {
     try {
       final rows = await _client
           .from(_table)
-          .select()
+          .select(
+            '*, preview:link_previews(id, url, title, image_path, price, site)',
+          )
           .eq('owner_id', ownerId)
           .order('created_at');
       return Success(rows.map(WishlistItem.fromJson).toList());
@@ -43,6 +45,7 @@ class SupabaseWishlistRepository implements WishlistRepository {
     required String title,
     String? note,
     String? url,
+    String? linkPreviewId,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
@@ -58,6 +61,7 @@ class SupabaseWishlistRepository implements WishlistRepository {
             'title': trimmed,
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
             if (url != null && url.trim().isNotEmpty) 'url': url.trim(),
+            if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
           })
           .select()
           .single();

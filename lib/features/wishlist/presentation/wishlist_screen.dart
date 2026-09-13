@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/shared/widgets/link_preview_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Wishlist screen (G-41/G-42) — one widget, two modes:
 ///  * mine (`ownerId == null`): editable — FAB add + swipe-to-delete;
@@ -126,8 +128,33 @@ class _ItemTile extends StatelessWidget {
 
   final WishlistItem item;
 
+  Future<void> _openLink(BuildContext context, String url) async {
+    final ok = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.legalOpenError)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Product-card rendering when a preview is attached (G-211); the plain
+    // tile stays the fallback for free-text items.
+    final preview = item.preview;
+    if (preview != null) {
+      final link = preview.url ?? item.url;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: LinkPreviewCard(
+          preview: preview,
+          onTap: link == null ? null : () => _openLink(context, link),
+        ),
+      );
+    }
     final subtitleParts = [
       if (item.note != null) item.note!,
       if (item.url != null) item.url!,
@@ -142,6 +169,7 @@ class _ItemTile extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+      onTap: item.url == null ? null : () => _openLink(context, item.url!),
     );
   }
 }

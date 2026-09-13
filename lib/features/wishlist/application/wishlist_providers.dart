@@ -49,11 +49,16 @@ class WishlistController extends _$WishlistController {
   AsyncValue<void> build() => const AsyncData(null);
 
   /// True on success (form pops on true).
-  Future<bool> add({required String title, String? note, String? url}) async {
+  Future<bool> add({
+    required String title,
+    String? note,
+    String? url,
+    String? linkPreviewId,
+  }) async {
     state = const AsyncLoading();
     final result = await ref
         .read(wishlistRepositoryProvider)
-        .add(title: title, note: note, url: url);
+        .add(title: title, note: note, url: url, linkPreviewId: linkPreviewId);
     return result.when(
       success: (_) {
         state = const AsyncData(null);

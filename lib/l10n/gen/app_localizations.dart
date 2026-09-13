@@ -668,6 +668,12 @@ abstract class AppLocalizations {
   /// **'Removed from your wishlist'**
   String get wishlistDeletedSnack;
 
+  /// No description provided for @linkPreviewRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove preview'**
+  String get linkPreviewRemove;
+
   /// No description provided for @commonSave.
   ///
   /// In en, this message translates to:

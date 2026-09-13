@@ -319,6 +319,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get wishlistDeletedSnack => 'Wishlist\'inden çıkarıldı';
 
   @override
+  String get linkPreviewRemove => 'Önizlemeyi kaldır';
+
+  @override
   String get commonSave => 'Kaydet';
 
   @override

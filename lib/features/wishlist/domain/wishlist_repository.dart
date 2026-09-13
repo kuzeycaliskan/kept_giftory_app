@@ -14,6 +14,7 @@ abstract interface class WishlistRepository {
     required String title,
     String? note,
     String? url,
+    String? linkPreviewId,
   });
 
   Future<Result<void>> delete(String itemId);

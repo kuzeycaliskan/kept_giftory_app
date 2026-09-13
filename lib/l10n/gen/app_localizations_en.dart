@@ -320,6 +320,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wishlistDeletedSnack => 'Removed from your wishlist';
 
   @override
+  String get linkPreviewRemove => 'Remove preview';
+
+  @override
   String get commonSave => 'Save';
 
   @override

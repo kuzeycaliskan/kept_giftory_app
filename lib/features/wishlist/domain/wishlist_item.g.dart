@@ -18,6 +18,10 @@ _$WishlistItemImpl _$$WishlistItemImplFromJson(Map<String, dynamic> json) =>
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
+      linkPreviewId: json['link_preview_id'] as String?,
+      preview: json['preview'] == null
+          ? null
+          : LinkPreview.fromJson(json['preview'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$WishlistItemImplToJson(_$WishlistItemImpl instance) =>
@@ -30,4 +34,6 @@ Map<String, dynamic> _$$WishlistItemImplToJson(_$WishlistItemImpl instance) =>
       'image_url': instance.imageUrl,
       'priority': instance.priority,
       'created_at': instance.createdAt?.toIso8601String(),
+      'link_preview_id': instance.linkPreviewId,
+      'preview': instance.preview,
     };

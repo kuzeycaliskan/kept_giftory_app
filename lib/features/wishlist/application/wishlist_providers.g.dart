@@ -197,7 +197,7 @@ class _FriendWishlistProviderElement
 }
 
 String _$wishlistControllerHash() =>
-    r'69dcecb22171644d28276df451d1517e78572268';
+    r'222e8cbb788c0c167617e03d282f3fe647b746d4';
 
 /// See also [WishlistController].
 @ProviderFor(WishlistController)

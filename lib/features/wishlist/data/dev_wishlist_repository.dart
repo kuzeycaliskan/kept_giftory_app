@@ -53,6 +53,7 @@ class DevWishlistRepository implements WishlistRepository {
     required String title,
     String? note,
     String? url,
+    String? linkPreviewId,
   }) async {
     final item = WishlistItem(
       id: 'dev-new-${_nextId++}',
@@ -88,6 +89,7 @@ class EmptyWishlistRepository implements WishlistRepository {
     required String title,
     String? note,
     String? url,
+    String? linkPreviewId,
   }) async => Success(WishlistItem(id: 'noop', ownerId: 'noop', title: title));
 
   @override

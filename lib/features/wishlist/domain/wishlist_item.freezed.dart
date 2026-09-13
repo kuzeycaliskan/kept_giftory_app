@@ -32,6 +32,11 @@ mixin _$WishlistItem {
   int get priority => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'link_preview_id')
+  String? get linkPreviewId => throw _privateConstructorUsedError;
+
+  /// Joined `link_previews` row (G-211); null when none attached.
+  LinkPreview? get preview => throw _privateConstructorUsedError;
 
   /// Serializes this WishlistItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -59,7 +64,11 @@ abstract class $WishlistItemCopyWith<$Res> {
     @JsonKey(name: 'image_url') String? imageUrl,
     int priority,
     @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'link_preview_id') String? linkPreviewId,
+    LinkPreview? preview,
   });
+
+  $LinkPreviewCopyWith<$Res>? get preview;
 }
 
 /// @nodoc
@@ -85,6 +94,8 @@ class _$WishlistItemCopyWithImpl<$Res, $Val extends WishlistItem>
     Object? imageUrl = freezed,
     Object? priority = null,
     Object? createdAt = freezed,
+    Object? linkPreviewId = freezed,
+    Object? preview = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -120,9 +131,31 @@ class _$WishlistItemCopyWithImpl<$Res, $Val extends WishlistItem>
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            linkPreviewId: freezed == linkPreviewId
+                ? _value.linkPreviewId
+                : linkPreviewId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            preview: freezed == preview
+                ? _value.preview
+                : preview // ignore: cast_nullable_to_non_nullable
+                      as LinkPreview?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of WishlistItem
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $LinkPreviewCopyWith<$Res>? get preview {
+    if (_value.preview == null) {
+      return null;
+    }
+
+    return $LinkPreviewCopyWith<$Res>(_value.preview!, (value) {
+      return _then(_value.copyWith(preview: value) as $Val);
+    });
   }
 }
 
@@ -144,7 +177,12 @@ abstract class _$$WishlistItemImplCopyWith<$Res>
     @JsonKey(name: 'image_url') String? imageUrl,
     int priority,
     @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'link_preview_id') String? linkPreviewId,
+    LinkPreview? preview,
   });
+
+  @override
+  $LinkPreviewCopyWith<$Res>? get preview;
 }
 
 /// @nodoc
@@ -169,6 +207,8 @@ class __$$WishlistItemImplCopyWithImpl<$Res>
     Object? imageUrl = freezed,
     Object? priority = null,
     Object? createdAt = freezed,
+    Object? linkPreviewId = freezed,
+    Object? preview = freezed,
   }) {
     return _then(
       _$WishlistItemImpl(
@@ -204,6 +244,14 @@ class __$$WishlistItemImplCopyWithImpl<$Res>
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        linkPreviewId: freezed == linkPreviewId
+            ? _value.linkPreviewId
+            : linkPreviewId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        preview: freezed == preview
+            ? _value.preview
+            : preview // ignore: cast_nullable_to_non_nullable
+                  as LinkPreview?,
       ),
     );
   }
@@ -221,6 +269,8 @@ class _$WishlistItemImpl implements _WishlistItem {
     @JsonKey(name: 'image_url') this.imageUrl,
     this.priority = 0,
     @JsonKey(name: 'created_at') this.createdAt,
+    @JsonKey(name: 'link_preview_id') this.linkPreviewId,
+    this.preview,
   });
 
   factory _$WishlistItemImpl.fromJson(Map<String, dynamic> json) =>
@@ -246,10 +296,17 @@ class _$WishlistItemImpl implements _WishlistItem {
   @override
   @JsonKey(name: 'created_at')
   final DateTime? createdAt;
+  @override
+  @JsonKey(name: 'link_preview_id')
+  final String? linkPreviewId;
+
+  /// Joined `link_previews` row (G-211); null when none attached.
+  @override
+  final LinkPreview? preview;
 
   @override
   String toString() {
-    return 'WishlistItem(id: $id, ownerId: $ownerId, title: $title, note: $note, url: $url, imageUrl: $imageUrl, priority: $priority, createdAt: $createdAt)';
+    return 'WishlistItem(id: $id, ownerId: $ownerId, title: $title, note: $note, url: $url, imageUrl: $imageUrl, priority: $priority, createdAt: $createdAt, linkPreviewId: $linkPreviewId, preview: $preview)';
   }
 
   @override
@@ -267,7 +324,10 @@ class _$WishlistItemImpl implements _WishlistItem {
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.linkPreviewId, linkPreviewId) ||
+                other.linkPreviewId == linkPreviewId) &&
+            (identical(other.preview, preview) || other.preview == preview));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -282,6 +342,8 @@ class _$WishlistItemImpl implements _WishlistItem {
     imageUrl,
     priority,
     createdAt,
+    linkPreviewId,
+    preview,
   );
 
   /// Create a copy of WishlistItem
@@ -308,6 +370,8 @@ abstract class _WishlistItem implements WishlistItem {
     @JsonKey(name: 'image_url') final String? imageUrl,
     final int priority,
     @JsonKey(name: 'created_at') final DateTime? createdAt,
+    @JsonKey(name: 'link_preview_id') final String? linkPreviewId,
+    final LinkPreview? preview,
   }) = _$WishlistItemImpl;
 
   factory _WishlistItem.fromJson(Map<String, dynamic> json) =
@@ -332,6 +396,13 @@ abstract class _WishlistItem implements WishlistItem {
   @override
   @JsonKey(name: 'created_at')
   DateTime? get createdAt;
+  @override
+  @JsonKey(name: 'link_preview_id')
+  String? get linkPreviewId;
+
+  /// Joined `link_previews` row (G-211); null when none attached.
+  @override
+  LinkPreview? get preview;
 
   /// Create a copy of WishlistItem
   /// with the given fields replaced by the non-null parameter values.

@@ -26,6 +26,11 @@ class Env {
   /// review before launch.
   static const String privacyPolicyUrl =
       'https://kuzeycaliskan.github.io/kept/privacy.html';
+
+  /// Public URL of a cached link-preview thumbnail (G-211 bucket).
+  static String linkPreviewImageUrl(String imagePath) =>
+      '$supabaseUrl/storage/v1/object/public/link-previews/$imagePath';
+
   static const String termsOfUseUrl =
       'https://kuzeycaliskan.github.io/kept/terms.html';
 
