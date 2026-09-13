@@ -22,75 +22,84 @@ class LinkPreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final subtitle = [
-      if (preview.site != null) preview.site!,
-      if (preview.price != null) preview.price!,
-    ].join(' · ');
+    final subtitle = [if (preview.site != null) preview.site!].join(' · ');
 
+    final fallbackImage = ColoredBox(
+      color: scheme.surfaceContainerLow,
+      child: Icon(Icons.link, color: scheme.onSurfaceVariant),
+    );
+
+    // Product-card composition: image flush to the card's left edge,
+    // text padded on the right (design.md §4).
     return Card(
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: KeptRadius.cardAll,
-        child: Padding(
-          padding: const EdgeInsets.all(KeptSpacing.md),
+        child: SizedBox(
+          height: 84,
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: KeptRadius.controlAll,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: preview.imagePath == null
-                      ? ColoredBox(
-                          color: scheme.surfaceContainerLow,
-                          child: Icon(
-                            Icons.link,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        )
-                      : Image.network(
-                          Env.linkPreviewImageUrl(preview.imagePath!),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => ColoredBox(
-                            color: scheme.surfaceContainerLow,
-                            child: Icon(
-                              Icons.link,
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(width: KeptSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      preview.title ?? preview.url ?? '',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
+              SizedBox(
+                width: 84,
+                height: 84,
+                child: preview.imagePath == null
+                    ? fallbackImage
+                    : Image.network(
+                        Env.linkPreviewImageUrl(preview.imagePath!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => fallbackImage,
                       ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: KeptSpacing.md,
+                    vertical: KeptSpacing.sm,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        preview.title ?? preview.url ?? '',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                      if (preview.price != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          preview.price!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(color: scheme.primary),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
               if (onRemove != null)
-                IconButton(
-                  tooltip: context.l10n.linkPreviewRemove,
-                  icon: const Icon(Icons.close),
-                  onPressed: onRemove,
+                Padding(
+                  padding: const EdgeInsets.only(right: KeptSpacing.xs),
+                  child: Center(
+                    child: IconButton(
+                      tooltip: context.l10n.linkPreviewRemove,
+                      icon: const Icon(Icons.close),
+                      onPressed: onRemove,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -100,7 +109,6 @@ class LinkPreviewCard extends StatelessWidget {
   }
 }
 
-/// Compact 40dp thumbnail for list-tile leadings (gift rows).
 class LinkPreviewThumb extends StatelessWidget {
   const LinkPreviewThumb({required this.preview, super.key});
 

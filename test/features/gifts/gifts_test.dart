@@ -454,7 +454,7 @@ void main() {
     );
 
     expect(find.text('Babolat Pure Drive'), findsOneWidget);
-    // Thumbnail widget present (link icon fallback without image).
-    expect(find.byIcon(Icons.link), findsOneWidget);
+    // Price surfaces as the row's trailing (new product-row design).
+    expect(find.text('1.299,00 TL'), findsOneWidget);
   });
 }

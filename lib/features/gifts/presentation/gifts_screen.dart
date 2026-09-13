@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
-import 'package:kept/shared/widgets/link_preview_card.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:kept/features/gifts/presentation/widgets/gift_list_tile.dart';
 
 /// Gifts tab (G-51/G-52): Given / Received segments. In V3 this evolves into
 /// the event hub.
@@ -125,7 +123,7 @@ class _GiftListPage extends ConsumerWidget {
               for (final gift in list)
                 given
                     ? _DismissibleGiftTile(gift: gift)
-                    : _GiftTile(gift: gift, given: false),
+                    : GiftListTile(gift: gift, directionIcon: Icons.south_west),
             ],
           ),
         );
@@ -162,42 +160,6 @@ class _EmptyState extends ConsumerWidget {
   }
 }
 
-class _GiftTile extends StatelessWidget {
-  const _GiftTile({required this.gift, required this.given});
-
-  final GiftEntry gift;
-  final bool given;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
-    final counterpart = gift.counterpartLabel ?? l10n.giftAnonymousGiver;
-    final date = DateFormat.yMMMd(locale).format(gift.giftDate);
-
-    final preview = gift.preview;
-    return ListTile(
-      leading: preview == null
-          ? Icon(given ? Icons.north_east : Icons.south_west)
-          : LinkPreviewThumb(preview: preview),
-      title: Text(gift.item, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('$counterpart · $date'),
-      trailing: gift.isPendingSurprise
-          ? Chip(
-              label: Text(l10n.giftSurpriseBadge),
-              visualDensity: VisualDensity.compact,
-            )
-          : null,
-      onTap: preview?.url == null
-          ? null
-          : () => launchUrl(
-              Uri.parse(preview!.url!),
-              mode: LaunchMode.externalApplication,
-            ),
-    );
-  }
-}
-
 /// Given-gift tile with the house swipe gesture: swipe left to delete.
 class _DismissibleGiftTile extends ConsumerWidget {
   const _DismissibleGiftTile({required this.gift});
@@ -230,7 +192,11 @@ class _DismissibleGiftTile extends ConsumerWidget {
         }
         return true;
       },
-      child: _GiftTile(gift: gift, given: true),
+      child: GiftListTile(
+        gift: gift,
+        directionIcon: Icons.north_east,
+        showSurpriseBadge: true,
+      ),
     );
   }
 }
