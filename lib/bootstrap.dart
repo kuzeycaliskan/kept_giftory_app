@@ -31,6 +31,7 @@ Future<void> bootstrap() async {
     );
   }
 
+  debugPrint('bootstrap: start');
   if (Env.hasSupabaseConfig) {
     await Supabase.initialize(
       url: Env.supabaseUrl,
@@ -39,17 +40,25 @@ Future<void> bootstrap() async {
       // ignore: deprecated_member_use
       anonKey: Env.supabaseAnonKey,
     );
+    debugPrint('bootstrap: supabase done, firebase next');
     try {
+      // Hard timeout: Firebase must NEVER hold app startup hostage. A hung
+      // native init (seen with the crashlytics plugin registration) would
+      // otherwise leave the user on a black screen forever.
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
-      );
+      ).timeout(const Duration(seconds: 5));
+      debugPrint('bootstrap: firebase done');
       _wireCrashlytics();
+    } on TimeoutException {
+      debugPrint('Firebase init timed out — continuing without push/crash');
     } catch (e) {
       // Push/crash reporting are degradations, not hard dependencies.
       debugPrint('Firebase init failed — continuing without push: $e');
     }
   }
 
+  debugPrint('bootstrap: runApp');
   runApp(const ProviderScope(child: KeptApp()));
 }
 
