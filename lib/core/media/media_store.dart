@@ -7,7 +7,8 @@ import 'package:kept/core/error/result.dart';
 /// URLs are resolved via [publicUrl]. This keeps the R2 migration (trigger:
 /// media bill > $25/mo or ~25k active users) a copy job plus a helper swap.
 abstract interface class MediaStore {
-  /// Uploads [bytes] to [bucket]/[path] (upsert). Returns the stored path.
+  /// Uploads [bytes] to [bucket]/[path]. Paths must be unique (timestamped
+  /// by convention) — plain insert, no upsert. Returns the stored path.
   Future<Result<String>> upload({
     required String bucket,
     required String path,
