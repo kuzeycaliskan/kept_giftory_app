@@ -12,6 +12,7 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
+import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
 import 'package:kept/features/link_preview/application/link_preview_providers.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
@@ -27,6 +28,28 @@ class _FakeGiftRepository implements GiftRepository {
 
   final List<GiftEntry> given;
   final List<GiftEntry> received;
+
+  GiftRelation? lastExternalRelation;
+
+  @override
+  Future<Result<GiftEntry>> logExternal({
+    required GiftRelation relation,
+    required String item,
+    required DateTime giftDate,
+    String? note,
+    String? linkPreviewId,
+  }) async {
+    lastExternalRelation = relation;
+    final entry = GiftEntry(
+      id: 'ext-1',
+      item: item,
+      giftDate: giftDate,
+      isSurprise: false,
+      giverRelation: relation,
+    );
+    received.add(entry);
+    return Success(entry);
+  }
 
   @override
   Future<Result<List<GiftEntry>>> fetchGiven() async => Success(given);
@@ -139,6 +162,10 @@ void main() {
       routes: [
         GoRoute(path: '/gifts', builder: (_, __) => const GiftsScreen()),
         GoRoute(path: '/gifts/log', builder: (_, __) => const LogGiftScreen()),
+        GoRoute(
+          path: '/gifts/log-external',
+          builder: (_, __) => const LogExternalGiftScreen(),
+        ),
       ],
     );
     await tester.pumpWidget(
@@ -456,5 +483,56 @@ void main() {
     expect(find.text('Babolat Pure Drive'), findsOneWidget);
     // Price surfaces as the row's trailing (new product-row design).
     expect(find.text('1.299,00 TL'), findsOneWidget);
+  });
+
+  testWidgets('received tab logs an external gift via the relation dropdown', (
+    tester,
+  ) async {
+    final repo = _FakeGiftRepository();
+    await pump(tester, gifts: repo);
+
+    // Switch to Received; its empty state offers the external-gift CTA.
+    await tester.tap(find.text('Received'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add a gift you received'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('From'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dad').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Gift'),
+      'Hand-knit scarf',
+    );
+    await tester.scrollUntilVisible(
+      find.text('Save'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(repo.lastExternalRelation, GiftRelation.father);
+    // Back on Received, the row shows the relation label, not a member name.
+    expect(find.text('Hand-knit scarf'), findsOneWidget);
+    expect(find.textContaining('Dad'), findsOneWidget);
+  });
+
+  testWidgets('external gift form requires a relation', (tester) async {
+    final repo = _FakeGiftRepository();
+    await pump(tester, gifts: repo, initial: '/gifts/log-external');
+
+    await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Scarf');
+    await tester.scrollUntilVisible(
+      find.text('Save'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text("Pick who it's from"), findsOneWidget);
+    expect(repo.lastExternalRelation, isNull);
   });
 }

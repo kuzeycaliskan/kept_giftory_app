@@ -78,6 +78,26 @@ class DevGiftRepository implements GiftRepository {
   }
 
   @override
+  Future<Result<GiftEntry>> logExternal({
+    required GiftRelation relation,
+    required String item,
+    required DateTime giftDate,
+    String? note,
+    String? linkPreviewId,
+  }) async {
+    final entry = GiftEntry(
+      id: 'dev-ext-${_nextId++}',
+      item: item.trim(),
+      giftDate: giftDate,
+      isSurprise: false,
+      note: note,
+      giverRelation: relation,
+    );
+    _received.add(entry);
+    return Success(entry);
+  }
+
+  @override
   Future<Result<void>> delete(String giftId) async {
     _given.removeWhere((g) => g.id == giftId);
     return const Success(null);
@@ -113,6 +133,23 @@ class EmptyGiftRepository implements GiftRepository {
       item: item,
       giftDate: giftDate,
       isSurprise: isSurprise,
+    ),
+  );
+
+  @override
+  Future<Result<GiftEntry>> logExternal({
+    required GiftRelation relation,
+    required String item,
+    required DateTime giftDate,
+    String? note,
+    String? linkPreviewId,
+  }) async => Success(
+    GiftEntry(
+      id: 'noop',
+      item: item,
+      giftDate: giftDate,
+      isSurprise: false,
+      giverRelation: relation,
     ),
   );
 

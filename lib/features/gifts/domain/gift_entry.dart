@@ -1,6 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
 
+/// Who gave an externally-logged gift (G-212). Wire names match the
+/// `giver_relation` Postgres enum; the UI localizes labels.
+enum GiftRelation {
+  mother,
+  father,
+  sibling,
+  partner,
+  relative,
+  friend,
+  coworker,
+  other,
+}
+
 /// A gift row shaped for the UI: the counterpart is already resolved
 /// (recipient when listing given gifts, giver when listing received/history).
 /// A null [counterpartLabel] means the giver deleted their account (G-71
@@ -17,6 +30,7 @@ class GiftEntry {
     this.counterpartId,
     this.counterpartLabel,
     this.preview,
+    this.giverRelation,
   });
 
   final String id;
@@ -30,6 +44,11 @@ class GiftEntry {
 
   /// Attached product preview (G-211); null for free-text gifts.
   final LinkPreview? preview;
+
+  /// Set on self-logged external gifts (G-212): the giver isn't a member.
+  /// Distinct from a null [counterpartLabel] with null relation, which means
+  /// a DELETED member (anonymized).
+  final GiftRelation? giverRelation;
 
   /// Still hidden from the recipient (giver-side badge).
   bool get isPendingSurprise =>

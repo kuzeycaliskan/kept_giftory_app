@@ -238,6 +238,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logGiftLinkLabel => 'Link (optional)';
 
   @override
+  String get logExternalTitle => 'Add a received gift';
+
+  @override
+  String get logExternalFromLabel => 'From';
+
+  @override
+  String get logExternalFromRequired => 'Pick who it\'s from';
+
+  @override
+  String get logExternalCta => 'Add a gift you received';
+
+  @override
+  String giftFromRelation(String relation) {
+    return 'From: $relation';
+  }
+
+  @override
+  String get relationMother => 'Mom';
+
+  @override
+  String get relationFather => 'Dad';
+
+  @override
+  String get relationSibling => 'Sibling';
+
+  @override
+  String get relationPartner => 'Partner';
+
+  @override
+  String get relationRelative => 'Relative';
+
+  @override
+  String get relationFriend => 'Friend (not on Kept)';
+
+  @override
+  String get relationCoworker => 'Coworker';
+
+  @override
+  String get relationOther => 'Someone else';
+
+  @override
   String get logGiftDateLabel => 'Date';
 
   @override

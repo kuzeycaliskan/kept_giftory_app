@@ -24,6 +24,16 @@ abstract interface class GiftRepository {
     String? linkPreviewId,
   });
 
-  /// Giver-only (RLS enforced).
+  /// Records a gift received from a non-member (G-212): the giver is a
+  /// fixed relation, never a surprise. RLS binds it to the caller's history.
+  Future<Result<GiftEntry>> logExternal({
+    required GiftRelation relation,
+    required String item,
+    required DateTime giftDate,
+    String? note,
+    String? linkPreviewId,
+  });
+
+  /// Giver-only for member gifts; recipient-only for external ones (RLS).
   Future<Result<void>> delete(String giftId);
 }

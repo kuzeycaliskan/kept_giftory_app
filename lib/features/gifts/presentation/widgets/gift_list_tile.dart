@@ -4,6 +4,7 @@ import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// House gift row (design.md §4): a consistent 48dp rounded leading — the
@@ -27,7 +28,11 @@ class GiftListTile extends StatelessWidget {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).toString();
-    final counterpart = gift.counterpartLabel ?? l10n.giftAnonymousGiver;
+    // Three giver states (G-212): member label · external relation ·
+    // deleted-member fallback. Rendered distinctly by design.
+    final counterpart = gift.giverRelation != null
+        ? l10n.giftFromRelation(giftRelationLabel(context, gift.giverRelation!))
+        : (gift.counterpartLabel ?? l10n.giftAnonymousGiver);
     final date = DateFormat.yMMMd(locale).format(gift.giftDate);
     final preview = gift.preview;
 
@@ -43,7 +48,12 @@ class GiftListTile extends StatelessWidget {
                 errorBuilder: (_, __, ___) =>
                     _IconBox(icon: directionIcon, scheme: scheme),
               )
-            : _IconBox(icon: directionIcon, scheme: scheme),
+            : _IconBox(
+                icon: gift.giverRelation != null
+                    ? Icons.family_restroom_outlined
+                    : directionIcon,
+                scheme: scheme,
+              ),
       ),
     );
 

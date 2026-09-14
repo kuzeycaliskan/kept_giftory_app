@@ -13,12 +13,12 @@ class SupabaseGiftRepository implements GiftRepository {
   final SupabaseClient _client;
 
   static const _giverSelect =
-      'id, item, note, gift_date, is_surprise, '
+      'id, item, note, gift_date, is_surprise, giver_relation, '
       'reveal_at, giver_id, '
       'giver:profiles!gifts_giver_id_fkey(id, username, display_name), '
       ' preview:link_previews(id, url, title, image_path, price, site)';
   static const _recipientSelect =
-      'id, item, note, gift_date, is_surprise, '
+      'id, item, note, gift_date, is_surprise, giver_relation, '
       'reveal_at, recipient_id, '
       'recipient:profiles!gifts_recipient_id_fkey(id, username, display_name), '
       ' preview:link_previews(id, url, title, image_path, price, site)';
@@ -90,6 +90,9 @@ class SupabaseGiftRepository implements GiftRepository {
       preview: row['preview'] == null
           ? null
           : LinkPreview.fromJson(row['preview'] as Map<String, dynamic>),
+      giverRelation: row['giver_relation'] == null
+          ? null
+          : GiftRelation.values.byName(row['giver_relation'] as String),
     );
   }
 
@@ -128,6 +131,45 @@ class SupabaseGiftRepository implements GiftRepository {
           .select(_recipientSelect)
           .single();
       return Success(_entry(row, counterpartKey: 'recipient'));
+    } on PostgrestException catch (e) {
+      if (e.code == '23514') {
+        return const ResultFailure(ValidationFailure('Invalid gift'));
+      }
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<GiftEntry>> logExternal({
+    required GiftRelation relation,
+    required String item,
+    required DateTime giftDate,
+    String? note,
+    String? linkPreviewId,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    final trimmed = item.trim();
+    if (trimmed.isEmpty || trimmed.length > 200) {
+      return const ResultFailure(ValidationFailure('Invalid item'));
+    }
+    try {
+      final row = await _client
+          .from('gifts')
+          .insert({
+            'recipient_id': userId,
+            'giver_relation': relation.name,
+            'item': trimmed,
+            'gift_date': giftDate.toIso8601String().substring(0, 10),
+            'is_surprise': false,
+            if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+            if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
+          })
+          .select(_giverSelect)
+          .single();
+      return Success(_entry(row, counterpartKey: 'giver'));
     } on PostgrestException catch (e) {
       if (e.code == '23514') {
         return const ResultFailure(ValidationFailure('Invalid gift'));

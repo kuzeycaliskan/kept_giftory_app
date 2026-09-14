@@ -518,6 +518,84 @@ abstract class AppLocalizations {
   /// **'Link (optional)'**
   String get logGiftLinkLabel;
 
+  /// No description provided for @logExternalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a received gift'**
+  String get logExternalTitle;
+
+  /// No description provided for @logExternalFromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get logExternalFromLabel;
+
+  /// No description provided for @logExternalFromRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick who it\'s from'**
+  String get logExternalFromRequired;
+
+  /// No description provided for @logExternalCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a gift you received'**
+  String get logExternalCta;
+
+  /// No description provided for @giftFromRelation.
+  ///
+  /// In en, this message translates to:
+  /// **'From: {relation}'**
+  String giftFromRelation(String relation);
+
+  /// No description provided for @relationMother.
+  ///
+  /// In en, this message translates to:
+  /// **'Mom'**
+  String get relationMother;
+
+  /// No description provided for @relationFather.
+  ///
+  /// In en, this message translates to:
+  /// **'Dad'**
+  String get relationFather;
+
+  /// No description provided for @relationSibling.
+  ///
+  /// In en, this message translates to:
+  /// **'Sibling'**
+  String get relationSibling;
+
+  /// No description provided for @relationPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get relationPartner;
+
+  /// No description provided for @relationRelative.
+  ///
+  /// In en, this message translates to:
+  /// **'Relative'**
+  String get relationRelative;
+
+  /// No description provided for @relationFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend (not on Kept)'**
+  String get relationFriend;
+
+  /// No description provided for @relationCoworker.
+  ///
+  /// In en, this message translates to:
+  /// **'Coworker'**
+  String get relationCoworker;
+
+  /// No description provided for @relationOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else'**
+  String get relationOther;
+
   /// No description provided for @logGiftDateLabel.
   ///
   /// In en, this message translates to:

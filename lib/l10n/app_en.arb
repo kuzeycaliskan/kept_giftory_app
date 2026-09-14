@@ -107,6 +107,25 @@
   "logGiftItemLabel": "Gift",
   "logGiftItemRequired": "Gift is required",
   "logGiftLinkLabel": "Link (optional)",
+  "logExternalTitle": "Add a received gift",
+  "logExternalFromLabel": "From",
+  "logExternalFromRequired": "Pick who it's from",
+  "logExternalCta": "Add a gift you received",
+  "giftFromRelation": "From: {relation}",
+  "@giftFromRelation": {
+    "placeholders": {
+      "relation": { "type": "String" }
+    }
+  },
+  "relationMother": "Mom",
+  "relationFather": "Dad",
+  "relationSibling": "Sibling",
+  "relationPartner": "Partner",
+  "relationRelative": "Relative",
+  "relationFriend": "Friend (not on Kept)",
+  "relationCoworker": "Coworker",
+  "relationOther": "Someone else",
+
   "logGiftDateLabel": "Date",
   "logGiftSurprise": "Surprise",
   "logGiftSurpriseHint": "Hidden from the recipient until the reveal date",

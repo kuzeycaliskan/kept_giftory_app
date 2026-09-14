@@ -238,6 +238,47 @@ class AppLocalizationsTr extends AppLocalizations {
   String get logGiftLinkLabel => 'Link (isteğe bağlı)';
 
   @override
+  String get logExternalTitle => 'Aldığın hediyeyi ekle';
+
+  @override
+  String get logExternalFromLabel => 'Kimden';
+
+  @override
+  String get logExternalFromRequired => 'Kimden olduğunu seç';
+
+  @override
+  String get logExternalCta => 'Aldığın bir hediyeyi ekle';
+
+  @override
+  String giftFromRelation(String relation) {
+    return '$relation';
+  }
+
+  @override
+  String get relationMother => 'Annemden';
+
+  @override
+  String get relationFather => 'Babamdan';
+
+  @override
+  String get relationSibling => 'Kardeşimden';
+
+  @override
+  String get relationPartner => 'Sevgilimden/Eşimden';
+
+  @override
+  String get relationRelative => 'Akrabamdan';
+
+  @override
+  String get relationFriend => 'Arkadaşımdan (Kept\'te değil)';
+
+  @override
+  String get relationCoworker => 'İş arkadaşımdan';
+
+  @override
+  String get relationOther => 'Başka birinden';
+
+  @override
   String get logGiftDateLabel => 'Tarih';
 
   @override

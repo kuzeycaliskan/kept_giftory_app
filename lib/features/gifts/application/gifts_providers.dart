@@ -55,6 +55,37 @@ class GiftsController extends _$GiftsController {
   AsyncValue<void> build() => const AsyncData(null);
 
   /// True on success (form pops on true).
+  /// Records a gift from a non-member (G-212); lands in Received.
+  Future<bool> logExternal({
+    required GiftRelation relation,
+    required String item,
+    required DateTime giftDate,
+    String? note,
+    String? linkPreviewId,
+  }) async {
+    state = const AsyncLoading();
+    final result = await ref
+        .read(giftRepositoryProvider)
+        .logExternal(
+          relation: relation,
+          item: item,
+          giftDate: giftDate,
+          note: note,
+          linkPreviewId: linkPreviewId,
+        );
+    return result.when(
+      success: (_) {
+        state = const AsyncData(null);
+        ref.invalidate(receivedGiftsProvider);
+        return true;
+      },
+      failure: (Failure failure) {
+        state = AsyncError(failure, StackTrace.current);
+        return false;
+      },
+    );
+  }
+
   Future<bool> log({
     required String recipientId,
     required String item,

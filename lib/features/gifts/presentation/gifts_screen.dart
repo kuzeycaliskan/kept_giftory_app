@@ -48,9 +48,12 @@ class _GiftsScreenState extends ConsumerState<GiftsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.giftsTitle)),
+      // FAB follows the visible tab: Given logs a gift I bought; Received
+      // records one from outside the app (G-212).
       floatingActionButton: FloatingActionButton(
-        tooltip: l10n.logGiftTitle,
-        onPressed: () => context.push('/gifts/log'),
+        tooltip: _showGiven ? l10n.logGiftTitle : l10n.logExternalTitle,
+        onPressed: () =>
+            context.push(_showGiven ? '/gifts/log' : '/gifts/log-external'),
         child: const Icon(Icons.add),
       ),
       body: Column(
@@ -147,13 +150,12 @@ class _EmptyState extends ConsumerWidget {
           const Icon(Icons.card_giftcard_outlined, size: 56),
           const SizedBox(height: 12),
           Text(given ? l10n.giftsEmpty : l10n.giftsReceivedEmpty),
-          if (given) ...[
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.push('/gifts/log'),
-              child: Text(l10n.giftsLogFirst),
-            ),
-          ],
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: () =>
+                context.push(given ? '/gifts/log' : '/gifts/log-external'),
+            child: Text(given ? l10n.giftsLogFirst : l10n.logExternalCta),
+          ),
         ],
       ),
     );

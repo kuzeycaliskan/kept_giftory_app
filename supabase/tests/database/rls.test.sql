@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(43);
+select plan(48);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -564,6 +564,62 @@ select lives_ok(
 );
 
 reset role;
+
+-- ── 44-48: external gifts (G-212) ───────────────────────────────────────────
+-- alice logs a gift from her mother; bob was deleted long ago; carol is a
+-- stranger to alice-history rules established earlier (friends again since
+-- test 26 fixture state: carol IS alice's friend via redeem? no — carol
+-- friended DAVE. carol-alice became friends at test 13). Use erin (friend
+-- since test 40 setup) for visibility checks.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gifts (recipient_id, item, giver_relation, gift_date)
+     values ('00000000-0000-0000-0000-00000000000a', 'El örgüsü atkı',
+             'mother', date '2026-09-01') $$,
+  '44: recipient can log an external gift for themselves'
+);
+
+select throws_ok(
+  $$ insert into public.gifts (recipient_id, item, giver_relation, gift_date,
+                               is_surprise, reveal_at)
+     values ('00000000-0000-0000-0000-00000000000a', 'X', 'father',
+             date '2026-09-01', true, now() + interval '1 day') $$,
+  '42501',
+  'new row violates row-level security policy for table "gifts"',
+  '45: external gifts cannot be surprises'
+);
+
+select throws_ok(
+  $$ insert into public.gifts (recipient_id, item, giver_relation, gift_date)
+     values ('00000000-0000-0000-0000-00000000000e', 'X', 'father',
+             date '2026-09-01') $$,
+  '42501',
+  'new row violates row-level security policy for table "gifts"',
+  '46: cannot log an external gift onto someone else''s history'
+);
+
+select lives_ok(
+  $$ update public.gifts set item = 'El örgüsü atkı (kırmızı)'
+     where recipient_id = '00000000-0000-0000-0000-00000000000a'
+       and giver_relation = 'mother' $$,
+  '47: recipient can edit their own external record'
+);
+
+reset role;
+-- Both giver_id and giver_relation set must be impossible (CHECK).
+select throws_ok(
+  $$ insert into public.gifts (giver_id, recipient_id, item, giver_relation,
+                               gift_date)
+     values ('00000000-0000-0000-0000-00000000000e',
+             '00000000-0000-0000-0000-00000000000a', 'X', 'mother',
+             date '2026-09-01') $$,
+  '23514',
+  null,
+  '48: a gift cannot have both a member giver and a relation'
+);
 
 select * from finish();
 rollback;

@@ -10,6 +10,7 @@ import 'package:kept/features/friends/presentation/friend_search_screen.dart';
 import 'package:kept/features/friends/presentation/friends_screen.dart';
 import 'package:kept/features/gifts/presentation/friend_gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
+import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
 import 'package:kept/features/home/presentation/home_screen.dart';
 import 'package:kept/features/invite/presentation/invite_screen.dart';
@@ -172,6 +173,11 @@ GoRouter appRouter(Ref ref) {
         path: '/gifts/log',
         name: 'log-gift',
         builder: (context, state) => const LogGiftScreen(),
+      ),
+      GoRoute(
+        path: '/gifts/log-external',
+        name: 'log-external-gift',
+        builder: (context, state) => const LogExternalGiftScreen(),
       ),
       GoRoute(
         path: '/wishlist/add',
