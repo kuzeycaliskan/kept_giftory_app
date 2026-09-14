@@ -23,14 +23,24 @@ class AvatarController extends _$AvatarController {
 
   /// Returns true when a new avatar was stored (false = user cancelled).
   Future<bool> pickAndUpload(ImageSource source) async {
-    final picked = await _picker.pickImage(
+    var picked = await _picker.pickImage(
       source: source,
       maxWidth: _maxDimension,
       maxHeight: _maxDimension,
       imageQuality: _jpegQuality,
       requestFullMetadata: false,
     );
-    if (picked == null) return false;
+    // Android: the OS may kill our activity while the camera is open; the
+    // result then arrives via retrieveLostData on resume instead of null.
+    if (picked == null && defaultTargetPlatform == TargetPlatform.android) {
+      final lost = await _picker.retrieveLostData();
+      final file = lost.file;
+      if (file != null) picked = file;
+    }
+    if (picked == null) {
+      debugPrint('avatar pick cancelled or lost');
+      return false;
+    }
 
     state = const AsyncLoading();
     try {
@@ -69,6 +79,8 @@ class AvatarController extends _$AvatarController {
       state = const AsyncData(null);
       return true;
     } on Failure catch (failure, stack) {
+      // Log the concrete failure — the UI only shows a generic message.
+      debugPrint('avatar upload failed (failure): $failure');
       state = AsyncError(failure, stack);
       return false;
     } catch (e, stack) {
