@@ -8,6 +8,7 @@ import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/push/application/push_providers.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Home dashboard (G-82).
 ///
@@ -245,8 +246,9 @@ class _BirthdayCard extends StatelessWidget {
     final l10n = context.l10n;
     return Card(
       child: ListTile(
-        leading: CircleAvatar(
-          child: Text(birthday.label.substring(0, 1).toUpperCase()),
+        leading: KeptAvatar(
+          label: birthday.label,
+          avatarValue: birthday.avatarUrl,
         ),
         title: Text(birthday.label),
         subtitle: Text(

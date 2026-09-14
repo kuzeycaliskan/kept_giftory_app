@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Friends screen (G-31): incoming/outgoing requests + accepted friends,
 /// with username search (G-32). Contact matching (G-33) will extend it.
@@ -149,7 +150,7 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(child: Text(entry.label.substring(0, 1).toUpperCase()));
+    return KeptAvatar(label: entry.label, avatarValue: entry.avatarUrl);
   }
 }
 

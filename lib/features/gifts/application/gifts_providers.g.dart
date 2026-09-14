@@ -212,7 +212,7 @@ class _FriendGiftHistoryProviderElement
   String get profileId => (origin as FriendGiftHistoryProvider).profileId;
 }
 
-String _$giftsControllerHash() => r'df23a9de55685a8b4b8db00f939f64e08ed70d4b';
+String _$giftsControllerHash() => r'1567ec80ab5178118d0c338c9dfdae8ab87340fe';
 
 /// See also [GiftsController].
 @ProviderFor(GiftsController)

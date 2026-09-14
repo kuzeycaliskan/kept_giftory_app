@@ -693,4 +693,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get editProfileSaved => 'Profil güncellendi.';
+
+  @override
+  String get avatarFromGallery => 'Galeriden seç';
+
+  @override
+  String get avatarFromCamera => 'Fotoğraf çek';
+
+  @override
+  String get avatarUpdated => 'Profil fotoğrafı güncellendi.';
 }

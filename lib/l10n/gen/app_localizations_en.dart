@@ -696,4 +696,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editProfileSaved => 'Profile updated.';
+
+  @override
+  String get avatarFromGallery => 'Choose from gallery';
+
+  @override
+  String get avatarFromCamera => 'Take a photo';
+
+  @override
+  String get avatarUpdated => 'Profile photo updated.';
 }

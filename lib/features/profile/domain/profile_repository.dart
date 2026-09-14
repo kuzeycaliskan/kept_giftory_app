@@ -30,6 +30,10 @@ abstract interface class ProfileRepository {
     Visibility? giftHistory,
   });
 
+  /// Stores the freshly uploaded avatar path on the caller's profile
+  /// (G-23 handover; the file itself goes through MediaStore).
+  Future<Result<Profile>> updateAvatarPath(String path);
+
   /// Turns birthday-reminder pushes on/off for the caller (G-63). The
   /// dispatch query filters on this server-side.
   Future<Result<Profile>> setBirthdayReminders({required bool enabled});

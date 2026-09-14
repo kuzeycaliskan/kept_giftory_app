@@ -297,5 +297,8 @@
   "editProfileTitle": "Edit profile",
   "editProfileUsernameLocked": "Username can't be changed.",
   "editProfileBioLabel": "Bio",
-  "editProfileSaved": "Profile updated."
+  "editProfileSaved": "Profile updated.",
+  "avatarFromGallery": "Choose from gallery",
+  "avatarFromCamera": "Take a photo",
+  "avatarUpdated": "Profile photo updated."
 }

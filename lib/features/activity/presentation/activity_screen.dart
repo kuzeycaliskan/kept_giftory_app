@@ -6,6 +6,7 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Activity center (G-86, absorbs G-64): incoming friend requests with
 /// accept/decline plus upcoming birthdays, in one list. Rows disappear as
@@ -127,9 +128,7 @@ class _RequestRow extends ConsumerWidget {
     final busy = ref.watch(friendsControllerProvider).isLoading;
 
     return ListTile(
-      leading: CircleAvatar(
-        child: Text(entry.label.substring(0, 1).toUpperCase()),
-      ),
+      leading: KeptAvatar(label: entry.label, avatarValue: entry.avatarUrl),
       title: Text(entry.label),
       subtitle: Text('@${entry.username}'),
       onTap: () => context.push(

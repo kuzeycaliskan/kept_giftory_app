@@ -8,6 +8,7 @@ import 'package:kept/features/profile/presentation/profile_panel.dart';
 import 'package:kept/features/safety/application/safety_providers.dart';
 import 'package:kept/features/safety/presentation/report_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Another user's profile (G-84). Sections are RLS-scoped; a friends-only
 /// profile renders the private-card state (avatar + name + request button,
@@ -72,15 +73,10 @@ class _PrivateProfileBody extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
+                KeptAvatar(
+                  label: name,
+                  avatarValue: card.avatarUrl,
                   radius: 40,
-                  foregroundImage: card.avatarUrl == null
-                      ? null
-                      : NetworkImage(card.avatarUrl!),
-                  child: Text(
-                    name.characters.first.toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(name, style: Theme.of(context).textTheme.titleLarge),

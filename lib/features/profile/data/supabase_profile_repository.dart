@@ -132,6 +132,25 @@ class SupabaseProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> updateAvatarPath(String path) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    try {
+      final row = await _client
+          .from(_table)
+          .update({'avatar_url': path})
+          .eq('id', userId)
+          .select()
+          .single();
+      return Success(Profile.fromJson(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));

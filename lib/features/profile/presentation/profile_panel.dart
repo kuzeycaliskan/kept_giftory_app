@@ -7,6 +7,7 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Shared profile body (G-84): header + Wishlist / Gifts / About tabs.
 /// Used by the Me tab (own) and the user-profile screen (someone else).
@@ -68,14 +69,10 @@ class _ProfileHeader extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          CircleAvatar(
+          KeptAvatar(
+            label: profile.displayName ?? profile.username,
+            avatarValue: profile.avatarUrl,
             radius: 36,
-            child: Text(
-              (profile.displayName ?? profile.username)
-                  .substring(0, 1)
-                  .toUpperCase(),
-              style: theme.textTheme.headlineMedium,
-            ),
           ),
           const SizedBox(height: 8),
           Text(

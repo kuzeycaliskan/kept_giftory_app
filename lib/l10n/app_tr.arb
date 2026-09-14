@@ -231,5 +231,8 @@
   "editProfileTitle": "Profili düzenle",
   "editProfileUsernameLocked": "Kullanıcı adı değiştirilemez.",
   "editProfileBioLabel": "Hakkında",
-  "editProfileSaved": "Profil güncellendi."
+  "editProfileSaved": "Profil güncellendi.",
+  "avatarFromGallery": "Galeriden seç",
+  "avatarFromCamera": "Fotoğraf çek",
+  "avatarUpdated": "Profil fotoğrafı güncellendi."
 }

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/profile/application/avatar_controller.dart';
 import 'package:kept/features/profile/application/edit_profile_controller.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/shared/widgets/kept_action_sheet.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
 
 /// Edit own profile (G-23): display name, birthday, occupation, bio.
 /// Username is shown read-only — it's identity, locked in V1 (support
-/// handles changes). Visibility lives in Settings → Privacy (G-22); avatar
-/// arrives with the V2 media pipeline.
+/// handles changes). Visibility lives in Settings → Privacy (G-22).
+/// Avatar: tap the photo badge — gallery/camera via KeptActionSheet.
 class EditProfileScreen extends ConsumerWidget {
   const EditProfileScreen({super.key});
 
@@ -82,6 +86,44 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     return value.isEmpty ? null : value;
   }
 
+  Future<void> _changeAvatar() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    await showKeptActionSheet(
+      context,
+      actions: [
+        KeptSheetAction(
+          icon: Icons.photo_library_outlined,
+          label: l10n.avatarFromGallery,
+          onTap: () async {
+            final ok = await ref
+                .read(avatarControllerProvider.notifier)
+                .pickAndUpload(ImageSource.gallery);
+            if (ok) {
+              messenger.showSnackBar(
+                SnackBar(content: Text(l10n.avatarUpdated)),
+              );
+            }
+          },
+        ),
+        KeptSheetAction(
+          icon: Icons.photo_camera_outlined,
+          label: l10n.avatarFromCamera,
+          onTap: () async {
+            final ok = await ref
+                .read(avatarControllerProvider.notifier)
+                .pickAndUpload(ImageSource.camera);
+            if (ok) {
+              messenger.showSnackBar(
+                SnackBar(content: Text(l10n.avatarUpdated)),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   Future<void> _pickBirthday() async {
     final now = DateTime.now();
     final picked = await showKeptDatePicker(
@@ -121,6 +163,15 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final busy = ref.watch(editProfileControllerProvider).isLoading;
+    final avatarBusy = ref.watch(avatarControllerProvider).isLoading;
+
+    ref.listen(avatarControllerProvider, (_, next) {
+      if (next.hasError) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -135,6 +186,51 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Center(
+            child: Stack(
+              children: [
+                KeptAvatar(
+                  label: widget.initial.displayName ?? widget.initial.username,
+                  avatarValue:
+                      ref.watch(myProfileProvider).valueOrNull?.avatarUrl ??
+                      widget.initial.avatarUrl,
+                  radius: 44,
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Material(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: avatarBusy ? null : _changeAvatar,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: avatarBusy
+                            ? SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                ),
+                              )
+                            : Icon(
+                                Icons.photo_camera_outlined,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           // Username is identity — read-only in V1 (invite codes, search and
           // mentions hang off it). Changes go through support for now.
           TextField(

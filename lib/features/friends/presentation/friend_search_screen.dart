@@ -1,11 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Username / display-name search (G-32). Results respect RLS: only profiles
 /// the caller may see (public, friends, pending parties) come back. Tapping a
@@ -107,7 +107,7 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = card.displayName ?? card.username;
     return ListTile(
-      leading: CircleAvatar(child: Text(name.characters.first.toUpperCase())),
+      leading: KeptAvatar(label: name, avatarValue: card.avatarUrl),
       title: Text(name),
       subtitle: Text('@${card.username}'),
       onTap: () => context.push(

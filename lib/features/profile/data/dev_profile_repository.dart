@@ -79,6 +79,12 @@ class DevProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> updateAvatarPath(String path) async {
+    _me = _me.copyWith(avatarUrl: path);
+    return Success(_me);
+  }
+
+  @override
   Future<Result<List<ProfileCard>>> searchProfiles(String query) async {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return const Success([]);
@@ -143,6 +149,10 @@ class EmptyProfileRepository implements ProfileRepository {
 
   @override
   Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async =>
+      const ResultFailure(AuthFailure('No backend configured'));
+
+  @override
+  Future<Result<Profile>> updateAvatarPath(String path) async =>
       const ResultFailure(AuthFailure('No backend configured'));
 
   @override

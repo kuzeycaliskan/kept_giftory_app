@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/safety/application/safety_providers.dart';
+import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Settings → Blocked users (G-72): list + unblock.
 class BlockedUsersScreen extends ConsumerWidget {
@@ -47,12 +48,7 @@ class BlockedUsersScreen extends ConsumerWidget {
               final card = cards[index];
               final name = card.displayName ?? card.username;
               return ListTile(
-                leading: CircleAvatar(
-                  foregroundImage: card.avatarUrl == null
-                      ? null
-                      : NetworkImage(card.avatarUrl!),
-                  child: Text(name.characters.first.toUpperCase()),
-                ),
+                leading: KeptAvatar(label: name, avatarValue: card.avatarUrl),
                 title: Text(name),
                 subtitle: Text('@${card.username}'),
                 trailing: TextButton(

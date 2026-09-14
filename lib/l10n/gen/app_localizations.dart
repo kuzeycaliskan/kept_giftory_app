@@ -1381,6 +1381,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile updated.'**
   String get editProfileSaved;
+
+  /// No description provided for @avatarFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get avatarFromGallery;
+
+  /// No description provided for @avatarFromCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get avatarFromCamera;
+
+  /// No description provided for @avatarUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo updated.'**
+  String get avatarUpdated;
 }
 
 class _AppLocalizationsDelegate

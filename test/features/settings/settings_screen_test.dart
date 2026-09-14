@@ -82,6 +82,10 @@ class _FakeProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> updateAvatarPath(String path) async =>
+      const Success(Profile(id: 'x', username: 'x'));
+
+  @override
   Future<Result<List<ProfileCard>>> searchProfiles(String query) async =>
       const Success([]);
 
