@@ -1,25 +1,25 @@
-# Supabase Free planı 7 gün API inaktivitesinde projeyi uyutur (uyuyan proje
-# kendiliğinden UYANMAZ — dashboard'dan manuel restore gerekir). Uygulama
-# kullanımı + günlük doğum günü cron'u normalde yeterli aktivitedir; bu ping
-# matematiksel garantidir. Pro'ya geçince bu workflow silinebilir.
+# Supabase Free pauses the project after 7 days of API inactivity (a paused
+# project does NOT wake on its own — manual dashboard restore required). App
+# usage + the daily birthday cron normally count as activity; this ping is
+# the mathematical guarantee. Delete this workflow after upgrading to Pro.
 name: supabase-keepalive
 on:
   schedule:
-    - cron: "17 6 * * *" # her gün 06:17 UTC
+    - cron: "17 6 * * *" # daily, 06:17 UTC
   workflow_dispatch: {}
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: REST ping (publishable key — zaten client'ta gömülü, gizli değil)
+      - name: REST ping (publishable key — ships in the client, not a secret)
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" \
             "https://fezdcmvhnuvvaivogwvf.supabase.co/rest/v1/profiles?select=id&limit=1" \
             -H "apikey: sb_publishable_mtoE8HJNsQA9W1c4b2POqw_ov4TI0vk")
           echo "status: $code"
-          # 200 (RLS bos liste doner) da 401 de "proje ayakta" demektir;
-          # uyuyan proje baglanti hatasi/5xx verir.
+          # 2xx (RLS returns an empty list) and 401/403 all mean the project
+          # is up; a paused project yields connection errors / 5xx.
           case "$code" in
             2*|401|403) exit 0 ;;
-            *) echo "::error::Supabase erisilemedi (proje uyumus olabilir)"; exit 1 ;;
+            *) echo "::error::Supabase unreachable (project may be paused)"; exit 1 ;;
           esac

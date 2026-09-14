@@ -1,40 +1,48 @@
-# Free planda otomatik yedek YOK — bu workflow günlük mantıksal yedek alır ve
-# 30 gün saklanan private artifact olarak yükler. Pro'ya geçince (günlük yedek
-# dahil) silinebilir.
+# Supabase Free has NO automatic backups — this workflow takes a daily
+# logical dump and uploads it as a private artifact retained for 30 days.
+# Delete after upgrading to Pro (which includes daily backups).
 #
-# KURULUM (tek sefer, Kuzey): GitHub repo → Settings → Secrets and variables →
+# ONE-TIME SETUP (Kuzey): GitHub repo → Settings → Secrets and variables →
 # Actions → New repository secret:
-#   SUPABASE_DB_URL = postgresql://postgres.fezdcmvhnuvvaivogwvf:[DB-SIFRESI]@aws-1-eu-central-1.pooler.supabase.com:5432/postgres
-# (Session pooler adresi şart: GitHub runner'ları IPv4-only, direkt db host'u
-# IPv6. Adresi Supabase Dashboard → Connect → Session pooler'dan doğrula.)
+#   SUPABASE_DB_URL = the **Session pooler** connection string from
+#   Supabase Dashboard → Connect → "Direct / Connection string" tab →
+#   Session pooler. It looks like:
+#   postgresql://postgres.fezdcmvhnuvvaivogwvf:[PASSWORD]@aws-X-eu-central-1.pooler.supabase.com:5432/postgres
+# The DIRECT host (db.<ref>.supabase.co) will NOT work: it is IPv6-only and
+# GitHub runners are IPv4-only — the step below fails fast with a clear
+# message if the wrong string is configured.
 name: supabase-db-backup
 on:
   schedule:
-    - cron: "43 3 * * *" # her gün 03:43 UTC
+    - cron: "43 3 * * *" # daily, 03:43 UTC
   workflow_dispatch: {}
 jobs:
   dump:
     runs-on: ubuntu-latest
     steps:
-      - name: pg_dump 17 kur
+      - name: Install pg_dump 17
         run: |
           sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
           sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
-      - name: Yedek al
+      - name: Dump database
         env:
           DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           if [ -z "$DB_URL" ]; then
-            echo "::error::SUPABASE_DB_URL secret'i tanımlı değil (kurulum notuna bak)"; exit 1
+            echo "::error::SUPABASE_DB_URL secret is not set (see setup note in this file)"; exit 1
           fi
+          case "$DB_URL" in
+            *db.*.supabase.co*)
+              echo "::error::SUPABASE_DB_URL uses the DIRECT host (IPv6-only). Use the Session pooler string instead: Dashboard → Connect → Session pooler."; exit 1 ;;
+          esac
           ts=$(date -u +%Y%m%d-%H%M)
           pg_dump "$DB_URL" \
             --format=custom --no-owner --no-privileges \
             --schema=public --schema=auth \
             --file="kept-backup-$ts.dump"
           ls -lh kept-backup-*.dump
-      - name: Artifact olarak yükle (30 gün)
+      - name: Upload artifact (30-day retention)
         uses: actions/upload-artifact@v4
         with:
           name: kept-db-backup-${{ github.run_id }}
