@@ -22,9 +22,13 @@ jobs:
     steps:
       - name: Install pg_dump 17
         run: |
-          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo install -d /usr/share/postgresql-common/pgdg
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc >/dev/null
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
+          /usr/lib/postgresql/17/bin/pg_dump --version
       - name: Dump database
         env:
           DB_URL: ${{ secrets.SUPABASE_DB_URL }}
@@ -37,7 +41,9 @@ jobs:
               echo "::error::SUPABASE_DB_URL uses the DIRECT host (IPv6-only). Use the Session pooler string instead: Dashboard → Connect → Session pooler."; exit 1 ;;
           esac
           ts=$(date -u +%Y%m%d-%H%M)
-          pg_dump "$DB_URL" \
+          # Call the versioned binary directly: Ubuntu's wrapper may still
+          # resolve `pg_dump` to the distro's older client.
+          /usr/lib/postgresql/17/bin/pg_dump "$DB_URL" \
             --format=custom --no-owner --no-privileges \
             --schema=public --schema=auth \
             --file="kept-backup-$ts.dump"
