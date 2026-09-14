@@ -53,7 +53,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
       _preview = preview;
       // Convenience: an empty item field inherits the product title.
       if (preview?.title != null && _itemController.text.trim().isEmpty) {
-        _itemController.text = preview!.title!;
+        _itemController.text = preview!.titleForField!;
         _itemMissing = false;
       }
     });

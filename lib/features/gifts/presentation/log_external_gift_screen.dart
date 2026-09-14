@@ -59,7 +59,7 @@ class _LogExternalGiftScreenState extends ConsumerState<LogExternalGiftScreen> {
     setState(() {
       _preview = preview;
       if (preview?.title != null && _itemController.text.trim().isEmpty) {
-        _itemController.text = preview!.title!;
+        _itemController.text = preview!.titleForField!;
         _itemMissing = false;
       }
     });

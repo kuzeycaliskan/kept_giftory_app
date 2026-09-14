@@ -20,3 +20,18 @@ class LinkPreview with _$LinkPreview {
   factory LinkPreview.fromJson(Map<String, dynamic> json) =>
       _$LinkPreviewFromJson(json);
 }
+
+/// Form fields cap titles at this length (matches the DB check on items).
+const int kLinkPreviewTitleMaxLength = 200;
+
+extension LinkPreviewTitleFit on LinkPreview {
+  /// Product titles routinely exceed form limits; programmatic
+  /// controller.text assignment bypasses maxLength, so inherit THIS instead.
+  String? get titleForField {
+    final t = title;
+    if (t == null) return null;
+    return t.length <= kLinkPreviewTitleMaxLength
+        ? t
+        : t.substring(0, kLinkPreviewTitleMaxLength).trimRight();
+  }
+}

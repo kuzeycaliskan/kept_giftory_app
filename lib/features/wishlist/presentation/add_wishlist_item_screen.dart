@@ -37,7 +37,7 @@ class _AddWishlistItemScreenState extends ConsumerState<AddWishlistItemScreen> {
       _preview = preview;
       // Convenience: an empty title inherits the product title.
       if (preview?.title != null && _titleController.text.trim().isEmpty) {
-        _titleController.text = preview!.title!;
+        _titleController.text = preview!.titleForField!;
         _titleMissing = false;
       }
     });

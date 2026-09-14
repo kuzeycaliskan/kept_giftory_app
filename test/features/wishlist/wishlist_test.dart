@@ -273,4 +273,37 @@ void main() {
     expect(find.text('Babolat Pure Drive'), findsOneWidget);
     expect(find.textContaining('1.299,00 TL'), findsOneWidget);
   });
+
+  testWidgets('an over-long product title is truncated to the field limit', (
+    tester,
+  ) async {
+    final longTitle = 'X' * 250;
+    final repo = _FakeWishlistRepository();
+    await pump(
+      tester,
+      repo,
+      linkPreviews: _FakeLinkPreviewRepository(
+        preview: LinkPreview(
+          id: 'lp-long',
+          url: 'https://shop.example.com/x',
+          title: longTitle,
+        ),
+      ),
+    );
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Link (optional)'),
+      'https://shop.example.com/x',
+    );
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    // Saved (not rejected), with exactly the capped length.
+    expect(repo.mine.single.title.length, 200);
+  });
 }
