@@ -1,0 +1,25 @@
+# Supabase Free planı 7 gün API inaktivitesinde projeyi uyutur (uyuyan proje
+# kendiliğinden UYANMAZ — dashboard'dan manuel restore gerekir). Uygulama
+# kullanımı + günlük doğum günü cron'u normalde yeterli aktivitedir; bu ping
+# matematiksel garantidir. Pro'ya geçince bu workflow silinebilir.
+name: supabase-keepalive
+on:
+  schedule:
+    - cron: "17 6 * * *" # her gün 06:17 UTC
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: REST ping (publishable key — zaten client'ta gömülü, gizli değil)
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://fezdcmvhnuvvaivogwvf.supabase.co/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: sb_publishable_mtoE8HJNsQA9W1c4b2POqw_ov4TI0vk")
+          echo "status: $code"
+          # 200 (RLS bos liste doner) da 401 de "proje ayakta" demektir;
+          # uyuyan proje baglanti hatasi/5xx verir.
+          case "$code" in
+            2*|401|403) exit 0 ;;
+            *) echo "::error::Supabase erisilemedi (proje uyumus olabilir)"; exit 1 ;;
+          esac

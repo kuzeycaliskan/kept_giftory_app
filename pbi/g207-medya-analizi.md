@@ -1,6 +1,9 @@
 # G-207 Medya Altyapısı — Karar Analizi (Supabase Storage vs Cloudflare R2)
 
 > Hazırlayan: Claude · 2026-09-14 · Karar Kuzey ile görüşmede verilecek.
+> **Düzeltme (görüşme sonrası):** Kuzey şu an **Free plandadır ($0)** — tablodaki
+> "Pro $25" ölçek senaryolarının taban varsayımıdır, mevcut fatura değildir.
+> Karar: launch Free'de (keepalive+yedek workflow'larıyla); Pro kanıtlanmış çekişte.
 > Bağlam: V2.0-b öncesi. Kullanım alanları: anlık foto (G-201, 24s ephemeral),
 > envanter fotoğrafları (G-204, kalıcı), avatar (G-23 devri), link-preview
 > thumbnail'leri (G-211, zaten Supabase bucket'ta).
@@ -61,3 +64,8 @@ denebilir. Karşı argüman: o güne kadar aylar var, mahremiyet katmanını (im
 altyapısı) bugün kurmak kamera/feed'i haftalarca geciktirir ve o altyapı, ölçeğe
 ulaşamazsak hiç gerekmeyecek bir yatırım. Erken aşamada hız + doğru mahremiyet >
 ileride 1 haftalık göç işi.
+
+## 5. Karar (2026-09-14, Kuzey)
+Öneri aynen kabul: Supabase Storage + MediaStore soyutlaması + mekanik R2 tetiği.
+Launch Free planda; `.github/workflows/{keepalive,db-backup}.yml` Pro'ya geçene
+kadar zorunlu operasyon parçasıdır.

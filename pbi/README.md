@@ -55,3 +55,11 @@
 Her PBI geliştirmeye açılırken içermeli: **Description/User story · Acceptance criteria
 (happy + edge/empty/error) · Technical notes (veri modeli, RLS, bağımlılık, pattern) ·
 Definition of Done**.
+
+## Karar: G-207 medya + Free-plan launch rotası (2026-09-14, Kuzey onayı)
+- Medya **Supabase Storage**'da başlar (Storage RLS ile friends-only); `MediaStore`
+  soyutlaması + tek URL-helper zorunlu; DB'ye yalnız yol yazılır.
+- **R2 göç tetiği (mekanik):** aylık storage+egress kalemi > $25 VEYA ~25k aktif
+  kullanıcı. Analiz: `g207-medya-analizi.md`.
+- **Launch Free planda:** keepalive + günlük yedek workflow'ları Pro'ya kadar yaşar
+  (CLAUDE.md §11). Pro sinyali: medya büyümesi / ~10k kullanıcı / yedek-SLA ihtiyacı.

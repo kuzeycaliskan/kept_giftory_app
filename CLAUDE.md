@@ -200,6 +200,16 @@ main.dart
 - Prefer SQL views / `fan-out-on-read` for feeds over write-amplifying fan-out.
 - Edge Functions for privileged/server logic (push dispatch, scheduled jobs).
 - Separate **dev / prod** environments and config.
+- **Plan & ops (2026-09 kararı):** Launch **Supabase Free** üzerinde yapılır; Pro'ya
+  geçiş sinyali = medya/storage kalemi büyümesi veya ~10k kullanıcı (DB 500 MB) —
+  "belki"ye değil kanıtlanmış çekişe ödenir. Free'nin iki açığı repo'daki GitHub
+  Actions ile kapatılır ve **Pro'ya geçene kadar bu ikisi YAŞAMALIDIR** (yeni
+  sürüm/checklist'lerde kontrol et): `.github/workflows/keepalive.yml` (7-gün uyku
+  garantisi) + `db-backup.yml` (günlük pg_dump → 30 gün artifact; SUPABASE_DB_URL
+  secret'ı gerektirir). **Medya kararı (G-207):** Supabase Storage'da başla (Storage
+  RLS = friends-only mahremiyet bedavaya doğru); tüm erişim MediaStore soyutlaması +
+  tek URL-helper'dan, DB'ye yalnız YOL yazılır; **R2 göç tetiği:** aylık
+  storage+egress kalemi $25'i aşarsa VEYA ~25k aktif kullanıcı (`pbi/g207-medya-analizi.md`).
 
 ---
 
