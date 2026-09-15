@@ -65,7 +65,6 @@ class AvatarController extends _$AvatarController {
         AndroidUiSettings(
           toolbarTitle: cropTitle,
           toolbarColor: accentColor,
-          statusBarColor: accentColor,
           toolbarWidgetColor: onAccentColor,
           activeControlsWidgetColor: accentColor,
           lockAspectRatio: true,
