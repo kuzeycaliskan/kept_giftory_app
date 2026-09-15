@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/error/failure.dart';
@@ -54,6 +56,7 @@ class AvatarController extends _$AvatarController {
           '$userId/avatar-${DateTime.now().millisecondsSinceEpoch}.jpg';
 
       final store = ref.read(mediaStoreProvider);
+      debugPrint('avatar step: uploading to $path');
       final uploaded = await store.upload(
         bucket: 'avatars',
         path: path,
@@ -65,6 +68,7 @@ class AvatarController extends _$AvatarController {
         failure: (Failure f) => throw f,
       );
 
+      debugPrint('avatar step: upload ok, updating profile row');
       final updated = await ref
           .read(profileRepositoryProvider)
           .updateAvatarPath(stored);
@@ -81,6 +85,25 @@ class AvatarController extends _$AvatarController {
     } on Failure catch (failure, stack) {
       // Log the concrete failure — the UI only shows a generic message.
       debugPrint('avatar upload failed (failure): $failure');
+      // TEMP diagnostics: how does the auth layer see this session?
+      final session = ref.read(supabaseClientProvider).auth.currentSession;
+      if (session != null) {
+        final parts = session.accessToken.split('.');
+        if (parts.length == 3) {
+          var payload = parts[1];
+          payload += '=' * ((4 - payload.length % 4) % 4);
+          final claims = utf8.decode(base64Url.decode(payload));
+          debugPrint('avatar diag claims: $claims');
+        }
+        final client = ref.read(supabaseClientProvider);
+        final authHeader = client.storage.headers['Authorization'] ?? 'YOK';
+        final tokenHead = session.accessToken.substring(0, 24);
+        debugPrint(
+          'avatar diag storage-auth: '
+          '${authHeader.replaceFirst('Bearer ', '').substring(0, 24)} '
+          'vs session: $tokenHead',
+        );
+      }
       state = AsyncError(failure, stack);
       return false;
     } catch (e, stack) {
