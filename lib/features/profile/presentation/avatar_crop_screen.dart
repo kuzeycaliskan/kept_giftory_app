@@ -37,54 +37,60 @@ class _AvatarCropScreenState extends State<AvatarCropScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    // Back gesture/button is disabled here: edge pans while framing the
+    // photo must never accidentally dismiss the screen. The close button
+    // is the only cancel path (pops programmatically, so PopScope allows it).
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: Text(l10n.avatarCropTitle),
-        leading: CloseButton(
-          onPressed: _cropping ? null : () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Crop(
-              controller: _controller,
-              image: widget.imageBytes,
-              aspectRatio: 1,
-              withCircleUi: true,
-              baseColor: Colors.black,
-              maskColor: Colors.black.withValues(alpha: 0.6),
-              onCropped: _onCropped,
-            ),
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          title: Text(l10n.avatarCropTitle),
+          leading: CloseButton(
+            onPressed: _cropping ? null : () => Navigator.of(context).pop(),
           ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _cropping
-                      ? null
-                      : () {
-                          setState(() => _cropping = true);
-                          _controller.crop();
-                        },
-                  child: _cropping
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.commonSave),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Crop(
+                controller: _controller,
+                image: widget.imageBytes,
+                aspectRatio: 1,
+                withCircleUi: true,
+                baseColor: Colors.black,
+                maskColor: Colors.black.withValues(alpha: 0.6),
+                onCropped: _onCropped,
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _cropping
+                        ? null
+                        : () {
+                            setState(() => _cropping = true);
+                            _controller.crop();
+                          },
+                    child: _cropping
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(l10n.commonSave),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -106,6 +106,11 @@ void main() {
     expect(find.byType(Crop), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);
 
+    // System back (gesture/button) must NOT dismiss the crop screen.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(Crop), findsOneWidget);
+
     await tester.tap(find.byType(CloseButton));
     await tester.pumpAndSettle();
     expect(result, isNull);
