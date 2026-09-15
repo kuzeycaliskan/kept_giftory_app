@@ -7,6 +7,7 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/shared/widgets/avatar_preview.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Shared profile body (G-84): header + Wishlist / Gifts / About tabs.
@@ -56,23 +57,31 @@ class ProfilePanel extends ConsumerWidget {
   }
 }
 
-class _ProfileHeader extends StatelessWidget {
+class _ProfileHeader extends ConsumerWidget {
   const _ProfileHeader({required this.profile, this.trailing});
 
   final Profile profile;
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final label = profile.displayName ?? profile.username;
+    final avatarUrl = KeptAvatar.resolveUrl(ref, profile.avatarUrl);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          KeptAvatar(
-            label: profile.displayName ?? profile.username,
-            avatarValue: profile.avatarUrl,
-            radius: 36,
+          GestureDetector(
+            onTap: avatarUrl == null
+                ? null
+                : () =>
+                      showAvatarPreview(context, url: avatarUrl, label: label),
+            child: KeptAvatar(
+              label: label,
+              avatarValue: profile.avatarUrl,
+              radius: 36,
+            ),
           ),
           const SizedBox(height: 8),
           Text(

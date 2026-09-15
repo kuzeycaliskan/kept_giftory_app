@@ -300,5 +300,6 @@
   "editProfileSaved": "Profile updated.",
   "avatarFromGallery": "Choose from gallery",
   "avatarFromCamera": "Take a photo",
-  "avatarUpdated": "Profile photo updated."
+  "avatarUpdated": "Profile photo updated.",
+  "avatarCropTitle": "Adjust photo"
 }

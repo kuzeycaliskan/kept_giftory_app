@@ -702,4 +702,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get avatarUpdated => 'Profil fotoğrafı güncellendi.';
+
+  @override
+  String get avatarCropTitle => 'Fotoğrafı ayarla';
 }

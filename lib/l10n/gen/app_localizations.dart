@@ -1399,6 +1399,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile photo updated.'**
   String get avatarUpdated;
+
+  /// No description provided for @avatarCropTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust photo'**
+  String get avatarCropTitle;
 }
 
 class _AppLocalizationsDelegate

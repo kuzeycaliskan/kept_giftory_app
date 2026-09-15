@@ -7,6 +7,7 @@ import 'package:kept/features/profile/application/avatar_controller.dart';
 import 'package:kept/features/profile/application/edit_profile_controller.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/shared/widgets/avatar_preview.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
@@ -86,39 +87,37 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     return value.isEmpty ? null : value;
   }
 
+  Future<void> _pickFrom(ImageSource source) async {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await ref
+        .read(avatarControllerProvider.notifier)
+        .pickAndUpload(
+          source,
+          cropTitle: l10n.avatarCropTitle,
+          accentColor: colors.primary,
+          onAccentColor: colors.onPrimary,
+        );
+    if (ok) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.avatarUpdated)));
+    }
+  }
+
   Future<void> _changeAvatar() async {
     final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
     await showKeptActionSheet(
       context,
       actions: [
         KeptSheetAction(
           icon: Icons.photo_library_outlined,
           label: l10n.avatarFromGallery,
-          onTap: () async {
-            final ok = await ref
-                .read(avatarControllerProvider.notifier)
-                .pickAndUpload(ImageSource.gallery);
-            if (ok) {
-              messenger.showSnackBar(
-                SnackBar(content: Text(l10n.avatarUpdated)),
-              );
-            }
-          },
+          onTap: () => _pickFrom(ImageSource.gallery),
         ),
         KeptSheetAction(
           icon: Icons.photo_camera_outlined,
           label: l10n.avatarFromCamera,
-          onTap: () async {
-            final ok = await ref
-                .read(avatarControllerProvider.notifier)
-                .pickAndUpload(ImageSource.camera);
-            if (ok) {
-              messenger.showSnackBar(
-                SnackBar(content: Text(l10n.avatarUpdated)),
-              );
-            }
-          },
+          onTap: () => _pickFrom(ImageSource.camera),
         ),
       ],
     );
@@ -189,12 +188,29 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
           Center(
             child: Stack(
               children: [
-                KeptAvatar(
-                  label: widget.initial.displayName ?? widget.initial.username,
-                  avatarValue:
-                      ref.watch(myProfileProvider).valueOrNull?.avatarUrl ??
-                      widget.initial.avatarUrl,
-                  radius: 44,
+                Builder(
+                  builder: (context) {
+                    final label =
+                        widget.initial.displayName ?? widget.initial.username;
+                    final value =
+                        ref.watch(myProfileProvider).valueOrNull?.avatarUrl ??
+                        widget.initial.avatarUrl;
+                    final url = KeptAvatar.resolveUrl(ref, value);
+                    return GestureDetector(
+                      onTap: url == null
+                          ? null
+                          : () => showAvatarPreview(
+                              context,
+                              url: url,
+                              label: label,
+                            ),
+                      child: KeptAvatar(
+                        label: label,
+                        avatarValue: value,
+                        radius: 44,
+                      ),
+                    );
+                  },
                 ),
                 Positioned(
                   right: 0,

@@ -21,19 +21,19 @@ class KeptAvatar extends ConsumerWidget {
 
   final double radius;
 
+  /// Resolves a stored avatar value to a displayable URL, touching
+  /// MediaStore only for real stored paths — null/full-URL values must not
+  /// require a Supabase instance (widget tests, dev data). Shared with the
+  /// full-screen preview.
+  static String? resolveUrl(WidgetRef ref, String? value) {
+    if (value == null || value.isEmpty) return null;
+    if (value.startsWith('http')) return value;
+    return avatarDisplayUrl(ref.watch(mediaStoreProvider), value);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Touch MediaStore only for real stored paths — null/full-URL values
-    // must not require a Supabase instance (widget tests, dev data).
-    final value = avatarValue;
-    final String? url;
-    if (value == null || value.isEmpty) {
-      url = null;
-    } else if (value.startsWith('http')) {
-      url = value;
-    } else {
-      url = avatarDisplayUrl(ref.watch(mediaStoreProvider), value);
-    }
+    final url = resolveUrl(ref, avatarValue);
     final initial = label.isEmpty ? '?' : label.characters.first.toUpperCase();
     return CircleAvatar(
       radius: radius,

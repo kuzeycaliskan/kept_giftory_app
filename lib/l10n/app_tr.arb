@@ -234,5 +234,6 @@
   "editProfileSaved": "Profil güncellendi.",
   "avatarFromGallery": "Galeriden seç",
   "avatarFromCamera": "Fotoğraf çek",
-  "avatarUpdated": "Profil fotoğrafı güncellendi."
+  "avatarUpdated": "Profil fotoğrafı güncellendi.",
+  "avatarCropTitle": "Fotoğrafı ayarla"
 }
