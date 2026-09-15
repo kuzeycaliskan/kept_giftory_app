@@ -3,11 +3,6 @@
         android:label="kept"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- image_cropper (avatar crop) hosts uCrop's own activity. -->
-        <activity
-            android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/UcropTheme"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

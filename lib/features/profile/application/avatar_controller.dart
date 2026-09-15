@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
-import 'package:image_cropper/image_cropper.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/media/media_providers.dart';
@@ -10,15 +9,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'avatar_controller.g.dart';
 
-/// Picks, crops, shrinks and uploads the user's avatar (G-23 handover;
-/// first MediaStore consumer). After picking, a native circle-crop screen
-/// (Instagram-style) lets the user choose the framing. Path layout
+/// Avatar pipeline (G-23 handover; first MediaStore consumer), split in two
+/// steps so the UI can host the in-app crop screen between them:
+/// [pickImage] → (AvatarCropScreen) → [uploadCropped]. Path layout
 /// '<uid>/avatar-<epoch>.jpg' gives free cache-busting; the previous file
 /// is best-effort deleted after success.
 @riverpod
 class AvatarController extends _$AvatarController {
   /// Base picked at higher resolution so cropping doesn't compound loss;
-  /// the cropper emits the final 512px/82q square.
+  /// [uploadCropped] shrinks the final square to 512px/82q jpeg.
   static const _pickDimension = 1600.0;
   static const _outputDimension = 512;
   static const _jpegQuality = 82;
@@ -28,15 +27,8 @@ class AvatarController extends _$AvatarController {
   @override
   AsyncValue<void> build() => const AsyncData(null);
 
-  /// Returns true when a new avatar was stored (false = user cancelled at
-  /// either the picker or the crop screen). [cropTitle] and the colors come
-  /// from the UI — the controller carries no presentation knowledge.
-  Future<bool> pickAndUpload(
-    ImageSource source, {
-    required String cropTitle,
-    required Color accentColor,
-    required Color onAccentColor,
-  }) async {
+  /// Picks a photo and returns its bytes (null = user cancelled).
+  Future<Uint8List?> pickImage(ImageSource source) async {
     var picked = await _picker.pickImage(
       source: source,
       maxWidth: _pickDimension,
@@ -52,38 +44,19 @@ class AvatarController extends _$AvatarController {
     }
     if (picked == null) {
       debugPrint('avatar pick cancelled or lost');
-      return false;
+      return null;
     }
+    return picked.readAsBytes();
+  }
 
-    final cropped = await ImageCropper().cropImage(
-      sourcePath: picked.path,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      maxWidth: _outputDimension,
-      maxHeight: _outputDimension,
-      compressQuality: _jpegQuality,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: cropTitle,
-          toolbarColor: accentColor,
-          toolbarWidgetColor: onAccentColor,
-          activeControlsWidgetColor: accentColor,
-          lockAspectRatio: true,
-          hideBottomControls: true,
-          cropStyle: CropStyle.circle,
-        ),
-        IOSUiSettings(
-          title: cropTitle,
-          aspectRatioLockEnabled: true,
-          resetAspectRatioEnabled: false,
-          cropStyle: CropStyle.circle,
-        ),
-      ],
-    );
-    if (cropped == null) return false; // user backed out of the crop screen
-
+  /// Shrinks the cropped square to the avatar format and stores it.
+  /// Returns true when the new avatar is live on the profile.
+  Future<bool> uploadCropped(Uint8List croppedBytes) async {
     state = const AsyncLoading();
     try {
-      final bytes = await cropped.readAsBytes();
+      // Decode/resize/encode off the UI thread — a 1600px source is real work.
+      final bytes = await compute(_toAvatarJpeg, croppedBytes);
+
       final userId = ref.read(supabaseClientProvider).auth.currentUser?.id;
       if (userId == null) {
         throw const AuthFailure('Signed out');
@@ -128,4 +101,24 @@ class AvatarController extends _$AvatarController {
       return false;
     }
   }
+}
+
+/// Isolate entry: any input encoding → 512px/82q jpeg square.
+Uint8List _toAvatarJpeg(Uint8List input) {
+  final decoded = img.decodeImage(input);
+  if (decoded == null) {
+    throw const FormatException('Undecodable image');
+  }
+  final resized =
+      (decoded.width > AvatarController._outputDimension ||
+          decoded.height > AvatarController._outputDimension)
+      ? img.copyResize(
+          decoded,
+          width: AvatarController._outputDimension,
+          height: AvatarController._outputDimension,
+        )
+      : decoded;
+  return Uint8List.fromList(
+    img.encodeJpg(resized, quality: AvatarController._jpegQuality),
+  );
 }

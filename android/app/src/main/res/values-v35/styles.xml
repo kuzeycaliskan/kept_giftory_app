@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- API 35+ enforces edge-to-edge; uCrop's toolbar doesn't inset itself,
-         so opt its activity out (flag exists from API 35). -->
-    <style name="UcropTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
-    </style>
-</resources>

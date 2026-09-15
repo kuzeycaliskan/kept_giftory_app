@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  crop_your_image: ^2.0.0
   crypto: ^3.0.7
   cupertino_icons: ^1.0.8
   firebase_core: ^4.14.0
@@ -44,7 +45,7 @@ dependencies:
   freezed_annotation: ^2.4.4
   go_router: ^14.6.2
   google_sign_in: ^7.2.0
-  image_cropper: ^8.0.2
+  image: ^4.2.0
   image_picker: ^1.2.1
   intl: ^0.20.2
   json_annotation: ^4.9.0

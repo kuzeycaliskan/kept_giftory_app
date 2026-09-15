@@ -15,9 +15,4 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
-    <!-- image_cropper: uCrop hosts its own activity; on API 35+ the
-         edge-to-edge enforcement pushed its toolbar under the status bar
-         (title/confirm hidden behind the clock) — the v35 variant of this
-         style opts out. -->
-    <style name="UcropTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
 </resources>

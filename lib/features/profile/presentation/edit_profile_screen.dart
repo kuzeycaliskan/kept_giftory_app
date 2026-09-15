@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +9,7 @@ import 'package:kept/features/profile/application/avatar_controller.dart';
 import 'package:kept/features/profile/application/edit_profile_controller.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/profile/presentation/avatar_crop_screen.dart';
 import 'package:kept/shared/widgets/avatar_preview.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
@@ -89,16 +92,22 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
 
   Future<void> _pickFrom(ImageSource source) async {
     final l10n = context.l10n;
-    final colors = Theme.of(context).colorScheme;
     final messenger = ScaffoldMessenger.of(context);
-    final ok = await ref
-        .read(avatarControllerProvider.notifier)
-        .pickAndUpload(
-          source,
-          cropTitle: l10n.avatarCropTitle,
-          accentColor: colors.primary,
-          onAccentColor: colors.onPrimary,
-        );
+    final navigator = Navigator.of(context);
+    final controller = ref.read(avatarControllerProvider.notifier);
+
+    final original = await controller.pickImage(source);
+    if (original == null || !mounted) return;
+
+    final cropped = await navigator.push<Uint8List>(
+      MaterialPageRoute(
+        builder: (_) => AvatarCropScreen(imageBytes: original),
+        fullscreenDialog: true,
+      ),
+    );
+    if (cropped == null) return; // backed out of the crop screen
+
+    final ok = await controller.uploadCropped(cropped);
     if (ok) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.avatarUpdated)));
     }
