@@ -33,5 +33,16 @@ void main() {
     await tester.tap(find.byType(CloseButton));
     await tester.pumpAndSettle();
     expect(find.byType(InteractiveViewer), findsNothing);
+
+    // Reopen: tapping the backdrop (outside the image) also dismisses,
+    // while tapping the image itself keeps the preview open.
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.person_outline)); // the image slot
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.tapAt(const Offset(10, 580)); // backdrop corner
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsNothing);
   });
 }

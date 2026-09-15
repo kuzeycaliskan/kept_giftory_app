@@ -34,24 +34,30 @@ class _AvatarPreview extends StatelessWidget {
         foregroundColor: Colors.white,
         leading: CloseButton(onPressed: () => Navigator.of(context).pop()),
       ),
+      // Tap anywhere outside the image dismisses; the image itself absorbs
+      // taps so panning/zooming never accidentally closes the preview.
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.of(context).pop(),
         child: Center(
           child: InteractiveViewer(
             maxScale: 4,
-            child: Image.network(
-              url,
-              semanticLabel: label,
-              fit: BoxFit.contain,
-              loadingBuilder: (context, child, progress) => progress == null
-                  ? child
-                  : const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-              errorBuilder: (context, error, stack) => const Icon(
-                Icons.person_outline,
-                size: 96,
-                color: Colors.white54,
+            child: GestureDetector(
+              onTap: () {},
+              child: Image.network(
+                url,
+                semanticLabel: label,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, progress) => progress == null
+                    ? child
+                    : const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                errorBuilder: (context, error, stack) => const Icon(
+                  Icons.person_outline,
+                  size: 96,
+                  color: Colors.white54,
+                ),
               ),
             ),
           ),
