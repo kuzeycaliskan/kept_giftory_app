@@ -106,10 +106,10 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   batches of 200, max 5 per tick, storage failure aborts with rows intact
   (retried next tick). `?dry=1` reports the due count. Same secret header as
   the reminders (`CRON_SECRET`).
-- **Schedule (cloud, one-time — TODO on deploy):** pg_cron job
-  `purge-expired-posts-hourly` at `15 * * * *` calling the function through
-  pg_net with the Vault-held secret (mirror the `birthday-reminders-daily` job
-  definition, swapping the function URL).
+- **Schedule:** migration `20260916110000_purge_posts_cron.sql` creates the
+  pg_cron job `purge-expired-posts-hourly` (`15 * * * *`, pg_net → function,
+  secret read from Vault at run time). Cloud-only by construction: skipped
+  where the Vault secret is absent (local stacks). Re-runnable.
 - **Account deletion** removes the user's `avatars/<uid>` and `posts/<uid>`
   folders before the auth user (no FK cascade reaches Storage).
 - pgTAP 49-62 cover lifetime forcing, visibility, immutability, storage
