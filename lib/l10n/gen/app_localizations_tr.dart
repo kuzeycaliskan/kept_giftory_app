@@ -86,25 +86,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get tabMe => 'Ben';
 
   @override
-  String get quickAddLogGift => 'Hediye kaydet';
-
-  @override
-  String get quickAddLogGiftSubtitle => 'Bir arkadaşıma hediye aldım';
-
-  @override
-  String get quickAddWishlist => 'Wishlist\'e ekle';
-
-  @override
-  String get quickAddWishlistSubtitle => 'İstediğim bir şey';
-
-  @override
-  String get quickAddFriend => 'Arkadaş ekle';
-
-  @override
-  String get quickAddFriendSubtitle =>
-      'Kullanıcı adıyla ara veya davet kodunu paylaş';
-
-  @override
   String get homeUpcomingSection => 'Yaklaşanlar';
 
   @override
@@ -705,4 +686,72 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get avatarCropTitle => 'Fotoğrafı ayarla';
+
+  @override
+  String get commonRetry => 'Tekrar dene';
+
+  @override
+  String get storiesYou => 'Sen';
+
+  @override
+  String get storiesAddHint => 'Bir an paylaş';
+
+  @override
+  String get storiesEmptyHint =>
+      'Arkadaşlarının anları 24 saat boyunca burada görünür.';
+
+  @override
+  String get storiesError => 'Anlar yüklenemedi';
+
+  @override
+  String get composeTitle => 'Yeni an';
+
+  @override
+  String get composeCaptionHint => 'Bir şeyler yaz (isteğe bağlı)';
+
+  @override
+  String get composeShare => 'Paylaş';
+
+  @override
+  String get composeShared => 'Paylaşıldı. 24 saat sonra kaybolur.';
+
+  @override
+  String get composeFailed => 'Paylaşılamadı. Tekrar dene.';
+
+  @override
+  String get cameraUnavailable => 'Kamera açılamadı';
+
+  @override
+  String get storyMoreActions => 'Daha fazla';
+
+  @override
+  String get storyDelete => 'Anı sil';
+
+  @override
+  String get storyDeleteConfirmTitle => 'Bu an silinsin mi?';
+
+  @override
+  String get storyDeleteConfirmBody => 'Herkes için hemen kaybolur.';
+
+  @override
+  String get storyDeleted => 'An silindi';
+
+  @override
+  String get storyDeleteFailed => 'Silinemedi. Tekrar dene.';
+
+  @override
+  String get storyJustNow => 'Az önce';
+
+  @override
+  String storyMinutesAgo(int minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String storyHoursAgo(int hours) {
+    return '$hours sa';
+  }
+
+  @override
+  String get storyImageError => 'Fotoğraf yüklenemedi';
 }

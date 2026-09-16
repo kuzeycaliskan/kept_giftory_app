@@ -6,11 +6,13 @@ part of 'avatar_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$avatarControllerHash() => r'71c081a2e2732dcbca28669ecd8b9237adcc3e0a';
+String _$avatarControllerHash() => r'949cf5f14fa7524e1c33e7dac35e3e992dee92d5';
 
-/// Picks, shrinks and uploads the user's avatar (G-23 handover; first
-/// MediaStore consumer). Path layout '<uid>/avatar-<epoch>.jpg' gives free
-/// cache-busting; the previous file is best-effort deleted after success.
+/// Avatar pipeline (G-23 handover; first MediaStore consumer), split in two
+/// steps so the UI can host the in-app crop screen between them:
+/// [pickImage] → (AvatarCropScreen) → [uploadCropped]. Path layout
+/// '<uid>/avatar-<epoch>.jpg' gives free cache-busting; the previous file
+/// is best-effort deleted after success.
 ///
 /// Copied from [AvatarController].
 @ProviderFor(AvatarController)

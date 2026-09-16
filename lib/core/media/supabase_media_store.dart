@@ -88,4 +88,22 @@ class SupabaseMediaStore implements MediaStore {
   @override
   String publicUrl({required String bucket, required String path}) =>
       _client.storage.from(bucket).getPublicUrl(path);
+
+  /// Private objects go through the `authenticated` endpoint with the same
+  /// explicit bearer token as uploads — the image loader sends the headers,
+  /// Storage RLS decides. No signed URLs to mint, cache or expire.
+  @override
+  PrivateMediaSource? privateSource({
+    required String bucket,
+    required String path,
+  }) {
+    final headers = _authHeaders();
+    if (headers == null) return null;
+    return PrivateMediaSource(
+      uri: Uri.parse(
+        '${_client.storage.url}/object/authenticated/$bucket/$path',
+      ),
+      headers: headers,
+    );
+  }
 }

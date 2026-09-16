@@ -6,6 +6,9 @@ import 'package:kept/features/activity/presentation/activity_screen.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
+import 'package:kept/features/feed/presentation/compose_post_screen.dart';
+import 'package:kept/features/feed/presentation/moment_capture.dart';
+import 'package:kept/features/feed/presentation/story_viewer_screen.dart';
 import 'package:kept/features/friends/presentation/friend_search_screen.dart';
 import 'package:kept/features/friends/presentation/friends_screen.dart';
 import 'package:kept/features/gifts/presentation/friend_gifts_screen.dart';
@@ -168,6 +171,19 @@ GoRouter appRouter(Ref ref) {
             builder: (context, state) => const BlockedUsersScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: composePostRoute,
+        name: 'compose-post',
+        builder: (context, state) =>
+            ComposePostScreen(imageBytes: state.extra! as Uint8List),
+      ),
+      GoRoute(
+        path: '/stories/:authorId',
+        name: 'stories',
+        builder: (context, state) => StoryViewerScreen(
+          initialAuthorId: state.pathParameters['authorId']!,
+        ),
       ),
       GoRoute(
         path: '/gifts/log',

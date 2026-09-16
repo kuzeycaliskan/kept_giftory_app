@@ -1,13 +1,11 @@
 {
   "@@locale": "tr",
-
   "appTitle": "Kept",
   "signInTagline": "Sahip oldukların, zevkin, eşyaların.",
   "signInWithApple": "Apple ile devam et",
   "signInWithGoogle": "Google ile devam et",
   "signInDevMode": "Dev modunda devam et (sadece debug)",
   "errorSignInFailed": "Giriş başarısız. Lütfen tekrar dene.",
-
   "onboardingUsernameTitle": "Kullanıcı adı seç",
   "onboardingAboutTitle": "Senin hakkında",
   "usernameLabel": "Kullanıcı adı",
@@ -22,19 +20,10 @@
   "continueLabel": "Devam",
   "finishLabel": "Bitir",
   "errorGeneric": "Bir şeyler ters gitti. Lütfen tekrar dene.",
-
   "tabHome": "Ana Sayfa",
   "tabGifts": "Hediyeler",
   "tabAdd": "Ekle",
   "tabMe": "Ben",
-
-  "quickAddLogGift": "Hediye kaydet",
-  "quickAddLogGiftSubtitle": "Bir arkadaşıma hediye aldım",
-  "quickAddWishlist": "Wishlist'e ekle",
-  "quickAddWishlistSubtitle": "İstediğim bir şey",
-  "quickAddFriend": "Arkadaş ekle",
-  "quickAddFriendSubtitle": "Kullanıcı adıyla ara veya davet kodunu paylaş",
-
   "homeUpcomingSection": "Yaklaşanlar",
   "homeWishlistSection": "Arkadaşlarının isteklerinden",
   "homeWishlistError": "Arkadaş istekleri yüklenemedi",
@@ -58,7 +47,6 @@
   "homeGiftCta": "Hediye",
   "homeUpcomingError": "Yaklaşan doğum günleri yüklenemedi",
   "homeUsernameCountdown": "@{username} · {countdown}",
-
   "giftsTitle": "Hediyeler",
   "giftsGivenTab": "Verdiklerim",
   "giftsReceivedTab": "Aldıklarım",
@@ -89,7 +77,6 @@
   "relationFriend": "Arkadaşımdan (Kept'te değil)",
   "relationCoworker": "İş arkadaşımdan",
   "relationOther": "Başka birinden",
-
   "logGiftDateLabel": "Tarih",
   "logGiftSurprise": "Sürpriz",
   "logGiftSurpriseHint": "Açığa çıkma tarihine kadar alıcıdan gizli",
@@ -103,7 +90,6 @@
   "friendGiftsTitle": "{name} · Hediye geçmişi",
   "friendGiftsEmpty": "Henüz hediye geçmişi yok",
   "giftHistoryTooltip": "Hediye geçmişi",
-
   "wishlistAddTitle": "Wishlist'e ekle",
   "wishlistMineTitle": "Wishlist'im",
   "wishlistOfUser": "{name} · Wishlist",
@@ -119,7 +105,6 @@
   "wishlistDeletedSnack": "Wishlist'inden çıkarıldı",
   "linkPreviewRemove": "Önizlemeyi kaldır",
   "commonSave": "Kaydet",
-
   "meTitle": "Ben",
   "meProfileFallback": "Profil",
   "meProfileError": "Profil yüklenemedi",
@@ -139,7 +124,6 @@
   "legalTermsOfUse": "Kullanım Şartları",
   "legalOpenError": "Sayfa açılamadı.",
   "errorSessionInvalid": "Oturumun artık geçerli değil — lütfen tekrar giriş yap.",
-
   "friendsTitle": "Arkadaşlar",
   "friendsRequestsSection": "İstekler",
   "friendsEmpty": "Henüz arkadaşın yok",
@@ -154,7 +138,6 @@
   "friendRemoveConfirmBody": "{name} artık sadece-arkadaşlar bölümlerini göremeyecek.",
   "commonCancel": "Vazgeç",
   "commonDone": "Tamam",
-
   "profileTabWishlist": "Wishlist",
   "profileTabHistory": "Hediyeler",
   "profileTabAbout": "Hakkında",
@@ -165,7 +148,6 @@
   "profileAboutOccupation": "Meslek",
   "friendAdd": "Arkadaş ekle",
   "friendStatusFriends": "Arkadaşsınız",
-
   "inviteTitle": "Arkadaşlarını davet et",
   "inviteYourCode": "Davet kodun",
   "inviteShareButton": "Kodu paylaş",
@@ -176,11 +158,9 @@
   "inviteRedeemSuccess": "{name} ile artık arkadaşsınız",
   "inviteInvalidCode": "Kod işe yaramadı — kontrol edip tekrar dene",
   "inviteError": "Davet kodun yüklenemedi",
-
   "activityTitle": "Aktivite",
   "activityTooltip": "Aktivite",
   "activityEmpty": "Henüz bir şey yok",
-
   "settingsPrivacySection": "Mahremiyet",
   "privacyTitle": "Mahremiyet",
   "privacyEntry": "Profilimi kimler görebilir",
@@ -196,7 +176,6 @@
   "visibilityPrivate": "Kapalı",
   "privacyUpdateError": "Ayar kaydedilemedi — lütfen tekrar dene.",
   "privacyCapNote": "Profilin yalnızca arkadaşlarına görünürken diğer bölümler bundan daha açık olamaz — önce profilini Herkese açık yap.",
-
   "searchTooltip": "Kişi ara",
   "searchHint": "Kullanıcı adı veya isimle ara",
   "searchClear": "Aramayı temizle",
@@ -205,7 +184,6 @@
   "searchError": "Arama başarısız — lütfen tekrar dene.",
   "profilePrivateTitle": "Bu profil gizli",
   "profilePrivateBody": "Profilini, wishlist'ini ve hediye geçmişini görmek için arkadaş olarak ekle.",
-
   "safetyMenuTooltip": "Diğer seçenekler",
   "blockAction": "Engelle",
   "blockConfirmTitle": "Bu kullanıcı engellensin mi?",
@@ -223,11 +201,9 @@
   "reportDetailsLabel": "Ayrıntılar (isteğe bağlı)",
   "reportSubmit": "Şikayeti gönder",
   "reportSuccess": "Teşekkürler — bu şikayeti inceleyeceğiz.",
-
   "settingsNotificationsSection": "Bildirimler",
   "notifBirthdayReminders": "Doğum günü hatırlatmaları",
   "notifBirthdayRemindersDesc": "Bir arkadaşının doğum gününden birkaç gün önce bildirim al",
-
   "editProfileTitle": "Profili düzenle",
   "editProfileUsernameLocked": "Kullanıcı adı değiştirilemez.",
   "editProfileBioLabel": "Hakkında",
@@ -235,5 +211,26 @@
   "avatarFromGallery": "Galeriden seç",
   "avatarFromCamera": "Fotoğraf çek",
   "avatarUpdated": "Profil fotoğrafı güncellendi.",
-  "avatarCropTitle": "Fotoğrafı ayarla"
+  "avatarCropTitle": "Fotoğrafı ayarla",
+  "commonRetry": "Tekrar dene",
+  "storiesYou": "Sen",
+  "storiesAddHint": "Bir an paylaş",
+  "storiesEmptyHint": "Arkadaşlarının anları 24 saat boyunca burada görünür.",
+  "storiesError": "Anlar yüklenemedi",
+  "composeTitle": "Yeni an",
+  "composeCaptionHint": "Bir şeyler yaz (isteğe bağlı)",
+  "composeShare": "Paylaş",
+  "composeShared": "Paylaşıldı. 24 saat sonra kaybolur.",
+  "composeFailed": "Paylaşılamadı. Tekrar dene.",
+  "cameraUnavailable": "Kamera açılamadı",
+  "storyMoreActions": "Daha fazla",
+  "storyDelete": "Anı sil",
+  "storyDeleteConfirmTitle": "Bu an silinsin mi?",
+  "storyDeleteConfirmBody": "Herkes için hemen kaybolur.",
+  "storyDeleted": "An silindi",
+  "storyDeleteFailed": "Silinemedi. Tekrar dene.",
+  "storyJustNow": "Az önce",
+  "storyMinutesAgo": "{minutes} dk",
+  "storyHoursAgo": "{hours} sa",
+  "storyImageError": "Fotoğraf yüklenemedi"
 }

@@ -17,6 +17,8 @@ void main() {
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Gifts'), findsOneWidget);
+    // The center slot is the camera (G-201); the compose flow is covered in
+    // test/features/feed/feed_flow_test.dart.
     expect(find.text('Add'), findsOneWidget);
     expect(find.text('Me'), findsOneWidget);
   });
@@ -36,26 +38,6 @@ void main() {
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
     expect(find.text('Upcoming'), findsOneWidget);
-  });
-
-  testWidgets('Add opens the quick-add sheet instead of navigating', (
-    tester,
-  ) async {
-    await pumpApp(tester);
-
-    await tester.tap(find.text('Add'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Log a gift'), findsOneWidget);
-    expect(find.text('Add to wishlist'), findsOneWidget);
-    expect(find.text('Add a friend'), findsOneWidget);
-    // Shell is still on Home underneath.
-    expect(find.byType(NavigationBar), findsOneWidget);
-
-    // The friend row leads to the Friends hub (search + invite + requests).
-    await tester.tap(find.text('Add a friend'));
-    await tester.pumpAndSettle();
-    expect(find.text('No friends yet'), findsOneWidget);
   });
 
   testWidgets('activity bell opens the activity screen', (tester) async {

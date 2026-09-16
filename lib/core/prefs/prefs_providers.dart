@@ -14,4 +14,5 @@ Future<SharedPreferences> sharedPreferences(Ref ref) =>
 abstract final class PrefKeys {
   static const hideSurpriseOffWarning = 'hide_surprise_off_warning';
   static const pushPrimingDismissed = 'push_priming_dismissed';
+  static const seenPostIds = 'seen_post_ids';
 }

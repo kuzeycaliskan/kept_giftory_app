@@ -194,6 +194,9 @@ void main() {
 
     expect(find.text("From friends' wishlists"), findsOneWidget);
     expect(find.text('Ski goggles'), findsOneWidget);
+    // The stories strip (G-202) sits above; the lower sections need a scroll.
+    await tester.drag(find.text('Upcoming'), const Offset(0, -400));
+    await tester.pumpAndSettle();
     expect(find.text('Activity'), findsOneWidget);
     expect(find.text('Zeynep logged a gift for you'), findsOneWidget);
   });
@@ -205,6 +208,8 @@ void main() {
       friendEntries: const [acceptedFriend],
     );
 
+    await tester.drag(find.text('Upcoming'), const Offset(0, -400));
+    await tester.pumpAndSettle();
     expect(find.text('Invite'), findsNWidgets(2));
     expect(find.textContaining('gift ideas pile up'), findsOneWidget);
   });

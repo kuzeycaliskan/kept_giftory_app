@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
-import 'package:kept/features/shell/presentation/quick_add_sheet.dart';
+import 'package:kept/features/feed/presentation/moment_capture.dart';
 
-/// V1 navigation shell (G-81): bottom tabs Home / Gifts / ➕ Add / Me.
-/// Add is an action (opens [QuickAddSheet]), not a tab — per the locked
-/// navigation decision it becomes the camera in V2.
-class AppShell extends StatelessWidget {
+/// Navigation shell (G-81): bottom tabs Home / Gifts / ➕ / Me.
+/// The center slot is an action, not a tab: per the locked navigation
+/// decision it opens the camera (G-201) — a moment is taken, not picked.
+class AppShell extends ConsumerWidget {
   const AppShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
@@ -20,9 +21,9 @@ class AppShell extends StatelessWidget {
     return branch < _addDestinationIndex ? branch : branch + 1;
   }
 
-  void _onDestinationSelected(BuildContext context, int index) {
+  void _onDestinationSelected(BuildContext context, WidgetRef ref, int index) {
     if (index == _addDestinationIndex) {
-      QuickAddSheet.show(context);
+      captureMoment(context, ref);
       return;
     }
     final branch = index < _addDestinationIndex ? index : index - 1;
@@ -33,14 +34,14 @@ class AppShell extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedDestination,
         onDestinationSelected: (index) =>
-            _onDestinationSelected(context, index),
+            _onDestinationSelected(context, ref, index),
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),
@@ -53,8 +54,8 @@ class AppShell extends StatelessWidget {
             label: l10n.tabGifts,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.add_circle_outline),
-            selectedIcon: const Icon(Icons.add_circle),
+            icon: const Icon(Icons.photo_camera_outlined),
+            selectedIcon: const Icon(Icons.photo_camera),
             label: l10n.tabAdd,
           ),
           NavigationDestination(

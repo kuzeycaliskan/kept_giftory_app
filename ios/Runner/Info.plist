@@ -65,7 +65,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Kept uses the camera to take your profile photo.</string>
+	<string>Kept uses the camera to take your profile photo and to share moments with friends.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Kept uses your photo library to choose a profile photo.</string>
 </dict>

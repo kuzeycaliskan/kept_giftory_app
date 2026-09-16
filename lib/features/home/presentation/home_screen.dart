@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/feed/application/feed_providers.dart';
+import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
@@ -12,9 +14,9 @@ import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Home dashboard (G-82).
 ///
-/// Shows friends' upcoming birthdays; the bell (with a pending-request
-/// badge) opens the Activity center (G-86). A social activity feed arrives
-/// with V2 (G-210).
+/// Friends' live moments (stories strip, G-202) on top, then upcoming
+/// birthdays; the bell (with a pending-request badge) opens the Activity
+/// center (G-86). Feed + dashboard merge fully with G-210.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -81,6 +83,7 @@ class HomeScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref
+            ..invalidate(storyGroupsProvider)
             ..invalidate(upcomingBirthdaysProvider)
             ..invalidate(friendWishlistFeedProvider)
             ..invalidate(homeEventsProvider)
@@ -91,6 +94,8 @@ class HomeScreen extends ConsumerWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
+            const StoriesStrip(),
+            const SizedBox(height: 16),
             const _PushPrimingCard(),
             _SectionHeader(title: l10n.homeUpcomingSection),
             const SizedBox(height: 8),

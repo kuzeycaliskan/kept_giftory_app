@@ -1,26 +1,28 @@
 {
   "@@locale": "en",
-
   "appTitle": "Kept",
   "signInTagline": "What you own, your taste, your things.",
   "signInWithApple": "Continue with Apple",
   "signInWithGoogle": "Continue with Google",
   "signInDevMode": "Continue in dev mode (debug only)",
   "errorSignInFailed": "Sign-in failed. Please try again.",
-
   "onboardingUsernameTitle": "Choose a username",
   "onboardingAboutTitle": "About you",
   "usernameLabel": "Username",
   "usernameTooShort": "At least {min} characters",
   "@usernameTooShort": {
     "placeholders": {
-      "min": { "type": "int" }
+      "min": {
+        "type": "int"
+      }
     }
   },
   "usernameTooLong": "At most {max} characters",
   "@usernameTooLong": {
     "placeholders": {
-      "max": { "type": "int" }
+      "max": {
+        "type": "int"
+      }
     }
   },
   "usernameInvalidCharacters": "Only letters, numbers and underscore",
@@ -32,19 +34,10 @@
   "continueLabel": "Continue",
   "finishLabel": "Finish",
   "errorGeneric": "Something went wrong. Please try again.",
-
   "tabHome": "Home",
   "tabGifts": "Gifts",
   "tabAdd": "Add",
   "tabMe": "Me",
-
-  "quickAddLogGift": "Log a gift",
-  "quickAddLogGiftSubtitle": "I bought a gift for a friend",
-  "quickAddWishlist": "Add to wishlist",
-  "quickAddWishlistSubtitle": "Something I want",
-  "quickAddFriend": "Add a friend",
-  "quickAddFriendSubtitle": "Search by username or share your invite code",
-
   "homeUpcomingSection": "Upcoming",
   "homeWishlistSection": "From friends' wishlists",
   "homeWishlistError": "Could not load friends' wishes",
@@ -55,13 +48,17 @@
   "homeEventFriend": "You and {name} became friends",
   "@homeEventFriend": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "homeEventGift": "{name} logged a gift for you",
   "@homeEventGift": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "homeInviteCta": "Invite",
@@ -77,7 +74,9 @@
   "homeCountdownInDays": "In {days} days",
   "@homeCountdownInDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "homeGiftCta": "Gift",
@@ -85,11 +84,14 @@
   "homeUsernameCountdown": "@{username} · {countdown}",
   "@homeUsernameCountdown": {
     "placeholders": {
-      "username": { "type": "String" },
-      "countdown": { "type": "String" }
+      "username": {
+        "type": "String"
+      },
+      "countdown": {
+        "type": "String"
+      }
     }
   },
-
   "giftsTitle": "Gifts",
   "giftsGivenTab": "Given",
   "giftsReceivedTab": "Received",
@@ -114,7 +116,9 @@
   "giftFromRelation": "From: {relation}",
   "@giftFromRelation": {
     "placeholders": {
-      "relation": { "type": "String" }
+      "relation": {
+        "type": "String"
+      }
     }
   },
   "relationMother": "Mom",
@@ -125,7 +129,6 @@
   "relationFriend": "Friend (not on Kept)",
   "relationCoworker": "Coworker",
   "relationOther": "Someone else",
-
   "logGiftDateLabel": "Date",
   "logGiftSurprise": "Surprise",
   "logGiftSurpriseHint": "Hidden from the recipient until the reveal date",
@@ -139,18 +142,21 @@
   "friendGiftsTitle": "{name} · Gift history",
   "@friendGiftsTitle": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "friendGiftsEmpty": "No gift history yet",
   "giftHistoryTooltip": "Gift history",
-
   "wishlistAddTitle": "Add to wishlist",
   "wishlistMineTitle": "My wishlist",
   "wishlistOfUser": "{name} · Wishlist",
   "@wishlistOfUser": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "wishlistEmptyMine": "Your wishlist is empty",
@@ -165,7 +171,6 @@
   "wishlistDeletedSnack": "Removed from your wishlist",
   "linkPreviewRemove": "Remove preview",
   "commonSave": "Save",
-
   "meTitle": "Me",
   "meProfileFallback": "Profile",
   "meProfileError": "Could not load profile",
@@ -185,7 +190,6 @@
   "legalTermsOfUse": "Terms of Use",
   "legalOpenError": "Couldn't open the page.",
   "errorSessionInvalid": "Your session is no longer valid — please sign in again.",
-
   "friendsTitle": "Friends",
   "friendsRequestsSection": "Requests",
   "friendsEmpty": "No friends yet",
@@ -200,19 +204,22 @@
   "friendRemoveConfirmBody": "{name} will no longer see your friends-only sections.",
   "@friendRemoveConfirmBody": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "commonCancel": "Cancel",
   "commonDone": "Done",
-
   "profileTabWishlist": "Wishlist",
   "profileTabHistory": "Gifts",
   "profileTabAbout": "About",
   "profileFriendCount": "{count} friends",
   "@profileFriendCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "profileNotVisible": "This profile isn't visible",
@@ -221,14 +228,15 @@
   "profileAboutOccupation": "Occupation",
   "friendAdd": "Add friend",
   "friendStatusFriends": "Friends",
-
   "inviteTitle": "Invite friends",
   "inviteYourCode": "Your invite code",
   "inviteShareButton": "Share code",
   "inviteShareMessage": "Join me on Kept! My invite code: {code}",
   "@inviteShareMessage": {
     "placeholders": {
-      "code": { "type": "String" }
+      "code": {
+        "type": "String"
+      }
     }
   },
   "inviteEnterTitle": "Have a code?",
@@ -237,16 +245,16 @@
   "inviteRedeemSuccess": "You're now friends with {name}",
   "@inviteRedeemSuccess": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "inviteInvalidCode": "That code didn't work — check it and try again",
   "inviteError": "Could not load your invite code",
-
   "activityTitle": "Activity",
   "activityTooltip": "Activity",
   "activityEmpty": "Nothing here yet",
-
   "settingsPrivacySection": "Privacy",
   "privacyTitle": "Privacy",
   "privacyEntry": "Who can see my profile",
@@ -262,7 +270,6 @@
   "visibilityPrivate": "Private",
   "privacyUpdateError": "Couldn't save the setting — please try again.",
   "privacyCapNote": "While your profile is visible to friends only, other sections can't be more open than that — set your profile to Public first.",
-
   "searchTooltip": "Search people",
   "searchHint": "Search by username or name",
   "searchClear": "Clear search",
@@ -271,7 +278,6 @@
   "searchError": "Search failed — please try again.",
   "profilePrivateTitle": "This profile is private",
   "profilePrivateBody": "Add them as a friend to see their profile, wishlist and gift history.",
-
   "safetyMenuTooltip": "More options",
   "blockAction": "Block",
   "blockConfirmTitle": "Block this user?",
@@ -289,11 +295,9 @@
   "reportDetailsLabel": "Details (optional)",
   "reportSubmit": "Send report",
   "reportSuccess": "Thanks — we'll review this report.",
-
   "settingsNotificationsSection": "Notifications",
   "notifBirthdayReminders": "Birthday reminders",
   "notifBirthdayRemindersDesc": "Get notified a few days before a friend's birthday",
-
   "editProfileTitle": "Edit profile",
   "editProfileUsernameLocked": "Username can't be changed.",
   "editProfileBioLabel": "Bio",
@@ -301,5 +305,40 @@
   "avatarFromGallery": "Choose from gallery",
   "avatarFromCamera": "Take a photo",
   "avatarUpdated": "Profile photo updated.",
-  "avatarCropTitle": "Adjust photo"
+  "avatarCropTitle": "Adjust photo",
+  "commonRetry": "Retry",
+  "storiesYou": "You",
+  "storiesAddHint": "Share a moment",
+  "storiesEmptyHint": "Friends' moments show up here for 24 hours.",
+  "storiesError": "Couldn't load moments",
+  "composeTitle": "New moment",
+  "composeCaptionHint": "Say something (optional)",
+  "composeShare": "Share",
+  "composeShared": "Shared. Gone in 24 hours.",
+  "composeFailed": "Couldn't share. Try again.",
+  "cameraUnavailable": "Couldn't open the camera",
+  "storyMoreActions": "More",
+  "storyDelete": "Delete moment",
+  "storyDeleteConfirmTitle": "Delete this moment?",
+  "storyDeleteConfirmBody": "It disappears for everyone right away.",
+  "storyDeleted": "Moment deleted",
+  "storyDeleteFailed": "Couldn't delete. Try again.",
+  "storyJustNow": "Just now",
+  "storyMinutesAgo": "{minutes}m",
+  "@storyMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "storyHoursAgo": "{hours}h",
+  "@storyHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "storyImageError": "Photo unavailable"
 }

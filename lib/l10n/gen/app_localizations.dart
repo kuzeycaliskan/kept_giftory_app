@@ -242,42 +242,6 @@ abstract class AppLocalizations {
   /// **'Me'**
   String get tabMe;
 
-  /// No description provided for @quickAddLogGift.
-  ///
-  /// In en, this message translates to:
-  /// **'Log a gift'**
-  String get quickAddLogGift;
-
-  /// No description provided for @quickAddLogGiftSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'I bought a gift for a friend'**
-  String get quickAddLogGiftSubtitle;
-
-  /// No description provided for @quickAddWishlist.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to wishlist'**
-  String get quickAddWishlist;
-
-  /// No description provided for @quickAddWishlistSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Something I want'**
-  String get quickAddWishlistSubtitle;
-
-  /// No description provided for @quickAddFriend.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a friend'**
-  String get quickAddFriend;
-
-  /// No description provided for @quickAddFriendSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Search by username or share your invite code'**
-  String get quickAddFriendSubtitle;
-
   /// No description provided for @homeUpcomingSection.
   ///
   /// In en, this message translates to:
@@ -1405,6 +1369,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Adjust photo'**
   String get avatarCropTitle;
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// No description provided for @storiesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get storiesYou;
+
+  /// No description provided for @storiesAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a moment'**
+  String get storiesAddHint;
+
+  /// No description provided for @storiesEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends\' moments show up here for 24 hours.'**
+  String get storiesEmptyHint;
+
+  /// No description provided for @storiesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load moments'**
+  String get storiesError;
+
+  /// No description provided for @composeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New moment'**
+  String get composeTitle;
+
+  /// No description provided for @composeCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Say something (optional)'**
+  String get composeCaptionHint;
+
+  /// No description provided for @composeShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get composeShare;
+
+  /// No description provided for @composeShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared. Gone in 24 hours.'**
+  String get composeShared;
+
+  /// No description provided for @composeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t share. Try again.'**
+  String get composeFailed;
+
+  /// No description provided for @cameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the camera'**
+  String get cameraUnavailable;
+
+  /// No description provided for @storyMoreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get storyMoreActions;
+
+  /// No description provided for @storyDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete moment'**
+  String get storyDelete;
+
+  /// No description provided for @storyDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this moment?'**
+  String get storyDeleteConfirmTitle;
+
+  /// No description provided for @storyDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It disappears for everyone right away.'**
+  String get storyDeleteConfirmBody;
+
+  /// No description provided for @storyDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment deleted'**
+  String get storyDeleted;
+
+  /// No description provided for @storyDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete. Try again.'**
+  String get storyDeleteFailed;
+
+  /// No description provided for @storyJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get storyJustNow;
+
+  /// No description provided for @storyMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m'**
+  String storyMinutesAgo(int minutes);
+
+  /// No description provided for @storyHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h'**
+  String storyHoursAgo(int hours);
+
+  /// No description provided for @storyImageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo unavailable'**
+  String get storyImageError;
 }
 
 class _AppLocalizationsDelegate

@@ -87,25 +87,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabMe => 'Me';
 
   @override
-  String get quickAddLogGift => 'Log a gift';
-
-  @override
-  String get quickAddLogGiftSubtitle => 'I bought a gift for a friend';
-
-  @override
-  String get quickAddWishlist => 'Add to wishlist';
-
-  @override
-  String get quickAddWishlistSubtitle => 'Something I want';
-
-  @override
-  String get quickAddFriend => 'Add a friend';
-
-  @override
-  String get quickAddFriendSubtitle =>
-      'Search by username or share your invite code';
-
-  @override
   String get homeUpcomingSection => 'Upcoming';
 
   @override
@@ -708,4 +689,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get avatarCropTitle => 'Adjust photo';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get storiesYou => 'You';
+
+  @override
+  String get storiesAddHint => 'Share a moment';
+
+  @override
+  String get storiesEmptyHint => 'Friends\' moments show up here for 24 hours.';
+
+  @override
+  String get storiesError => 'Couldn\'t load moments';
+
+  @override
+  String get composeTitle => 'New moment';
+
+  @override
+  String get composeCaptionHint => 'Say something (optional)';
+
+  @override
+  String get composeShare => 'Share';
+
+  @override
+  String get composeShared => 'Shared. Gone in 24 hours.';
+
+  @override
+  String get composeFailed => 'Couldn\'t share. Try again.';
+
+  @override
+  String get cameraUnavailable => 'Couldn\'t open the camera';
+
+  @override
+  String get storyMoreActions => 'More';
+
+  @override
+  String get storyDelete => 'Delete moment';
+
+  @override
+  String get storyDeleteConfirmTitle => 'Delete this moment?';
+
+  @override
+  String get storyDeleteConfirmBody => 'It disappears for everyone right away.';
+
+  @override
+  String get storyDeleted => 'Moment deleted';
+
+  @override
+  String get storyDeleteFailed => 'Couldn\'t delete. Try again.';
+
+  @override
+  String get storyJustNow => 'Just now';
+
+  @override
+  String storyMinutesAgo(int minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String storyHoursAgo(int hours) {
+    return '${hours}h';
+  }
+
+  @override
+  String get storyImageError => 'Photo unavailable';
 }
