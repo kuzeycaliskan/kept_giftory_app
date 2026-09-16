@@ -105,7 +105,9 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - **Purge:** `functions/purge-expired-posts` — media removed BEFORE rows,
   batches of 200, max 5 per tick, storage failure aborts with rows intact
   (retried next tick). `?dry=1` reports the due count. Same secret header as
-  the reminders (`CRON_SECRET`).
+  the reminders (`CRON_SECRET`). **Deploy with `--no-verify-jwt`** (cron
+  carries no user JWT; the secret header is the auth) — the default
+  verify-jwt deploy answers 404 to the cron call.
 - **Schedule:** migration `20260916110000_purge_posts_cron.sql` creates the
   pg_cron job `purge-expired-posts-hourly` (`15 * * * *`, pg_net → function,
   secret read from Vault at run time). Cloud-only by construction: skipped
