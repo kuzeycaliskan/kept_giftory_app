@@ -46,7 +46,6 @@
   "homeCountdownInDays": "{days} gün sonra",
   "homeGiftCta": "Hediye",
   "homeUpcomingError": "Yaklaşan doğum günleri yüklenemedi",
-  "homeUsernameCountdown": "@{username} · {countdown}",
   "giftsTitle": "Hediyeler",
   "giftsGivenTab": "Verdiklerim",
   "giftsReceivedTab": "Aldıklarım",
@@ -232,5 +231,6 @@
   "storyJustNow": "Az önce",
   "storyMinutesAgo": "{minutes} dk",
   "storyHoursAgo": "{hours} sa",
-  "storyImageError": "Fotoğraf yüklenemedi"
+  "storyImageError": "Fotoğraf yüklenemedi",
+  "homeUsernameCountdown": "@{username} · {countdown}"
 }

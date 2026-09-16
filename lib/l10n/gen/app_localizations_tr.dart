@@ -162,11 +162,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeUpcomingError => 'Yaklaşan doğum günleri yüklenemedi';
 
   @override
-  String homeUsernameCountdown(String username, String countdown) {
-    return '@$username · $countdown';
-  }
-
-  @override
   String get giftsTitle => 'Hediyeler';
 
   @override
@@ -754,4 +749,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get storyImageError => 'Fotoğraf yüklenemedi';
+
+  @override
+  String homeUsernameCountdown(String username, String countdown) {
+    return '@$username · $countdown';
+  }
 }

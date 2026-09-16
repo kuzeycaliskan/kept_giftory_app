@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
@@ -11,6 +12,7 @@ import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/push/application/push_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
+import 'package:kept/shared/widgets/kept_list_group.dart';
 
 /// Home dashboard (G-82).
 ///
@@ -92,22 +94,24 @@ class HomeScreen extends ConsumerWidget {
         },
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(
+            KeptSpacing.lg,
+            KeptSpacing.sm,
+            KeptSpacing.lg,
+            KeptSpacing.lg,
+          ),
           children: [
             const StoriesStrip(),
-            const SizedBox(height: 16),
+            const SizedBox(height: KeptSpacing.lg),
             const _PushPrimingCard(),
             _SectionHeader(title: l10n.homeUpcomingSection),
-            const SizedBox(height: 8),
             _UpcomingSection(state: upcoming),
             if (hasFriends) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: KeptSpacing.xl),
               _SectionHeader(title: l10n.homeWishlistSection),
-              const SizedBox(height: 8),
               _WishlistFeedSection(state: wishlistFeed),
-              const SizedBox(height: 24),
+              const SizedBox(height: KeptSpacing.xl),
               _SectionHeader(title: l10n.homeActivitySection),
-              const SizedBox(height: 8),
               _EventsSection(state: events),
             ],
           ],
@@ -176,6 +180,8 @@ class _PushPrimingCard extends ConsumerWidget {
   }
 }
 
+/// Section title with the group's left edge and a fixed gap below, so every
+/// section reads header → group with the same rhythm.
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title});
 
@@ -183,7 +189,13 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(title, style: Theme.of(context).textTheme.titleMedium);
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: KeptSpacing.xs,
+        bottom: KeptSpacing.sm,
+      ),
+      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+    );
   }
 }
 
@@ -227,16 +239,16 @@ class _UpcomingSection extends StatelessWidget {
             ),
           );
         }
-        return Column(
-          children: [for (final b in birthdays) _BirthdayCard(birthday: b)],
+        return KeptListGroup(
+          children: [for (final b in birthdays) _BirthdayRow(birthday: b)],
         );
       },
     );
   }
 }
 
-class _BirthdayCard extends StatelessWidget {
-  const _BirthdayCard({required this.birthday});
+class _BirthdayRow extends StatelessWidget {
+  const _BirthdayRow({required this.birthday});
 
   final UpcomingBirthday birthday;
 
@@ -249,25 +261,27 @@ class _BirthdayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
-      child: ListTile(
-        leading: KeptAvatar(
-          label: birthday.label,
-          avatarValue: birthday.avatarUrl,
-        ),
-        title: Text(birthday.label),
-        subtitle: Text(
-          l10n.homeUsernameCountdown(birthday.username, _countdown(context)),
-        ),
-        // Tap → the friend's profile (wishlist + history in its tabs).
-        onTap: () => context.push(
-          '/users/${birthday.friendId}'
-          '?name=${Uri.encodeComponent(birthday.label)}',
-        ),
-        trailing: FilledButton.tonal(
-          onPressed: () => context.push('/gifts/log'),
-          child: Text(l10n.homeGiftCta),
-        ),
+    return ListTile(
+      leading: KeptAvatar(
+        label: birthday.label,
+        avatarValue: birthday.avatarUrl,
+      ),
+      title: Text(birthday.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      // Countdown only: the username lives one tap away on the profile and
+      // "@name · in N days" wrapped onto two lines on narrow screens.
+      subtitle: Text(
+        _countdown(context),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      // Tap → the friend's profile (wishlist + history in its tabs).
+      onTap: () => context.push(
+        '/users/${birthday.friendId}'
+        '?name=${Uri.encodeComponent(birthday.label)}',
+      ),
+      trailing: FilledButton.tonal(
+        onPressed: () => context.push('/gifts/log'),
+        child: Text(l10n.homeGiftCta),
       ),
     );
   }
@@ -314,12 +328,11 @@ class _WishlistFeedSection extends StatelessWidget {
         if (items.isEmpty) {
           return _InviteNudge(message: l10n.homeWishlistEmptyNudge);
         }
-        return Column(
+        return KeptListGroup(
           children: [
             for (final item in items)
               ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.star_outline),
+                leading: const KeptIconBadge(Icons.star_outline),
                 title: Text(
                   item.title,
                   maxLines: 1,
@@ -362,12 +375,11 @@ class _EventsSection extends StatelessWidget {
         if (events.isEmpty) {
           return _InviteNudge(message: l10n.homeActivityEmptyNudge);
         }
-        return Column(
+        return KeptListGroup(
           children: [
             for (final event in events)
               ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(switch (event.kind) {
+                leading: KeptIconBadge(switch (event.kind) {
                   HomeEventKind.friendAccepted => Icons.group_add_outlined,
                   HomeEventKind.giftReceived => Icons.card_giftcard_outlined,
                 }),

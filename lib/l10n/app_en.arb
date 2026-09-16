@@ -81,17 +81,6 @@
   },
   "homeGiftCta": "Gift",
   "homeUpcomingError": "Could not load upcoming birthdays",
-  "homeUsernameCountdown": "@{username} · {countdown}",
-  "@homeUsernameCountdown": {
-    "placeholders": {
-      "username": {
-        "type": "String"
-      },
-      "countdown": {
-        "type": "String"
-      }
-    }
-  },
   "giftsTitle": "Gifts",
   "giftsGivenTab": "Given",
   "giftsReceivedTab": "Received",
@@ -340,5 +329,16 @@
       }
     }
   },
-  "storyImageError": "Photo unavailable"
+  "storyImageError": "Photo unavailable",
+  "homeUsernameCountdown": "@{username} · {countdown}",
+  "@homeUsernameCountdown": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      },
+      "countdown": {
+        "type": "String"
+      }
+    }
+  }
 }

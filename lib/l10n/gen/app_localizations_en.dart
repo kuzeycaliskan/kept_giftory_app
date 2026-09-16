@@ -162,11 +162,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUpcomingError => 'Could not load upcoming birthdays';
 
   @override
-  String homeUsernameCountdown(String username, String countdown) {
-    return '@$username · $countdown';
-  }
-
-  @override
   String get giftsTitle => 'Gifts';
 
   @override
@@ -756,4 +751,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storyImageError => 'Photo unavailable';
+
+  @override
+  String homeUsernameCountdown(String username, String countdown) {
+    return '@$username · $countdown';
+  }
 }

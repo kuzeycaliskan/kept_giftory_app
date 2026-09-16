@@ -16,6 +16,7 @@ class StoriesStrip extends ConsumerWidget {
   const StoriesStrip({super.key});
 
   static const double _ringRadius = 28;
+  static const double _ringOuterDiameter = 67;
   static const double _itemWidth = 76;
   static const double _height = 104;
 
@@ -56,25 +57,7 @@ class _StripContent extends ConsumerWidget {
           avatarValue: me?.avatarUrl,
         ),
         if (friends.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(
-              left: KeptSpacing.sm,
-              right: KeptSpacing.lg,
-            ),
-            child: SizedBox(
-              width: 200,
-              child: Center(
-                child: Text(
-                  l10n.storiesEmptyHint,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ),
-          )
+          const _EmptyHint()
         else
           for (final group in friends)
             _StoryRing(
@@ -86,6 +69,55 @@ class _StripContent extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Placeholder beside the camera ring when no friend has a live moment:
+/// boxed and aligned to the ring so it reads as part of the strip, not as
+/// stray text.
+class _EmptyHint extends StatelessWidget {
+  const _EmptyHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(right: KeptSpacing.sm),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: StoriesStrip._ringOuterDiameter,
+            constraints: const BoxConstraints(maxWidth: 240),
+            padding: const EdgeInsets.symmetric(horizontal: KeptSpacing.md),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest,
+              borderRadius: KeptRadius.cardAll,
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.group_outlined, color: scheme.onSurfaceVariant),
+                const SizedBox(width: KeptSpacing.sm),
+                Flexible(
+                  child: Text(
+                    context.l10n.storiesEmptyHint,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Mirrors the label row under a ring so the box centres on the ring.
+          const SizedBox(height: KeptSpacing.xs + _labelLineHeight),
+        ],
+      ),
+    );
+  }
+
+  static const double _labelLineHeight = 16;
 }
 
 /// First slot: own story when it exists (tap = watch, badge = add another),

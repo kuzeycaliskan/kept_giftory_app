@@ -374,12 +374,6 @@ abstract class AppLocalizations {
   /// **'Could not load upcoming birthdays'**
   String get homeUpcomingError;
 
-  /// No description provided for @homeUsernameCountdown.
-  ///
-  /// In en, this message translates to:
-  /// **'@{username} · {countdown}'**
-  String homeUsernameCountdown(String username, String countdown);
-
   /// No description provided for @giftsTitle.
   ///
   /// In en, this message translates to:
@@ -1495,6 +1489,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Photo unavailable'**
   String get storyImageError;
+
+  /// No description provided for @homeUsernameCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'@{username} · {countdown}'**
+  String homeUsernameCountdown(String username, String countdown);
 }
 
 class _AppLocalizationsDelegate

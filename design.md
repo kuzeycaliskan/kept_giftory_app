@@ -64,8 +64,14 @@ TÜRETİLMEZ — açık `fontSize` yazılır. (App bar başlığının 14'e dü�
   onay butonu kırmızı `FilledButton`.
 - **App bar düz:** yüzey renginde, gölgesiz, scroll'da renk değiştirmez.
 - **Listeler:** kart yığını değil; düz satırlar + hairline ayraç. Kart yalnız
-  "öne çıkan tekil içerik" için (Home doğum günü kartı gibi) ve düz (gölgesiz,
-  ince çerçeveli).
+  "öne çıkan tekil içerik" için ve düz (gölgesiz, ince çerçeveli).
+- **Gruplu liste (`KeptListGroup`, `shared/widgets`):** pano tipi ekranlarda
+  (Home bölümleri) satırlar tek hairline-çerçeveli konteynerde, aralarında
+  hairline ayraç; satır başı `ListTile` varsayılan iç boşluğu (kenar hizası kart
+  içeriğiyle aynı). İkon satırlarında ikon `KeptIconBadge` (40dp daire) içinde
+  durur ki avatarlı satırlarla aynı metin sütununu paylaşsın. Serbest duran
+  `ListTile` + `contentPadding: zero` bir bölümde kullanılmaz — "fırlatılmış"
+  görünür.
 - **Input'lar:** dolgulu (subtle gri), `KeptRadius.control`, çerçevesiz; odakta mor
   hairline.
 - **Snackbar:** yüzen, `KeptRadius.control`.
