@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(62);
+select plan(77);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -793,6 +793,156 @@ select lives_ok(
   '62: service_role can delete purged rows'
 );
 
+reset role;
+
+-- ── 63-77: gift photos (G-204) ──────────────────────────────────────────────
+-- erin (friend) gives alice a plain gift G1 and a pending surprise G2; carol
+-- is alice's friend (history 'friends'); dave is a stranger to alice.
+reset role;
+update public.profiles
+   set profile_visibility = 'friends', gift_history_visibility = 'friends'
+ where id = '00000000-0000-0000-0000-00000000000a';
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values
+  ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000e', '00000000-0000-0000-0000-00000000000a', 'Kupa', false, null),
+  ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000e', '00000000-0000-0000-0000-00000000000a', 'Saat', true, now() + interval '10 days');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000e', '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c01-1.jpg') $$,
+  '63: giver can add a photo to a gift they logged'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a/00000000-0000-0000-0000-000000000c01-1.jpg') $$,
+  '64: recipient can add a photo to a gift they received'
+);
+
+select lives_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a/00000000-0000-0000-0000-000000000c01-2.jpg') $$,
+  '65: third photo still fits the cap'
+);
+
+select throws_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a/00000000-0000-0000-0000-000000000c01-3.jpg') $$,
+  '23514',
+  null,
+  '66: a fourth photo is rejected by the cap'
+);
+
+select throws_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000e', '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c02-x.jpg') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_photos"',
+  '67: uploader_id cannot be forged'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+-- Uses G2 (no photos yet): on a full gift the cap trigger fires before the
+-- policy check and would mask the RLS rejection with 23514.
+select throws_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000d', '00000000-0000-0000-0000-00000000000d/00000000-0000-0000-0000-000000000c02-1.jpg') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_photos"',
+  '68: a stranger cannot attach photos to someone else''s gift'
+);
+
+select is(
+  (select count(*) from public.gift_photos where gift_id = '00000000-0000-0000-0000-000000000c01'),
+  0::bigint,
+  '69: stranger sees no photos of a friends-only history'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.gift_photos where gift_id = '00000000-0000-0000-0000-000000000c01'),
+  3::bigint,
+  '70: friend sees the photos through history visibility'
+);
+
+-- Surprise isolation carries over to photos.
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000e', '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c02-1.jpg') $$,
+  '71: giver can photograph a pending surprise'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.gift_photos where gift_id = '00000000-0000-0000-0000-000000000c02'),
+  0::bigint,
+  '72: recipient cannot see photos of an unrevealed surprise'
+);
+
+select throws_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path)
+     values ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a/00000000-0000-0000-0000-000000000c02-1.jpg') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_photos"',
+  '73: recipient cannot attach photos to an unrevealed surprise'
+);
+
+delete from public.gift_photos
+ where gift_id = '00000000-0000-0000-0000-000000000c01' and uploader_id = '00000000-0000-0000-0000-00000000000e';
+select is(
+  (select count(*) from public.gift_photos
+    where gift_id = '00000000-0000-0000-0000-000000000c01' and uploader_id = '00000000-0000-0000-0000-00000000000e'),
+  1::bigint,
+  '74: a party cannot delete the other party''s photo'
+);
+
+-- Storage objects follow the row.
+reset role;
+insert into storage.objects (bucket_id, name)
+values ('gift-media', '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c01-1.jpg');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select count(*) from storage.objects
+    where bucket_id = 'gift-media' and name = '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c01-1.jpg'),
+  1::bigint,
+  '75: friend can read a visible gift photo object'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select is(
+  (select count(*) from storage.objects
+    where bucket_id = 'gift-media' and name = '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c01-1.jpg'),
+  0::bigint,
+  '76: stranger cannot read the object by path'
+);
+
+set local role service_role;
+select lives_ok(
+  $$ select count(*) from public.gift_photos $$,
+  '77: service_role can enumerate gift photos (account deletion)'
+);
 reset role;
 
 select * from finish();

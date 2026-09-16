@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
@@ -102,6 +104,34 @@ class DevGiftRepository implements GiftRepository {
     _given.removeWhere((g) => g.id == giftId);
     return const Success(null);
   }
+
+  @override
+  Future<Result<GiftEntry?>> fetchGift(
+    String giftId, {
+    required bool counterpartIsGiver,
+  }) async {
+    final all = <GiftEntry>[
+      ...(await fetchGiven()).when(
+        success: (l) => l,
+        failure: (_) => const <GiftEntry>[],
+      ),
+      ...(await fetchReceived()).when(
+        success: (l) => l,
+        failure: (_) => const <GiftEntry>[],
+      ),
+    ];
+    return Success(all.where((g) => g.id == giftId).firstOrNull);
+  }
+
+  @override
+  Future<Result<GiftPhoto>> addPhoto({
+    required String giftId,
+    required Uint8List jpegBytes,
+  }) async => const ResultFailure(NetworkFailure('Dev mode: no storage'));
+
+  @override
+  Future<Result<void>> removePhoto(GiftPhoto photo) async =>
+      const ResultFailure(NetworkFailure('Dev mode: no storage'));
 }
 
 /// Backend-less fallback (no --dart-define config).
@@ -155,4 +185,20 @@ class EmptyGiftRepository implements GiftRepository {
 
   @override
   Future<Result<void>> delete(String giftId) async => const Success(null);
+
+  @override
+  Future<Result<GiftEntry?>> fetchGift(
+    String giftId, {
+    required bool counterpartIsGiver,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<GiftPhoto>> addPhoto({
+    required String giftId,
+    required Uint8List jpegBytes,
+  }) async => const ResultFailure(NetworkFailure('No backend configured'));
+
+  @override
+  Future<Result<void>> removePhoto(GiftPhoto photo) async =>
+      const ResultFailure(NetworkFailure('No backend configured'));
 }

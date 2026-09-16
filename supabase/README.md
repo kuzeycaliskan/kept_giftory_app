@@ -116,3 +116,20 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   folders before the auth user (no FK cascade reaches Storage).
 - pgTAP 49-62 cover lifetime forcing, visibility, immutability, storage
   read-through, expiry, and service_role purge grants.
+
+## Gift photos (G-204, decided 2026-09-16)
+
+- **Model:** the gift is the object; `gift_photos` rows hang off it (cap 3 via
+  the definer trigger `enforce_gift_photo_cap`, per-gift lock). Either party
+  (giver or recipient) adds; an uploader deletes only their own. Camera-only
+  capture is a product rule enforced in the app, not the DB.
+- **Visibility:** `gift_photos_select` defers to `gifts` RLS (subquery runs as
+  the caller) — surprise photos stay hidden from the recipient until reveal,
+  friend-history visibility carries over. The recipient can only attach once
+  the gift is visible to them (same mechanism).
+- **Bucket `gift-media` (private):** `<uploader uid>/<gift id>-<micros>.jpg`,
+  1 MB / image-jpeg caps; object readable through a visible `gift_photos` row.
+  Account deletion wipes `gift-media/<uid>/` with the other user folders.
+- `gifts.image_url` dropped (unused since G-51).
+- pgTAP 63-77. Note for new tests: on a full gift the cap trigger fires
+  before the RLS check (23514 masks 42501) — assert RLS on an empty gift.

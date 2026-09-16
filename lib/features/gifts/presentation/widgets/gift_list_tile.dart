@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:kept/features/gifts/presentation/widgets/gift_photo_strip.dart';
 
 /// House gift row (design.md §4): a consistent 48dp rounded leading — the
 /// product image when a preview is attached, otherwise a neutral tile with
@@ -15,6 +16,7 @@ class GiftListTile extends StatelessWidget {
   const GiftListTile({
     required this.gift,
     required this.directionIcon,
+    required this.counterpartIsGiver,
     this.showSurpriseBadge = false,
     super.key,
   });
@@ -22,6 +24,9 @@ class GiftListTile extends StatelessWidget {
   final GiftEntry gift;
   final IconData directionIcon;
   final bool showSurpriseBadge;
+
+  /// Forwarded to the detail route so it resolves the same counterpart.
+  final bool counterpartIsGiver;
 
   @override
   Widget build(BuildContext context) {
@@ -69,21 +74,31 @@ class GiftListTile extends StatelessWidget {
                 )
               : null);
 
+    final hasPhotos = gift.photos.isNotEmpty;
     return ListTile(
       leading: leading,
       title: Text(gift.item, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-        '$counterpart · $date',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      isThreeLine: hasPhotos,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$counterpart · $date',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (hasPhotos)
+            Padding(
+              padding: const EdgeInsets.only(top: KeptSpacing.xs),
+              child: GiftPhotoStrip(photos: gift.photos),
+            ),
+        ],
       ),
       trailing: trailing,
-      onTap: preview?.url == null
-          ? null
-          : () => launchUrl(
-              Uri.parse(preview!.url!),
-              mode: LaunchMode.externalApplication,
-            ),
+      // Everything (photos, link, note) lives on the detail screen.
+      onTap: () => context.push(
+        '/gifts/${gift.id}?side=${counterpartIsGiver ? 'giver' : 'recipient'}',
+      ),
     );
   }
 }

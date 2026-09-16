@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 
@@ -36,4 +37,21 @@ abstract interface class GiftRepository {
 
   /// Giver-only for member gifts; recipient-only for external ones (RLS).
   Future<Result<void>> delete(String giftId);
+
+  /// One gift with its photos; null when RLS hides it (or it was deleted).
+  /// [counterpartIsGiver] picks which side to resolve as the counterpart.
+  Future<Result<GiftEntry?>> fetchGift(
+    String giftId, {
+    required bool counterpartIsGiver,
+  });
+
+  /// Attaches an encoded JPEG to a gift (giver or recipient, cap 3 — the
+  /// server rejects the fourth). Storage + row are one logical write.
+  Future<Result<GiftPhoto>> addPhoto({
+    required String giftId,
+    required Uint8List jpegBytes,
+  });
+
+  /// Removes one of the caller's own photos (object first, then row).
+  Future<Result<void>> removePhoto(GiftPhoto photo);
 }

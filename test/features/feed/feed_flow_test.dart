@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kept/app.dart';
+import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
-import 'package:kept/features/feed/application/post_composer.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
@@ -31,7 +31,7 @@ void main() {
             picker ?? FakeImagePicker(null),
           ),
           // Skip the isolate hop: fake async and compute don't mix.
-          postEncoderProvider.overrideWithValue((bytes) async => bytes),
+          uploadEncoderProvider.overrideWithValue((bytes) async => bytes),
           if (asDevMe)
             profileRepositoryProvider.overrideWithValue(
               const DevProfileRepository(),
@@ -238,8 +238,8 @@ void main() {
     });
   });
 
-  test('toPostJpeg produces a jpeg from any decodable input', () {
-    final out = toPostJpeg(tinyPng);
+  test('toUploadJpeg produces a jpeg from any decodable input', () {
+    final out = toUploadJpeg(tinyPng);
     // JPEG SOI marker.
     expect(out[0], 0xFF);
     expect(out[1], 0xD8);

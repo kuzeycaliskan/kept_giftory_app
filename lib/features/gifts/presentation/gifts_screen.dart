@@ -126,7 +126,11 @@ class _GiftListPage extends ConsumerWidget {
               for (final gift in list)
                 given
                     ? _DismissibleGiftTile(gift: gift)
-                    : GiftListTile(gift: gift, directionIcon: Icons.south_west),
+                    : GiftListTile(
+                        gift: gift,
+                        directionIcon: Icons.south_west,
+                        counterpartIsGiver: true,
+                      ),
             ],
           ),
         );
@@ -197,6 +201,7 @@ class _DismissibleGiftTile extends ConsumerWidget {
       child: GiftListTile(
         gift: gift,
         directionIcon: Icons.north_east,
+        counterpartIsGiver: false,
         showSurpriseBadge: true,
       ),
     );

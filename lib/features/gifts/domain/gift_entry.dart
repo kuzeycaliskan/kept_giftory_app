@@ -14,6 +14,31 @@ enum GiftRelation {
   other,
 }
 
+/// Storage bucket for gift photos (private; readable through a visible
+/// gift_photos row only).
+const String giftMediaBucket = 'gift-media';
+
+/// Photos per gift — mirrors the `enforce_gift_photo_cap` trigger.
+const int giftPhotoCap = 3;
+
+/// One photo attached to a gift; either party may have added it.
+@immutable
+class GiftPhoto {
+  const GiftPhoto({
+    required this.id,
+    required this.giftId,
+    required this.uploaderId,
+    required this.mediaPath,
+    required this.createdAt,
+  });
+
+  final String id;
+  final String giftId;
+  final String uploaderId;
+  final String mediaPath;
+  final DateTime createdAt;
+}
+
 /// A gift row shaped for the UI: the counterpart is already resolved
 /// (recipient when listing given gifts, giver when listing received/history).
 /// A null [counterpartLabel] means the giver deleted their account (G-71
@@ -31,6 +56,9 @@ class GiftEntry {
     this.counterpartLabel,
     this.preview,
     this.giverRelation,
+    this.photos = const [],
+    this.giverId,
+    this.recipientId,
   });
 
   final String id;
@@ -49,6 +77,18 @@ class GiftEntry {
   /// Distinct from a null [counterpartLabel] with null relation, which means
   /// a DELETED member (anonymized).
   final GiftRelation? giverRelation;
+
+  /// Attached photos, oldest first (max [giftPhotoCap]).
+  final List<GiftPhoto> photos;
+
+  /// Raw party ids (giver null = external or deleted member). The detail
+  /// screen derives "may I add photos" from these, independent of which
+  /// list the gift was opened from.
+  final String? giverId;
+  final String? recipientId;
+
+  bool isParty(String? userId) =>
+      userId != null && (userId == giverId || userId == recipientId);
 
   /// Still hidden from the recipient (giver-side badge).
   bool get isPendingSurprise =>

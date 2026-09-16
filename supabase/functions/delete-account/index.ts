@@ -13,7 +13,7 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 /** Buckets whose objects live under '<uid>/...'. Keep in sync with MediaStore users. */
-const USER_MEDIA_BUCKETS = ["avatars", "posts"] as const;
+const USER_MEDIA_BUCKETS = ["avatars", "posts", "gift-media"] as const;
 
 /** Removes every object in `<uid>/` of a bucket. Returns an error message or null. */
 async function removeUserFolder(

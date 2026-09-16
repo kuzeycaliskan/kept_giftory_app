@@ -759,4 +759,35 @@ class AppLocalizationsTr extends AppLocalizations {
   String homeUsernameCountdown(String username, String countdown) {
     return '@$username · $countdown';
   }
+
+  @override
+  String get giftDetailTitle => 'Hediye';
+
+  @override
+  String get giftDetailMissing => 'Bu hediye artık görüntülenemiyor';
+
+  @override
+  String get giftDetailNoPhotos => 'Henüz fotoğraf yok';
+
+  @override
+  String get giftPhotoAdd => 'Fotoğraf çek';
+
+  @override
+  String get giftPhotoCapHint => 'En fazla 3 fotoğraf';
+
+  @override
+  String get giftPhotoRemove => 'Fotoğrafı kaldır';
+
+  @override
+  String get giftPhotoRemoved => 'Fotoğraf kaldırıldı';
+
+  @override
+  String get giftPhotoRemoveFailed => 'Fotoğraf kaldırılamadı';
+
+  @override
+  String get giftPhotoAddFailed => 'Fotoğraf eklenemedi';
+
+  @override
+  String get giftPhotoAttachPartial =>
+      'Kaydedildi ama bazı fotoğraflar eklenemedi.';
 }

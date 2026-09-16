@@ -12,6 +12,7 @@ import 'package:kept/features/feed/presentation/story_viewer_screen.dart';
 import 'package:kept/features/friends/presentation/friend_search_screen.dart';
 import 'package:kept/features/friends/presentation/friends_screen.dart';
 import 'package:kept/features/gifts/presentation/friend_gifts_screen.dart';
+import 'package:kept/features/gifts/presentation/gift_detail_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
@@ -194,6 +195,15 @@ GoRouter appRouter(Ref ref) {
         path: '/gifts/log-external',
         name: 'log-external-gift',
         builder: (context, state) => const LogExternalGiftScreen(),
+      ),
+      // After the static /gifts/* routes: go_router matches in order.
+      GoRoute(
+        path: '/gifts/:id',
+        name: 'gift-detail',
+        builder: (context, state) => GiftDetailScreen(
+          giftId: state.pathParameters['id']!,
+          counterpartIsGiver: state.uri.queryParameters['side'] != 'recipient',
+        ),
       ),
       GoRoute(
         path: '/wishlist/add',

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
+import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/gifts/data/dev_gift_repository.dart';
@@ -18,7 +19,7 @@ GiftRepository giftRepository(Ref ref) {
   if (ref.watch(devSessionProvider) && client.auth.currentUser == null) {
     return DevGiftRepository();
   }
-  return SupabaseGiftRepository(client);
+  return SupabaseGiftRepository(client, ref.watch(mediaStoreProvider));
 }
 
 @riverpod
@@ -49,14 +50,31 @@ Future<List<GiftEntry>> friendGiftHistory(Ref ref, String profileId) async {
   );
 }
 
+/// One gift with photos, for the detail screen. Refetched (not read from
+/// the list caches) so photo edits show without juggling three lists.
+@riverpod
+Future<GiftEntry?> giftDetail(
+  Ref ref,
+  String giftId, {
+  required bool counterpartIsGiver,
+}) async {
+  final result = await ref
+      .watch(giftRepositoryProvider)
+      .fetchGift(giftId, counterpartIsGiver: counterpartIsGiver);
+  return result.when(
+    success: (gift) => gift,
+    failure: (failure) => throw failure,
+  );
+}
+
 @riverpod
 class GiftsController extends _$GiftsController {
   @override
   AsyncValue<void> build() => const AsyncData(null);
 
-  /// True on success (form pops on true).
+  /// The created gift on success (forms attach photos to it), else null.
   /// Records a gift from a non-member (G-212); lands in Received.
-  Future<bool> logExternal({
+  Future<GiftEntry?> logExternal({
     required GiftRelation relation,
     required String item,
     required DateTime giftDate,
@@ -74,19 +92,19 @@ class GiftsController extends _$GiftsController {
           linkPreviewId: linkPreviewId,
         );
     return result.when(
-      success: (_) {
+      success: (gift) {
         state = const AsyncData(null);
         ref.invalidate(receivedGiftsProvider);
-        return true;
+        return gift;
       },
       failure: (Failure failure) {
         state = AsyncError(failure, StackTrace.current);
-        return false;
+        return null;
       },
     );
   }
 
-  Future<bool> log({
+  Future<GiftEntry?> log({
     required String recipientId,
     required String item,
     required DateTime giftDate,
@@ -108,14 +126,14 @@ class GiftsController extends _$GiftsController {
           revealAt: revealAt,
         );
     return result.when(
-      success: (_) {
+      success: (gift) {
         state = const AsyncData(null);
         ref.invalidate(givenGiftsProvider);
-        return true;
+        return gift;
       },
       failure: (Failure failure) {
         state = AsyncError(failure, StackTrace.current);
-        return false;
+        return null;
       },
     );
   }

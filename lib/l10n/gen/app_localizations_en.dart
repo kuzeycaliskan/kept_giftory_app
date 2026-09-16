@@ -761,4 +761,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeUsernameCountdown(String username, String countdown) {
     return '@$username · $countdown';
   }
+
+  @override
+  String get giftDetailTitle => 'Gift';
+
+  @override
+  String get giftDetailMissing => 'This gift is no longer available';
+
+  @override
+  String get giftDetailNoPhotos => 'No photos yet';
+
+  @override
+  String get giftPhotoAdd => 'Take a photo';
+
+  @override
+  String get giftPhotoCapHint => 'Up to 3 photos';
+
+  @override
+  String get giftPhotoRemove => 'Remove photo';
+
+  @override
+  String get giftPhotoRemoved => 'Photo removed';
+
+  @override
+  String get giftPhotoRemoveFailed => 'Couldn\'t remove the photo';
+
+  @override
+  String get giftPhotoAddFailed => 'Couldn\'t add the photo';
+
+  @override
+  String get giftPhotoAttachPartial =>
+      'Saved, but some photos couldn\'t be added.';
 }

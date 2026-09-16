@@ -23,26 +23,6 @@ final feedRepositoryProvider = Provider<FeedRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FeedRepositoryRef = ProviderRef<FeedRepository>;
-String _$imagePickerHash() => r'be60667b04027cd2a7d2e1b728a5c03b1bda8dc1';
-
-/// Platform image picker behind a provider so tests can hand the shell a
-/// fake camera.
-///
-/// Copied from [imagePicker].
-@ProviderFor(imagePicker)
-final imagePickerProvider = Provider<ImagePicker>.internal(
-  imagePicker,
-  name: r'imagePickerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$imagePickerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ImagePickerRef = ProviderRef<ImagePicker>;
 String _$storyGroupsHash() => r'0bbf8dda63ddd1abfba0eeaebec22f4142a0a206';
 
 /// The strip's data: live posts grouped per author, viewer first.

@@ -1501,6 +1501,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'@{username} · {countdown}'**
   String homeUsernameCountdown(String username, String countdown);
+
+  /// No description provided for @giftDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get giftDetailTitle;
+
+  /// No description provided for @giftDetailMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This gift is no longer available'**
+  String get giftDetailMissing;
+
+  /// No description provided for @giftDetailNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos yet'**
+  String get giftDetailNoPhotos;
+
+  /// No description provided for @giftPhotoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get giftPhotoAdd;
+
+  /// No description provided for @giftPhotoCapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 3 photos'**
+  String get giftPhotoCapHint;
+
+  /// No description provided for @giftPhotoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get giftPhotoRemove;
+
+  /// No description provided for @giftPhotoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo removed'**
+  String get giftPhotoRemoved;
+
+  /// No description provided for @giftPhotoRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t remove the photo'**
+  String get giftPhotoRemoveFailed;
+
+  /// No description provided for @giftPhotoAddFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add the photo'**
+  String get giftPhotoAddFailed;
+
+  /// No description provided for @giftPhotoAttachPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved, but some photos couldn\'t be added.'**
+  String get giftPhotoAttachPartial;
 }
 
 class _AppLocalizationsDelegate

@@ -233,5 +233,15 @@
   "storyMinutesAgo": "{minutes} dk",
   "storyHoursAgo": "{hours} sa",
   "storyImageError": "Fotoğraf yüklenemedi",
-  "homeUsernameCountdown": "@{username} · {countdown}"
+  "homeUsernameCountdown": "@{username} · {countdown}",
+  "giftDetailTitle": "Hediye",
+  "giftDetailMissing": "Bu hediye artık görüntülenemiyor",
+  "giftDetailNoPhotos": "Henüz fotoğraf yok",
+  "giftPhotoAdd": "Fotoğraf çek",
+  "giftPhotoCapHint": "En fazla 3 fotoğraf",
+  "giftPhotoRemove": "Fotoğrafı kaldır",
+  "giftPhotoRemoved": "Fotoğraf kaldırıldı",
+  "giftPhotoRemoveFailed": "Fotoğraf kaldırılamadı",
+  "giftPhotoAddFailed": "Fotoğraf eklenemedi",
+  "giftPhotoAttachPartial": "Kaydedildi ama bazı fotoğraflar eklenemedi."
 }

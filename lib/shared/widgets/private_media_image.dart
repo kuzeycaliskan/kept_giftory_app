@@ -12,6 +12,7 @@ class PrivateMediaImage extends ConsumerWidget {
     required this.path,
     this.fit = BoxFit.contain,
     this.semanticLabel,
+    this.compact = false,
     super.key,
   });
 
@@ -20,12 +21,15 @@ class PrivateMediaImage extends ConsumerWidget {
   final BoxFit fit;
   final String? semanticLabel;
 
+  /// Thumbnail mode: the fallback is an icon only (no caption fits).
+  final bool compact;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final source = ref
         .watch(mediaStoreProvider)
         .privateSource(bucket: bucket, path: path);
-    if (source == null) return const _Unavailable();
+    if (source == null) return _Unavailable(compact: compact);
     return Image.network(
       source.uri.toString(),
       headers: source.headers,
@@ -34,18 +38,32 @@ class PrivateMediaImage extends ConsumerWidget {
       gaplessPlayback: true,
       loadingBuilder: (context, child, progress) => progress == null
           ? child
+          : compact
+          ? const SizedBox.shrink()
           : const Center(child: CircularProgressIndicator()),
-      errorBuilder: (context, error, stack) => const _Unavailable(),
+      errorBuilder: (context, error, stack) => _Unavailable(compact: compact),
     );
   }
 }
 
 class _Unavailable extends StatelessWidget {
-  const _Unavailable();
+  const _Unavailable({required this.compact});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    if (compact) {
+      return ColoredBox(
+        color: scheme.surfaceContainerHighest,
+        child: Icon(
+          Icons.image_outlined,
+          size: 18,
+          color: scheme.onSurfaceVariant,
+        ),
+      );
+    }
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,

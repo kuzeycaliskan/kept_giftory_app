@@ -348,5 +348,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "giftDetailTitle": "Gift",
+  "giftDetailMissing": "This gift is no longer available",
+  "giftDetailNoPhotos": "No photos yet",
+  "giftPhotoAdd": "Take a photo",
+  "giftPhotoCapHint": "Up to 3 photos",
+  "giftPhotoRemove": "Remove photo",
+  "giftPhotoRemoved": "Photo removed",
+  "giftPhotoRemoveFailed": "Couldn't remove the photo",
+  "giftPhotoAddFailed": "Couldn't add the photo",
+  "giftPhotoAttachPartial": "Saved, but some photos couldn't be added."
 }

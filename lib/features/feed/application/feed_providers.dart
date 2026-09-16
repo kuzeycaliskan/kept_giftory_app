@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
@@ -20,11 +19,6 @@ FeedRepository feedRepository(Ref ref) {
     ref.watch(mediaStoreProvider),
   );
 }
-
-/// Platform image picker behind a provider so tests can hand the shell a
-/// fake camera.
-@Riverpod(keepAlive: true)
-ImagePicker imagePicker(Ref ref) => ImagePicker();
 
 /// The strip's data: live posts grouped per author, viewer first.
 @riverpod

@@ -6,7 +6,7 @@ part of 'gifts_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$giftRepositoryHash() => r'21284827f7963380721ffc9e75ba894c40bfbc21';
+String _$giftRepositoryHash() => r'b42281e23468401c9783cad5f923ea099df64419';
 
 /// See also [giftRepository].
 @ProviderFor(giftRepository)
@@ -212,7 +212,164 @@ class _FriendGiftHistoryProviderElement
   String get profileId => (origin as FriendGiftHistoryProvider).profileId;
 }
 
-String _$giftsControllerHash() => r'1567ec80ab5178118d0c338c9dfdae8ab87340fe';
+String _$giftDetailHash() => r'49c48204d973b7ba1cda105a173fe69bb0e33bb2';
+
+/// One gift with photos, for the detail screen. Refetched (not read from
+/// the list caches) so photo edits show without juggling three lists.
+///
+/// Copied from [giftDetail].
+@ProviderFor(giftDetail)
+const giftDetailProvider = GiftDetailFamily();
+
+/// One gift with photos, for the detail screen. Refetched (not read from
+/// the list caches) so photo edits show without juggling three lists.
+///
+/// Copied from [giftDetail].
+class GiftDetailFamily extends Family<AsyncValue<GiftEntry?>> {
+  /// One gift with photos, for the detail screen. Refetched (not read from
+  /// the list caches) so photo edits show without juggling three lists.
+  ///
+  /// Copied from [giftDetail].
+  const GiftDetailFamily();
+
+  /// One gift with photos, for the detail screen. Refetched (not read from
+  /// the list caches) so photo edits show without juggling three lists.
+  ///
+  /// Copied from [giftDetail].
+  GiftDetailProvider call(String giftId, {required bool counterpartIsGiver}) {
+    return GiftDetailProvider(giftId, counterpartIsGiver: counterpartIsGiver);
+  }
+
+  @override
+  GiftDetailProvider getProviderOverride(
+    covariant GiftDetailProvider provider,
+  ) {
+    return call(
+      provider.giftId,
+      counterpartIsGiver: provider.counterpartIsGiver,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'giftDetailProvider';
+}
+
+/// One gift with photos, for the detail screen. Refetched (not read from
+/// the list caches) so photo edits show without juggling three lists.
+///
+/// Copied from [giftDetail].
+class GiftDetailProvider extends AutoDisposeFutureProvider<GiftEntry?> {
+  /// One gift with photos, for the detail screen. Refetched (not read from
+  /// the list caches) so photo edits show without juggling three lists.
+  ///
+  /// Copied from [giftDetail].
+  GiftDetailProvider(String giftId, {required bool counterpartIsGiver})
+    : this._internal(
+        (ref) => giftDetail(
+          ref as GiftDetailRef,
+          giftId,
+          counterpartIsGiver: counterpartIsGiver,
+        ),
+        from: giftDetailProvider,
+        name: r'giftDetailProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$giftDetailHash,
+        dependencies: GiftDetailFamily._dependencies,
+        allTransitiveDependencies: GiftDetailFamily._allTransitiveDependencies,
+        giftId: giftId,
+        counterpartIsGiver: counterpartIsGiver,
+      );
+
+  GiftDetailProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.giftId,
+    required this.counterpartIsGiver,
+  }) : super.internal();
+
+  final String giftId;
+  final bool counterpartIsGiver;
+
+  @override
+  Override overrideWith(
+    FutureOr<GiftEntry?> Function(GiftDetailRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GiftDetailProvider._internal(
+        (ref) => create(ref as GiftDetailRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        giftId: giftId,
+        counterpartIsGiver: counterpartIsGiver,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<GiftEntry?> createElement() {
+    return _GiftDetailProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GiftDetailProvider &&
+        other.giftId == giftId &&
+        other.counterpartIsGiver == counterpartIsGiver;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, giftId.hashCode);
+    hash = _SystemHash.combine(hash, counterpartIsGiver.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GiftDetailRef on AutoDisposeFutureProviderRef<GiftEntry?> {
+  /// The parameter `giftId` of this provider.
+  String get giftId;
+
+  /// The parameter `counterpartIsGiver` of this provider.
+  bool get counterpartIsGiver;
+}
+
+class _GiftDetailProviderElement
+    extends AutoDisposeFutureProviderElement<GiftEntry?>
+    with GiftDetailRef {
+  _GiftDetailProviderElement(super.provider);
+
+  @override
+  String get giftId => (origin as GiftDetailProvider).giftId;
+  @override
+  bool get counterpartIsGiver =>
+      (origin as GiftDetailProvider).counterpartIsGiver;
+}
+
+String _$giftsControllerHash() => r'3fc04bfac3f1ec48ad3842ecb9c7a4a863e9cd5e';
 
 /// See also [GiftsController].
 @ProviderFor(GiftsController)

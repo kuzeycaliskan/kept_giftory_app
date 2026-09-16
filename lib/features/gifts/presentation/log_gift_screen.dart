@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,8 +7,10 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
+import 'package:kept/features/gifts/application/gift_photo_controller.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
+import 'package:kept/features/gifts/presentation/widgets/gift_photo_strip.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
 import 'package:kept/shared/widgets/link_preview_field.dart';
@@ -149,6 +152,17 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     }
   }
 
+  /// Photos taken before the gift exists; attached right after the insert.
+  final List<Uint8List> _captures = [];
+
+  Future<void> _capturePhoto() async {
+    final bytes = await ref
+        .read(giftPhotoControllerProvider.notifier)
+        .capture();
+    if (bytes == null || !mounted) return;
+    setState(() => _captures.add(bytes));
+  }
+
   Future<void> _save() async {
     final l10n = context.l10n;
     final item = _itemController.text.trim();
@@ -160,7 +174,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     });
     if (_itemMissing || _recipientMissing || _revealMissing) return;
 
-    final ok = await ref
+    final gift = await ref
         .read(giftsControllerProvider.notifier)
         .log(
           recipientId: _recipientId!,
@@ -171,12 +185,22 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           revealAt: _isSurprise ? _revealAt : null,
           linkPreviewId: _preview?.id,
         );
-    if (ok && mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.logGiftSavedSnack)));
-      context.pop();
-    }
+    if (gift == null || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final attached = await ref
+        .read(giftPhotoControllerProvider.notifier)
+        .attach(giftId: gift.id, captures: _captures);
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          attached < _captures.length
+              ? l10n.giftPhotoAttachPartial
+              : l10n.logGiftSavedSnack,
+        ),
+      ),
+    );
+    context.pop();
   }
 
   @override
@@ -318,6 +342,15 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
                 ),
               ),
           ],
+          const SizedBox(height: 24),
+          PendingPhotoPicker(
+            captures: _captures,
+            enabled: !busy,
+            captureLabel: l10n.giftPhotoAdd,
+            capHint: l10n.giftPhotoCapHint,
+            onCapture: _capturePhoto,
+            onRemove: (i) => setState(() => _captures.removeAt(i)),
+          ),
           const SizedBox(height: 24),
           FilledButton(
             onPressed: busy ? null : _save,

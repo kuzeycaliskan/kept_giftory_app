@@ -40,6 +40,7 @@ class FriendGiftsScreen extends ConsumerWidget {
                 GiftListTile(
                   gift: gift,
                   directionIcon: Icons.card_giftcard_outlined,
+                  counterpartIsGiver: true,
                 ),
             ],
           );

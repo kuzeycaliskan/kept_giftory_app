@@ -23,5 +23,25 @@ final mediaStoreProvider = Provider<MediaStore>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef MediaStoreRef = ProviderRef<MediaStore>;
+String _$imagePickerHash() => r'be60667b04027cd2a7d2e1b728a5c03b1bda8dc1';
+
+/// Platform image picker behind a provider so tests can hand screens a
+/// fake camera.
+///
+/// Copied from [imagePicker].
+@ProviderFor(imagePicker)
+final imagePickerProvider = Provider<ImagePicker>.internal(
+  imagePicker,
+  name: r'imagePickerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$imagePickerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ImagePickerRef = ProviderRef<ImagePicker>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

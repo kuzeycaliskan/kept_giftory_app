@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/media/image_encoding.dart';
+import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -11,13 +14,20 @@ import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
+import 'package:kept/features/gifts/presentation/gift_detail_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
+import 'package:kept/features/gifts/presentation/widgets/gift_photo_strip.dart';
 import 'package:kept/features/link_preview/application/link_preview_providers.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/features/link_preview/domain/link_preview_repository.dart';
+import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/profile/data/dev_profile_repository.dart';
+import 'package:kept/shared/widgets/private_media_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../feed/feed_test_support.dart';
 
 class _FakeGiftRepository implements GiftRepository {
   _FakeGiftRepository({List<GiftEntry>? given, List<GiftEntry>? received})
@@ -90,6 +100,68 @@ class _FakeGiftRepository implements GiftRepository {
     given.removeWhere((g) => g.id == giftId);
     return const Success(null);
   }
+
+  final attachedTo = <String>[];
+  final removed = <String>[];
+
+  @override
+  Future<Result<GiftEntry?>> fetchGift(
+    String giftId, {
+    required bool counterpartIsGiver,
+  }) async =>
+      Success([...given, ...received].where((g) => g.id == giftId).firstOrNull);
+
+  @override
+  Future<Result<GiftPhoto>> addPhoto({
+    required String giftId,
+    required Uint8List jpegBytes,
+  }) async {
+    attachedTo.add(giftId);
+    final photo = GiftPhoto(
+      id: 'photo-${attachedTo.length}',
+      giftId: giftId,
+      uploaderId: 'dev-me',
+      mediaPath: 'dev-me/$giftId-${attachedTo.length}.jpg',
+      createdAt: DateTime(2026, 9, 16),
+    );
+    for (final list in [given, received]) {
+      final i = list.indexWhere((g) => g.id == giftId);
+      if (i >= 0) list[i] = _withPhotos(list[i], [...list[i].photos, photo]);
+    }
+    return Success(photo);
+  }
+
+  @override
+  Future<Result<void>> removePhoto(GiftPhoto photo) async {
+    removed.add(photo.id);
+    for (final list in [given, received]) {
+      final i = list.indexWhere((g) => g.id == photo.giftId);
+      if (i >= 0) {
+        list[i] = _withPhotos(
+          list[i],
+          list[i].photos.where((p) => p.id != photo.id).toList(),
+        );
+      }
+    }
+    return const Success(null);
+  }
+
+  static GiftEntry _withPhotos(GiftEntry g, List<GiftPhoto> photos) =>
+      GiftEntry(
+        id: g.id,
+        item: g.item,
+        giftDate: g.giftDate,
+        isSurprise: g.isSurprise,
+        note: g.note,
+        revealAt: g.revealAt,
+        counterpartId: g.counterpartId,
+        counterpartLabel: g.counterpartLabel,
+        preview: g.preview,
+        giverRelation: g.giverRelation,
+        giverId: g.giverId,
+        recipientId: g.recipientId,
+        photos: photos,
+      );
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
@@ -132,6 +204,20 @@ class _FakeLinkPreviewRepository implements LinkPreviewRepository {
   Future<LinkPreview?> fetch(String url) async => preview;
 }
 
+/// Forms grew past one screen (photo section): bring the target into the
+/// viewport before tapping — scrollUntilVisible only guarantees it is built.
+Future<void> scrollToAndTap(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -156,6 +242,7 @@ void main() {
     List<FriendEntry> friends = const [_aliFriend],
     String initial = '/gifts',
     _FakeLinkPreviewRepository? linkPreviews,
+    FakeImagePicker? picker,
   }) async {
     final router = GoRouter(
       initialLocation: initial,
@@ -166,12 +253,29 @@ void main() {
           path: '/gifts/log-external',
           builder: (_, __) => const LogExternalGiftScreen(),
         ),
+        GoRoute(
+          path: '/gifts/:id',
+          builder: (_, state) => GiftDetailScreen(
+            giftId: state.pathParameters['id']!,
+            counterpartIsGiver:
+                state.uri.queryParameters['side'] != 'recipient',
+          ),
+        ),
       ],
     );
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           giftRepositoryProvider.overrideWithValue(gifts),
+          // Signed-in identity for "may I add photos" (dev-me).
+          profileRepositoryProvider.overrideWithValue(
+            const DevProfileRepository(),
+          ),
+          mediaStoreProvider.overrideWithValue(const FakeMediaStore()),
+          imagePickerProvider.overrideWithValue(
+            picker ?? FakeImagePicker(null),
+          ),
+          uploadEncoderProvider.overrideWithValue((bytes) async => bytes),
           friendshipRepositoryProvider.overrideWithValue(
             _FakeFriendshipRepository(friends),
           ),
@@ -211,16 +315,18 @@ void main() {
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.scrollUntilVisible(
-        find.text('Save'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('Save'));
+      await scrollToAndTap(tester, find.text('Save'));
+      // Validation messages sit at the top of the (now longer) form.
+      await tester.drag(find.byType(ListView), const Offset(0, 800));
       await tester.pumpAndSettle();
 
       expect(find.text('Pick a recipient'), findsOneWidget);
       expect(find.text('Gift is required'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Pick a reveal date'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Pick a reveal date'), findsOneWidget);
     },
   );
@@ -246,12 +352,7 @@ void main() {
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Save'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('Save'));
+    await scrollToAndTap(tester, find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(repo.given, hasLength(1));
@@ -450,12 +551,7 @@ void main() {
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Save'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('Save'));
+    await scrollToAndTap(tester, find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(repo.lastLinkPreviewId, 'lp-9');
@@ -505,12 +601,7 @@ void main() {
       find.widgetWithText(TextField, 'Gift'),
       'Hand-knit scarf',
     );
-    await tester.scrollUntilVisible(
-      find.text('Save'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('Save'));
+    await scrollToAndTap(tester, find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(repo.lastExternalRelation, GiftRelation.father);
@@ -524,15 +615,162 @@ void main() {
     await pump(tester, gifts: repo, initial: '/gifts/log-external');
 
     await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Scarf');
-    await tester.scrollUntilVisible(
-      find.text('Save'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('Save'));
+    await scrollToAndTap(tester, find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text("Pick who it's from"), findsOneWidget);
     expect(repo.lastExternalRelation, isNull);
+  });
+
+  group('gift photos (G-204)', () {
+    GiftEntry giftWithPhotos({
+      required String id,
+      required int count,
+      String uploader = 'dev-me',
+      String? giverId = 'dev-me',
+      String? recipientId = 'ali',
+    }) => GiftEntry(
+      id: id,
+      item: 'Kupa',
+      giftDate: DateTime(2026, 9),
+      isSurprise: false,
+      counterpartId: 'ali',
+      counterpartLabel: 'Ali',
+      giverId: giverId,
+      recipientId: recipientId,
+      photos: [
+        for (var i = 0; i < count; i++)
+          GiftPhoto(
+            id: 'p$i',
+            giftId: id,
+            uploaderId: uploader,
+            mediaPath: '$uploader/$id-$i.jpg',
+            createdAt: DateTime(2026, 9, 1, i),
+          ),
+      ],
+    );
+
+    testWidgets('gift rows show up to three thumbnails', (tester) async {
+      await pump(
+        tester,
+        gifts: _FakeGiftRepository(given: [giftWithPhotos(id: 'g1', count: 2)]),
+      );
+
+      expect(find.byType(GiftPhotoStrip), findsOneWidget);
+      expect(find.byType(PrivateMediaImage), findsNWidgets(2));
+    });
+
+    testWidgets('tapping a row opens the detail; a party can add photos', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        gifts: _FakeGiftRepository(given: [giftWithPhotos(id: 'g1', count: 1)]),
+      );
+
+      await tester.tap(find.text('Kupa'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gift'), findsOneWidget);
+      expect(find.text('Take a photo'), findsOneWidget);
+      expect(find.text('No photos yet'), findsNothing);
+      expect(find.textContaining('Ali ·'), findsOneWidget);
+    });
+
+    testWidgets('a bystander sees photos but cannot add', (tester) async {
+      await pump(
+        tester,
+        gifts: _FakeGiftRepository(
+          received: [
+            giftWithPhotos(
+              id: 'g2',
+              count: 1,
+              uploader: 'someone',
+              giverId: 'someone',
+              recipientId: 'other',
+            ),
+          ],
+        ),
+        initial: '/gifts/g2?side=giver',
+      );
+
+      expect(find.text('Take a photo'), findsNothing);
+      expect(find.byIcon(Icons.more_horiz), findsNothing);
+    });
+
+    testWidgets('the cap hides the add button', (tester) async {
+      await pump(
+        tester,
+        gifts: _FakeGiftRepository(given: [giftWithPhotos(id: 'g3', count: 3)]),
+        initial: '/gifts/g3?side=recipient',
+      );
+
+      expect(find.text('Take a photo'), findsNothing);
+    });
+
+    testWidgets('detail: capture attaches a photo to the gift', (tester) async {
+      final repo = _FakeGiftRepository(
+        given: [giftWithPhotos(id: 'g4', count: 0)],
+      );
+      await pump(
+        tester,
+        gifts: repo,
+        initial: '/gifts/g4?side=recipient',
+        picker: FakeImagePicker(tinyPng),
+      );
+      expect(find.text('No photos yet'), findsOneWidget);
+
+      await tester.tap(find.text('Take a photo'));
+      await tester.pumpAndSettle();
+
+      expect(repo.attachedTo, ['g4']);
+      expect(find.text('No photos yet'), findsNothing);
+    });
+
+    testWidgets('uploader removes their own photo from the detail', (
+      tester,
+    ) async {
+      final repo = _FakeGiftRepository(
+        given: [giftWithPhotos(id: 'g5', count: 1)],
+      );
+      await pump(tester, gifts: repo, initial: '/gifts/g5?side=recipient');
+
+      await tester.tap(find.byIcon(Icons.more_horiz));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove photo'));
+      await tester.pumpAndSettle();
+
+      expect(repo.removed, ['p0']);
+      expect(find.text('Photo removed'), findsOneWidget);
+      expect(find.text('No photos yet'), findsOneWidget);
+    });
+
+    testWidgets('photos taken in the log form attach after save', (
+      tester,
+    ) async {
+      final repo = _FakeGiftRepository();
+      await pump(tester, gifts: repo, picker: FakeImagePicker(tinyPng));
+      await tester.tap(find.text('Received'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Add a gift you received'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('From'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Dad').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Saat');
+
+      await scrollToAndTap(tester, find.text('Take a photo'));
+      await scrollToAndTap(tester, find.text('Take a photo'));
+      expect(find.byIcon(Icons.close), findsNWidgets(2));
+
+      await scrollToAndTap(tester, find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(repo.received.single.item, 'Saat');
+      expect(repo.attachedTo, ['ext-1', 'ext-1']);
+      expect(find.text('Gift logged'), findsOneWidget);
+    });
   });
 }
