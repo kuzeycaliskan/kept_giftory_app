@@ -5,11 +5,32 @@
 // under it; gifts GIVEN by the user are anonymized (giver_id → null) via the
 // FK, preserving recipients' history.
 //
-// Future: when avatar/media storage (V2) exists, enumerate and delete the
-// user's Storage/R2 objects here before deleting the auth user (no FK cascade
-// reaches Storage).
+// Storage has no FK cascade: the user's objects (avatars, ephemeral posts —
+// both laid out as '<uid>/<file>') are removed explicitly BEFORE the auth
+// user, and a storage failure aborts the deletion so nothing personal is
+// left behind unnoticed (the client simply retries).
 
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
+
+/** Buckets whose objects live under '<uid>/...'. Keep in sync with MediaStore users. */
+const USER_MEDIA_BUCKETS = ["avatars", "posts"] as const;
+
+/** Removes every object in `<uid>/` of a bucket. Returns an error message or null. */
+async function removeUserFolder(
+  admin: SupabaseClient,
+  bucket: string,
+  uid: string,
+): Promise<string | null> {
+  const { data: files, error: listError } = await admin.storage
+    .from(bucket)
+    .list(uid, { limit: 1000 });
+  if (listError) return `list ${bucket}: ${listError.message}`;
+  if (!files || files.length === 0) return null;
+  const { error: removeError } = await admin.storage
+    .from(bucket)
+    .remove(files.map((f) => `${uid}/${f.name}`));
+  return removeError ? `remove ${bucket}: ${removeError.message}` : null;
+}
 
 Deno.serve(async (req) => {
   const authHeader = req.headers.get("Authorization");
@@ -34,8 +55,19 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Delete with the service role (cascades handle related rows).
   const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+  for (const bucket of USER_MEDIA_BUCKETS) {
+    const storageError = await removeUserFolder(admin, bucket, user.id);
+    if (storageError) {
+      return new Response(JSON.stringify({ error: storageError }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  // Delete with the service role (cascades handle related rows).
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
   if (deleteError) {
     return new Response(JSON.stringify({ error: deleteError.message }), {

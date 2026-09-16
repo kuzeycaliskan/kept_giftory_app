@@ -92,3 +92,25 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   function through pg_net with the Vault-held header secret.
 - **Test:** `curl "$FN_URL?dry=1" -H "x-cron-secret: $SECRET"` → plan without
   sending. Wrong secret → 403.
+
+## Ephemeral posts (G-201/202/203)
+
+- **Table `posts`** (migration `20260916100000_posts.sql`): lifetime is
+  server-owned (`set_post_lifetime` trigger forces created_at/expires_at =
+  +24h), rows immutable, author-only delete. Visibility follows the author's
+  **profile** visibility via `can_view_profile` (block-aware).
+- **Bucket `posts` (private):** objects at `<uid>/post-<micros>.jpg`; the read
+  policy joins the live post row, so an expired/hidden post's photo is not
+  fetchable by path. 1 MB / image-jpeg caps server-side.
+- **Purge:** `functions/purge-expired-posts` — media removed BEFORE rows,
+  batches of 200, max 5 per tick, storage failure aborts with rows intact
+  (retried next tick). `?dry=1` reports the due count. Same secret header as
+  the reminders (`CRON_SECRET`).
+- **Schedule (cloud, one-time — TODO on deploy):** pg_cron job
+  `purge-expired-posts-hourly` at `15 * * * *` calling the function through
+  pg_net with the Vault-held secret (mirror the `birthday-reminders-daily` job
+  definition, swapping the function URL).
+- **Account deletion** removes the user's `avatars/<uid>` and `posts/<uid>`
+  folders before the auth user (no FK cascade reaches Storage).
+- pgTAP 49-62 cover lifetime forcing, visibility, immutability, storage
+  read-through, expiry, and service_role purge grants.

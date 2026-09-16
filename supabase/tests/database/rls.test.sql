@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(48);
+select plan(62);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -620,6 +620,180 @@ select throws_ok(
   null,
   '48: a gift cannot have both a member giver and a relation'
 );
+
+-- ── 49-62: ephemeral posts (G-201/202/203) ─────────────────────────────────
+-- Fresh actors so earlier fixture drift doesn't matter: hank (friends-only
+-- profile) ↔ ivy accepted friends; dave (public profile, stranger to both).
+reset role;
+insert into auth.users (id, email)
+values
+  ('00000000-0000-0000-0000-000000000a11', 'hank@test.dev'),
+  ('00000000-0000-0000-0000-000000000a12', 'ivy@test.dev');
+insert into public.profiles (id, username, profile_visibility)
+values
+  ('00000000-0000-0000-0000-000000000a11', 'hank', 'friends'),
+  ('00000000-0000-0000-0000-000000000a12', 'ivy',  'friends');
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-000000000a11',
+        '00000000-0000-0000-0000-000000000a12', 'accepted');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a11","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.posts (id, author_id, media_path, caption, expires_at)
+     values ('00000000-0000-0000-0000-000000000b01',
+             '00000000-0000-0000-0000-000000000a11',
+             '00000000-0000-0000-0000-000000000a11/post-1.jpg',
+             'ilk an', now() + interval '30 days') $$,
+  '49: author can create a post (client-sent expiry ignored, see 50)'
+);
+
+select is(
+  (select expires_at - created_at from public.posts
+    where id = '00000000-0000-0000-0000-000000000b01'),
+  interval '24 hours',
+  '50: lifetime is server-owned — exactly 24h regardless of client input'
+);
+
+insert into public.posts (id, author_id, media_path)
+values ('00000000-0000-0000-0000-000000000b02',
+        '00000000-0000-0000-0000-000000000a11',
+        '00000000-0000-0000-0000-000000000a11/post-2.jpg');
+
+select throws_ok(
+  $$ insert into public.posts (author_id, media_path)
+     values ('00000000-0000-0000-0000-000000000a11',
+             '00000000-0000-0000-0000-000000000a12/stolen.jpg') $$,
+  '23514',
+  null,
+  '51: a post cannot reference another user''s storage folder'
+);
+
+update public.posts set caption = 'hacked'
+ where id = '00000000-0000-0000-0000-000000000b01';
+select is(
+  (select caption from public.posts
+    where id = '00000000-0000-0000-0000-000000000b01'),
+  'ilk an',
+  '52: posts are immutable — update is a no-op even for the author'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.posts
+    where author_id = '00000000-0000-0000-0000-000000000a11'),
+  2::bigint,
+  '53: friend sees a friends-only author''s live posts'
+);
+
+select throws_ok(
+  $$ insert into public.posts (author_id, media_path)
+     values ('00000000-0000-0000-0000-000000000a11',
+             '00000000-0000-0000-0000-000000000a11/forged.jpg') $$,
+  '42501',
+  'new row violates row-level security policy for table "posts"',
+  '54: cannot post as someone else'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.posts
+    where author_id = '00000000-0000-0000-0000-000000000a11'),
+  0::bigint,
+  '55: stranger cannot see a friends-only author''s posts'
+);
+
+insert into public.posts (id, author_id, media_path)
+values ('00000000-0000-0000-0000-000000000d01',
+        '00000000-0000-0000-0000-00000000000d',
+        '00000000-0000-0000-0000-00000000000d/post-1.jpg');
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a11","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.posts
+    where author_id = '00000000-0000-0000-0000-00000000000d'),
+  1::bigint,
+  '56: a public profile''s posts are visible to any signed-in user'
+);
+
+-- Storage objects follow the row: fixture the objects as owner, then read
+-- through the authenticated policy.
+reset role;
+insert into storage.objects (bucket_id, name)
+values
+  ('posts', '00000000-0000-0000-0000-000000000a11/post-1.jpg'),
+  ('posts', '00000000-0000-0000-0000-000000000a11/post-2.jpg');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+
+select is(
+  (select count(*) from storage.objects
+    where bucket_id = 'posts'
+      and name = '00000000-0000-0000-0000-000000000a11/post-1.jpg'),
+  1::bigint,
+  '57: friend can read the photo of a live post'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select is(
+  (select count(*) from storage.objects
+    where bucket_id = 'posts'
+      and name = '00000000-0000-0000-0000-000000000a11/post-1.jpg'),
+  0::bigint,
+  '58: stranger cannot read the photo even knowing its path'
+);
+
+-- Expire post-1 (as owner, simulating time passing).
+reset role;
+update public.posts set expires_at = now() - interval '1 minute'
+ where id = '00000000-0000-0000-0000-000000000b01';
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.posts
+    where author_id = '00000000-0000-0000-0000-000000000a11'),
+  1::bigint,
+  '59: an expired post vanishes from the feed before any purge runs'
+);
+
+select is(
+  (select count(*) from storage.objects
+    where bucket_id = 'posts'
+      and name = '00000000-0000-0000-0000-000000000a11/post-1.jpg'),
+  0::bigint,
+  '60: an expired post''s photo is unreadable by path'
+);
+
+-- Purge path (service_role): grants regression + row removal.
+set local role service_role;
+
+select is(
+  (select count(*) from public.posts where expires_at <= now()),
+  1::bigint,
+  '61: service_role can enumerate expired posts for purging'
+);
+
+select lives_ok(
+  $$ delete from public.posts where expires_at <= now() $$,
+  '62: service_role can delete purged rows'
+);
+
+reset role;
 
 select * from finish();
 rollback;
