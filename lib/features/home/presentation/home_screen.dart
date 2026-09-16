@@ -7,6 +7,8 @@ import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
+import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
+    show giftRelationLabel;
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
@@ -376,35 +378,46 @@ class _EventsSection extends StatelessWidget {
           return _InviteNudge(message: l10n.homeActivityEmptyNudge);
         }
         return KeptListGroup(
-          children: [
-            for (final event in events)
-              ListTile(
-                leading: KeptIconBadge(switch (event.kind) {
-                  HomeEventKind.friendAccepted => Icons.group_add_outlined,
-                  HomeEventKind.giftReceived => Icons.card_giftcard_outlined,
-                }),
-                title: Text(
-                  switch (event.kind) {
-                    HomeEventKind.friendAccepted => l10n.homeEventFriend(
-                      event.actorLabel ?? l10n.giftAnonymousGiver,
-                    ),
-                    HomeEventKind.giftReceived => l10n.homeEventGift(
-                      event.actorLabel ?? l10n.giftAnonymousGiver,
-                    ),
-                  },
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: event.actorId == null
-                    ? null
-                    : () => context.push(
-                        '/users/${event.actorId}'
-                        '?name=${Uri.encodeComponent(event.actorLabel ?? '')}',
-                      ),
-              ),
-          ],
+          children: [for (final event in events) _EventRow(event: event)],
         );
       },
+    );
+  }
+}
+
+class _EventRow extends StatelessWidget {
+  const _EventRow({required this.event});
+
+  final HomeEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final actor = event.actorLabel ?? l10n.giftAnonymousGiver;
+    final title = switch (event.kind) {
+      HomeEventKind.friendAccepted => l10n.homeEventFriend(actor),
+      HomeEventKind.giftReceived => l10n.homeEventGift(actor),
+      HomeEventKind.externalGiftLogged => l10n.homeEventExternalGift(
+        giftRelationLabel(context, event.giverRelation!),
+      ),
+    };
+    final item = event.item;
+    return ListTile(
+      leading: KeptIconBadge(switch (event.kind) {
+        HomeEventKind.friendAccepted => Icons.group_add_outlined,
+        HomeEventKind.giftReceived ||
+        HomeEventKind.externalGiftLogged => Icons.card_giftcard_outlined,
+      }),
+      title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: item == null
+          ? null
+          : Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
+      onTap: event.actorId == null
+          ? null
+          : () => context.push(
+              '/users/${event.actorId}'
+              '?name=${Uri.encodeComponent(event.actorLabel ?? '')}',
+            ),
     );
   }
 }

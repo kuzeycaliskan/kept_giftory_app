@@ -296,6 +296,12 @@ abstract class AppLocalizations {
   /// **'{name} logged a gift for you'**
   String homeEventGift(String name);
 
+  /// No description provided for @homeEventExternalGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift from {relation}'**
+  String homeEventExternalGift(String relation);
+
   /// No description provided for @homeInviteCta.
   ///
   /// In en, this message translates to:

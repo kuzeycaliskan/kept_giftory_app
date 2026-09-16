@@ -61,6 +61,14 @@
       }
     }
   },
+  "homeEventExternalGift": "Gift from {relation}",
+  "@homeEventExternalGift": {
+    "placeholders": {
+      "relation": {
+        "type": "String"
+      }
+    }
+  },
   "homeInviteCta": "Invite",
   "pushPrimingTitle": "Never miss a gift day",
   "pushPrimingBody": "Turn on notifications and we'll remind you before friends' birthdays.",

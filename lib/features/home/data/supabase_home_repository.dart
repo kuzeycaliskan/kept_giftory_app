@@ -1,5 +1,6 @@
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
@@ -139,7 +140,7 @@ class SupabaseHomeRepository implements HomeRepository {
       final giftRows = await _client
           .from('gifts')
           .select(
-            'created_at, '
+            'created_at, item, giver_relation, '
             'giver:profiles!gifts_giver_id_fkey(id, username, display_name)',
           )
           .eq('recipient_id', userId)
@@ -164,14 +165,27 @@ class SupabaseHomeRepository implements HomeRepository {
       }
       for (final row in giftRows) {
         final giver = row['giver'] as Map<String, dynamic>?;
+        final relation = row['giver_relation'] as String?;
+        final at = DateTime.parse(row['created_at']! as String);
+        final item = row['item'] as String?;
+        // Three giver states (G-212): member, external (relation), deleted
+        // member (both null → anonymized "someone").
         events.add(
-          HomeEvent(
-            kind: HomeEventKind.giftReceived,
-            at: DateTime.parse(row['created_at']! as String),
-            actorId: giver?['id'] as String?,
-            actorLabel:
-                (giver?['display_name'] ?? giver?['username']) as String?,
-          ),
+          relation != null
+              ? HomeEvent(
+                  kind: HomeEventKind.externalGiftLogged,
+                  at: at,
+                  giverRelation: GiftRelation.values.byName(relation),
+                  item: item,
+                )
+              : HomeEvent(
+                  kind: HomeEventKind.giftReceived,
+                  at: at,
+                  actorId: giver?['id'] as String?,
+                  actorLabel:
+                      (giver?['display_name'] ?? giver?['username']) as String?,
+                  item: item,
+                ),
         );
       }
       events.sort((a, b) => b.at.compareTo(a.at));

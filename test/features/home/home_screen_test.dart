@@ -6,6 +6,7 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
@@ -188,6 +189,14 @@ void main() {
           at: DateTime(2026, 9, 11),
           actorId: 'p9',
           actorLabel: 'Zeynep',
+          item: 'Scarf',
+        ),
+        // G-212: my own record of a gift from outside Kept — never "someone".
+        HomeEvent(
+          kind: HomeEventKind.externalGiftLogged,
+          at: DateTime(2026, 9, 10),
+          giverRelation: GiftRelation.father,
+          item: 'Watch',
         ),
       ],
     );
@@ -199,6 +208,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Activity'), findsOneWidget);
     expect(find.text('Zeynep logged a gift for you'), findsOneWidget);
+    expect(find.text('Scarf'), findsOneWidget);
+    expect(find.text('Gift from Dad'), findsOneWidget);
+    expect(find.text('Watch'), findsOneWidget);
+    expect(find.textContaining('Someone'), findsNothing);
   });
 
   testWidgets('empty sections nudge toward inviting, not hide', (tester) async {

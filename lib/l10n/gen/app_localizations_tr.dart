@@ -119,6 +119,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String homeEventExternalGift(String relation) {
+    return '$relation hediye';
+  }
+
+  @override
   String get homeInviteCta => 'Davet et';
 
   @override

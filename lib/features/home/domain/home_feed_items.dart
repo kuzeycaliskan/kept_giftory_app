@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 
 /// A friend's recent wishlist addition (Home "from friends' wishlists").
 @immutable
@@ -23,7 +24,16 @@ class FriendWishlistItem {
 }
 
 /// Real V1 activity: my own social events (Home "activity").
-enum HomeEventKind { friendAccepted, giftReceived }
+enum HomeEventKind {
+  friendAccepted,
+
+  /// A member logged a gift for me (actor = giver; null once anonymized).
+  giftReceived,
+
+  /// I logged a gift from someone outside Kept (G-212) — my own record,
+  /// labelled by relation instead of a profile.
+  externalGiftLogged,
+}
 
 @immutable
 class HomeEvent {
@@ -32,7 +42,12 @@ class HomeEvent {
     required this.at,
     this.actorId,
     this.actorLabel,
-  });
+    this.giverRelation,
+    this.item,
+  }) : assert(
+         kind != HomeEventKind.externalGiftLogged || giverRelation != null,
+         'an external gift event carries its relation',
+       );
 
   final HomeEventKind kind;
   final DateTime at;
@@ -40,4 +55,11 @@ class HomeEvent {
   /// Counterpart profile — null when the account was deleted (anonymized).
   final String? actorId;
   final String? actorLabel;
+
+  /// Who gave an external gift (only for [HomeEventKind.externalGiftLogged]).
+  final GiftRelation? giverRelation;
+
+  /// Gift name for gift events (already RLS-safe: unrevealed surprises never
+  /// reach the client).
+  final String? item;
 }
