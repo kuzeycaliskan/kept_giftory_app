@@ -115,14 +115,19 @@ class _GalleryPageState extends State<_GalleryPage> {
           // backdrop blur + light dim over it, so the letterbox bands take
           // the photo's own colour instead of black. BackdropFilter (not
           // ImageFiltered) so the blur is applied to painted pixels only.
+          // SizedBox.expand: AnimatedSwitcher lays its child out loosely, so
+          // without it the backdrop shrank to the photo's own box and only a
+          // glow halo around the photo was blurred, the rest stayed black.
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            child: PrivateMediaImage(
+            child: SizedBox.expand(
               key: ValueKey(current.path),
-              bucket: current.bucket,
-              path: current.path,
-              fit: BoxFit.cover,
-              compact: true,
+              child: PrivateMediaImage(
+                bucket: current.bucket,
+                path: current.path,
+                fit: BoxFit.cover,
+                compact: true,
+              ),
             ),
           ),
           BackdropFilter(
