@@ -1579,6 +1579,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Product link'**
   String get giftDetailLinkSection;
+
+  /// No description provided for @reactionHeart.
+  ///
+  /// In en, this message translates to:
+  /// **'Love'**
+  String get reactionHeart;
+
+  /// No description provided for @reactionCongrats.
+  ///
+  /// In en, this message translates to:
+  /// **'Congrats'**
+  String get reactionCongrats;
+
+  /// No description provided for @reactionLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get reactionLike;
+
+  /// No description provided for @reactionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice'**
+  String get reactionOk;
+
+  /// No description provided for @reactionWow.
+  ///
+  /// In en, this message translates to:
+  /// **'Wow'**
+  String get reactionWow;
+
+  /// No description provided for @reactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get reactionsTitle;
+
+  /// No description provided for @reactionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reactions yet'**
+  String get reactionsEmpty;
+
+  /// No description provided for @reactionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t react. Try again.'**
+  String get reactionFailed;
 }
 
 class _AppLocalizationsDelegate

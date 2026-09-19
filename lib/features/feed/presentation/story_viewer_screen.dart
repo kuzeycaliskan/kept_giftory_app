@@ -7,7 +7,9 @@ import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/application/post_actions.dart';
 import 'package:kept/features/feed/domain/post.dart';
+import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/features/feed/presentation/reaction_bar.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
@@ -164,6 +166,17 @@ class _StoryPageState extends ConsumerState<_StoryPage>
 
   void _previous() => _show(_index > 0 ? _index - 1 : 0);
 
+  Future<void> _react(Post post, ReactionKind kind, String? myId) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final ok = await ref
+        .read(postActionsProvider.notifier)
+        .react(post, kind, myId: myId);
+    if (!ok && mounted) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.reactionFailed)));
+    }
+  }
+
   Future<void> _deleteCurrent() async {
     final l10n = context.l10n;
     final post = widget.group.posts[_index];
@@ -259,11 +272,31 @@ class _StoryPageState extends ConsumerState<_StoryPage>
             path: post.mediaPath,
             semanticLabel: label,
           ),
-          if (post.caption case final caption?)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: _CaptionBar(caption: caption),
+          // Bottom stack: caption (if any) above the reaction row. The row
+          // absorbs its own taps so reacting never steps the story.
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: _BottomPanel(
+              caption: post.caption,
+              child: GestureDetector(
+                onTap: () {},
+                onLongPress: () {},
+                child: isMine
+                    ? ReactionSummary(
+                        post: post,
+                        onSheetOpened: _progress.stop,
+                        onSheetClosed: () {
+                          if (mounted) unawaited(_progress.forward());
+                        },
+                      )
+                    : ReactionBar(
+                        post: post,
+                        myId: myId,
+                        onReact: (kind) => _react(post, kind, myId),
+                      ),
+              ),
             ),
+          ),
           SafeArea(
             child: Column(
               children: [
@@ -367,10 +400,11 @@ class _SegmentBar extends StatelessWidget {
   }
 }
 
-class _CaptionBar extends StatelessWidget {
-  const _CaptionBar({required this.caption});
+class _BottomPanel extends StatelessWidget {
+  const _BottomPanel({required this.caption, required this.child});
 
-  final String caption;
+  final String? caption;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -380,7 +414,7 @@ class _CaptionBar extends StatelessWidget {
         KeptSpacing.lg,
         KeptSpacing.xxl,
         KeptSpacing.lg,
-        KeptSpacing.xxl,
+        KeptSpacing.lg,
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -391,13 +425,23 @@ class _CaptionBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Text(
-          caption,
-          maxLines: 4,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (caption case final text?) ...[
+              Text(
+                text,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+              ),
+              const SizedBox(height: KeptSpacing.md),
+            ],
+            child,
+          ],
         ),
       ),
     );

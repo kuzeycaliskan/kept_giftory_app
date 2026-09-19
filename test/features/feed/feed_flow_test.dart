@@ -7,8 +7,10 @@ import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/domain/post.dart';
+import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'feed_test_support.dart';
@@ -158,6 +160,80 @@ void main() {
       expect(find.text('Moment deleted'), findsOneWidget);
       // Back on Home with no own story left → camera ring again.
       expect(find.text('Share a moment'), findsOneWidget);
+    });
+  });
+
+  group('reactions (G-206)', () {
+    testWidgets('a friend reacts, changes and clears from the bar', (
+      tester,
+    ) async {
+      final feed = FakeFeedRepository(
+        viewerId: 'dev-me',
+        posts: friendsPosts(),
+      );
+      await pumpApp(tester, feed: feed, asDevMe: true);
+      await tester.tap(find.text('Zeynep'));
+      await pumpViewer(tester);
+
+      // Five kinds, none selected, no counts yet.
+      expect(find.text('❤️'), findsOneWidget);
+      expect(find.text('😮'), findsOneWidget);
+
+      await tester.tap(find.text('🎉'));
+      await pumpViewer(tester);
+      expect(feed.reactions, ['set:z1:congrats']);
+      expect(find.text('1'), findsOneWidget);
+
+      await tester.tap(find.text('❤️'));
+      await pumpViewer(tester);
+      expect(feed.reactions.last, 'set:z1:heart');
+
+      // Tapping the chosen kind again clears it.
+      await tester.tap(find.text('❤️'));
+      await pumpViewer(tester);
+      expect(feed.reactions.last, 'clear:z1');
+      expect(find.text('1'), findsNothing);
+    });
+
+    testWidgets('the author sees a summary and who reacted', (tester) async {
+      final feed = FakeFeedRepository(
+        viewerId: 'dev-me',
+        posts: [
+          samplePost(
+            id: 'mine',
+            authorId: 'dev-me',
+            username: 'you',
+            reactions: const [
+              Reaction(
+                userId: 'ali',
+                kind: ReactionKind.heart,
+                user: ProfileCard(
+                  id: 'ali',
+                  username: 'ali',
+                  displayName: 'Ali',
+                ),
+              ),
+              Reaction(userId: 'zeynep', kind: ReactionKind.heart),
+              Reaction(userId: 'mert', kind: ReactionKind.wow),
+            ],
+          ),
+        ],
+      );
+      await pumpApp(tester, feed: feed, asDevMe: true);
+      await tester.tap(find.text('You'));
+      await pumpViewer(tester);
+
+      expect(find.text('❤️ 2 · 😮 1'), findsOneWidget);
+      // No reaction bar on your own moment.
+      expect(find.text('🎉'), findsNothing);
+
+      // Short pumps: settling would run the 5s auto-advance under the sheet.
+      await tester.tap(find.text('❤️ 2 · 😮 1'));
+      await pumpViewer(tester);
+      expect(find.text('Reactions'), findsOneWidget);
+      expect(find.text('Ali'), findsOneWidget);
+      // Hidden profile → neutral fallback, reaction still listed.
+      expect(find.text('Someone'), findsNWidgets(2));
     });
   });
 

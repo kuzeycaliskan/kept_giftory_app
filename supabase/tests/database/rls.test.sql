@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(77);
+select plan(87);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -942,6 +942,99 @@ set local role service_role;
 select lives_ok(
   $$ select count(*) from public.gift_photos $$,
   '77: service_role can enumerate gift photos (account deletion)'
+);
+reset role;
+
+-- ── 78-87: reactions on moments (G-206) ─────────────────────────────────────
+-- Live posts from 49-62: hank's b02 (hank friends-only; ivy is his friend),
+-- dave's d01 (public). dave is a stranger to hank.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.post_reactions (post_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000b02', '00000000-0000-0000-0000-000000000a12', 'heart') $$,
+  '78: friend can react to a visible moment'
+);
+
+select throws_ok(
+  $$ insert into public.post_reactions (post_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000d01', '00000000-0000-0000-0000-000000000a11', 'like') $$,
+  '42501',
+  'new row violates row-level security policy for table "post_reactions"',
+  '79: user_id cannot be forged'
+);
+
+select throws_ok(
+  $$ insert into public.post_reactions (post_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000b02', '00000000-0000-0000-0000-000000000a12', 'wow') $$,
+  '23505',
+  null,
+  '80: one reaction per user per moment (change = update)'
+);
+
+update public.post_reactions set kind = 'wow'
+ where post_id = '00000000-0000-0000-0000-000000000b02' and user_id = '00000000-0000-0000-0000-000000000a12';
+select is(
+  (select kind::text from public.post_reactions
+    where post_id = '00000000-0000-0000-0000-000000000b02' and user_id = '00000000-0000-0000-0000-000000000a12'),
+  'wow',
+  '81: a user can change their reaction kind'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select throws_ok(
+  $$ insert into public.post_reactions (post_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000b02', '00000000-0000-0000-0000-00000000000d', 'heart') $$,
+  '42501',
+  'new row violates row-level security policy for table "post_reactions"',
+  '82: stranger cannot react to a friends-only moment'
+);
+
+select is(
+  (select count(*) from public.post_reactions where post_id = '00000000-0000-0000-0000-000000000b02'),
+  0::bigint,
+  '83: stranger cannot see reactions on a hidden moment'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a11","role":"authenticated"}';
+
+select is(
+  (select count(*) from public.post_reactions where post_id = '00000000-0000-0000-0000-000000000b02'),
+  1::bigint,
+  '84: author sees who reacted to their moment'
+);
+
+select lives_ok(
+  $$ insert into public.post_reactions (post_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000d01', '00000000-0000-0000-0000-000000000a11', 'congrats') $$,
+  '85: anyone can react to a public profile''s moment'
+);
+
+update public.post_reactions set kind = 'heart'
+ where post_id = '00000000-0000-0000-0000-000000000b02' and user_id = '00000000-0000-0000-0000-000000000a12';
+select is(
+  (select kind::text from public.post_reactions
+    where post_id = '00000000-0000-0000-0000-000000000b02' and user_id = '00000000-0000-0000-0000-000000000a12'),
+  'wow',
+  '86: author cannot alter someone else''s reaction'
+);
+
+-- Expire hank's moment: its reactions disappear with it.
+reset role;
+update public.posts set expires_at = now() - interval '1 minute'
+ where id = '00000000-0000-0000-0000-000000000b02';
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+select is(
+  (select count(*) from public.post_reactions where post_id = '00000000-0000-0000-0000-000000000b02'),
+  0::bigint,
+  '87: reactions vanish with the expired moment'
 );
 reset role;
 

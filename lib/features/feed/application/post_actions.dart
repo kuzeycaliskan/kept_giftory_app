@@ -2,12 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/domain/post.dart';
+import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'post_actions.g.dart';
 
-/// Owner actions on a live moment (currently: delete). Kept apart from the
-/// composer so the viewer doesn't drag the capture pipeline in.
+/// Actions on a live moment from the viewer: owner delete, viewer
+/// reactions. Kept apart from the composer so the viewer doesn't drag the
+/// capture pipeline in.
 @riverpod
 class PostActions extends _$PostActions {
   @override
@@ -26,6 +28,28 @@ class PostActions extends _$PostActions {
       failure: (Failure failure) {
         debugPrint('post delete failed: $failure');
         state = AsyncError(failure, StackTrace.current);
+        return false;
+      },
+    );
+  }
+
+  /// Tapping the kind you already chose clears it; any other kind sets it.
+  Future<bool> react(
+    Post post,
+    ReactionKind kind, {
+    required String? myId,
+  }) async {
+    final repository = ref.read(feedRepositoryProvider);
+    final result = post.reactionOf(myId) == kind
+        ? await repository.clearReaction(post.id)
+        : await repository.setReaction(post.id, kind);
+    return result.when(
+      success: (_) {
+        ref.invalidate(storyGroupsProvider);
+        return true;
+      },
+      failure: (Failure failure) {
+        debugPrint('reaction failed: $failure');
         return false;
       },
     );

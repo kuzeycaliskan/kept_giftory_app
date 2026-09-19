@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/feed/domain/post.dart';
+import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 
 /// Ephemeral feed boundary (G-201/202). Visibility and expiry are enforced
@@ -19,4 +20,10 @@ abstract interface class FeedRepository {
 
   /// Removes the author's own post (photo first, then the row).
   Future<Result<void>> deletePost(Post post);
+
+  /// Sets (or changes) the viewer's reaction on a moment — one per user.
+  Future<Result<void>> setReaction(String postId, ReactionKind kind);
+
+  /// Removes the viewer's reaction on a moment.
+  Future<Result<void>> clearReaction(String postId);
 }

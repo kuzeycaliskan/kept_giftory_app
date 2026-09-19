@@ -4,6 +4,7 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
+import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,7 +24,9 @@ class SupabaseFeedRepository implements FeedRepository {
 
   static const _selectColumns =
       'id, author_id, media_path, caption, created_at, expires_at, '
-      'author:profiles(id, username, display_name, avatar_url)';
+      'author:profiles(id, username, display_name, avatar_url), '
+      'reactions:post_reactions(user_id, kind, '
+      'user:profiles(id, username, display_name, avatar_url))';
 
   @override
   Future<Result<FeedSnapshot>> fetchActive() async {
@@ -93,6 +96,43 @@ class SupabaseFeedRepository implements FeedRepository {
       return const Success(null);
     } on PostgrestException catch (e) {
       debugPrint('post delete failed (${post.id}): ${e.message}');
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> setReaction(String postId, ReactionKind kind) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    try {
+      // PK (post_id, user_id): a second reaction becomes a kind change.
+      await _client.from('post_reactions').upsert({
+        'post_id': postId,
+        'user_id': userId,
+        'kind': kind.name,
+      });
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> clearReaction(String postId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    try {
+      await _client
+          .from('post_reactions')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', userId);
+      return const Success(null);
+    } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));

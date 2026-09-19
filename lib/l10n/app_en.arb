@@ -361,5 +361,13 @@
   "giftPhotoAttachPartial": "Saved, but some photos couldn't be added.",
   "giftDetailPhotosSection": "Memories",
   "giftDetailNoteSection": "Note",
-  "giftDetailLinkSection": "Product link"
+  "giftDetailLinkSection": "Product link",
+  "reactionHeart": "Love",
+  "reactionCongrats": "Congrats",
+  "reactionLike": "Like",
+  "reactionOk": "Nice",
+  "reactionWow": "Wow",
+  "reactionsTitle": "Reactions",
+  "reactionsEmpty": "No reactions yet",
+  "reactionFailed": "Couldn't react. Try again."
 }

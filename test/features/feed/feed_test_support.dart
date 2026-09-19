@@ -7,6 +7,7 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
+import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
 
@@ -23,9 +24,11 @@ Post samplePost({
   String? displayName,
   String? caption,
   DateTime? createdAt,
+  List<Reaction> reactions = const [],
 }) {
   final created = createdAt ?? DateTime.now();
   return Post(
+    reactions: reactions,
     id: id,
     authorId: authorId,
     mediaPath: '$authorId/post-$id.jpg',
@@ -83,6 +86,38 @@ class FakeFeedRepository implements FeedRepository {
   Future<Result<void>> deletePost(Post post) async {
     deleted.add(post.id);
     posts.removeWhere((p) => p.id == post.id);
+    return const Success(null);
+  }
+
+  final reactions = <String>[];
+
+  @override
+  Future<Result<void>> setReaction(String postId, ReactionKind kind) async {
+    reactions.add('set:$postId:${kind.name}');
+    final i = posts.indexWhere((p) => p.id == postId);
+    if (i >= 0) {
+      final others = posts[i].reactions.where((r) => r.userId != viewerId);
+      posts[i] = posts[i].copyWith(
+        reactions: [
+          ...others,
+          Reaction(userId: viewerId ?? 'me', kind: kind),
+        ],
+      );
+    }
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> clearReaction(String postId) async {
+    reactions.add('clear:$postId');
+    final i = posts.indexWhere((p) => p.id == postId);
+    if (i >= 0) {
+      posts[i] = posts[i].copyWith(
+        reactions: posts[i].reactions
+            .where((r) => r.userId != viewerId)
+            .toList(),
+      );
+    }
     return const Success(null);
   }
 }

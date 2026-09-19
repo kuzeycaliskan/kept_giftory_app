@@ -6,10 +6,11 @@ part of 'post_actions.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postActionsHash() => r'8944991f79b022d7d415770d20c57553f1600064';
+String _$postActionsHash() => r'4cabcdd72578d7b2d80fd6565c20143e3fa8aee4';
 
-/// Owner actions on a live moment (currently: delete). Kept apart from the
-/// composer so the viewer doesn't drag the capture pipeline in.
+/// Actions on a live moment from the viewer: owner delete, viewer
+/// reactions. Kept apart from the composer so the viewer doesn't drag the
+/// capture pipeline in.
 ///
 /// Copied from [PostActions].
 @ProviderFor(PostActions)

@@ -14,6 +14,11 @@ _$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
   expiresAt: DateTime.parse(json['expires_at'] as String),
   author: ProfileCard.fromJson(json['author'] as Map<String, dynamic>),
   caption: json['caption'] as String?,
+  reactions:
+      (json['reactions'] as List<dynamic>?)
+          ?.map((e) => Reaction.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
@@ -25,4 +30,5 @@ Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
       'expires_at': instance.expiresAt.toIso8601String(),
       'author': instance.author,
       'caption': instance.caption,
+      'reactions': instance.reactions,
     };

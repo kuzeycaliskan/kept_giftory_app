@@ -32,6 +32,7 @@ mixin _$Post {
   DateTime get expiresAt => throw _privateConstructorUsedError;
   ProfileCard get author => throw _privateConstructorUsedError;
   String? get caption => throw _privateConstructorUsedError;
+  List<Reaction> get reactions => throw _privateConstructorUsedError;
 
   /// Serializes this Post to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -55,6 +56,7 @@ abstract class $PostCopyWith<$Res> {
     @JsonKey(name: 'expires_at') DateTime expiresAt,
     ProfileCard author,
     String? caption,
+    List<Reaction> reactions,
   });
 
   $ProfileCardCopyWith<$Res> get author;
@@ -82,6 +84,7 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
     Object? expiresAt = null,
     Object? author = null,
     Object? caption = freezed,
+    Object? reactions = null,
   }) {
     return _then(
       _value.copyWith(
@@ -113,6 +116,10 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
                 ? _value.caption
                 : caption // ignore: cast_nullable_to_non_nullable
                       as String?,
+            reactions: null == reactions
+                ? _value.reactions
+                : reactions // ignore: cast_nullable_to_non_nullable
+                      as List<Reaction>,
           )
           as $Val,
     );
@@ -145,6 +152,7 @@ abstract class _$$PostImplCopyWith<$Res> implements $PostCopyWith<$Res> {
     @JsonKey(name: 'expires_at') DateTime expiresAt,
     ProfileCard author,
     String? caption,
+    List<Reaction> reactions,
   });
 
   @override
@@ -170,6 +178,7 @@ class __$$PostImplCopyWithImpl<$Res>
     Object? expiresAt = null,
     Object? author = null,
     Object? caption = freezed,
+    Object? reactions = null,
   }) {
     return _then(
       _$PostImpl(
@@ -201,6 +210,10 @@ class __$$PostImplCopyWithImpl<$Res>
             ? _value.caption
             : caption // ignore: cast_nullable_to_non_nullable
                   as String?,
+        reactions: null == reactions
+            ? _value._reactions
+            : reactions // ignore: cast_nullable_to_non_nullable
+                  as List<Reaction>,
       ),
     );
   }
@@ -208,7 +221,7 @@ class __$$PostImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$PostImpl implements _Post {
+class _$PostImpl extends _Post {
   const _$PostImpl({
     required this.id,
     @JsonKey(name: 'author_id') required this.authorId,
@@ -217,7 +230,9 @@ class _$PostImpl implements _Post {
     @JsonKey(name: 'expires_at') required this.expiresAt,
     required this.author,
     this.caption,
-  });
+    final List<Reaction> reactions = const [],
+  }) : _reactions = reactions,
+       super._();
 
   factory _$PostImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostImplFromJson(json);
@@ -240,10 +255,18 @@ class _$PostImpl implements _Post {
   final ProfileCard author;
   @override
   final String? caption;
+  final List<Reaction> _reactions;
+  @override
+  @JsonKey()
+  List<Reaction> get reactions {
+    if (_reactions is EqualUnmodifiableListView) return _reactions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_reactions);
+  }
 
   @override
   String toString() {
-    return 'Post(id: $id, authorId: $authorId, mediaPath: $mediaPath, createdAt: $createdAt, expiresAt: $expiresAt, author: $author, caption: $caption)';
+    return 'Post(id: $id, authorId: $authorId, mediaPath: $mediaPath, createdAt: $createdAt, expiresAt: $expiresAt, author: $author, caption: $caption, reactions: $reactions)';
   }
 
   @override
@@ -261,7 +284,11 @@ class _$PostImpl implements _Post {
             (identical(other.expiresAt, expiresAt) ||
                 other.expiresAt == expiresAt) &&
             (identical(other.author, author) || other.author == author) &&
-            (identical(other.caption, caption) || other.caption == caption));
+            (identical(other.caption, caption) || other.caption == caption) &&
+            const DeepCollectionEquality().equals(
+              other._reactions,
+              _reactions,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -275,6 +302,7 @@ class _$PostImpl implements _Post {
     expiresAt,
     author,
     caption,
+    const DeepCollectionEquality().hash(_reactions),
   );
 
   /// Create a copy of Post
@@ -291,7 +319,7 @@ class _$PostImpl implements _Post {
   }
 }
 
-abstract class _Post implements Post {
+abstract class _Post extends Post {
   const factory _Post({
     required final String id,
     @JsonKey(name: 'author_id') required final String authorId,
@@ -300,7 +328,9 @@ abstract class _Post implements Post {
     @JsonKey(name: 'expires_at') required final DateTime expiresAt,
     required final ProfileCard author,
     final String? caption,
+    final List<Reaction> reactions,
   }) = _$PostImpl;
+  const _Post._() : super._();
 
   factory _Post.fromJson(Map<String, dynamic> json) = _$PostImpl.fromJson;
 
@@ -322,6 +352,8 @@ abstract class _Post implements Post {
   ProfileCard get author;
   @override
   String? get caption;
+  @override
+  List<Reaction> get reactions;
 
   /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.

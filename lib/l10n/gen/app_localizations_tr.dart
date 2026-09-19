@@ -799,4 +799,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get giftDetailLinkSection => 'Ürün linki';
+
+  @override
+  String get reactionHeart => 'Kalp';
+
+  @override
+  String get reactionCongrats => 'Tebrikler';
+
+  @override
+  String get reactionLike => 'Beğendim';
+
+  @override
+  String get reactionOk => 'Güzel';
+
+  @override
+  String get reactionWow => 'Vay';
+
+  @override
+  String get reactionsTitle => 'Tepkiler';
+
+  @override
+  String get reactionsEmpty => 'Henüz tepki yok';
+
+  @override
+  String get reactionFailed => 'Tepki verilemedi. Tekrar dene.';
 }

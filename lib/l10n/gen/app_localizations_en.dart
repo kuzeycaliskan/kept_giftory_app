@@ -801,4 +801,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get giftDetailLinkSection => 'Product link';
+
+  @override
+  String get reactionHeart => 'Love';
+
+  @override
+  String get reactionCongrats => 'Congrats';
+
+  @override
+  String get reactionLike => 'Like';
+
+  @override
+  String get reactionOk => 'Nice';
+
+  @override
+  String get reactionWow => 'Wow';
+
+  @override
+  String get reactionsTitle => 'Reactions';
+
+  @override
+  String get reactionsEmpty => 'No reactions yet';
+
+  @override
+  String get reactionFailed => 'Couldn\'t react. Try again.';
 }

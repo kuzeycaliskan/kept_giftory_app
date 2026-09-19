@@ -133,3 +133,10 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - `gifts.image_url` dropped (unused since G-51).
 - pgTAP 63-77. Note for new tests: on a full gift the cap trigger fires
   before the RLS check (23514 masks 42501) — assert RLS on an empty gift.
+
+## Reactions on moments (G-206)
+
+- `post_reactions` (PK post_id+user_id → one reaction per user, changed by
+  upsert; `reaction_kind` enum heart/congrats/like/ok/wow). Select defers to
+  `posts` RLS, so reactions vanish with the moment and are purged with it
+  (cascade). Insert/update/delete: own rows only. pgTAP 78-87.
