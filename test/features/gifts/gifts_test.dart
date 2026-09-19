@@ -838,11 +838,15 @@ void main() {
       expect(find.text('Reactions'), findsOneWidget);
       expect(find.text('See who reacted'), findsNothing);
 
+      // Hold → picker → congrats.
+      await tester.longPress(find.byIcon(Icons.thumb_up_outlined));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('🎉'));
       await tester.pumpAndSettle();
       expect(repo.reactions, ['set:g8:congrats']);
       expect(find.text('See who reacted'), findsOneWidget);
 
+      // Tap on the reacted pill clears.
       await tester.tap(find.text('🎉'));
       await tester.pumpAndSettle();
       expect(repo.reactions.last, 'clear:g8');

@@ -282,17 +282,24 @@ class _StoryPageState extends ConsumerState<_StoryPage>
                 onTap: () {},
                 onLongPress: () {},
                 child: isMine
-                    ? ReactionSummary(
-                        post: post,
-                        onSheetOpened: _progress.stop,
-                        onSheetClosed: () {
-                          if (mounted) unawaited(_progress.forward());
-                        },
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: ReactionSummary(
+                          post: post,
+                          onSheetOpened: _progress.stop,
+                          onSheetClosed: () {
+                            if (mounted) unawaited(_progress.forward());
+                          },
+                        ),
                       )
-                    : ReactionBar.forPost(
-                        post: post,
-                        myId: myId,
-                        onReact: (kind) => _react(post, kind, myId),
+                    : Align(
+                        alignment: Alignment.centerLeft,
+                        child: ReactionButton(
+                          reactions: post.reactions,
+                          myId: myId,
+                          onDark: true,
+                          onReact: (kind) => _react(post, kind, myId),
+                        ),
                       ),
               ),
             ),

@@ -26,120 +26,179 @@ String reactionLabel(BuildContext context, ReactionKind kind) {
   };
 }
 
-/// Five kinds, the viewer's choice highlighted, counts beside each kind
-/// that has any. [onDark] = white chrome for the story stage; otherwise
-/// theme surface colours (gift detail, Home cards).
-class ReactionBar extends StatelessWidget {
-  const ReactionBar({
+/// One pill (product decision 2026-09-19): tap = like / un-react, hold =
+/// the picker with all five kinds pops up above it. Shows the viewer's own
+/// kind when set (accent fill) or a thumbs-up outline, plus the total
+/// count. [onDark] = white chrome for the story stage.
+class ReactionButton extends StatefulWidget {
+  const ReactionButton({
     required this.reactions,
     required this.myId,
     required this.onReact,
-    this.onDark = true,
+    this.onDark = false,
     super.key,
   });
 
-  /// Convenience for moments.
-  ReactionBar.forPost({
-    required Post post,
-    required this.myId,
-    required this.onReact,
-    super.key,
-  }) : reactions = post.reactions,
-       onDark = true;
-
   final List<Reaction> reactions;
   final String? myId;
+
+  /// Same toggle contract as the controllers: the kind already chosen
+  /// clears, any other kind sets.
   final ValueChanged<ReactionKind> onReact;
   final bool onDark;
 
   @override
-  Widget build(BuildContext context) {
-    final mine = reactions.where((r) => r.userId == myId).firstOrNull?.kind;
-    final counts = <ReactionKind, int>{for (final r in reactions) r.kind: 0};
-    for (final r in reactions) {
-      counts[r.kind] = (counts[r.kind] ?? 0) + 1;
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (final kind in ReactionKind.values)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: KeptSpacing.xs),
-            child: _ReactionChip(
-              glyph: reactionGlyph(kind),
-              label: reactionLabel(context, kind),
-              count: counts[kind] ?? 0,
-              selected: mine == kind,
-              onDark: onDark,
-              onTap: () => onReact(kind),
-            ),
-          ),
-      ],
-    );
-  }
+  State<ReactionButton> createState() => _ReactionButtonState();
 }
 
-class _ReactionChip extends StatelessWidget {
-  const _ReactionChip({
-    required this.glyph,
-    required this.label,
-    required this.count,
-    required this.selected,
-    required this.onDark,
-    required this.onTap,
-  });
+class _ReactionButtonState extends State<ReactionButton> {
+  final _link = LayerLink();
+  final _picker = OverlayPortalController();
 
-  final String glyph;
-  final String label;
-  final int count;
-  final bool selected;
-  final bool onDark;
-  final VoidCallback onTap;
+  ReactionKind? get _mine =>
+      widget.reactions.where((r) => r.userId == widget.myId).firstOrNull?.kind;
+
+  void _tap() => widget.onReact(_mine ?? ReactionKind.like);
+
+  void _pick(ReactionKind kind) {
+    _picker.hide();
+    widget.onReact(kind);
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final mine = _mine;
+    final count = widget.reactions.length;
+    final selected = mine != null;
     final background = selected
         ? scheme.primary
-        : onDark
+        : widget.onDark
         ? Colors.white24
         : scheme.surfaceContainerHighest;
     final foreground = selected
         ? scheme.onPrimary
-        : onDark
+        : widget.onDark
         ? Colors.white
         : scheme.onSurface;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: count > 0 ? '$label $count' : label,
-      child: Material(
-        color: background,
-        borderRadius: KeptRadius.pillAll,
-        child: InkWell(
-          borderRadius: KeptRadius.pillAll,
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: KeptSpacing.md,
-              vertical: KeptSpacing.sm,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(glyph, style: const TextStyle(fontSize: 20)),
-                if (count > 0) ...[
-                  const SizedBox(width: KeptSpacing.xs),
-                  Text(
-                    '$count',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelMedium?.copyWith(color: foreground),
-                  ),
-                ],
-              ],
+    final l10n = context.l10n;
+
+    return OverlayPortal(
+      controller: _picker,
+      overlayChildBuilder: (context) => Stack(
+        children: [
+          // Tap anywhere else → close.
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _picker.hide,
             ),
           ),
+          CompositedTransformFollower(
+            link: _link,
+            followerAnchor: Alignment.bottomLeft,
+            offset: const Offset(0, -KeptSpacing.sm),
+            child: _ReactionPicker(selected: mine, onPick: _pick),
+          ),
+        ],
+      ),
+      child: CompositedTransformTarget(
+        link: _link,
+        child: Semantics(
+          button: true,
+          selected: selected,
+          label: selected
+              ? '${reactionLabel(context, mine)} $count'
+              : l10n.reactionLike,
+          child: Material(
+            color: background,
+            borderRadius: KeptRadius.pillAll,
+            child: InkWell(
+              borderRadius: KeptRadius.pillAll,
+              onTap: _tap,
+              onLongPress: _picker.show,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: KeptSpacing.md,
+                  vertical: KeptSpacing.sm,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (mine == null)
+                      Icon(Icons.thumb_up_outlined, size: 20, color: foreground)
+                    else
+                      Text(
+                        reactionGlyph(mine),
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    if (count > 0) ...[
+                      const SizedBox(width: KeptSpacing.xs),
+                      Text(
+                        '$count',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelLarge?.copyWith(color: foreground),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The five kinds in a floating pill above the button.
+class _ReactionPicker extends StatelessWidget {
+  const _ReactionPicker({required this.selected, required this.onPick});
+
+  final ReactionKind? selected;
+  final ValueChanged<ReactionKind> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.surfaceContainerHigh,
+      borderRadius: KeptRadius.pillAll,
+      elevation: 4,
+      shadowColor: scheme.shadow,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: KeptSpacing.sm,
+          vertical: KeptSpacing.xs,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final kind in ReactionKind.values)
+              Semantics(
+                button: true,
+                selected: kind == selected,
+                label: reactionLabel(context, kind),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => onPick(kind),
+                  child: Container(
+                    padding: const EdgeInsets.all(KeptSpacing.sm),
+                    decoration: kind == selected
+                        ? BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: scheme.primaryContainer,
+                          )
+                        : null,
+                    child: Text(
+                      reactionGlyph(kind),
+                      style: const TextStyle(fontSize: 26),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -220,24 +279,22 @@ class ReactionSummary extends StatelessWidget {
         : counts.entries
               .map((e) => '${reactionGlyph(e.key)} ${e.value}')
               .join(' · ');
-    return Center(
-      child: Material(
-        color: Colors.white24,
+    return Material(
+      color: Colors.white24,
+      borderRadius: KeptRadius.pillAll,
+      child: InkWell(
         borderRadius: KeptRadius.pillAll,
-        child: InkWell(
-          borderRadius: KeptRadius.pillAll,
-          onTap: counts.isEmpty ? null : () => _showReactors(context),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: KeptSpacing.lg,
-              vertical: KeptSpacing.sm,
-            ),
-            child: Text(
-              text,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(color: Colors.white),
-            ),
+        onTap: counts.isEmpty ? null : () => _showReactors(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: KeptSpacing.lg,
+            vertical: KeptSpacing.sm,
+          ),
+          child: Text(
+            text,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: Colors.white),
           ),
         ),
       ),

@@ -175,23 +175,31 @@ void main() {
       await tester.tap(find.text('Zeynep'));
       await pumpViewer(tester);
 
-      // Five kinds, none selected, no counts yet.
-      expect(find.text('❤️'), findsOneWidget);
-      expect(find.text('😮'), findsOneWidget);
+      // Single pill, nothing chosen yet: thumbs-up outline, no picker.
+      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
+      expect(find.text('🎉'), findsNothing);
 
-      await tester.tap(find.text('🎉'));
+      // Tap = like.
+      await tester.tap(find.byIcon(Icons.thumb_up_outlined));
       await pumpViewer(tester);
-      expect(feed.reactions, ['set:z1:congrats']);
+      expect(feed.reactions, ['set:z1:like']);
+      expect(find.text('👍'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
 
-      await tester.tap(find.text('❤️'));
+      // Hold → picker → pick another kind.
+      await tester.longPress(find.text('👍'));
       await pumpViewer(tester);
-      expect(feed.reactions.last, 'set:z1:heart');
+      expect(find.text('🎉'), findsOneWidget);
+      await tester.tap(find.text('🎉'));
+      await pumpViewer(tester);
+      expect(feed.reactions.last, 'set:z1:congrats');
+      expect(find.text('🎉'), findsOneWidget);
 
-      // Tapping the chosen kind again clears it.
-      await tester.tap(find.text('❤️'));
+      // Tap on the pill while reacted clears it.
+      await tester.tap(find.text('🎉'));
       await pumpViewer(tester);
       expect(feed.reactions.last, 'clear:z1');
+      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
       expect(find.text('1'), findsNothing);
     });
 
@@ -232,8 +240,8 @@ void main() {
       await pumpViewer(tester);
 
       expect(find.text('❤️ 2 · 😮 1'), findsOneWidget);
-      // No reaction bar on your own moment.
-      expect(find.text('🎉'), findsNothing);
+      // No reaction pill on your own moment.
+      expect(find.byIcon(Icons.thumb_up_outlined), findsNothing);
 
       // Short pumps: settling would run the 5s auto-advance under the sheet.
       await tester.tap(find.text('❤️ 2 · 😮 1'));

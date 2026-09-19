@@ -5,7 +5,7 @@ import 'package:kept/features/feed/presentation/reaction_bar.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/shared/domain/reaction.dart';
 
-/// Reaction bar for a gift on light surfaces plus a "who reacted" link
+/// Reaction pill for a gift (light surfaces) plus a "who reacted" link
 /// when there is anyone to list. Used by the detail screen and Home cards.
 class GiftReactionRow extends StatelessWidget {
   const GiftReactionRow({
@@ -21,19 +21,15 @@ class GiftReactionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    // Left: the reaction pill. Right: who reacted (comments land here next).
+    return Row(
       children: [
-        ReactionBar(
-          reactions: gift.reactions,
-          myId: myId,
-          onReact: onReact,
-          onDark: false,
-        ),
+        ReactionButton(reactions: gift.reactions, myId: myId, onReact: onReact),
+        const SizedBox(width: KeptSpacing.sm),
         if (gift.reactions.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: KeptSpacing.xs),
-            child: Center(
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () =>
                     showReactorsSheet(context, reactions: gift.reactions),
