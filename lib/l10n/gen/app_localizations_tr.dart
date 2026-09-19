@@ -790,4 +790,13 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get giftPhotoAttachPartial =>
       'Kaydedildi ama bazı fotoğraflar eklenemedi.';
+
+  @override
+  String get giftDetailPhotosSection => 'Anılar';
+
+  @override
+  String get giftDetailNoteSection => 'Not';
+
+  @override
+  String get giftDetailLinkSection => 'Ürün linki';
 }

@@ -792,4 +792,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get giftPhotoAttachPartial =>
       'Saved, but some photos couldn\'t be added.';
+
+  @override
+  String get giftDetailPhotosSection => 'Memories';
+
+  @override
+  String get giftDetailNoteSection => 'Note';
+
+  @override
+  String get giftDetailLinkSection => 'Product link';
 }

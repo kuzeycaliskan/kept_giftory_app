@@ -15,6 +15,7 @@ import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/push/application/push_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
+import 'package:kept/shared/widgets/kept_section_header.dart';
 
 /// Home dashboard (G-82).
 ///
@@ -106,14 +107,14 @@ class HomeScreen extends ConsumerWidget {
             const StoriesStrip(),
             const SizedBox(height: KeptSpacing.lg),
             const _PushPrimingCard(),
-            _SectionHeader(title: l10n.homeUpcomingSection),
+            KeptSectionHeader(l10n.homeUpcomingSection),
             _UpcomingSection(state: upcoming),
             if (hasFriends) ...[
               const SizedBox(height: KeptSpacing.xl),
-              _SectionHeader(title: l10n.homeWishlistSection),
+              KeptSectionHeader(l10n.homeWishlistSection),
               _WishlistFeedSection(state: wishlistFeed),
               const SizedBox(height: KeptSpacing.xl),
-              _SectionHeader(title: l10n.homeActivitySection),
+              KeptSectionHeader(l10n.homeActivitySection),
               _EventsSection(state: events),
             ],
           ],
@@ -178,25 +179,6 @@ class _PushPrimingCard extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Section title with the group's left edge and a fixed gap below, so every
-/// section reads header → group with the same rhythm.
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: KeptSpacing.xs,
-        bottom: KeptSpacing.sm,
-      ),
-      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
     );
   }
 }

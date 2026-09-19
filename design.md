@@ -65,6 +65,9 @@ TÜRETİLMEZ — açık `fontSize` yazılır. (App bar başlığının 14'e dü�
 - **App bar düz:** yüzey renginde, gölgesiz, scroll'da renk değiştirmez.
 - **Listeler:** kart yığını değil; düz satırlar + hairline ayraç. Kart yalnız
   "öne çıkan tekil içerik" için ve düz (gölgesiz, ince çerçeveli).
+- **Bölüm başlığı (`KeptSectionHeader`, `shared/widgets`):** pano ve detay
+  ekranlarında her içerik bloğunun üstünde titleMedium başlık, altında sabit
+  boşluk; ekran içi ad-hoc başlık stili yazılmaz.
 - **Gruplu liste (`KeptListGroup`, `shared/widgets`):** pano tipi ekranlarda
   (Home bölümleri) satırlar tek hairline-çerçeveli konteynerde, aralarında
   hairline ayraç; satır başı `ListTile` varsayılan iç boşluğu (kenar hizası kart

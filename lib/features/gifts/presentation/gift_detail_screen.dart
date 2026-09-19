@@ -9,6 +9,7 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/shared/widgets/kept_section_header.dart';
 import 'package:kept/shared/widgets/link_preview_card.dart';
 import 'package:kept/shared/widgets/media_gallery_viewer.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
@@ -106,17 +107,44 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
           }
           final canAdd =
               gift.isParty(myId) && gift.photos.length < giftPhotoCap;
+          final note = gift.note;
+          final preview = gift.preview;
           return ListView(
             padding: const EdgeInsets.all(KeptSpacing.lg),
             children: [
+              _Heading(gift: gift),
+              const SizedBox(height: KeptSpacing.xl),
+              KeptSectionHeader(l10n.giftDetailPhotosSection),
               _PhotoCards(
                 photos: gift.photos,
                 onOpen: (i) => _openGallery(gift, i, myId),
                 onAdd: canAdd && !busy ? () => _addPhoto(gift) : null,
                 showAddSlot: canAdd,
               ),
-              const SizedBox(height: KeptSpacing.xl),
-              _Facts(gift: gift),
+              if (note != null && note.isNotEmpty) ...[
+                const SizedBox(height: KeptSpacing.xl),
+                KeptSectionHeader(l10n.giftDetailNoteSection),
+                Padding(
+                  padding: const EdgeInsets.only(left: KeptSpacing.xs),
+                  child: Text(
+                    note,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+              ],
+              if (preview != null) ...[
+                const SizedBox(height: KeptSpacing.xl),
+                KeptSectionHeader(l10n.giftDetailLinkSection),
+                LinkPreviewCard(
+                  preview: preview,
+                  onTap: preview.url == null
+                      ? null
+                      : () => launchUrl(
+                          Uri.parse(preview.url!),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                ),
+              ],
             ],
           );
         },
@@ -242,8 +270,9 @@ class _PhotoCard extends StatelessWidget {
   }
 }
 
-class _Facts extends StatelessWidget {
-  const _Facts({required this.gift});
+/// The page's identity: what the gift is, who and when, surprise state.
+class _Heading extends StatelessWidget {
+  const _Heading({required this.gift});
 
   final GiftEntry gift;
 
@@ -256,52 +285,37 @@ class _Facts extends StatelessWidget {
         ? l10n.giftFromRelation(giftRelationLabel(context, gift.giverRelation!))
         : (gift.counterpartLabel ?? l10n.giftAnonymousGiver);
     final date = DateFormat.yMMMd(locale).format(gift.giftDate);
-    final preview = gift.preview;
-    final note = gift.note;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          gift.item,
-          style: theme.textTheme.titleLarge,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: KeptSpacing.xs),
-        Text(
-          '$counterpart · $date',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+    return Padding(
+      padding: const EdgeInsets.only(left: KeptSpacing.xs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            gift.item,
+            style: theme.textTheme.titleLarge,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (gift.isPendingSurprise)
-          Padding(
-            padding: const EdgeInsets.only(top: KeptSpacing.sm),
-            child: Chip(
-              label: Text(l10n.giftSurpriseBadge),
-              visualDensity: VisualDensity.compact,
+          const SizedBox(height: KeptSpacing.xs),
+          Text(
+            '$counterpart · $date',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-        if (note != null && note.isNotEmpty) ...[
-          const SizedBox(height: KeptSpacing.lg),
-          Text(note, style: theme.textTheme.bodyLarge),
+          if (gift.isPendingSurprise)
+            Padding(
+              padding: const EdgeInsets.only(top: KeptSpacing.sm),
+              child: Chip(
+                label: Text(l10n.giftSurpriseBadge),
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
         ],
-        if (preview != null) ...[
-          const SizedBox(height: KeptSpacing.lg),
-          LinkPreviewCard(
-            preview: preview,
-            onTap: preview.url == null
-                ? null
-                : () => launchUrl(
-                    Uri.parse(preview.url!),
-                    mode: LaunchMode.externalApplication,
-                  ),
-          ),
-        ],
-      ],
+      ),
     );
   }
 }

@@ -1561,6 +1561,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved, but some photos couldn\'t be added.'**
   String get giftPhotoAttachPartial;
+
+  /// No description provided for @giftDetailPhotosSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Memories'**
+  String get giftDetailPhotosSection;
+
+  /// No description provided for @giftDetailNoteSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get giftDetailNoteSection;
+
+  /// No description provided for @giftDetailLinkSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Product link'**
+  String get giftDetailLinkSection;
 }
 
 class _AppLocalizationsDelegate

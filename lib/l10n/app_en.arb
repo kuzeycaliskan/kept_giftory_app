@@ -358,5 +358,8 @@
   "giftPhotoRemoved": "Photo removed",
   "giftPhotoRemoveFailed": "Couldn't remove the photo",
   "giftPhotoAddFailed": "Couldn't add the photo",
-  "giftPhotoAttachPartial": "Saved, but some photos couldn't be added."
+  "giftPhotoAttachPartial": "Saved, but some photos couldn't be added.",
+  "giftDetailPhotosSection": "Memories",
+  "giftDetailNoteSection": "Note",
+  "giftDetailLinkSection": "Product link"
 }
