@@ -888,4 +888,9 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get notifSocialDesc =>
       'Hediyene ya da anına yorum gelince ve bir sürpriz açılınca';
+
+  @override
+  String homeEventFriendGiftExternal(String name) {
+    return '$name bir hediye aldı';
+  }
 }

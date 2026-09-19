@@ -240,6 +240,13 @@ class _ReactionPicker extends StatelessWidget {
   }
 }
 
+/// Compact summary that fits any width: the glyphs present, then the total
+/// ("❤️🎉👍 7") — at most five glyphs and a number, so no wrapping games.
+String reactionDigest(Map<ReactionKind, int> counts) {
+  final total = counts.values.fold(0, (a, b) => a + b);
+  return '${counts.keys.map(reactionGlyph).join()} $total';
+}
+
 /// "Who reacted" list, shared by moments and gifts.
 Future<void> showReactorsSheet(
   BuildContext context, {
@@ -309,11 +316,7 @@ class ReactionSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final counts = post.reactionCounts;
     final l10n = context.l10n;
-    final text = counts.isEmpty
-        ? l10n.reactionsEmpty
-        : counts.entries
-              .map((e) => '${reactionGlyph(e.key)} ${e.value}')
-              .join(' · ');
+    final text = counts.isEmpty ? l10n.reactionsEmpty : reactionDigest(counts);
     return Material(
       color: Colors.white24,
       borderRadius: KeptRadius.pillAll,
@@ -327,6 +330,8 @@ class ReactionSummary extends StatelessWidget {
           ),
           child: Text(
             text,
+            maxLines: 1,
+            softWrap: false,
             style: Theme.of(
               context,
             ).textTheme.labelLarge?.copyWith(color: Colors.white),

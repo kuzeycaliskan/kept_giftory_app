@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
+import 'package:kept/features/feed/presentation/reaction_bar.dart'
+    show reactionDigest;
 import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
@@ -150,7 +152,11 @@ class _CommentsSheetState extends State<_CommentsSheet> {
       _reload();
     } catch (e) {
       debugPrint('comment add failed: $e');
-      messenger.showSnackBar(SnackBar(content: Text(l10n.commentsSendFailed)));
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.commentsSendFailed)),
+        );
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -181,7 +187,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
             onTap: () async {
               try {
                 await widget.target.remove(comment);
-                _reload();
+                if (mounted) _reload();
               } catch (e) {
                 debugPrint('comment delete failed: $e');
                 messenger.showSnackBar(
@@ -217,9 +223,11 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 ),
               ),
               if (reactionSummary != null)
-                TextButton(
-                  onPressed: widget.onReactionsTap,
-                  child: Text(reactionSummary),
+                Flexible(
+                  child: TextButton(
+                    onPressed: widget.onReactionsTap,
+                    child: Text(reactionSummary, maxLines: 1, softWrap: false),
+                  ),
                 ),
             ],
           ),
@@ -335,20 +343,11 @@ class _CommentsSheetState extends State<_CommentsSheet> {
 String? _reactionSummary(List<Reaction> reactions) {
   if (reactions.isEmpty) return null;
   final counts = <ReactionKind, int>{};
-  for (final r in reactions) {
-    counts[r.kind] = (counts[r.kind] ?? 0) + 1;
+  for (final kind in ReactionKind.values) {
+    final n = reactions.where((r) => r.kind == kind).length;
+    if (n > 0) counts[kind] = n;
   }
-  const glyphs = {
-    ReactionKind.heart: '❤️',
-    ReactionKind.congrats: '🎉',
-    ReactionKind.like: '👍',
-    ReactionKind.ok: '👌',
-    ReactionKind.wow: '😮',
-  };
-  return [
-    for (final kind in ReactionKind.values)
-      if (counts.containsKey(kind)) '${glyphs[kind]} ${counts[kind]}',
-  ].join(' · ');
+  return reactionDigest(counts);
 }
 
 /// Coarse relative time: just now / minutes / hours / days.

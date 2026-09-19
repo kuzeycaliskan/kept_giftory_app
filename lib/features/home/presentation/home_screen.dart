@@ -586,6 +586,12 @@ String _eventTitle(BuildContext context, HomeEvent event) {
     HomeEventKind.externalGiftLogged => l10n.homeEventExternalGift(
       giftRelationLabel(context, event.giverRelation!),
     ),
+    // A friend's gift from outside Kept: relation labels are first-person
+    // ("from my mom"), so say only that they got one.
+    HomeEventKind.friendGiftReceived when event.giverRelation != null =>
+      l10n.homeEventFriendGiftExternal(
+        event.recipientLabel ?? l10n.giftAnonymousGiver,
+      ),
     HomeEventKind.friendGiftReceived => l10n.homeEventFriendGift(
       event.recipientLabel ?? l10n.giftAnonymousGiver,
       actor,

@@ -890,4 +890,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notifSocialDesc =>
       'When someone comments on your gifts or moments, and when a surprise opens';
+
+  @override
+  String homeEventFriendGiftExternal(String name) {
+    return '$name got a gift';
+  }
 }

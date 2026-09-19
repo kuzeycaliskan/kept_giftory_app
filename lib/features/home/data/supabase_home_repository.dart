@@ -146,6 +146,7 @@ class SupabaseHomeRepository implements HomeRepository {
                   at: at,
                   actorId: gift.counterpartId,
                   actorLabel: gift.counterpartLabel,
+                  giverRelation: gift.giverRelation,
                   item: gift.item,
                   gift: gift,
                   recipientId: gift.recipientId,

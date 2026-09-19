@@ -1729,6 +1729,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When someone comments on your gifts or moments, and when a surprise opens'**
   String get notifSocialDesc;
+
+  /// No description provided for @homeEventFriendGiftExternal.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} got a gift'**
+  String homeEventFriendGiftExternal(String name);
 }
 
 class _AppLocalizationsDelegate

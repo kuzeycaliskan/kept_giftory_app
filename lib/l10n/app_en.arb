@@ -417,5 +417,13 @@
     }
   },
   "notifSocial": "Comments & surprises",
-  "notifSocialDesc": "When someone comments on your gifts or moments, and when a surprise opens"
+  "notifSocialDesc": "When someone comments on your gifts or moments, and when a surprise opens",
+  "homeEventFriendGiftExternal": "{name} got a gift",
+  "@homeEventFriendGiftExternal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -35,6 +35,11 @@ class StoryViewerScreen extends ConsumerStatefulWidget {
 class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> {
   PageController? _pages;
 
+  /// The author currently on screen — the viewer follows this, not the
+  /// author it opened on, so an earlier story expiring mid-swipe doesn't
+  /// close the whole viewer.
+  late String _currentAuthorId = widget.initialAuthorId;
+
   @override
   void dispose() {
     _pages?.dispose();
@@ -80,9 +85,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> {
             return const SizedBox.shrink();
           }
           final start = groups.indexWhere(
-            (g) => g.author.id == widget.initialAuthorId,
+            (g) => g.author.id == _currentAuthorId,
           );
-          // The author's story vanished (expired/deleted) while we opened.
+          // The story on screen vanished (expired/deleted).
           if (start < 0) {
             _closeAfterFrame();
             return const SizedBox.shrink();
@@ -91,6 +96,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> {
           return PageView.builder(
             controller: pages,
             itemCount: groups.length,
+            onPageChanged: (i) => _currentAuthorId = groups[i].author.id,
             itemBuilder: (context, index) => _StoryPage(
               key: ValueKey(groups[index].author.id),
               group: groups[index],
@@ -133,9 +139,10 @@ class _StoryPageState extends ConsumerState<_StoryPage>
   @override
   void didUpdateWidget(covariant _StoryPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // A post was deleted underneath us: clamp instead of indexing past the end.
-    if (_index >= widget.group.posts.length) {
-      _show(widget.group.posts.length - 1);
+    // The post list changed underneath us (own delete, refetch): restart on
+    // a valid index so the progress bar never sits frozen.
+    if (oldWidget.group.posts.length != widget.group.posts.length) {
+      _show(_index.clamp(0, widget.group.posts.length - 1));
     }
   }
 
@@ -337,12 +344,14 @@ class _StoryPageState extends ConsumerState<_StoryPage>
                 child: Row(
                   children: [
                     if (isMine)
-                      ReactionSummary(
-                        post: post,
-                        onSheetOpened: _progress.stop,
-                        onSheetClosed: () {
-                          if (mounted) unawaited(_progress.forward());
-                        },
+                      Flexible(
+                        child: ReactionSummary(
+                          post: post,
+                          onSheetOpened: _progress.stop,
+                          onSheetClosed: () {
+                            if (mounted) unawaited(_progress.forward());
+                          },
+                        ),
                       )
                     else
                       ReactionButton(

@@ -263,12 +263,12 @@ void main() {
       await tester.tap(find.text('You'));
       await pumpViewer(tester);
 
-      expect(find.text('❤️ 2 · 😮 1'), findsOneWidget);
+      expect(find.text('❤️😮 3'), findsOneWidget);
       // No reaction pill on your own moment.
       expect(find.byIcon(Icons.favorite_border), findsNothing);
 
       // Short pumps: settling would run the 5s auto-advance under the sheet.
-      await tester.tap(find.text('❤️ 2 · 😮 1'));
+      await tester.tap(find.text('❤️😮 3'));
       await pumpViewer(tester);
       expect(find.text('Reactions'), findsOneWidget);
       expect(find.text('Ali'), findsOneWidget);
