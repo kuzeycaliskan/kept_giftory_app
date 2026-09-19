@@ -196,7 +196,10 @@ class _GalleryPageState extends State<_GalleryPage>
               // thins as the photo is pulled away, so the page underneath
               // comes back into focus as the dismissal completes.
               BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                filter: ImageFilter.blur(
+                  sigmaX: _blurSigma,
+                  sigmaY: _blurSigma,
+                ),
                 child: ColoredBox(
                   color: scheme.surface.withValues(
                     alpha: _scrimAlpha * chromeOpacity,
@@ -230,9 +233,16 @@ class _GalleryPageState extends State<_GalleryPage>
                                     ? _zoom
                                     : null,
                                 maxScale: 4,
-                                child: PrivateMediaImage(
-                                  bucket: items[i].bucket,
-                                  path: items[i].path,
+                                // Rounded corners on the photo itself: the
+                                // clip hugs the image, not the page box.
+                                child: Center(
+                                  child: ClipRRect(
+                                    borderRadius: KeptRadius.cardAll,
+                                    child: PrivateMediaImage(
+                                      bucket: items[i].bucket,
+                                      path: items[i].path,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -266,6 +276,9 @@ class _GalleryPageState extends State<_GalleryPage>
   /// How much the scrim hides the blurred page: enough for the photo and
   /// chrome to read cleanly, little enough that the page is recognisable.
   static const double _scrimAlpha = 0.72;
+
+  /// Soft, not opaque: the page beneath should stay recognisable.
+  static const double _blurSigma = 12;
 }
 
 /// Pill indicator: the active page stretches, the rest are dots — reads as
