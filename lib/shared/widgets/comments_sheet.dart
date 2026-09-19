@@ -126,7 +126,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
 
   void _reload() {
     final next = widget.target.load();
-    setState(() => _comments = next);
+    // Block body: an arrow would hand setState the Future as return value.
+    setState(() {
+      _comments = next;
+    });
   }
 
   Future<void> _send() async {
