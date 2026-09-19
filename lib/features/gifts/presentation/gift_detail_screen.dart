@@ -4,11 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/gifts/application/gift_photo_controller.dart';
+import 'package:kept/features/gifts/application/gift_reaction_controller.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
+import 'package:kept/features/gifts/presentation/widgets/gift_reaction_row.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/kept_section_header.dart';
 import 'package:kept/shared/widgets/link_preview_card.dart';
 import 'package:kept/shared/widgets/media_gallery_viewer.dart';
@@ -62,6 +65,17 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
         content: Text(ok ? l10n.giftPhotoRemoved : l10n.giftPhotoRemoveFailed),
       ),
     );
+  }
+
+  Future<void> _react(GiftEntry gift, ReactionKind kind, String? myId) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final ok = await ref
+        .read(giftReactionControllerProvider.notifier)
+        .react(gift, kind, myId: myId);
+    if (!ok && mounted) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.reactionFailed)));
+    }
   }
 
   /// Tap a card → full-screen, swipe across all photos; own photos can be
@@ -120,6 +134,13 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
                 onOpen: (i) => _openGallery(gift, i, myId),
                 onAdd: canAdd && !busy ? () => _addPhoto(gift) : null,
                 showAddSlot: canAdd,
+              ),
+              const SizedBox(height: KeptSpacing.xl),
+              KeptSectionHeader(l10n.giftDetailReactionsSection),
+              GiftReactionRow(
+                gift: gift,
+                myId: myId,
+                onReact: (kind) => _react(gift, kind, myId),
               ),
               if (note != null && note.isNotEmpty) ...[
                 const SizedBox(height: KeptSpacing.xl),

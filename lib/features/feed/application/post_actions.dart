@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'post_actions.g.dart';

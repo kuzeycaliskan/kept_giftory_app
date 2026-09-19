@@ -1645,6 +1645,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Opens on {date}'**
   String homeSurpriseTeaserOpens(String date);
+
+  /// No description provided for @giftDetailReactionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get giftDetailReactionsSection;
+
+  /// No description provided for @reactionsWhoReacted.
+  ///
+  /// In en, this message translates to:
+  /// **'See who reacted'**
+  String get reactionsWhoReacted;
 }
 
 class _AppLocalizationsDelegate

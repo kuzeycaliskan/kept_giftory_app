@@ -8,12 +8,15 @@ import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
+import 'package:kept/features/gifts/application/gift_reaction_controller.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
+import 'package:kept/features/gifts/presentation/widgets/gift_reaction_row.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/push/application/push_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
@@ -438,14 +441,15 @@ class _EventRow extends StatelessWidget {
 
 /// A gift as a post (G-210): who/when, the item, its memory photos and link
 /// card. Tap → the gift detail. Rendered flat (outlined card theme).
-class _GiftPostCard extends StatelessWidget {
+class _GiftPostCard extends ConsumerWidget {
   const _GiftPostCard({required this.event});
 
   final HomeEvent event;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final gift = event.gift!;
+    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final date = DateFormat.yMMMd(locale).format(gift.giftDate);
@@ -507,6 +511,14 @@ class _GiftPostCard extends StatelessWidget {
                 const SizedBox(height: KeptSpacing.sm),
                 LinkPreviewCard(preview: preview),
               ],
+              const SizedBox(height: KeptSpacing.md),
+              GiftReactionRow(
+                gift: gift,
+                myId: myId,
+                onReact: (kind) => ref
+                    .read(giftReactionControllerProvider.notifier)
+                    .react(gift, kind, myId: myId),
+              ),
             ],
           ),
         ),

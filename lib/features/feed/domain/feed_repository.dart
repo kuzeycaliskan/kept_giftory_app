@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 /// Ephemeral feed boundary (G-201/202). Visibility and expiry are enforced
 /// by RLS — the repository never filters on them client-side.

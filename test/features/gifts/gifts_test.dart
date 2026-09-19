@@ -24,6 +24,7 @@ import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/features/link_preview/domain/link_preview_repository.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -140,6 +141,41 @@ class _FakeGiftRepository implements GiftRepository {
         list[i] = _withPhotos(
           list[i],
           list[i].photos.where((p) => p.id != photo.id).toList(),
+        );
+      }
+    }
+    return const Success(null);
+  }
+
+  final reactions = <String>[];
+
+  @override
+  Future<Result<void>> setReaction(String giftId, ReactionKind kind) async {
+    reactions.add('set:$giftId:${kind.name}');
+    for (final list in [given, received]) {
+      final i = list.indexWhere((g) => g.id == giftId);
+      if (i >= 0) {
+        list[i] = list[i].copyWith(
+          reactions: [
+            ...list[i].reactions.where((r) => r.userId != 'dev-me'),
+            Reaction(userId: 'dev-me', kind: kind),
+          ],
+        );
+      }
+    }
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> clearReaction(String giftId) async {
+    reactions.add('clear:$giftId');
+    for (final list in [given, received]) {
+      final i = list.indexWhere((g) => g.id == giftId);
+      if (i >= 0) {
+        list[i] = list[i].copyWith(
+          reactions: list[i].reactions
+              .where((r) => r.userId != 'dev-me')
+              .toList(),
         );
       }
     }
@@ -790,6 +826,27 @@ void main() {
       expect(find.text('Photo removed'), findsOneWidget);
       expect(find.byType(PrivateMediaImage), findsNothing);
       expect(find.text('Take a photo'), findsOneWidget);
+    });
+
+    testWidgets('reacting from the detail sets, changes and clears', (
+      tester,
+    ) async {
+      final repo = _FakeGiftRepository(
+        given: [giftWithPhotos(id: 'g8', count: 0)],
+      );
+      await pump(tester, gifts: repo, initial: '/gifts/g8?side=recipient');
+      expect(find.text('Reactions'), findsOneWidget);
+      expect(find.text('See who reacted'), findsNothing);
+
+      await tester.tap(find.text('🎉'));
+      await tester.pumpAndSettle();
+      expect(repo.reactions, ['set:g8:congrats']);
+      expect(find.text('See who reacted'), findsOneWidget);
+
+      await tester.tap(find.text('🎉'));
+      await tester.pumpAndSettle();
+      expect(repo.reactions.last, 'clear:g8');
+      expect(find.text('See who reacted'), findsNothing);
     });
 
     testWidgets('photos taken in the log form attach after save', (

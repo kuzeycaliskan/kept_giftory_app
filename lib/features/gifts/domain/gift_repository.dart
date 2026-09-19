@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 /// Gifts boundary (G-51/G-52). Surprise isolation is enforced by RLS:
 /// unrevealed surprises never reach the recipient's queries.
@@ -54,4 +55,10 @@ abstract interface class GiftRepository {
 
   /// Removes one of the caller's own photos (object first, then row).
   Future<Result<void>> removePhoto(GiftPhoto photo);
+
+  /// Sets (or changes) the caller's reaction on a gift — one per user.
+  Future<Result<void>> setReaction(String giftId, ReactionKind kind);
+
+  /// Removes the caller's reaction on a gift.
+  Future<Result<void>> clearReaction(String giftId);
 }

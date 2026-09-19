@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(92);
+select plan(98);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1089,6 +1089,61 @@ select is(
   (select has_pending from public.pending_surprise_teaser()),
   false,
   '92: teaser is strictly the caller''s own'
+);
+reset role;
+
+-- ── 93-98: reactions on gifts ───────────────────────────────────────────────
+-- G1 (erin→alice, plain) is visible to carol (alice's friend); G2 is a
+-- pending surprise, hidden from alice; dave is a stranger to alice.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gift_reactions (gift_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000c', 'congrats') $$,
+  '93: a friend who sees the gift can react to it'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gift_reactions (gift_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000a', 'heart') $$,
+  '94: the recipient can react to their own gift'
+);
+
+select throws_ok(
+  $$ insert into public.gift_reactions (gift_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000a', 'wow') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_reactions"',
+  '95: recipient cannot react to an unrevealed surprise'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select throws_ok(
+  $$ insert into public.gift_reactions (gift_id, user_id, kind)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000d', 'like') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_reactions"',
+  '96: a stranger cannot react to a friends-only history'
+);
+
+select is(
+  (select count(*) from public.gift_reactions where gift_id = '00000000-0000-0000-0000-000000000c01'),
+  0::bigint,
+  '97: reactions are as hidden as the gift'
+);
+
+-- Identity batch: dave (stranger) still gets ivy's (friends-only) card.
+select is(
+  (select username from public.profile_cards(array['00000000-0000-0000-0000-000000000a12'::uuid])),
+  'ivy',
+  '98: profile_cards resolves a private profile''s discovery card'
 );
 reset role;
 

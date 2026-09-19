@@ -7,10 +7,10 @@ import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/application/post_actions.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:kept/features/feed/presentation/reaction_bar.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
@@ -289,7 +289,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
                           if (mounted) unawaited(_progress.forward());
                         },
                       )
-                    : ReactionBar(
+                    : ReactionBar.forPost(
                         post: post,
                         myId: myId,
                         onReact: (kind) => _react(post, kind, myId),

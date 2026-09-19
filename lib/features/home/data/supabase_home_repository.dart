@@ -171,8 +171,13 @@ class SupabaseHomeRepository implements HomeRepository {
           ),
         );
       }
-      for (final row in giftRows) {
-        final gift = giftEntryFromRow(row, counterpartKey: 'giver');
+      final gifts = await resolveReactionCards(_client, [
+        for (final row in giftRows)
+          giftEntryFromRow(row, counterpartKey: 'giver'),
+      ]);
+      for (var i = 0; i < giftRows.length; i++) {
+        final row = giftRows[i];
+        final gift = gifts[i];
         final at = DateTime.parse(row['created_at']! as String);
         final recipient = row['recipient'] as Map<String, dynamic>?;
         final mine = gift.recipientId == userId;

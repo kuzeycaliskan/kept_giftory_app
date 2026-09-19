@@ -7,9 +7,9 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 /// 1×1 transparent PNG — enough for Image.memory and the identity encoder.
 final Uint8List tinyPng = base64Decode(

@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 part 'post.freezed.dart';
 part 'post.g.dart';

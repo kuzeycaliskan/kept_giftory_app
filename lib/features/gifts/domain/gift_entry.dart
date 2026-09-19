@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 /// Who gave an externally-logged gift (G-212). Wire names match the
 /// `giver_relation` Postgres enum; the UI localizes labels.
@@ -59,6 +60,7 @@ class GiftEntry {
     this.photos = const [],
     this.giverId,
     this.recipientId,
+    this.reactions = const [],
   });
 
   final String id;
@@ -89,6 +91,36 @@ class GiftEntry {
 
   bool isParty(String? userId) =>
       userId != null && (userId == giverId || userId == recipientId);
+
+  /// Reactions from everyone who can see the gift (one per user).
+  final List<Reaction> reactions;
+
+  ReactionKind? reactionOf(String? userId) =>
+      reactions.where((r) => r.userId == userId).firstOrNull?.kind;
+
+  Map<ReactionKind, int> get reactionCounts => {
+    for (final kind in ReactionKind.values)
+      if (reactions.any((r) => r.kind == kind))
+        kind: reactions.where((r) => r.kind == kind).length,
+  };
+
+  GiftEntry copyWith({List<GiftPhoto>? photos, List<Reaction>? reactions}) =>
+      GiftEntry(
+        id: id,
+        item: item,
+        giftDate: giftDate,
+        isSurprise: isSurprise,
+        note: note,
+        revealAt: revealAt,
+        counterpartId: counterpartId,
+        counterpartLabel: counterpartLabel,
+        preview: preview,
+        giverRelation: giverRelation,
+        photos: photos ?? this.photos,
+        giverId: giverId,
+        recipientId: recipientId,
+        reactions: reactions ?? this.reactions,
+      );
 
   /// Still hidden from the recipient (giver-side badge).
   bool get isPendingSurprise =>

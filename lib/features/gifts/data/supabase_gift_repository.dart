@@ -5,6 +5,7 @@ import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/gifts/data/gift_row_mapper.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Supabase-backed [GiftRepository]. Counterpart profiles come via embedded
@@ -36,9 +37,12 @@ class SupabaseGiftRepository implements GiftRepository {
           .select(_recipientSelect)
           .eq('giver_id', userId)
           .order('gift_date', ascending: false);
-      return Success([
-        for (final r in rows) giftEntryFromRow(r, counterpartKey: 'recipient'),
-      ]);
+      return Success(
+        await resolveReactionCards(_client, [
+          for (final r in rows)
+            giftEntryFromRow(r, counterpartKey: 'recipient'),
+        ]),
+      );
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
@@ -64,9 +68,11 @@ class SupabaseGiftRepository implements GiftRepository {
           .select(_giverSelect)
           .eq('recipient_id', recipientId)
           .order('gift_date', ascending: false);
-      return Success([
-        for (final r in rows) giftEntryFromRow(r, counterpartKey: 'giver'),
-      ]);
+      return Success(
+        await resolveReactionCards(_client, [
+          for (final r in rows) giftEntryFromRow(r, counterpartKey: 'giver'),
+        ]),
+      );
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
@@ -245,6 +251,42 @@ class SupabaseGiftRepository implements GiftRepository {
     try {
       await _media.delete(bucket: giftMediaBucket, path: photo.mediaPath);
       await _client.from('gift_photos').delete().eq('id', photo.id);
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> setReaction(String giftId, ReactionKind kind) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    try {
+      await _client.from('gift_reactions').upsert({
+        'gift_id': giftId,
+        'user_id': userId,
+        'kind': kind.name,
+      });
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> clearReaction(String giftId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    try {
+      await _client
+          .from('gift_reactions')
+          .delete()
+          .eq('gift_id', giftId)
+          .eq('user_id', userId);
       return const Success(null);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));

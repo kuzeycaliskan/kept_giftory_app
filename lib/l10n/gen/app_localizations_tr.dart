@@ -836,4 +836,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String homeSurpriseTeaserOpens(String date) {
     return '$date günü açılıyor';
   }
+
+  @override
+  String get giftDetailReactionsSection => 'Tepkiler';
+
+  @override
+  String get reactionsWhoReacted => 'Kim tepki verdi';
 }

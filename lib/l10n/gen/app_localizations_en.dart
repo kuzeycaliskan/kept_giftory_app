@@ -838,4 +838,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeSurpriseTeaserOpens(String date) {
     return 'Opens on $date';
   }
+
+  @override
+  String get giftDetailReactionsSection => 'Reactions';
+
+  @override
+  String get reactionsWhoReacted => 'See who reacted';
 }

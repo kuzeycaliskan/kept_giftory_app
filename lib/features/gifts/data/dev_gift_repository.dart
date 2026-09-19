@@ -3,6 +3,7 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 /// Debug-only in-memory gifts so the dev session is fully walkable.
 class DevGiftRepository implements GiftRepository {
@@ -132,6 +133,14 @@ class DevGiftRepository implements GiftRepository {
   @override
   Future<Result<void>> removePhoto(GiftPhoto photo) async =>
       const ResultFailure(NetworkFailure('Dev mode: no storage'));
+
+  @override
+  Future<Result<void>> setReaction(String giftId, ReactionKind kind) async =>
+      const Success(null);
+
+  @override
+  Future<Result<void>> clearReaction(String giftId) async =>
+      const Success(null);
 }
 
 /// Backend-less fallback (no --dart-define config).
@@ -200,5 +209,13 @@ class EmptyGiftRepository implements GiftRepository {
 
   @override
   Future<Result<void>> removePhoto(GiftPhoto photo) async =>
+      const ResultFailure(NetworkFailure('No backend configured'));
+
+  @override
+  Future<Result<void>> setReaction(String giftId, ReactionKind kind) async =>
+      const ResultFailure(NetworkFailure('No backend configured'));
+
+  @override
+  Future<Result<void>> clearReaction(String giftId) async =>
       const ResultFailure(NetworkFailure('No backend configured'));
 }

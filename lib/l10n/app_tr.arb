@@ -257,5 +257,7 @@
   "reactionFailed": "Tepki verilemedi. Tekrar dene.",
   "homeEventFriendGift": "{name}, {giver} tarafından bir hediye aldı",
   "homeSurpriseTeaserTitle": "Sana bir sürpriz hazırlanıyor",
-  "homeSurpriseTeaserOpens": "{date} günü açılıyor"
+  "homeSurpriseTeaserOpens": "{date} günü açılıyor",
+  "giftDetailReactionsSection": "Tepkiler",
+  "reactionsWhoReacted": "Kim tepki verdi"
 }

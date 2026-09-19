@@ -7,10 +7,10 @@ import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'feed_test_support.dart';

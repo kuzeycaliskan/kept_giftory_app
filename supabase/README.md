@@ -149,3 +149,13 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - Feed rule (client, `SupabaseHomeRepository.recentEvents`): friends' pending
   surprises are filtered out (`is_surprise=false OR reveal_at<=now`) so a
   surprise reaches the feed only once it opens.
+
+## Reactions on gifts (G-210 slice 2)
+
+- `gift_reactions` mirrors `post_reactions` (PK gift_id+user_id, select
+  defers to `gifts` RLS — a pending surprise's reactions stay hidden from the
+  recipient, history visibility carries over). Anyone who sees the gift may
+  react, parties included.
+- `profile_cards(uuid[])` (definer, block-aware): batch discovery cards so
+  reactor identities resolve in one call regardless of profile visibility.
+  pgTAP 93-98.

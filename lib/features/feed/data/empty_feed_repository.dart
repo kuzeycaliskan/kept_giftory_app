@@ -4,8 +4,8 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/shared/domain/reaction.dart';
 
 /// Backend-less runs (no --dart-define config): an empty, read-only feed so
 /// Home renders without a Supabase instance.

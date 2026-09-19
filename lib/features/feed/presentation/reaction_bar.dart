@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/domain/reaction.dart';
+import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 
 /// Glyph per kind. Reactions are the one place emoji are the content itself
@@ -26,25 +26,39 @@ String reactionLabel(BuildContext context, ReactionKind kind) {
   };
 }
 
-/// Viewer-side bar under a friend's moment: five kinds, the viewer's choice
-/// highlighted, counts beside each kind that has any. Sits on the dark
-/// story stage, hence white chrome (same exception as the viewer).
+/// Five kinds, the viewer's choice highlighted, counts beside each kind
+/// that has any. [onDark] = white chrome for the story stage; otherwise
+/// theme surface colours (gift detail, Home cards).
 class ReactionBar extends StatelessWidget {
   const ReactionBar({
-    required this.post,
+    required this.reactions,
     required this.myId,
     required this.onReact,
+    this.onDark = true,
     super.key,
   });
 
-  final Post post;
+  /// Convenience for moments.
+  ReactionBar.forPost({
+    required Post post,
+    required this.myId,
+    required this.onReact,
+    super.key,
+  }) : reactions = post.reactions,
+       onDark = true;
+
+  final List<Reaction> reactions;
   final String? myId;
   final ValueChanged<ReactionKind> onReact;
+  final bool onDark;
 
   @override
   Widget build(BuildContext context) {
-    final mine = post.reactionOf(myId);
-    final counts = post.reactionCounts;
+    final mine = reactions.where((r) => r.userId == myId).firstOrNull?.kind;
+    final counts = <ReactionKind, int>{for (final r in reactions) r.kind: 0};
+    for (final r in reactions) {
+      counts[r.kind] = (counts[r.kind] ?? 0) + 1;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -56,6 +70,7 @@ class ReactionBar extends StatelessWidget {
               label: reactionLabel(context, kind),
               count: counts[kind] ?? 0,
               selected: mine == kind,
+              onDark: onDark,
               onTap: () => onReact(kind),
             ),
           ),
@@ -70,6 +85,7 @@ class _ReactionChip extends StatelessWidget {
     required this.label,
     required this.count,
     required this.selected,
+    required this.onDark,
     required this.onTap,
   });
 
@@ -77,17 +93,28 @@ class _ReactionChip extends StatelessWidget {
   final String label;
   final int count;
   final bool selected;
+  final bool onDark;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final background = selected
+        ? scheme.primary
+        : onDark
+        ? Colors.white24
+        : scheme.surfaceContainerHighest;
+    final foreground = selected
+        ? scheme.onPrimary
+        : onDark
+        ? Colors.white
+        : scheme.onSurface;
     return Semantics(
       button: true,
       selected: selected,
       label: count > 0 ? '$label $count' : label,
       child: Material(
-        color: selected ? scheme.primary : Colors.white24,
+        color: background,
         borderRadius: KeptRadius.pillAll,
         child: InkWell(
           borderRadius: KeptRadius.pillAll,
@@ -107,7 +134,7 @@ class _ReactionChip extends StatelessWidget {
                     '$count',
                     style: Theme.of(
                       context,
-                    ).textTheme.labelMedium?.copyWith(color: Colors.white),
+                    ).textTheme.labelMedium?.copyWith(color: foreground),
                   ),
                 ],
               ],
@@ -117,6 +144,55 @@ class _ReactionChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Who reacted" list, shared by moments and gifts.
+Future<void> showReactorsSheet(
+  BuildContext context, {
+  required List<Reaction> reactions,
+}) {
+  final l10n = context.l10n;
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              KeptSpacing.lg,
+              0,
+              KeptSpacing.lg,
+              KeptSpacing.sm,
+            ),
+            child: Text(
+              l10n.reactionsTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          for (final r in reactions)
+            ListTile(
+              leading: KeptAvatar(
+                label: r.user?.displayName ?? r.user?.username ?? '?',
+                avatarValue: r.user?.avatarUrl,
+              ),
+              title: Text(
+                r.user?.displayName ??
+                    r.user?.username ??
+                    l10n.giftAnonymousGiver,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: Text(
+                reactionGlyph(r.kind),
+                style: const TextStyle(fontSize: 20),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 }
 
 /// Author-side summary under their own moment: "❤️ 3 · 🎉 1", tap for the
@@ -169,49 +245,8 @@ class ReactionSummary extends StatelessWidget {
   }
 
   Future<void> _showReactors(BuildContext context) async {
-    final l10n = context.l10n;
     onSheetOpened?.call();
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                KeptSpacing.lg,
-                0,
-                KeptSpacing.lg,
-                KeptSpacing.sm,
-              ),
-              child: Text(
-                l10n.reactionsTitle,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            for (final r in post.reactions)
-              ListTile(
-                leading: KeptAvatar(
-                  label: r.user?.displayName ?? r.user?.username ?? '?',
-                  avatarValue: r.user?.avatarUrl,
-                ),
-                title: Text(
-                  r.user?.displayName ??
-                      r.user?.username ??
-                      l10n.giftAnonymousGiver,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  reactionGlyph(r.kind),
-                  style: const TextStyle(fontSize: 20),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+    await showReactorsSheet(context, reactions: post.reactions);
     onSheetClosed?.call();
   }
 }

@@ -1,11 +1,15 @@
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/reaction.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Column list every gift read shares (photos + link preview embedded).
 /// `counterpartKey` picks which embedded profile becomes the counterpart.
 const String giftEmbeds =
     ' preview:link_previews(id, url, title, image_path, price, site), '
-    'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at)';
+    'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at), '
+    'reactions:gift_reactions(user_id, kind)';
 
 /// Maps a `gifts` row (with embeds) to the UI entry. Shared by the gifts
 /// repository and the Home feed so one mapping rule exists.
@@ -37,7 +41,46 @@ GiftEntry giftEntryFromRow(
     photos: giftPhotosFromRows(row['photos']),
     giverId: row['giver_id'] as String?,
     recipientId: row['recipient_id'] as String?,
+    reactions: [
+      for (final r
+          in (row['reactions'] as List<dynamic>? ?? const [])
+              .cast<Map<String, dynamic>>())
+        Reaction(
+          userId: r['user_id']! as String,
+          kind: ReactionKind.values.byName(r['kind']! as String),
+        ),
+    ],
   );
+}
+
+/// Fills in reactor identities through the `profile_cards` definer RPC
+/// (product rule: whoever reacted is named, whatever their profile
+/// visibility). One round trip for a whole list.
+Future<List<GiftEntry>> resolveReactionCards(
+  SupabaseClient client,
+  List<GiftEntry> gifts,
+) async {
+  final ids = {
+    for (final g in gifts)
+      for (final r in g.reactions) r.userId,
+  };
+  if (ids.isEmpty) return gifts;
+  final rows = await client.rpc<List<dynamic>>(
+    'profile_cards',
+    params: {'p_ids': ids.toList()},
+  );
+  final cards = {
+    for (final raw in rows.cast<Map<String, dynamic>>())
+      raw['id']! as String: ProfileCard.fromJson(raw),
+  };
+  return [
+    for (final g in gifts)
+      g.copyWith(
+        reactions: [
+          for (final r in g.reactions) r.copyWith(user: cards[r.userId]),
+        ],
+      ),
+  ];
 }
 
 List<GiftPhoto> giftPhotosFromRows(Object? raw) {
