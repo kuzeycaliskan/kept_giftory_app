@@ -9,8 +9,8 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
 import 'package:kept/features/profile/application/profile_providers.dart';
-import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/link_preview_card.dart';
+import 'package:kept/shared/widgets/media_gallery_viewer.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,8 +35,6 @@ class GiftDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
-  int _page = 0;
-
   Future<void> _addPhoto(GiftEntry gift) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
@@ -52,30 +50,35 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
     }
   }
 
-  Future<void> _photoActions(GiftPhoto photo) async {
+  Future<void> _removePhoto(GiftPhoto photo) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
-    await showKeptActionSheet(
+    final ok = await ref
+        .read(giftPhotoControllerProvider.notifier)
+        .remove(photo);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(ok ? l10n.giftPhotoRemoved : l10n.giftPhotoRemoveFailed),
+      ),
+    );
+  }
+
+  /// Tap a card → full-screen, swipe across all photos; own photos can be
+  /// removed from there.
+  Future<void> _openGallery(GiftEntry gift, int index, String? myId) {
+    return showMediaGallery(
       context,
-      actions: [
-        KeptSheetAction(
-          icon: Icons.delete_outline,
-          label: l10n.giftPhotoRemove,
-          destructive: true,
-          onTap: () async {
-            final ok = await ref
-                .read(giftPhotoControllerProvider.notifier)
-                .remove(photo);
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text(
-                  ok ? l10n.giftPhotoRemoved : l10n.giftPhotoRemoveFailed,
-                ),
-              ),
-            );
-            if (ok && mounted) setState(() => _page = 0);
-          },
-        ),
+      initialIndex: index,
+      removeLabel: context.l10n.giftPhotoRemove,
+      items: [
+        for (final photo in gift.photos)
+          GalleryItem(
+            bucket: giftMediaBucket,
+            path: photo.mediaPath,
+            onRemove: photo.uploaderId == myId
+                ? () => _removePhoto(photo)
+                : null,
+          ),
       ],
     );
   }
@@ -104,34 +107,16 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
           final canAdd =
               gift.isParty(myId) && gift.photos.length < giftPhotoCap;
           return ListView(
-            padding: const EdgeInsets.only(bottom: KeptSpacing.xxl),
+            padding: const EdgeInsets.all(KeptSpacing.lg),
             children: [
-              _PhotoPager(
+              _PhotoCards(
                 photos: gift.photos,
-                page: _page,
-                onPageChanged: (i) => setState(() => _page = i),
-                onActions: (photo) => photo.uploaderId == myId
-                    ? () => _photoActions(photo)
-                    : null,
+                onOpen: (i) => _openGallery(gift, i, myId),
+                onAdd: canAdd && !busy ? () => _addPhoto(gift) : null,
+                showAddSlot: canAdd,
               ),
-              Padding(
-                padding: const EdgeInsets.all(KeptSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (canAdd)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: KeptSpacing.lg),
-                        child: FilledButton.tonalIcon(
-                          onPressed: busy ? null : () => _addPhoto(gift),
-                          icon: const Icon(Icons.photo_camera_outlined),
-                          label: Text(l10n.giftPhotoAdd),
-                        ),
-                      ),
-                    _Facts(gift: gift),
-                  ],
-                ),
-              ),
+              const SizedBox(height: KeptSpacing.xl),
+              _Facts(gift: gift),
             ],
           );
         },
@@ -140,102 +125,118 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
   }
 }
 
-/// Photos big, one per page, with dots; empty → quiet placeholder. The
-/// uploader gets a ⋯ over their own photo.
-class _PhotoPager extends StatelessWidget {
-  const _PhotoPager({
+/// Three equal cards side by side: photos, then (for a party under the cap)
+/// one camera card, then quiet empty slots so the row keeps its shape.
+class _PhotoCards extends StatelessWidget {
+  const _PhotoCards({
     required this.photos,
-    required this.page,
-    required this.onPageChanged,
-    required this.onActions,
+    required this.onOpen,
+    required this.onAdd,
+    required this.showAddSlot,
   });
 
   final List<GiftPhoto> photos;
-  final int page;
-  final ValueChanged<int> onPageChanged;
-  final VoidCallback? Function(GiftPhoto photo) onActions;
-
-  static const double _height = 320;
+  final ValueChanged<int> onOpen;
+  final VoidCallback? onAdd;
+  final bool showAddSlot;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    if (photos.isEmpty) {
-      return Container(
-        height: _height / 2,
-        color: scheme.surfaceContainerLow,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.photo_outlined, color: scheme.onSurfaceVariant),
-              const SizedBox(height: KeptSpacing.sm),
-              Text(
-                context.l10n.giftDetailNoPhotos,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+    final l10n = context.l10n;
+    final slots = <Widget>[
+      for (var i = 0; i < photos.length; i++)
+        _PhotoCard(
+          onTap: () => onOpen(i),
+          child: PrivateMediaImage(
+            bucket: giftMediaBucket,
+            path: photos[i].mediaPath,
+            fit: BoxFit.cover,
+            compact: true,
+          ),
+        ),
+      if (showAddSlot && photos.length < giftPhotoCap)
+        _PhotoCard(
+          onTap: onAdd,
+          child: ColoredBox(
+            color: scheme.surfaceContainerHighest,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.photo_camera_outlined, color: scheme.primary),
+                const SizedBox(height: KeptSpacing.xs),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: KeptSpacing.xs,
+                  ),
+                  child: Text(
+                    l10n.giftPhotoAdd,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(color: scheme.primary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+    ];
+    if (slots.isEmpty) {
+      slots.add(
+        _PhotoCard(
+          onTap: null,
+          child: ColoredBox(
+            color: scheme.surfaceContainerLow,
+            child: Center(
+              child: Text(
+                l10n.giftDetailNoPhotos,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
-            ],
+            ),
           ),
         ),
       );
     }
-    final current = photos[page.clamp(0, photos.length - 1)];
-    final actions = onActions(current);
-    return SizedBox(
-      height: _height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ColoredBox(
-            color: scheme.surfaceContainerLow,
-            child: PageView.builder(
-              itemCount: photos.length,
-              onPageChanged: onPageChanged,
-              itemBuilder: (context, i) => PrivateMediaImage(
-                bucket: giftMediaBucket,
-                path: photos[i].mediaPath,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          if (photos.length > 1)
-            Positioned(
-              bottom: KeptSpacing.sm,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < photos.length; i++)
-                    Container(
-                      width: 6,
-                      height: 6,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: i == page ? scheme.primary : scheme.outline,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          if (actions != null)
-            Positioned(
-              top: KeptSpacing.sm,
-              right: KeptSpacing.sm,
-              child: Material(
-                color: scheme.surface,
-                shape: const CircleBorder(),
-                child: IconButton(
-                  tooltip: context.l10n.storyMoreActions,
-                  icon: const Icon(Icons.more_horiz),
-                  onPressed: actions,
-                ),
-              ),
-            ),
+    while (slots.length < giftPhotoCap) {
+      slots.add(
+        _PhotoCard(
+          onTap: null,
+          child: ColoredBox(color: scheme.surfaceContainerLow),
+        ),
+      );
+    }
+    return Row(
+      children: [
+        for (var i = 0; i < slots.length; i++) ...[
+          if (i > 0) const SizedBox(width: KeptSpacing.sm),
+          Expanded(child: slots[i]),
         ],
+      ],
+    );
+  }
+}
+
+class _PhotoCard extends StatelessWidget {
+  const _PhotoCard({required this.child, required this.onTap});
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Material(
+        clipBehavior: Clip.antiAlias,
+        borderRadius: KeptRadius.cardAll,
+        color: Colors.transparent,
+        child: InkWell(onTap: onTap, child: child),
       ),
     );
   }

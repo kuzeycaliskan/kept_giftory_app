@@ -695,7 +695,27 @@ void main() {
       );
 
       expect(find.text('Take a photo'), findsNothing);
+      // Opens the gallery, but no remove affordance for someone else's photo.
+      await tester.tap(find.byType(PrivateMediaImage).first);
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 1'), findsOneWidget);
       expect(find.byIcon(Icons.more_horiz), findsNothing);
+    });
+
+    testWidgets('gallery swipes across all photos', (tester) async {
+      await pump(
+        tester,
+        gifts: _FakeGiftRepository(given: [giftWithPhotos(id: 'g6', count: 3)]),
+        initial: '/gifts/g6?side=recipient',
+      );
+
+      await tester.tap(find.byType(PrivateMediaImage).at(1));
+      await tester.pumpAndSettle();
+      expect(find.text('2 / 3'), findsOneWidget);
+
+      await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(find.text('3 / 3'), findsOneWidget);
     });
 
     testWidgets('the cap hides the add button', (tester) async {
@@ -718,13 +738,15 @@ void main() {
         initial: '/gifts/g4?side=recipient',
         picker: FakeImagePicker(tinyPng),
       );
-      expect(find.text('No photos yet'), findsOneWidget);
+      // A party sees the camera card instead of the empty placeholder.
+      expect(find.text('No photos yet'), findsNothing);
+      expect(find.byType(PrivateMediaImage), findsNothing);
 
       await tester.tap(find.text('Take a photo'));
       await tester.pumpAndSettle();
 
       expect(repo.attachedTo, ['g4']);
-      expect(find.text('No photos yet'), findsNothing);
+      expect(find.byType(PrivateMediaImage), findsOneWidget);
     });
 
     testWidgets('uploader removes their own photo from the detail', (
@@ -735,6 +757,10 @@ void main() {
       );
       await pump(tester, gifts: repo, initial: '/gifts/g5?side=recipient');
 
+      // Card → full-screen gallery → ⋯ → remove.
+      await tester.tap(find.byType(PrivateMediaImage).first);
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 1'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.more_horiz));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Remove photo'));
@@ -742,7 +768,8 @@ void main() {
 
       expect(repo.removed, ['p0']);
       expect(find.text('Photo removed'), findsOneWidget);
-      expect(find.text('No photos yet'), findsOneWidget);
+      expect(find.byType(PrivateMediaImage), findsNothing);
+      expect(find.text('Take a photo'), findsOneWidget);
     });
 
     testWidgets('photos taken in the log form attach after save', (
