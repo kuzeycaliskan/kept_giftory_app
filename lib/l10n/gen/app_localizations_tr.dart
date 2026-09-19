@@ -841,4 +841,44 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get homeWishlistToggle => 'İstek listesi';
+
+  @override
+  String get commentsTitle => 'Yorumlar';
+
+  @override
+  String get commentsWritePlaceholder => 'Yorum yaz…';
+
+  @override
+  String commentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yorum',
+      one: '1 yorum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentsEmpty => 'Henüz yorum yok. Bir şeyler yaz.';
+
+  @override
+  String get commentsLoadError => 'Yorumlar yüklenemedi';
+
+  @override
+  String get commentsSend => 'Gönder';
+
+  @override
+  String get commentsSendFailed => 'Gönderilemedi. Tekrar dene.';
+
+  @override
+  String get commentsDelete => 'Yorumu sil';
+
+  @override
+  String get commentsDeleteFailed => 'Yorum silinemedi';
+
+  @override
+  String commentsDaysAgo(int days) {
+    return '$days g';
+  }
 }

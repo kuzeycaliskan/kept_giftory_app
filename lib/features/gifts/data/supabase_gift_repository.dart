@@ -5,6 +5,8 @@ import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/gifts/data/gift_row_mapper.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
+import 'package:kept/shared/data/profile_cards.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -287,6 +289,65 @@ class SupabaseGiftRepository implements GiftRepository {
           .delete()
           .eq('gift_id', giftId)
           .eq('user_id', userId);
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  static const _commentSelect = 'id, author_id, body, created_at';
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String giftId) async {
+    try {
+      final rows = await _client
+          .from('gift_comments')
+          .select(_commentSelect)
+          .eq('gift_id', giftId)
+          .order('created_at', ascending: true);
+      final comments = rows.map(Comment.fromJson).toList();
+      final cards = await fetchProfileCards(
+        _client,
+        comments.map((c) => c.authorId),
+      );
+      return Success([
+        for (final c in comments) c.copyWith(user: cards[c.authorId]),
+      ]);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<Comment>> addComment(String giftId, String body) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || trimmed.length > commentMaxLength) {
+      return const ResultFailure(ValidationFailure('Invalid comment'));
+    }
+    try {
+      final row = await _client
+          .from('gift_comments')
+          .insert({'gift_id': giftId, 'author_id': userId, 'body': trimmed})
+          .select(_commentSelect)
+          .single();
+      return Success(Comment.fromJson(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    try {
+      await _client.from('gift_comments').delete().eq('id', commentId);
       return const Success(null);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));

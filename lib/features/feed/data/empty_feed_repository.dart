@@ -5,6 +5,7 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 
 /// Backend-less runs (no --dart-define config): an empty, read-only feed so
@@ -32,5 +33,17 @@ class EmptyFeedRepository implements FeedRepository {
 
   @override
   Future<Result<void>> clearReaction(String postId) async =>
+      const ResultFailure(NetworkFailure('No backend configured'));
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String postId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<Comment>> addComment(String postId, String body) async =>
+      const ResultFailure(NetworkFailure('No backend configured'));
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async =>
       const ResultFailure(NetworkFailure('No backend configured'));
 }

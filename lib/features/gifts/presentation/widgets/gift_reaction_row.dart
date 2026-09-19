@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:kept/core/l10n/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/presentation/reaction_bar.dart';
+import 'package:kept/features/gifts/application/gift_comment_target.dart';
+import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/shared/domain/reaction.dart';
+import 'package:kept/shared/widgets/comments_sheet.dart';
 
-/// Reaction pill for a gift (light surfaces) plus a "who reacted" link
-/// when there is anyone to list. Used by the detail screen and Home cards.
-class GiftReactionRow extends StatelessWidget {
+/// Reaction pill (left) + comment pill (right) for a gift — the same row on
+/// the detail screen and Home cards. The comments sheet carries the
+/// reaction summary and the "who reacted" list.
+class GiftReactionRow extends ConsumerWidget {
   const GiftReactionRow({
     required this.gift,
     required this.myId,
@@ -20,23 +25,33 @@ class GiftReactionRow extends StatelessWidget {
   final ValueChanged<ReactionKind> onReact;
 
   @override
-  Widget build(BuildContext context) {
-    // Left: the reaction pill. Right: who reacted (comments land here next).
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         ReactionButton(reactions: gift.reactions, myId: myId, onReact: onReact),
         const SizedBox(width: KeptSpacing.sm),
-        if (gift.reactions.isNotEmpty)
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () =>
-                    showReactorsSheet(context, reactions: gift.reactions),
-                child: Text(context.l10n.reactionsWhoReacted),
+        Expanded(
+          child: CommentPill(
+            count: gift.commentCount,
+            onTap: () => showCommentsSheet(
+              context,
+              target: GiftCommentTarget(
+                ref.read(giftRepositoryProvider),
+                gift,
+                onChanged: () => ref
+                  ..invalidate(givenGiftsProvider)
+                  ..invalidate(receivedGiftsProvider)
+                  ..invalidate(friendGiftHistoryProvider)
+                  ..invalidate(giftDetailProvider)
+                  ..invalidate(homeEventsProvider),
               ),
+              viewerId: myId,
+              reactions: gift.reactions,
+              onReactionsTap: () =>
+                  showReactorsSheet(context, reactions: gift.reactions),
             ),
           ),
+        ),
       ],
     );
   }

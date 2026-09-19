@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(98);
+select plan(106);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1144,6 +1144,88 @@ select is(
   (select username from public.profile_cards(array['00000000-0000-0000-0000-000000000a12'::uuid])),
   'ivy',
   '98: profile_cards resolves a private profile''s discovery card'
+);
+reset role;
+
+-- ── 99-106: comments ────────────────────────────────────────────────────────
+-- G1 erin→alice (carol = alice's friend, dave stranger); G2 pending surprise.
+-- d01 = dave's live public moment (hank reacts earlier; ivy comments here).
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.gift_comments (id, gift_id, author_id, body)
+     values ('00000000-0000-0000-0000-000000000e01', '00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000c', 'Harika seçim!') $$,
+  '99: a friend who sees the gift can comment'
+);
+
+select throws_ok(
+  $$ insert into public.gift_comments (gift_id, author_id, body)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000a', 'forged') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_comments"',
+  '100: author_id cannot be forged'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+
+select throws_ok(
+  $$ insert into public.gift_comments (gift_id, author_id, body)
+     values ('00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000d', 'nope') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_comments"',
+  '101: a stranger cannot comment on a friends-only history'
+);
+
+select is(
+  (select count(*) from public.gift_comments where gift_id = '00000000-0000-0000-0000-000000000c01'),
+  0::bigint,
+  '102: comments are as hidden as the gift'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select throws_ok(
+  $$ insert into public.gift_comments (gift_id, author_id, body)
+     values ('00000000-0000-0000-0000-000000000c02', '00000000-0000-0000-0000-00000000000a', 'what is it?') $$,
+  '42501',
+  'new row violates row-level security policy for table "gift_comments"',
+  '103: recipient cannot comment on an unrevealed surprise'
+);
+
+-- Recipient (a party) may remove a friend's comment on their own gift.
+delete from public.gift_comments where id = '00000000-0000-0000-0000-000000000e01';
+select is(
+  (select count(*) from public.gift_comments where gift_id = '00000000-0000-0000-0000-000000000c01'),
+  0::bigint,
+  '104: a gift party can remove a comment on their gift'
+);
+
+-- Moments: ivy comments on dave's public moment; hank cannot delete it.
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+insert into public.post_comments (id, post_id, author_id, body)
+values ('00000000-0000-0000-0000-000000000e02', '00000000-0000-0000-0000-000000000d01', '00000000-0000-0000-0000-000000000a12', 'nice');
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a11","role":"authenticated"}';
+delete from public.post_comments where id = '00000000-0000-0000-0000-000000000e02';
+select is(
+  (select count(*) from public.post_comments where id = '00000000-0000-0000-0000-000000000e02'),
+  1::bigint,
+  '105: a bystander cannot delete someone else''s comment'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+delete from public.post_comments where id = '00000000-0000-0000-0000-000000000e02';
+select is(
+  (select count(*) from public.post_comments where id = '00000000-0000-0000-0000-000000000e02'),
+  0::bigint,
+  '106: the moment''s author can remove a comment on it'
 );
 reset role;
 

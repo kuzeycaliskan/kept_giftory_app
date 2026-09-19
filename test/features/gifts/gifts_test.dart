@@ -24,6 +24,8 @@ import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/features/link_preview/domain/link_preview_repository.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -178,6 +180,39 @@ class _FakeGiftRepository implements GiftRepository {
               .toList(),
         );
       }
+    }
+    return const Success(null);
+  }
+
+  final comments = <String, List<Comment>>{};
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String giftId) async =>
+      Success(comments[giftId] ?? const []);
+
+  @override
+  Future<Result<Comment>> addComment(String giftId, String body) async {
+    final c = Comment(
+      id: 'c${(comments[giftId]?.length ?? 0) + 1}',
+      authorId: 'dev-me',
+      body: body,
+      createdAt: DateTime.now(),
+      user: const ProfileCard(id: 'dev-me', username: 'you'),
+    );
+    comments.putIfAbsent(giftId, () => []).add(c);
+    for (final list in [given, received]) {
+      final i = list.indexWhere((g) => g.id == giftId);
+      if (i >= 0) {
+        list[i] = list[i].copyWith(commentCount: comments[giftId]!.length);
+      }
+    }
+    return Success(c);
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    for (final list in comments.values) {
+      list.removeWhere((c) => c.id == commentId);
     }
     return const Success(null);
   }
@@ -836,7 +871,6 @@ void main() {
       );
       await pump(tester, gifts: repo, initial: '/gifts/g8?side=recipient');
       expect(find.text('Reactions'), findsOneWidget);
-      expect(find.text('See who reacted'), findsNothing);
 
       // Hold → picker → congrats.
       await tester.longPress(find.byIcon(Icons.thumb_up_outlined));
@@ -844,13 +878,39 @@ void main() {
       await tester.tap(find.text('🎉'));
       await tester.pumpAndSettle();
       expect(repo.reactions, ['set:g8:congrats']);
-      expect(find.text('See who reacted'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
 
       // Tap on the reacted pill clears.
       await tester.tap(find.text('🎉'));
       await tester.pumpAndSettle();
       expect(repo.reactions.last, 'clear:g8');
-      expect(find.text('See who reacted'), findsNothing);
+      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
+    });
+
+    testWidgets('comments: open the sheet, write, delete own', (tester) async {
+      final repo = _FakeGiftRepository(
+        given: [giftWithPhotos(id: 'g9', count: 0)],
+      );
+      await pump(tester, gifts: repo, initial: '/gifts/g9?side=recipient');
+
+      await tester.tap(find.text('Write a comment…'));
+      await tester.pumpAndSettle();
+      expect(find.text('Comments'), findsOneWidget);
+      expect(find.text('No comments yet. Say something.'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).last, 'Çok güzel!');
+      await tester.tap(find.byTooltip('Send'));
+      await tester.pumpAndSettle();
+      expect(find.text('Çok güzel!'), findsOneWidget);
+      expect(repo.comments['g9'], hasLength(1));
+
+      // Long-press own comment → delete.
+      await tester.longPress(find.text('Çok güzel!'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delete comment'));
+      await tester.pumpAndSettle();
+      expect(repo.comments['g9'], isEmpty);
+      expect(find.text('No comments yet. Say something.'), findsOneWidget);
     });
 
     testWidgets('photos taken in the log form attach after save', (

@@ -391,5 +391,29 @@
   "reactionsWhoReacted": "See who reacted",
   "homeWishlistSeeAll": "See full wishlist",
   "homeWishlistEmptyInline": "No wishes yet",
-  "homeWishlistToggle": "Wishlist"
+  "homeWishlistToggle": "Wishlist",
+  "commentsTitle": "Comments",
+  "commentsWritePlaceholder": "Write a comment…",
+  "commentsCount": "{count, plural, =1{1 comment} other{{count} comments}}",
+  "@commentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentsEmpty": "No comments yet. Say something.",
+  "commentsLoadError": "Couldn't load comments",
+  "commentsSend": "Send",
+  "commentsSendFailed": "Couldn't send. Try again.",
+  "commentsDelete": "Delete comment",
+  "commentsDeleteFailed": "Couldn't delete the comment",
+  "commentsDaysAgo": "{days}d",
+  "@commentsDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  }
 }

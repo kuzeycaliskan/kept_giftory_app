@@ -18,6 +18,7 @@ class Post with _$Post {
     required ProfileCard author,
     String? caption,
     @Default([]) List<Reaction> reactions,
+    @Default(0) int commentCount,
   }) = _Post;
 
   const Post._();

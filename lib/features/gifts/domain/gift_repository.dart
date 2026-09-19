@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 
 /// Gifts boundary (G-51/G-52). Surprise isolation is enforced by RLS:
@@ -61,4 +62,12 @@ abstract interface class GiftRepository {
 
   /// Removes the caller's reaction on a gift.
   Future<Result<void>> clearReaction(String giftId);
+
+  /// Comments on a gift, oldest first (visibility via gifts RLS).
+  Future<Result<List<Comment>>> fetchComments(String giftId);
+
+  Future<Result<Comment>> addComment(String giftId, String body);
+
+  /// Author or a gift party (RLS).
+  Future<Result<void>> deleteComment(String commentId);
 }

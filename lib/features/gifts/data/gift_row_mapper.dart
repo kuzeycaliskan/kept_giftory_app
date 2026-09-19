@@ -1,6 +1,6 @@
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
-import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/data/profile_cards.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -9,7 +9,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 const String giftEmbeds =
     ' preview:link_previews(id, url, title, image_path, price, site), '
     'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at), '
-    'reactions:gift_reactions(user_id, kind)';
+    'reactions:gift_reactions(user_id, kind), '
+    'comments:gift_comments(count)';
 
 /// Maps a `gifts` row (with embeds) to the UI entry. Shared by the gifts
 /// repository and the Home feed so one mapping rule exists.
@@ -41,6 +42,7 @@ GiftEntry giftEntryFromRow(
     photos: giftPhotosFromRows(row['photos']),
     giverId: row['giver_id'] as String?,
     recipientId: row['recipient_id'] as String?,
+    commentCount: embeddedCount(row['comments']),
     reactions: [
       for (final r
           in (row['reactions'] as List<dynamic>? ?? const [])
@@ -53,26 +55,17 @@ GiftEntry giftEntryFromRow(
   );
 }
 
-/// Fills in reactor identities through the `profile_cards` definer RPC
-/// (product rule: whoever reacted is named, whatever their profile
-/// visibility). One round trip for a whole list.
+/// Fills in reactor identities (product rule: whoever reacted is named,
+/// whatever their profile visibility). One round trip for a whole list.
 Future<List<GiftEntry>> resolveReactionCards(
   SupabaseClient client,
   List<GiftEntry> gifts,
 ) async {
-  final ids = {
+  final cards = await fetchProfileCards(client, [
     for (final g in gifts)
       for (final r in g.reactions) r.userId,
-  };
-  if (ids.isEmpty) return gifts;
-  final rows = await client.rpc<List<dynamic>>(
-    'profile_cards',
-    params: {'p_ids': ids.toList()},
-  );
-  final cards = {
-    for (final raw in rows.cast<Map<String, dynamic>>())
-      raw['id']! as String: ProfileCard.fromJson(raw),
-  };
+  ]);
+  if (cards.isEmpty) return gifts;
   return [
     for (final g in gifts)
       g.copyWith(
@@ -81,6 +74,13 @@ Future<List<GiftEntry>> resolveReactionCards(
         ],
       ),
   ];
+}
+
+/// PostgREST `relation(count)` embeds come back as `[{"count": n}]`.
+int embeddedCount(Object? raw) {
+  final rows = raw as List<dynamic>? ?? const [];
+  if (rows.isEmpty) return 0;
+  return (rows.first as Map<String, dynamic>)['count'] as int? ?? 0;
 }
 
 List<GiftPhoto> giftPhotosFromRows(Object? raw) {

@@ -5,7 +5,11 @@ import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/features/gifts/data/gift_row_mapper.dart'
+    show embeddedCount;
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/data/profile_cards.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,7 +32,8 @@ class SupabaseFeedRepository implements FeedRepository {
       // FK hint is mandatory: post_reactions links posts↔profiles too, so a
       // bare `profiles` embed is ambiguous (PGRST201) since G-206.
       'author:profiles!posts_author_id_fkey'
-      '(id, username, display_name, avatar_url)';
+      '(id, username, display_name, avatar_url), '
+      'comments:post_comments(count)';
 
   @override
   Future<Result<FeedSnapshot>> fetchActive() async {
@@ -40,7 +45,12 @@ class SupabaseFeedRepository implements FeedRepository {
           .select(_selectColumns)
           .order('created_at', ascending: true)
           .limit(_fetchLimit);
-      final bare = rows.map(Post.fromJson).toList();
+      final bare = [
+        for (final row in rows)
+          Post.fromJson(
+            row,
+          ).copyWith(commentCount: embeddedCount(row['comments'])),
+      ];
       final reactions = await _reactionsFor(bare.map((p) => p.id).toList());
       final posts = [
         for (final post in bare)
@@ -168,6 +178,65 @@ class SupabaseFeedRepository implements FeedRepository {
           .delete()
           .eq('post_id', postId)
           .eq('user_id', userId);
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  static const _commentSelect = 'id, author_id, body, created_at';
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String postId) async {
+    try {
+      final rows = await _client
+          .from('post_comments')
+          .select(_commentSelect)
+          .eq('post_id', postId)
+          .order('created_at', ascending: true);
+      final comments = rows.map(Comment.fromJson).toList();
+      final cards = await fetchProfileCards(
+        _client,
+        comments.map((c) => c.authorId),
+      );
+      return Success([
+        for (final c in comments) c.copyWith(user: cards[c.authorId]),
+      ]);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<Comment>> addComment(String postId, String body) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || trimmed.length > commentMaxLength) {
+      return const ResultFailure(ValidationFailure('Invalid comment'));
+    }
+    try {
+      final row = await _client
+          .from('post_comments')
+          .insert({'post_id': postId, 'author_id': userId, 'body': trimmed})
+          .select(_commentSelect)
+          .single();
+      return Success(Comment.fromJson(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    try {
+      await _client.from('post_comments').delete().eq('id', commentId);
       return const Success(null);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));

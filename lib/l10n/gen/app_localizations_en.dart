@@ -843,4 +843,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWishlistToggle => 'Wishlist';
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String get commentsWritePlaceholder => 'Write a comment…';
+
+  @override
+  String commentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comments',
+      one: '1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentsEmpty => 'No comments yet. Say something.';
+
+  @override
+  String get commentsLoadError => 'Couldn\'t load comments';
+
+  @override
+  String get commentsSend => 'Send';
+
+  @override
+  String get commentsSendFailed => 'Couldn\'t send. Try again.';
+
+  @override
+  String get commentsDelete => 'Delete comment';
+
+  @override
+  String get commentsDeleteFailed => 'Couldn\'t delete the comment';
+
+  @override
+  String commentsDaysAgo(int days) {
+    return '${days}d';
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 
 /// Ephemeral feed boundary (G-201/202). Visibility and expiry are enforced
@@ -26,4 +27,12 @@ abstract interface class FeedRepository {
 
   /// Removes the viewer's reaction on a moment.
   Future<Result<void>> clearReaction(String postId);
+
+  /// Comments on a moment, oldest first (visibility via posts RLS).
+  Future<Result<List<Comment>>> fetchComments(String postId);
+
+  Future<Result<Comment>> addComment(String postId, String body);
+
+  /// Author or the moment's author (RLS).
+  Future<Result<void>> deleteComment(String commentId);
 }

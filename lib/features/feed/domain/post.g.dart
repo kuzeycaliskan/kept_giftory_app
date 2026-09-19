@@ -19,6 +19,7 @@ _$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
           ?.map((e) => Reaction.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
@@ -31,4 +32,5 @@ Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
       'author': instance.author,
       'caption': instance.caption,
       'reactions': instance.reactions,
+      'commentCount': instance.commentCount,
     };

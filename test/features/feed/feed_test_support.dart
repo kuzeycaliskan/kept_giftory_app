@@ -9,6 +9,7 @@ import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:kept/shared/domain/reaction.dart';
 
 /// 1×1 transparent PNG — enough for Image.memory and the identity encoder.
@@ -90,6 +91,31 @@ class FakeFeedRepository implements FeedRepository {
   }
 
   final reactions = <String>[];
+  final comments = <String, List<Comment>>{};
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String postId) async =>
+      Success(comments[postId] ?? const []);
+
+  @override
+  Future<Result<Comment>> addComment(String postId, String body) async {
+    final c = Comment(
+      id: 'c${(comments[postId]?.length ?? 0) + 1}',
+      authorId: viewerId ?? 'me',
+      body: body,
+      createdAt: DateTime.now(),
+    );
+    comments.putIfAbsent(postId, () => []).add(c);
+    return Success(c);
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    for (final list in comments.values) {
+      list.removeWhere((c) => c.id == commentId);
+    }
+    return const Success(null);
+  }
 
   @override
   Future<Result<void>> setReaction(String postId, ReactionKind kind) async {

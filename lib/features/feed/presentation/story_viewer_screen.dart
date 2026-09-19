@@ -6,11 +6,13 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/application/post_actions.dart';
+import 'package:kept/features/feed/application/post_comment_target.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:kept/features/feed/presentation/reaction_bar.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/shared/domain/reaction.dart';
+import 'package:kept/shared/widgets/comments_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
@@ -166,6 +168,24 @@ class _StoryPageState extends ConsumerState<_StoryPage>
 
   void _previous() => _show(_index > 0 ? _index - 1 : 0);
 
+  /// The story pauses while the comments sheet is open.
+  Future<void> _openComments(Post post, String? myId) async {
+    _progress.stop();
+    await showCommentsSheet(
+      context,
+      target: PostCommentTarget(
+        ref.read(feedRepositoryProvider),
+        post,
+        onChanged: () => ref.invalidate(storyGroupsProvider),
+      ),
+      viewerId: myId,
+      reactions: post.reactions,
+      onReactionsTap: () =>
+          showReactorsSheet(context, reactions: post.reactions),
+    );
+    if (mounted) unawaited(_progress.forward());
+  }
+
   Future<void> _react(Post post, ReactionKind kind, String? myId) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
@@ -281,26 +301,33 @@ class _StoryPageState extends ConsumerState<_StoryPage>
               child: GestureDetector(
                 onTap: () {},
                 onLongPress: () {},
-                child: isMine
-                    ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: ReactionSummary(
-                          post: post,
-                          onSheetOpened: _progress.stop,
-                          onSheetClosed: () {
-                            if (mounted) unawaited(_progress.forward());
-                          },
-                        ),
+                child: Row(
+                  children: [
+                    if (isMine)
+                      ReactionSummary(
+                        post: post,
+                        onSheetOpened: _progress.stop,
+                        onSheetClosed: () {
+                          if (mounted) unawaited(_progress.forward());
+                        },
                       )
-                    : Align(
-                        alignment: Alignment.centerLeft,
-                        child: ReactionButton(
-                          reactions: post.reactions,
-                          myId: myId,
-                          onDark: true,
-                          onReact: (kind) => _react(post, kind, myId),
-                        ),
+                    else
+                      ReactionButton(
+                        reactions: post.reactions,
+                        myId: myId,
+                        onDark: true,
+                        onReact: (kind) => _react(post, kind, myId),
                       ),
+                    const SizedBox(width: KeptSpacing.sm),
+                    Expanded(
+                      child: CommentPill(
+                        count: post.commentCount,
+                        onDark: true,
+                        onTap: () => _openComments(post, myId),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

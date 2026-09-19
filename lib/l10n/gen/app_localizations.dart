@@ -1657,6 +1657,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wishlist'**
   String get homeWishlistToggle;
+
+  /// No description provided for @commentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// No description provided for @commentsWritePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment…'**
+  String get commentsWritePlaceholder;
+
+  /// No description provided for @commentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 comment} other{{count} comments}}'**
+  String commentsCount(int count);
+
+  /// No description provided for @commentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Say something.'**
+  String get commentsEmpty;
+
+  /// No description provided for @commentsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load comments'**
+  String get commentsLoadError;
+
+  /// No description provided for @commentsSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get commentsSend;
+
+  /// No description provided for @commentsSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send. Try again.'**
+  String get commentsSendFailed;
+
+  /// No description provided for @commentsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment'**
+  String get commentsDelete;
+
+  /// No description provided for @commentsDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete the comment'**
+  String get commentsDeleteFailed;
+
+  /// No description provided for @commentsDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d'**
+  String commentsDaysAgo(int days);
 }
 
 class _AppLocalizationsDelegate

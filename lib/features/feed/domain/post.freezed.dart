@@ -33,6 +33,7 @@ mixin _$Post {
   ProfileCard get author => throw _privateConstructorUsedError;
   String? get caption => throw _privateConstructorUsedError;
   List<Reaction> get reactions => throw _privateConstructorUsedError;
+  int get commentCount => throw _privateConstructorUsedError;
 
   /// Serializes this Post to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,6 +58,7 @@ abstract class $PostCopyWith<$Res> {
     ProfileCard author,
     String? caption,
     List<Reaction> reactions,
+    int commentCount,
   });
 
   $ProfileCardCopyWith<$Res> get author;
@@ -85,6 +87,7 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
     Object? author = null,
     Object? caption = freezed,
     Object? reactions = null,
+    Object? commentCount = null,
   }) {
     return _then(
       _value.copyWith(
@@ -120,6 +123,10 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
                 ? _value.reactions
                 : reactions // ignore: cast_nullable_to_non_nullable
                       as List<Reaction>,
+            commentCount: null == commentCount
+                ? _value.commentCount
+                : commentCount // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -153,6 +160,7 @@ abstract class _$$PostImplCopyWith<$Res> implements $PostCopyWith<$Res> {
     ProfileCard author,
     String? caption,
     List<Reaction> reactions,
+    int commentCount,
   });
 
   @override
@@ -179,6 +187,7 @@ class __$$PostImplCopyWithImpl<$Res>
     Object? author = null,
     Object? caption = freezed,
     Object? reactions = null,
+    Object? commentCount = null,
   }) {
     return _then(
       _$PostImpl(
@@ -214,6 +223,10 @@ class __$$PostImplCopyWithImpl<$Res>
             ? _value._reactions
             : reactions // ignore: cast_nullable_to_non_nullable
                   as List<Reaction>,
+        commentCount: null == commentCount
+            ? _value.commentCount
+            : commentCount // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -231,6 +244,7 @@ class _$PostImpl extends _Post {
     required this.author,
     this.caption,
     final List<Reaction> reactions = const [],
+    this.commentCount = 0,
   }) : _reactions = reactions,
        super._();
 
@@ -265,8 +279,12 @@ class _$PostImpl extends _Post {
   }
 
   @override
+  @JsonKey()
+  final int commentCount;
+
+  @override
   String toString() {
-    return 'Post(id: $id, authorId: $authorId, mediaPath: $mediaPath, createdAt: $createdAt, expiresAt: $expiresAt, author: $author, caption: $caption, reactions: $reactions)';
+    return 'Post(id: $id, authorId: $authorId, mediaPath: $mediaPath, createdAt: $createdAt, expiresAt: $expiresAt, author: $author, caption: $caption, reactions: $reactions, commentCount: $commentCount)';
   }
 
   @override
@@ -288,7 +306,9 @@ class _$PostImpl extends _Post {
             const DeepCollectionEquality().equals(
               other._reactions,
               _reactions,
-            ));
+            ) &&
+            (identical(other.commentCount, commentCount) ||
+                other.commentCount == commentCount));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -303,6 +323,7 @@ class _$PostImpl extends _Post {
     author,
     caption,
     const DeepCollectionEquality().hash(_reactions),
+    commentCount,
   );
 
   /// Create a copy of Post
@@ -329,6 +350,7 @@ abstract class _Post extends Post {
     required final ProfileCard author,
     final String? caption,
     final List<Reaction> reactions,
+    final int commentCount,
   }) = _$PostImpl;
   const _Post._() : super._();
 
@@ -354,6 +376,8 @@ abstract class _Post extends Post {
   String? get caption;
   @override
   List<Reaction> get reactions;
+  @override
+  int get commentCount;
 
   /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.

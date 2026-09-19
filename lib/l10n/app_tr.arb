@@ -259,5 +259,15 @@
   "reactionsWhoReacted": "Kim tepki verdi",
   "homeWishlistSeeAll": "Tüm listeyi gör",
   "homeWishlistEmptyInline": "Henüz istek yok",
-  "homeWishlistToggle": "İstek listesi"
+  "homeWishlistToggle": "İstek listesi",
+  "commentsTitle": "Yorumlar",
+  "commentsWritePlaceholder": "Yorum yaz…",
+  "commentsCount": "{count, plural, =1{1 yorum} other{{count} yorum}}",
+  "commentsEmpty": "Henüz yorum yok. Bir şeyler yaz.",
+  "commentsLoadError": "Yorumlar yüklenemedi",
+  "commentsSend": "Gönder",
+  "commentsSendFailed": "Gönderilemedi. Tekrar dene.",
+  "commentsDelete": "Yorumu sil",
+  "commentsDeleteFailed": "Yorum silinemedi",
+  "commentsDaysAgo": "{days} g"
 }

@@ -61,6 +61,7 @@ class GiftEntry {
     this.giverId,
     this.recipientId,
     this.reactions = const [],
+    this.commentCount = 0,
   });
 
   final String id;
@@ -95,6 +96,9 @@ class GiftEntry {
   /// Reactions from everyone who can see the gift (one per user).
   final List<Reaction> reactions;
 
+  /// Number of comments (visible ones); the list loads on demand.
+  final int commentCount;
+
   ReactionKind? reactionOf(String? userId) =>
       reactions.where((r) => r.userId == userId).firstOrNull?.kind;
 
@@ -104,23 +108,27 @@ class GiftEntry {
         kind: reactions.where((r) => r.kind == kind).length,
   };
 
-  GiftEntry copyWith({List<GiftPhoto>? photos, List<Reaction>? reactions}) =>
-      GiftEntry(
-        id: id,
-        item: item,
-        giftDate: giftDate,
-        isSurprise: isSurprise,
-        note: note,
-        revealAt: revealAt,
-        counterpartId: counterpartId,
-        counterpartLabel: counterpartLabel,
-        preview: preview,
-        giverRelation: giverRelation,
-        photos: photos ?? this.photos,
-        giverId: giverId,
-        recipientId: recipientId,
-        reactions: reactions ?? this.reactions,
-      );
+  GiftEntry copyWith({
+    List<GiftPhoto>? photos,
+    List<Reaction>? reactions,
+    int? commentCount,
+  }) => GiftEntry(
+    id: id,
+    item: item,
+    giftDate: giftDate,
+    isSurprise: isSurprise,
+    note: note,
+    revealAt: revealAt,
+    counterpartId: counterpartId,
+    counterpartLabel: counterpartLabel,
+    preview: preview,
+    giverRelation: giverRelation,
+    photos: photos ?? this.photos,
+    giverId: giverId,
+    recipientId: recipientId,
+    reactions: reactions ?? this.reactions,
+    commentCount: commentCount ?? this.commentCount,
+  );
 
   /// Still hidden from the recipient (giver-side badge).
   bool get isPendingSurprise =>

@@ -203,6 +203,25 @@ void main() {
       expect(find.text('1'), findsNothing);
     });
 
+    testWidgets('the comment pill opens the sheet and posts', (tester) async {
+      final feed = FakeFeedRepository(
+        viewerId: 'dev-me',
+        posts: friendsPosts(),
+      );
+      await pumpApp(tester, feed: feed, asDevMe: true);
+      await tester.tap(find.text('Zeynep'));
+      await pumpViewer(tester);
+
+      await tester.tap(find.text('Write a comment…'));
+      await pumpViewer(tester);
+      expect(find.text('Comments'), findsOneWidget);
+      await tester.enterText(find.byType(TextField).last, 'harika');
+      await tester.tap(find.byTooltip('Send'));
+      await pumpViewer(tester);
+      expect(feed.comments['z1']?.single.body, 'harika');
+      expect(find.text('harika'), findsOneWidget);
+    });
+
     testWidgets('the author sees a summary and who reacted', (tester) async {
       final feed = FakeFeedRepository(
         viewerId: 'dev-me',
