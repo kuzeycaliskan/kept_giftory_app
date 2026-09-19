@@ -15,4 +15,7 @@ abstract interface class HomeRepository {
   /// My real social events: new friendships + gifts logged for me
   /// (surprises stay RLS-hidden until revealed), newest first.
   Future<Result<List<HomeEvent>>> recentEvents({int limit = 6});
+
+  /// Pending-surprise teaser for the caller; null when nothing is pending.
+  Future<Result<SurpriseTeaser?>> surpriseTeaser();
 }

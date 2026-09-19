@@ -140,3 +140,12 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   upsert; `reaction_kind` enum heart/congrats/like/ok/wow). Select defers to
   `posts` RLS, so reactions vanish with the moment and are purged with it
   (cascade). Insert/update/delete: own rows only. pgTAP 78-87.
+
+## Surprise teaser (G-210)
+
+- `pending_surprise_teaser()` (definer): for the caller only, returns
+  `has_pending` + `next_reveal_at`. The gift rows stay RLS-hidden from the
+  recipient; this is the single deliberate exposure. pgTAP 90-92.
+- Feed rule (client, `SupabaseHomeRepository.recentEvents`): friends' pending
+  surprises are filtered out (`is_surprise=false OR reveal_at<=now`) so a
+  surprise reaches the feed only once it opens.

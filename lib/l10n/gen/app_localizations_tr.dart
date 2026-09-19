@@ -823,4 +823,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get reactionFailed => 'Tepki verilemedi. Tekrar dene.';
+
+  @override
+  String homeEventFriendGift(String name, String giver) {
+    return '$name, $giver tarafından bir hediye aldı';
+  }
+
+  @override
+  String get homeSurpriseTeaserTitle => 'Sana bir sürpriz hazırlanıyor';
+
+  @override
+  String homeSurpriseTeaserOpens(String date) {
+    return '$date günü açılıyor';
+  }
 }

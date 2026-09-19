@@ -85,5 +85,25 @@ final homeEventsProvider = AutoDisposeFutureProvider<List<HomeEvent>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef HomeEventsRef = AutoDisposeFutureProviderRef<List<HomeEvent>>;
+String _$surpriseTeaserHash() => r'04ef9a766485062d6e6e6f983b720dd864199418';
+
+/// "A surprise is coming" card data (G-210); null = nothing pending.
+///
+/// Copied from [surpriseTeaser].
+@ProviderFor(surpriseTeaser)
+final surpriseTeaserProvider =
+    AutoDisposeFutureProvider<SurpriseTeaser?>.internal(
+      surpriseTeaser,
+      name: r'surpriseTeaserProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$surpriseTeaserHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SurpriseTeaserRef = AutoDisposeFutureProviderRef<SurpriseTeaser?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

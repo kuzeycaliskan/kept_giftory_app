@@ -254,5 +254,8 @@
   "reactionWow": "Vay",
   "reactionsTitle": "Tepkiler",
   "reactionsEmpty": "Henüz tepki yok",
-  "reactionFailed": "Tepki verilemedi. Tekrar dene."
+  "reactionFailed": "Tepki verilemedi. Tekrar dene.",
+  "homeEventFriendGift": "{name}, {giver} tarafından bir hediye aldı",
+  "homeSurpriseTeaserTitle": "Sana bir sürpriz hazırlanıyor",
+  "homeSurpriseTeaserOpens": "{date} günü açılıyor"
 }

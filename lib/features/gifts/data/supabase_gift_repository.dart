@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/media/media_store.dart';
+import 'package:kept/features/gifts/data/gift_row_mapper.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
-import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Supabase-backed [GiftRepository]. Counterpart profiles come via embedded
@@ -15,21 +15,16 @@ class SupabaseGiftRepository implements GiftRepository {
   final SupabaseClient _client;
   final MediaStore _media;
 
-  static const _photosSelect =
-      'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at)';
-
   static const _giverSelect =
       'id, item, note, gift_date, is_surprise, giver_relation, '
       'reveal_at, giver_id, recipient_id, '
       'giver:profiles!gifts_giver_id_fkey(id, username, display_name), '
-      ' preview:link_previews(id, url, title, image_path, price, site), '
-      '$_photosSelect';
+      '$giftEmbeds';
   static const _recipientSelect =
       'id, item, note, gift_date, is_surprise, giver_relation, '
       'reveal_at, giver_id, recipient_id, '
       'recipient:profiles!gifts_recipient_id_fkey(id, username, display_name), '
-      ' preview:link_previews(id, url, title, image_path, price, site), '
-      '$_photosSelect';
+      '$giftEmbeds';
 
   @override
   Future<Result<List<GiftEntry>>> fetchGiven() async {
@@ -42,7 +37,7 @@ class SupabaseGiftRepository implements GiftRepository {
           .eq('giver_id', userId)
           .order('gift_date', ascending: false);
       return Success([
-        for (final r in rows) _entry(r, counterpartKey: 'recipient'),
+        for (final r in rows) giftEntryFromRow(r, counterpartKey: 'recipient'),
       ]);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
@@ -70,57 +65,13 @@ class SupabaseGiftRepository implements GiftRepository {
           .eq('recipient_id', recipientId)
           .order('gift_date', ascending: false);
       return Success([
-        for (final r in rows) _entry(r, counterpartKey: 'giver'),
+        for (final r in rows) giftEntryFromRow(r, counterpartKey: 'giver'),
       ]);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));
     }
-  }
-
-  GiftEntry _entry(Map<String, dynamic> row, {required String counterpartKey}) {
-    final counterpart = row[counterpartKey] as Map<String, dynamic>?;
-    return GiftEntry(
-      id: row['id']! as String,
-      item: row['item']! as String,
-      note: row['note'] as String?,
-      giftDate: DateTime.parse(row['gift_date']! as String),
-      isSurprise: row['is_surprise']! as bool,
-      revealAt: row['reveal_at'] == null
-          ? null
-          : DateTime.parse(row['reveal_at']! as String),
-      counterpartId: counterpart?['id'] as String?,
-      counterpartLabel: counterpart == null
-          ? null
-          : (counterpart['display_name'] as String?) ??
-                (counterpart['username'] as String?),
-      preview: row['preview'] == null
-          ? null
-          : LinkPreview.fromJson(row['preview'] as Map<String, dynamic>),
-      giverRelation: row['giver_relation'] == null
-          ? null
-          : GiftRelation.values.byName(row['giver_relation'] as String),
-      photos: _photos(row['photos']),
-      giverId: row['giver_id'] as String?,
-      recipientId: row['recipient_id'] as String?,
-    );
-  }
-
-  static List<GiftPhoto> _photos(Object? raw) {
-    final rows = (raw as List<dynamic>? ?? const [])
-        .cast<Map<String, dynamic>>();
-    final photos = [
-      for (final r in rows)
-        GiftPhoto(
-          id: r['id']! as String,
-          giftId: r['gift_id']! as String,
-          uploaderId: r['uploader_id']! as String,
-          mediaPath: r['media_path']! as String,
-          createdAt: DateTime.parse(r['created_at']! as String),
-        ),
-    ]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    return photos;
   }
 
   @override
@@ -157,7 +108,7 @@ class SupabaseGiftRepository implements GiftRepository {
           })
           .select(_recipientSelect)
           .single();
-      return Success(_entry(row, counterpartKey: 'recipient'));
+      return Success(giftEntryFromRow(row, counterpartKey: 'recipient'));
     } on PostgrestException catch (e) {
       if (e.code == '23514') {
         return const ResultFailure(ValidationFailure('Invalid gift'));
@@ -196,7 +147,7 @@ class SupabaseGiftRepository implements GiftRepository {
           })
           .select(_giverSelect)
           .single();
-      return Success(_entry(row, counterpartKey: 'giver'));
+      return Success(giftEntryFromRow(row, counterpartKey: 'giver'));
     } on PostgrestException catch (e) {
       if (e.code == '23514') {
         return const ResultFailure(ValidationFailure('Invalid gift'));
@@ -232,7 +183,10 @@ class SupabaseGiftRepository implements GiftRepository {
           .maybeSingle();
       if (row == null) return const Success(null);
       return Success(
-        _entry(row, counterpartKey: counterpartIsGiver ? 'giver' : 'recipient'),
+        giftEntryFromRow(
+          row,
+          counterpartKey: counterpartIsGiver ? 'giver' : 'recipient',
+        ),
       );
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
@@ -272,7 +226,7 @@ class SupabaseGiftRepository implements GiftRepository {
           })
           .select('id, gift_id, uploader_id, media_path, created_at')
           .single();
-      return Success(_photos([row]).single);
+      return Success(giftPhotosFromRows([row]).single);
     } on PostgrestException catch (e) {
       // No row → nobody can ever see the object; roll the upload back.
       await _media.delete(bucket: giftMediaBucket, path: path);

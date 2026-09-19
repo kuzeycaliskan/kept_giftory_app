@@ -48,7 +48,7 @@
 - Free-tier 7-gün duraklaması push retention'ı durdurur → lansmandan önce **Supabase Pro** (G-62).
 - KVKK aydınlatma metni (G-33/G-35/G-74) — hukuki teyit.
 - Doğum günü yıl gizliliği (günü paylaş, yaşı gizle) — ileride (G-13).
-- Sürpriz kaydın *varlığı/sayısı* da alıcıya gizli mi? → evet (count sızıntısına karşı, G-51).
+- Sürpriz kaydın *varlığı/sayısı* da alıcıya gizli mi? → satır/sayı gizli; **19 Eyl 2026 revizyonu (G-210):** alıcı yalnız "en az bir sürpriz var + en yakın açılış tarihi" bilgisini görür (teaser kartı, `pending_surprise_teaser()`); veren/içerik/adet gizli.
 
 ## PBI Yazım Standardı (CLAUDE.md §13)
 

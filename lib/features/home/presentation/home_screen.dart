@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
 import 'package:kept/features/home/application/home_providers.dart';
@@ -16,6 +18,9 @@ import 'package:kept/features/push/application/push_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
 import 'package:kept/shared/widgets/kept_section_header.dart';
+import 'package:kept/shared/widgets/kept_shimmer.dart';
+import 'package:kept/shared/widgets/link_preview_card.dart';
+import 'package:kept/shared/widgets/private_media_image.dart';
 
 /// Home dashboard (G-82).
 ///
@@ -31,6 +36,7 @@ class HomeScreen extends ConsumerWidget {
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     final wishlistFeed = ref.watch(friendWishlistFeedProvider);
     final events = ref.watch(homeEventsProvider);
+    final teaser = ref.watch(surpriseTeaserProvider).valueOrNull;
     final friendEntries = ref.watch(friendEntriesProvider);
     final pendingRequests =
         friendEntries.valueOrNull
@@ -89,6 +95,7 @@ class HomeScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(storyGroupsProvider)
+            ..invalidate(surpriseTeaserProvider)
             ..invalidate(upcomingBirthdaysProvider)
             ..invalidate(friendWishlistFeedProvider)
             ..invalidate(homeEventsProvider)
@@ -115,6 +122,10 @@ class HomeScreen extends ConsumerWidget {
               _WishlistFeedSection(state: wishlistFeed),
               const SizedBox(height: KeptSpacing.xl),
               KeptSectionHeader(l10n.homeActivitySection),
+              if (teaser != null) ...[
+                _SurpriseTeaserCard(teaser: teaser),
+                const SizedBox(height: KeptSpacing.sm),
+              ],
               _EventsSection(state: events),
             ],
           ],
@@ -359,12 +370,37 @@ class _EventsSection extends StatelessWidget {
         if (events.isEmpty) {
           return _InviteNudge(message: l10n.homeActivityEmptyNudge);
         }
-        return KeptListGroup(
-          children: [for (final event in events) _EventRow(event: event)],
+        return Column(
+          children: [
+            for (var i = 0; i < events.length; i++) ...[
+              if (i > 0) const SizedBox(height: KeptSpacing.sm),
+              if (events[i].gift != null)
+                _GiftPostCard(event: events[i])
+              else
+                KeptListGroup(children: [_EventRow(event: events[i])]),
+            ],
+          ],
         );
       },
     );
   }
+}
+
+/// Headline for any event kind, shared by the row and the card.
+String _eventTitle(BuildContext context, HomeEvent event) {
+  final l10n = context.l10n;
+  final actor = event.actorLabel ?? l10n.giftAnonymousGiver;
+  return switch (event.kind) {
+    HomeEventKind.friendAccepted => l10n.homeEventFriend(actor),
+    HomeEventKind.giftReceived => l10n.homeEventGift(actor),
+    HomeEventKind.externalGiftLogged => l10n.homeEventExternalGift(
+      giftRelationLabel(context, event.giverRelation!),
+    ),
+    HomeEventKind.friendGiftReceived => l10n.homeEventFriendGift(
+      event.recipientLabel ?? l10n.giftAnonymousGiver,
+      actor,
+    ),
+  };
 }
 
 class _EventRow extends StatelessWidget {
@@ -374,23 +410,19 @@ class _EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final actor = event.actorLabel ?? l10n.giftAnonymousGiver;
-    final title = switch (event.kind) {
-      HomeEventKind.friendAccepted => l10n.homeEventFriend(actor),
-      HomeEventKind.giftReceived => l10n.homeEventGift(actor),
-      HomeEventKind.externalGiftLogged => l10n.homeEventExternalGift(
-        giftRelationLabel(context, event.giverRelation!),
-      ),
-    };
     final item = event.item;
     return ListTile(
-      leading: KeptIconBadge(switch (event.kind) {
-        HomeEventKind.friendAccepted => Icons.group_add_outlined,
-        HomeEventKind.giftReceived ||
-        HomeEventKind.externalGiftLogged => Icons.card_giftcard_outlined,
-      }),
-      title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+      leading: KeptIconBadge(
+        event.kind == HomeEventKind.friendAccepted
+            ? Icons.group_add_outlined
+            : Icons.card_giftcard_outlined,
+      ),
+      title: Text(
+        _eventTitle(context, event),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      // Gift events without a full payload (older callers) keep the item.
       subtitle: item == null
           ? null
           : Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -400,6 +432,178 @@ class _EventRow extends StatelessWidget {
               '/users/${event.actorId}'
               '?name=${Uri.encodeComponent(event.actorLabel ?? '')}',
             ),
+    );
+  }
+}
+
+/// A gift as a post (G-210): who/when, the item, its memory photos and link
+/// card. Tap → the gift detail. Rendered flat (outlined card theme).
+class _GiftPostCard extends StatelessWidget {
+  const _GiftPostCard({required this.event});
+
+  final HomeEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final gift = event.gift!;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final date = DateFormat.yMMMd(locale).format(gift.giftDate);
+    final preview = gift.preview;
+    final headLabel = event.kind == HomeEventKind.friendGiftReceived
+        ? (event.recipientLabel ?? '')
+        : (event.actorLabel ?? '');
+
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push('/gifts/${gift.id}?side=giver'),
+        child: Padding(
+          padding: const EdgeInsets.all(KeptSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (event.kind == HomeEventKind.externalGiftLogged)
+                    const KeptIconBadge(Icons.card_giftcard_outlined)
+                  else
+                    KeptAvatar(label: headLabel.isEmpty ? '?' : headLabel),
+                  const SizedBox(width: KeptSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _eventTitle(context, event),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall,
+                        ),
+                        Text(
+                          date,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (gift.photos.isNotEmpty) ...[
+                const SizedBox(height: KeptSpacing.md),
+                _PhotoRow(photos: gift.photos),
+              ],
+              const SizedBox(height: KeptSpacing.md),
+              Text(
+                gift.item,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium,
+              ),
+              if (preview != null) ...[
+                const SizedBox(height: KeptSpacing.sm),
+                LinkPreviewCard(preview: preview),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Up to three square memory photos, equal width, same rhythm as the
+/// detail screen's cards.
+class _PhotoRow extends StatelessWidget {
+  const _PhotoRow({required this.photos});
+
+  final List<GiftPhoto> photos;
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = photos.take(giftPhotoCap).toList();
+    return Row(
+      children: [
+        for (var i = 0; i < shown.length; i++) ...[
+          if (i > 0) const SizedBox(width: KeptSpacing.sm),
+          Expanded(
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: ClipRRect(
+                borderRadius: KeptRadius.controlAll,
+                child: PrivateMediaImage(
+                  bucket: giftMediaBucket,
+                  path: shown[i].mediaPath,
+                  fit: BoxFit.cover,
+                  compact: true,
+                ),
+              ),
+            ),
+          ),
+        ],
+        // Keep the grid's column width stable with fewer than three photos.
+        for (var i = shown.length; i < giftPhotoCap; i++) ...[
+          const SizedBox(width: KeptSpacing.sm),
+          const Expanded(child: SizedBox.shrink()),
+        ],
+      ],
+    );
+  }
+}
+
+/// "A surprise is on its way — opens on <date>": the only thing the
+/// recipient learns about pending surprises. Soft shimmer = anticipation.
+class _SurpriseTeaserCard extends StatelessWidget {
+  const _SurpriseTeaserCard({required this.teaser});
+
+  final SurpriseTeaser teaser;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final locale = Localizations.localeOf(context).toString();
+    final opens = DateFormat.MMMMd(locale).format(teaser.nextRevealAt);
+    return KeptShimmer(
+      child: Container(
+        padding: const EdgeInsets.all(KeptSpacing.lg),
+        decoration: BoxDecoration(
+          color: scheme.primaryContainer,
+          borderRadius: KeptRadius.cardAll,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.auto_awesome, color: scheme.onPrimaryContainer),
+            const SizedBox(width: KeptSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.homeSurpriseTeaserTitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: scheme.onPrimaryContainer,
+                    ),
+                  ),
+                  Text(
+                    l10n.homeSurpriseTeaserOpens(opens),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

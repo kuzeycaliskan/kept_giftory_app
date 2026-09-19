@@ -369,5 +369,25 @@
   "reactionWow": "Wow",
   "reactionsTitle": "Reactions",
   "reactionsEmpty": "No reactions yet",
-  "reactionFailed": "Couldn't react. Try again."
+  "reactionFailed": "Couldn't react. Try again.",
+  "homeEventFriendGift": "{name} got a gift from {giver}",
+  "@homeEventFriendGift": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "giver": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSurpriseTeaserTitle": "A surprise is on its way to you",
+  "homeSurpriseTeaserOpens": "Opens on {date}",
+  "@homeSurpriseTeaserOpens": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

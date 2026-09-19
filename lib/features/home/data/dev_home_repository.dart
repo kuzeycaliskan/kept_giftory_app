@@ -78,6 +78,11 @@ class DevHomeRepository implements HomeRepository {
       ),
     ]);
   }
+
+  @override
+  Future<Result<SurpriseTeaser?>> surpriseTeaser() async => Success(
+    SurpriseTeaser(nextRevealAt: _now().add(const Duration(days: 4))),
+  );
 }
 
 /// Backend-less fallback so the app stays runnable without --dart-define
@@ -98,4 +103,7 @@ class EmptyHomeRepository implements HomeRepository {
   @override
   Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async =>
       const Success([]);
+
+  @override
+  Future<Result<SurpriseTeaser?>> surpriseTeaser() async => const Success(null);
 }

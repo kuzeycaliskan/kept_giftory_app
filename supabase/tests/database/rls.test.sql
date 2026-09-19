@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(89);
+select plan(92);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1060,6 +1060,35 @@ select is(
   (select count(*) from public.post_reaction_cards(array['00000000-0000-0000-0000-000000000b02'::uuid])),
   0::bigint,
   '89: reaction cards of a hidden/expired moment stay hidden'
+);
+reset role;
+
+-- ── 90-92: surprise teaser (G-210) ──────────────────────────────────────────
+-- erin's pending surprise for alice (G2 from 63-77, reveal +10 days): alice
+-- learns "something is coming, opens on <date>" and nothing more.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+
+select is(
+  (select has_pending from public.pending_surprise_teaser()),
+  true,
+  '90: recipient learns a surprise is pending'
+);
+
+select ok(
+  (select next_reveal_at > now() + interval '9 days'
+     from public.pending_surprise_teaser()),
+  '91: teaser carries the earliest reveal time'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select is(
+  (select has_pending from public.pending_surprise_teaser()),
+  false,
+  '92: teaser is strictly the caller''s own'
 );
 reset role;
 

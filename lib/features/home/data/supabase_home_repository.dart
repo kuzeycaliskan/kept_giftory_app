@@ -1,6 +1,6 @@
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
-import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/features/gifts/data/gift_row_mapper.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
@@ -135,15 +135,23 @@ class SupabaseHomeRepository implements HomeRepository {
           .order('responded_at', ascending: false)
           .limit(limit);
 
-      // Gifts logged for me — unrevealed surprises are RLS-hidden entirely,
-      // so every row that arrives is safe to show.
+      // Gift posts: mine + friends'. My unrevealed surprises are RLS-hidden;
+      // friends' pending surprises are filtered here (feed rule: a surprise
+      // reaches the feed only once it opens — no accidental spoilers).
+      final friendIds = await _acceptedFriendIds(userId);
+      final nowIso = _now().toUtc().toIso8601String();
       final giftRows = await _client
           .from('gifts')
           .select(
-            'created_at, item, giver_relation, '
-            'giver:profiles!gifts_giver_id_fkey(id, username, display_name)',
+            'id, item, note, gift_date, is_surprise, giver_relation, '
+            'reveal_at, giver_id, recipient_id, created_at, '
+            'giver:profiles!gifts_giver_id_fkey(id, username, display_name), '
+            'recipient:profiles!gifts_recipient_id_fkey'
+            '(id, username, display_name), '
+            '$giftEmbeds',
           )
-          .eq('recipient_id', userId)
+          .inFilter('recipient_id', [userId, ...friendIds])
+          .or('is_surprise.eq.false,reveal_at.lte.$nowIso')
           .order('created_at', ascending: false)
           .limit(limit);
 
@@ -164,32 +172,67 @@ class SupabaseHomeRepository implements HomeRepository {
         );
       }
       for (final row in giftRows) {
-        final giver = row['giver'] as Map<String, dynamic>?;
-        final relation = row['giver_relation'] as String?;
+        final gift = giftEntryFromRow(row, counterpartKey: 'giver');
         final at = DateTime.parse(row['created_at']! as String);
-        final item = row['item'] as String?;
+        final recipient = row['recipient'] as Map<String, dynamic>?;
+        final mine = gift.recipientId == userId;
         // Three giver states (G-212): member, external (relation), deleted
         // member (both null → anonymized "someone").
         events.add(
-          relation != null
+          !mine
+              ? HomeEvent(
+                  kind: HomeEventKind.friendGiftReceived,
+                  at: at,
+                  actorId: gift.counterpartId,
+                  actorLabel: gift.counterpartLabel,
+                  item: gift.item,
+                  gift: gift,
+                  recipientId: gift.recipientId,
+                  recipientLabel:
+                      (recipient?['display_name'] ?? recipient?['username'])
+                          as String?,
+                )
+              : gift.giverRelation != null
               ? HomeEvent(
                   kind: HomeEventKind.externalGiftLogged,
                   at: at,
-                  giverRelation: GiftRelation.values.byName(relation),
-                  item: item,
+                  giverRelation: gift.giverRelation,
+                  item: gift.item,
+                  gift: gift,
                 )
               : HomeEvent(
                   kind: HomeEventKind.giftReceived,
                   at: at,
-                  actorId: giver?['id'] as String?,
-                  actorLabel:
-                      (giver?['display_name'] ?? giver?['username']) as String?,
-                  item: item,
+                  actorId: gift.counterpartId,
+                  actorLabel: gift.counterpartLabel,
+                  item: gift.item,
+                  gift: gift,
                 ),
         );
       }
       events.sort((a, b) => b.at.compareTo(a.at));
       return Success(events.take(limit).toList());
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<SurpriseTeaser?>> surpriseTeaser() async {
+    if (_client.auth.currentUser == null) {
+      return const ResultFailure(AuthFailure('Signed out'));
+    }
+    try {
+      final rows = await _client.rpc<List<dynamic>>('pending_surprise_teaser');
+      final row = rows.firstOrNull as Map<String, dynamic>?;
+      if (row == null || row['has_pending'] != true) return const Success(null);
+      return Success(
+        SurpriseTeaser(
+          nextRevealAt: DateTime.parse(row['next_reveal_at']! as String),
+        ),
+      );
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {

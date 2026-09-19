@@ -54,3 +54,13 @@ Future<List<HomeEvent>> homeEvents(Ref ref) async {
     failure: (failure) => throw failure,
   );
 }
+
+/// "A surprise is coming" card data (G-210); null = nothing pending.
+@riverpod
+Future<SurpriseTeaser?> surpriseTeaser(Ref ref) async {
+  final result = await ref.watch(homeRepositoryProvider).surpriseTeaser();
+  return result.when(
+    success: (teaser) => teaser,
+    failure: (failure) => throw failure,
+  );
+}

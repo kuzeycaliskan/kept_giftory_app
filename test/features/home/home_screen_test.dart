@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kept/app.dart';
 import 'package:kept/core/error/result.dart';
+import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -11,17 +12,25 @@ import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/shared/widgets/private_media_image.dart';
+
+import '../feed/feed_test_support.dart';
 
 class _FakeHomeRepository implements HomeRepository {
   _FakeHomeRepository(
     this.birthdays, {
     this.wishlistItems = const [],
     this.events = const [],
+    this.teaser,
   });
 
   final List<UpcomingBirthday> birthdays;
   final List<FriendWishlistItem> wishlistItems;
   final List<HomeEvent> events;
+  final SurpriseTeaser? teaser;
+
+  @override
+  Future<Result<SurpriseTeaser?>> surpriseTeaser() async => Success(teaser);
 
   @override
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
@@ -61,6 +70,14 @@ class _FakeFriendshipRepository implements FriendshipRepository {
       const Success(null);
 }
 
+/// A handful of frames for screens with a looping animation (shimmer),
+/// where pumpAndSettle would never return.
+Future<void> pumpFrames(WidgetTester tester) async {
+  for (var i = 0; i < 8; i++) {
+    await tester.pump(const Duration(milliseconds: 150));
+  }
+}
+
 void main() {
   Future<void> pumpHome(
     WidgetTester tester, {
@@ -68,6 +85,7 @@ void main() {
     List<FriendEntry> friendEntries = const [],
     List<FriendWishlistItem> wishlistItems = const [],
     List<HomeEvent> events = const [],
+    SurpriseTeaser? teaser,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -77,8 +95,10 @@ void main() {
               birthdays,
               wishlistItems: wishlistItems,
               events: events,
+              teaser: teaser,
             ),
           ),
+          mediaStoreProvider.overrideWithValue(const FakeMediaStore()),
           friendshipRepositoryProvider.overrideWithValue(
             _FakeFriendshipRepository(friendEntries),
           ),
@@ -86,7 +106,12 @@ void main() {
         child: const KeptApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    if (teaser == null) {
+      await tester.pumpAndSettle();
+    } else {
+      // The teaser's shimmer loops forever: settle by frames, not idleness.
+      await pumpFrames(tester);
+    }
   }
 
   testWidgets('empty upcoming section drives friend discovery', (tester) async {
@@ -235,5 +260,75 @@ void main() {
     expect(find.text('Find friends'), findsOneWidget);
     expect(find.text("From friends' wishlists"), findsNothing);
     expect(find.text('Activity'), findsNothing);
+  });
+
+  testWidgets("friends' gifts render as posts with photos and link", (
+    tester,
+  ) async {
+    final gift = GiftEntry(
+      id: 'g9',
+      item: 'Kupa',
+      giftDate: DateTime(2026, 9, 13),
+      isSurprise: false,
+      counterpartId: 'k',
+      counterpartLabel: 'Kuzey',
+      giverId: 'k',
+      recipientId: 'z',
+      photos: [
+        GiftPhoto(
+          id: 'p1',
+          giftId: 'g9',
+          uploaderId: 'z',
+          mediaPath: 'z/g9-1.jpg',
+          createdAt: DateTime(2026, 9, 13),
+        ),
+        GiftPhoto(
+          id: 'p2',
+          giftId: 'g9',
+          uploaderId: 'k',
+          mediaPath: 'k/g9-2.jpg',
+          createdAt: DateTime(2026, 9, 14),
+        ),
+      ],
+    );
+    await pumpHome(
+      tester,
+      birthdays: const [],
+      friendEntries: const [acceptedFriend],
+      events: [
+        HomeEvent(
+          kind: HomeEventKind.friendGiftReceived,
+          at: DateTime(2026, 9, 13),
+          actorId: 'k',
+          actorLabel: 'Kuzey',
+          item: 'Kupa',
+          gift: gift,
+          recipientId: 'z',
+          recipientLabel: 'Zeynep',
+        ),
+      ],
+    );
+    await tester.drag(find.text('Upcoming'), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Zeynep got a gift from Kuzey'), findsOneWidget);
+    expect(find.text('Kupa'), findsOneWidget);
+    expect(find.byType(PrivateMediaImage), findsNWidgets(2));
+  });
+
+  testWidgets('a pending surprise shows the teaser, nothing more', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      birthdays: const [],
+      friendEntries: const [acceptedFriend],
+      teaser: SurpriseTeaser(nextRevealAt: DateTime(2026, 10, 16)),
+    );
+    await tester.drag(find.text('Upcoming'), const Offset(0, -500));
+    await pumpFrames(tester);
+
+    expect(find.text('A surprise is on its way to you'), findsOneWidget);
+    expect(find.text('Opens on October 16'), findsOneWidget);
   });
 }

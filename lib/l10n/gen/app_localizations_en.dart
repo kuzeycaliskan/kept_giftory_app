@@ -825,4 +825,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reactionFailed => 'Couldn\'t react. Try again.';
+
+  @override
+  String homeEventFriendGift(String name, String giver) {
+    return '$name got a gift from $giver';
+  }
+
+  @override
+  String get homeSurpriseTeaserTitle => 'A surprise is on its way to you';
+
+  @override
+  String homeSurpriseTeaserOpens(String date) {
+    return 'Opens on $date';
+  }
 }

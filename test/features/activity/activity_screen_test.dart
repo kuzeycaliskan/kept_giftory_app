@@ -47,6 +47,8 @@ class _FakeFriendshipRepository implements FriendshipRepository {
 
 class _FakeHomeRepository implements HomeRepository {
   _FakeHomeRepository(this.birthdays);
+  @override
+  Future<Result<SurpriseTeaser?>> surpriseTeaser() async => const Success(null);
 
   final List<UpcomingBirthday> birthdays;
 
