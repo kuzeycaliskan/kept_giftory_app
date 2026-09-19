@@ -8,9 +8,9 @@ part 'reaction.g.dart';
 /// UI maps them to glyphs. Order here is the order shown in the bar.
 enum ReactionKind { heart, congrats, like, ok, wow }
 
-/// One user's reaction to a moment. [user] is null when the reactor's
-/// profile is RLS-hidden from the viewer (private profile reacting to a
-/// public moment) — the count still shows, the name falls back.
+/// One user's reaction to a moment. The live path resolves [user] through a
+/// definer RPC, so the reactor is named even with a hidden profile (product
+/// rule); null is a defensive fallback only.
 @freezed
 class Reaction with _$Reaction {
   const factory Reaction({

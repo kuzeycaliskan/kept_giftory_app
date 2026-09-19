@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(87);
+select plan(89);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1035,6 +1035,31 @@ select is(
   (select count(*) from public.post_reactions where post_id = '00000000-0000-0000-0000-000000000b02'),
   0::bigint,
   '87: reactions vanish with the expired moment'
+);
+reset role;
+
+-- ── 88-89: reactor identity is always shown to whoever sees the moment ──────
+-- ivy (friends-only profile, stranger to dave) reacts to dave's public
+-- moment; dave still gets her name through post_reaction_cards.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a12","role":"authenticated"}';
+insert into public.post_reactions (post_id, user_id, kind)
+values ('00000000-0000-0000-0000-000000000d01', '00000000-0000-0000-0000-000000000a12', 'like');
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+select is(
+  (select username from public.post_reaction_cards(array['00000000-0000-0000-0000-000000000d01'::uuid])
+    where user_id = '00000000-0000-0000-0000-000000000a12'),
+  'ivy',
+  '88: author sees a private-profile reactor''s name'
+);
+
+select is(
+  (select count(*) from public.post_reaction_cards(array['00000000-0000-0000-0000-000000000b02'::uuid])),
+  0::bigint,
+  '89: reaction cards of a hidden/expired moment stay hidden'
 );
 reset role;
 

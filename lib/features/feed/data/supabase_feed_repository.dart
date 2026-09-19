@@ -6,6 +6,7 @@ import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/reaction.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Supabase-backed [FeedRepository].
@@ -27,9 +28,7 @@ class SupabaseFeedRepository implements FeedRepository {
       // FK hint is mandatory: post_reactions links posts↔profiles too, so a
       // bare `profiles` embed is ambiguous (PGRST201) since G-206.
       'author:profiles!posts_author_id_fkey'
-      '(id, username, display_name, avatar_url), '
-      'reactions:post_reactions(user_id, kind, '
-      'user:profiles(id, username, display_name, avatar_url))';
+      '(id, username, display_name, avatar_url)';
 
   @override
   Future<Result<FeedSnapshot>> fetchActive() async {
@@ -41,13 +40,48 @@ class SupabaseFeedRepository implements FeedRepository {
           .select(_selectColumns)
           .order('created_at', ascending: true)
           .limit(_fetchLimit);
-      final posts = rows.map(Post.fromJson).toList();
+      final bare = rows.map(Post.fromJson).toList();
+      final reactions = await _reactionsFor(bare.map((p) => p.id).toList());
+      final posts = [
+        for (final post in bare)
+          post.copyWith(reactions: reactions[post.id] ?? const []),
+      ];
       return Success(FeedSnapshot(posts: posts, viewerId: userId));
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));
     }
+  }
+
+  /// Reactor cards come from a definer RPC so the name shows even when the
+  /// reactor's profile is hidden from the viewer (product rule: reacting is
+  /// a deliberate act toward the author). Grouped by post.
+  Future<Map<String, List<Reaction>>> _reactionsFor(List<String> ids) async {
+    if (ids.isEmpty) return const {};
+    final rows = await _client.rpc<List<dynamic>>(
+      'post_reaction_cards',
+      params: {'p_post_ids': ids},
+    );
+    final byPost = <String, List<Reaction>>{};
+    for (final raw in rows) {
+      final row = raw as Map<String, dynamic>;
+      byPost
+          .putIfAbsent(row['post_id']! as String, () => [])
+          .add(
+            Reaction(
+              userId: row['user_id']! as String,
+              kind: ReactionKind.values.byName(row['kind']! as String),
+              user: ProfileCard(
+                id: row['user_id']! as String,
+                username: row['username']! as String,
+                displayName: row['display_name'] as String?,
+                avatarUrl: row['avatar_url'] as String?,
+              ),
+            ),
+          );
+    }
+    return byPost;
   }
 
   @override

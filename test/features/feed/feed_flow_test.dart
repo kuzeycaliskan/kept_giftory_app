@@ -213,8 +213,16 @@ void main() {
                   displayName: 'Ali',
                 ),
               ),
-              Reaction(userId: 'zeynep', kind: ReactionKind.heart),
-              Reaction(userId: 'mert', kind: ReactionKind.wow),
+              Reaction(
+                userId: 'zeynep',
+                kind: ReactionKind.heart,
+                user: ProfileCard(id: 'zeynep', username: 'zeynep'),
+              ),
+              Reaction(
+                userId: 'mert',
+                kind: ReactionKind.wow,
+                user: ProfileCard(id: 'mert', username: 'mert'),
+              ),
             ],
           ),
         ],
@@ -232,8 +240,8 @@ void main() {
       await pumpViewer(tester);
       expect(find.text('Reactions'), findsOneWidget);
       expect(find.text('Ali'), findsOneWidget);
-      // Hidden profile → neutral fallback, reaction still listed.
-      expect(find.text('Someone'), findsNWidgets(2));
+      expect(find.text('zeynep'), findsOneWidget);
+      expect(find.text('mert'), findsOneWidget);
     });
   });
 
