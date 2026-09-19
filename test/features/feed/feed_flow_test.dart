@@ -180,19 +180,19 @@ void main() {
       await tester.tap(find.text('Zeynep'));
       await pumpViewer(tester);
 
-      // Single pill, nothing chosen yet: thumbs-up outline, no picker.
-      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
+      // Single pill, nothing chosen yet: heart outline, no picker.
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
       expect(find.text('🎉'), findsNothing);
 
-      // Tap = like.
-      await tester.tap(find.byIcon(Icons.thumb_up_outlined));
+      // Tap = heart.
+      await tester.tap(find.byIcon(Icons.favorite_border));
       await pumpViewer(tester);
-      expect(feed.reactions, ['set:z1:like']);
-      expect(find.text('👍'), findsOneWidget);
+      expect(feed.reactions, ['set:z1:heart']);
+      expect(find.text('❤️'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
 
       // Hold → picker → pick another kind.
-      await tester.longPress(find.text('👍'));
+      await tester.longPress(find.text('❤️'));
       await pumpViewer(tester);
       expect(find.text('🎉'), findsOneWidget);
       await tester.tap(find.text('🎉'));
@@ -204,7 +204,7 @@ void main() {
       await tester.tap(find.text('🎉'));
       await pumpViewer(tester);
       expect(feed.reactions.last, 'clear:z1');
-      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
       expect(find.text('1'), findsNothing);
     });
 
@@ -265,7 +265,7 @@ void main() {
 
       expect(find.text('❤️ 2 · 😮 1'), findsOneWidget);
       // No reaction pill on your own moment.
-      expect(find.byIcon(Icons.thumb_up_outlined), findsNothing);
+      expect(find.byIcon(Icons.favorite_border), findsNothing);
 
       // Short pumps: settling would run the 5s auto-advance under the sheet.
       await tester.tap(find.text('❤️ 2 · 😮 1'));

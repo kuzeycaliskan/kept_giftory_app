@@ -26,10 +26,11 @@ String reactionLabel(BuildContext context, ReactionKind kind) {
   };
 }
 
-/// One pill (product decision 2026-09-19): tap = like / un-react, hold =
+/// One pill (product decision 2026-09-19): tap = heart / un-react, hold =
 /// the picker with all five kinds pops up above it. Shows the viewer's own
-/// kind when set (accent fill) or a thumbs-up outline, plus the total
-/// count. [onDark] = white chrome for the story stage.
+/// kind when set (accent fill, brief pop) or a heart outline, plus the
+/// total count. The glyph lives in a fixed box so the pill never changes
+/// height between states. [onDark] = white chrome for the story stage.
 class ReactionButton extends StatefulWidget {
   const ReactionButton({
     required this.reactions,
@@ -58,7 +59,7 @@ class _ReactionButtonState extends State<ReactionButton> {
   ReactionKind? get _mine =>
       widget.reactions.where((r) => r.userId == widget.myId).firstOrNull?.kind;
 
-  void _tap() => widget.onReact(_mine ?? ReactionKind.like);
+  void _tap() => widget.onReact(_mine ?? ReactionKind.heart);
 
   void _pick(ReactionKind kind) {
     _picker.hide();
@@ -109,7 +110,7 @@ class _ReactionButtonState extends State<ReactionButton> {
           selected: selected,
           label: selected
               ? '${reactionLabel(context, mine)} $count'
-              : l10n.reactionLike,
+              : l10n.reactionHeart,
           child: Material(
             color: background,
             borderRadius: KeptRadius.pillAll,
@@ -125,13 +126,7 @@ class _ReactionButtonState extends State<ReactionButton> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (mine == null)
-                      Icon(Icons.thumb_up_outlined, size: 20, color: foreground)
-                    else
-                      Text(
-                        reactionGlyph(mine),
-                        style: const TextStyle(fontSize: 20),
-                      ),
+                    _Glyph(kind: mine, color: foreground),
                     if (count > 0) ...[
                       const SizedBox(width: KeptSpacing.xs),
                       Text(
@@ -148,6 +143,46 @@ class _ReactionButtonState extends State<ReactionButton> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Fixed 22dp box: emoji and icon share one footprint, so reacting never
+/// changes the pill's height. A fresh kind pops (1.35 → 1) via a transform,
+/// which does not touch layout.
+class _Glyph extends StatelessWidget {
+  const _Glyph({required this.kind, required this.color});
+
+  final ReactionKind? kind;
+  final Color color;
+
+  static const double _box = 22;
+
+  @override
+  Widget build(BuildContext context) {
+    final kind = this.kind;
+    return SizedBox.square(
+      dimension: _box,
+      child: kind == null
+          ? Icon(Icons.favorite_border, size: 20, color: color)
+          : TweenAnimationBuilder<double>(
+              key: ValueKey(kind),
+              tween: Tween(begin: 1.35, end: 1),
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutBack,
+              builder: (context, scale, child) =>
+                  Transform.scale(scale: scale, child: child),
+              child: Center(
+                child: Text(
+                  reactionGlyph(kind),
+                  style: const TextStyle(fontSize: 17, height: 1),
+                  textHeightBehavior: const TextHeightBehavior(
+                    applyHeightToFirstAscent: false,
+                    applyHeightToLastDescent: false,
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }

@@ -875,7 +875,7 @@ void main() {
       expect(find.text('Reactions'), findsOneWidget);
 
       // Hold → picker → congrats.
-      await tester.longPress(find.byIcon(Icons.thumb_up_outlined));
+      await tester.longPress(find.byIcon(Icons.favorite_border));
       await tester.pumpAndSettle();
       await tester.tap(find.text('🎉'));
       await tester.pumpAndSettle();
@@ -886,7 +886,7 @@ void main() {
       await tester.tap(find.text('🎉'));
       await tester.pumpAndSettle();
       expect(repo.reactions.last, 'clear:g8');
-      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
     });
 
     testWidgets('comments: open the sheet, write, delete own', (tester) async {
