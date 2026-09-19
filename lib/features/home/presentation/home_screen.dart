@@ -288,29 +288,39 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          // Countdown only: the username lives one tap away on the profile.
-          subtitle: Text(
-            _countdown(context),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          onTap: () => setState(() => _expanded = !_expanded),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
+          // Countdown, then the expand affordance inline (accent colour,
+          // tiny chevron) — keeps the trailing slot to the one real action.
+          subtitle: Row(
             children: [
-              FilledButton.tonal(
-                onPressed: () => context.push('/gifts/log'),
-                child: Text(l10n.homeGiftCta),
+              Flexible(
+                child: Text(
+                  _countdown(context),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(' · ', style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                l10n.homeWishlistToggle,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   Icons.expand_more,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
+          ),
+          onTap: () => setState(() => _expanded = !_expanded),
+          trailing: FilledButton.tonal(
+            onPressed: () => context.push('/gifts/log'),
+            child: Text(l10n.homeGiftCta),
           ),
         ),
         AnimatedSize(

@@ -838,4 +838,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get homeWishlistEmptyInline => 'Henüz istek yok';
+
+  @override
+  String get homeWishlistToggle => 'İstek listesi';
 }

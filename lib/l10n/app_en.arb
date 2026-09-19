@@ -390,5 +390,6 @@
   "giftDetailReactionsSection": "Reactions",
   "reactionsWhoReacted": "See who reacted",
   "homeWishlistSeeAll": "See full wishlist",
-  "homeWishlistEmptyInline": "No wishes yet"
+  "homeWishlistEmptyInline": "No wishes yet",
+  "homeWishlistToggle": "Wishlist"
 }

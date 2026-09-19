@@ -1651,6 +1651,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No wishes yet'**
   String get homeWishlistEmptyInline;
+
+  /// No description provided for @homeWishlistToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get homeWishlistToggle;
 }
 
 class _AppLocalizationsDelegate

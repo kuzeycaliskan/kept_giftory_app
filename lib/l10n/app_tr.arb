@@ -258,5 +258,6 @@
   "giftDetailReactionsSection": "Tepkiler",
   "reactionsWhoReacted": "Kim tepki verdi",
   "homeWishlistSeeAll": "Tüm listeyi gör",
-  "homeWishlistEmptyInline": "Henüz istek yok"
+  "homeWishlistEmptyInline": "Henüz istek yok",
+  "homeWishlistToggle": "İstek listesi"
 }

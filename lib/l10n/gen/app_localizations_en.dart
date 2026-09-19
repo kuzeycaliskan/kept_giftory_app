@@ -840,4 +840,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWishlistEmptyInline => 'No wishes yet';
+
+  @override
+  String get homeWishlistToggle => 'Wishlist';
 }
