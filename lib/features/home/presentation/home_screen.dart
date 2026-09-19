@@ -311,7 +311,7 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   Icons.expand_more,
-                  size: 16,
+                  size: 18,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
