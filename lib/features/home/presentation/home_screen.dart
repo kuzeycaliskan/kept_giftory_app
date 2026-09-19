@@ -259,6 +259,11 @@ class _BirthdayRow extends ConsumerStatefulWidget {
 class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
   bool _expanded = false;
 
+  /// Above this text scale the two action buttons no longer fit beside
+  /// the text on a narrow phone; they move under it instead of squeezing
+  /// the name and countdown (design.md §5: nothing ever clips or overflows).
+  static const double _stackActionsAtScale = 1.5;
+
   String _countdown(BuildContext context) =>
       switch (widget.birthday.daysUntil) {
         0 => context.l10n.homeCountdownToday,
@@ -266,61 +271,89 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
         final d => context.l10n.homeCountdownInDays(d),
       };
 
+  void _toggle() => setState(() => _expanded = !_expanded);
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final birthday = widget.birthday;
     final profileRoute =
         '/users/${birthday.friendId}'
         '?name=${Uri.encodeComponent(birthday.label)}';
+    final stackActions =
+        MediaQuery.textScalerOf(context).scale(1) >= _stackActionsAtScale;
+
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton.filledTonal(
+          tooltip: l10n.homeWishlistToggle,
+          isSelected: _expanded,
+          onPressed: _toggle,
+          icon: const Icon(Icons.star_outline),
+          selectedIcon: const Icon(Icons.star),
+        ),
+        const SizedBox(width: KeptSpacing.xs),
+        FilledButton.tonal(
+          onPressed: () => context.push('/gifts/log'),
+          child: Text(l10n.homeGiftCta),
+        ),
+      ],
+    );
+
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          birthday.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodyLarge,
+        ),
+        // Countdown: soft-wraps, never clips (product rule).
+        Text(
+          _countdown(context),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        if (stackActions)
+          Padding(
+            padding: const EdgeInsets.only(top: KeptSpacing.sm),
+            child: actions,
+          ),
+      ],
+    );
+
     return Column(
       children: [
-        ListTile(
-          leading: GestureDetector(
-            onTap: () => context.push(profileRoute),
-            child: KeptAvatar(
-              label: birthday.label,
-              avatarValue: birthday.avatarUrl,
+        InkWell(
+          onTap: _toggle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: KeptSpacing.lg,
+              vertical: KeptSpacing.md,
             ),
-          ),
-          title: Text(
-            birthday.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          // Countdown, then the expand affordance inline (accent colour,
-          // tiny chevron) — keeps the trailing slot to the one real action.
-          subtitle: Row(
-            children: [
-              Flexible(
-                child: Text(
-                  _countdown(context),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => context.push(profileRoute),
+                  child: KeptAvatar(
+                    label: birthday.label,
+                    avatarValue: birthday.avatarUrl,
+                  ),
                 ),
-              ),
-              Text(' · ', style: Theme.of(context).textTheme.bodyMedium),
-              Text(
-                l10n.homeWishlistToggle,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              AnimatedRotation(
-                turns: _expanded ? 0.5 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  Icons.expand_more,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
-          onTap: () => setState(() => _expanded = !_expanded),
-          trailing: FilledButton.tonal(
-            onPressed: () => context.push('/gifts/log'),
-            child: Text(l10n.homeGiftCta),
+                const SizedBox(width: KeptSpacing.lg),
+                // Expanded: the text column absorbs whatever width is left,
+                // so leading + actions can never push the row past its box.
+                Expanded(child: text),
+                if (!stackActions) ...[
+                  const SizedBox(width: KeptSpacing.sm),
+                  actions,
+                ],
+              ],
+            ),
           ),
         ),
         AnimatedSize(

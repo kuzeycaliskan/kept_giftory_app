@@ -295,7 +295,11 @@ class _StripPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Row(
+    // Scrollable like the real strip: a fixed row of placeholders would
+    // overflow on a narrow screen.
+    return ListView(
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
       children: [
         for (var i = 0; i < 4; i++)
           SizedBox(

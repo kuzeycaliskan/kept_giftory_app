@@ -367,4 +367,41 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ski goggles'), findsNothing);
   });
+
+  testWidgets('no overflow and no clipped countdown at 2x text scale', (
+    tester,
+  ) async {
+    // Narrow phone, huge text, long name: the countdown must still show in
+    // full (no ellipsis) and nothing may overflow (design.md §5).
+    tester.view.physicalSize = const Size(360, 780);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await pumpHome(
+      tester,
+      birthdays: [
+        UpcomingBirthday(
+          friendId: 'w',
+          username: 'wolfe',
+          displayName: 'Wolfeschlegelsteinhausenbergerdorff',
+          birthday: DateTime(1990, 9, 2),
+          daysUntil: 361,
+        ),
+      ],
+      friendEntries: const [acceptedFriend],
+    );
+
+    expect(tester.takeException(), isNull);
+    final countdown = tester.widget<Text>(find.text('In 361 days'));
+    expect(countdown.overflow, isNot(TextOverflow.ellipsis));
+    expect(countdown.maxLines, isNull);
+    expect(find.byTooltip('Wishlist'), findsOneWidget);
+
+    await tester.tap(find.text('In 361 days'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 }

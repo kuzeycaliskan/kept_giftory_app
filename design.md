@@ -96,6 +96,13 @@ kabul edilmez.** Her ekran, uzun içerikle ve büyük yazı ölçeğiyle ayakta 
   ile kaydırılabilir olur (küçük ekran + klavye senaryosu dahil).
 - Test/geliştirmede uzun isim ("Wolfeschlegelsteinhausenbergerdorff") ve
   `textScaleFactor 1.3+` ile en az bir kez bakılır.
+- **Koruma testi zorunlu:** her ekran için 360dp genişlik + 2.0 metin ölçeği ile
+  bir widget testi; `tester.takeException()` null olmalı (RenderFlex overflow
+  test hatasıdır). Örnek: `home_screen_test.dart` "2x text scale".
+- **Sayısal/durum metinleri (geri sayım, tarih, sayaç) hiçbir zaman "…" ile
+  kısaltılmaz:** `maxLines`/`ellipsis` verilmez, satır `Wrap` ya da `Expanded`
+  içinde sarmalanır; yan aksiyonlar dar alanda metnin ALTINA iner (bkz.
+  Home doğum günü satırı, `_stackActionsAtScale`).
 
 ## 6. Hareket
 
