@@ -284,17 +284,22 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
     final stackActions =
         MediaQuery.textScalerOf(context).scale(1) >= _stackActionsAtScale;
 
-    final actions = Row(
-      mainAxisSize: MainAxisSize.min,
+    // Two labelled actions: the wishlist toggle (filled while open) and
+    // Gift. Labels, not icons — "wishlist" has no glyph everyone reads.
+    // A Wrap so two wide labels (2x text) fall onto two lines rather than
+    // overflow.
+    final actions = Wrap(
+      spacing: KeptSpacing.sm,
+      runSpacing: KeptSpacing.sm,
+      alignment: WrapAlignment.end,
       children: [
-        IconButton.filledTonal(
-          tooltip: l10n.homeWishlistToggle,
-          isSelected: _expanded,
-          onPressed: _toggle,
-          icon: const Icon(Icons.star_outline),
-          selectedIcon: const Icon(Icons.star),
-        ),
-        const SizedBox(width: KeptSpacing.xs),
+        if (_expanded)
+          FilledButton(onPressed: _toggle, child: Text(l10n.homeWishlistToggle))
+        else
+          FilledButton.tonal(
+            onPressed: _toggle,
+            child: Text(l10n.homeWishlistToggle),
+          ),
         FilledButton.tonal(
           onPressed: () => context.push('/gifts/log'),
           child: Text(l10n.homeGiftCta),
@@ -302,28 +307,11 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
       ],
     );
 
-    final text = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          birthday.label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodyLarge,
-        ),
-        // Countdown: soft-wraps, never clips (product rule).
-        Text(
-          _countdown(context),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        if (stackActions)
-          Padding(
-            padding: const EdgeInsets.only(top: KeptSpacing.sm),
-            child: actions,
-          ),
-      ],
+    final countdown = Text(
+      _countdown(context),
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
     );
 
     return Column(
@@ -331,27 +319,52 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
         InkWell(
           onTap: _toggle,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: KeptSpacing.lg,
-              vertical: KeptSpacing.md,
+            padding: const EdgeInsets.fromLTRB(
+              KeptSpacing.lg,
+              KeptSpacing.md,
+              KeptSpacing.lg,
+              KeptSpacing.md,
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: () => context.push(profileRoute),
-                  child: KeptAvatar(
-                    label: birthday.label,
-                    avatarValue: birthday.avatarUrl,
-                  ),
+                // Line 1: avatar + name.
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.push(profileRoute),
+                      child: KeptAvatar(
+                        label: birthday.label,
+                        avatarValue: birthday.avatarUrl,
+                      ),
+                    ),
+                    const SizedBox(width: KeptSpacing.lg),
+                    Expanded(
+                      child: Text(
+                        birthday.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: KeptSpacing.lg),
-                // Expanded: the text column absorbs whatever width is left,
-                // so leading + actions can never push the row past its box.
-                Expanded(child: text),
-                if (!stackActions) ...[
-                  const SizedBox(width: KeptSpacing.sm),
-                  actions,
-                ],
+                const SizedBox(height: KeptSpacing.sm),
+                // Line 2: countdown left, actions right. Countdown is
+                // Expanded and soft-wraps — never clipped (design.md §5);
+                // at large text scales the actions drop to a third line.
+                if (stackActions) ...[
+                  countdown,
+                  const SizedBox(height: KeptSpacing.sm),
+                  Align(alignment: Alignment.centerRight, child: actions),
+                ] else
+                  Row(
+                    children: [
+                      Expanded(child: countdown),
+                      const SizedBox(width: KeptSpacing.sm),
+                      actions,
+                    ],
+                  ),
               ],
             ),
           ),
