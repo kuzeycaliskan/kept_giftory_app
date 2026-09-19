@@ -24,7 +24,10 @@ class SupabaseFeedRepository implements FeedRepository {
 
   static const _selectColumns =
       'id, author_id, media_path, caption, created_at, expires_at, '
-      'author:profiles(id, username, display_name, avatar_url), '
+      // FK hint is mandatory: post_reactions links posts↔profiles too, so a
+      // bare `profiles` embed is ambiguous (PGRST201) since G-206.
+      'author:profiles!posts_author_id_fkey'
+      '(id, username, display_name, avatar_url), '
       'reactions:post_reactions(user_id, kind, '
       'user:profiles(id, username, display_name, avatar_url))';
 
