@@ -72,50 +72,6 @@ class SupabaseHomeRepository implements HomeRepository {
   }
 
   @override
-  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
-    int limit = 6,
-  }) async {
-    final userId = _client.auth.currentUser?.id;
-    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
-    try {
-      final friendIds = await _acceptedFriendIds(userId);
-      if (friendIds.isEmpty) return const Success([]);
-
-      // RLS (can_view_wishlist) drops items whose owner hid their list.
-      final rows = await _client
-          .from('wishlist_items')
-          .select(
-            'id, title, created_at, '
-            'owner:profiles(id, username, display_name)',
-          )
-          .inFilter('owner_id', friendIds)
-          .order('created_at', ascending: false)
-          .limit(limit);
-
-      final items = <FriendWishlistItem>[];
-      for (final row in rows) {
-        final owner = row['owner'] as Map<String, dynamic>?;
-        if (owner == null) continue; // owner profile hidden by RLS
-        items.add(
-          FriendWishlistItem(
-            itemId: row['id']! as String,
-            title: row['title']! as String,
-            ownerId: owner['id']! as String,
-            ownerUsername: owner['username']! as String,
-            ownerDisplayName: owner['display_name'] as String?,
-            createdAt: DateTime.parse(row['created_at']! as String),
-          ),
-        );
-      }
-      return Success(items);
-    } on PostgrestException catch (e) {
-      return ResultFailure(NetworkFailure(e.message));
-    } catch (e) {
-      return ResultFailure(UnknownFailure(e.toString()));
-    }
-  }
-
-  @override
   Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));

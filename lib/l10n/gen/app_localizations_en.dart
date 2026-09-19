@@ -90,16 +90,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUpcomingSection => 'Upcoming';
 
   @override
-  String get homeWishlistSection => 'From friends\' wishlists';
-
-  @override
-  String get homeWishlistError => 'Could not load friends\' wishes';
-
-  @override
-  String get homeWishlistEmptyNudge =>
-      'No wishes from friends yet — gift ideas pile up here as your circle grows.';
-
-  @override
   String get homeActivitySection => 'Activity';
 
   @override
@@ -844,4 +834,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reactionsWhoReacted => 'See who reacted';
+
+  @override
+  String get homeWishlistSeeAll => 'See full wishlist';
+
+  @override
+  String get homeWishlistEmptyInline => 'No wishes yet';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kept/app.dart';
+import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
@@ -12,20 +13,17 @@ import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/wishlist/application/wishlist_providers.dart';
+import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/features/wishlist/domain/wishlist_repository.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
 
 import '../feed/feed_test_support.dart';
 
 class _FakeHomeRepository implements HomeRepository {
-  _FakeHomeRepository(
-    this.birthdays, {
-    this.wishlistItems = const [],
-    this.events = const [],
-    this.teaser,
-  });
+  _FakeHomeRepository(this.birthdays, {this.events = const [], this.teaser});
 
   final List<UpcomingBirthday> birthdays;
-  final List<FriendWishlistItem> wishlistItems;
   final List<HomeEvent> events;
   final SurpriseTeaser? teaser;
 
@@ -36,11 +34,6 @@ class _FakeHomeRepository implements HomeRepository {
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
   }) async => Success(birthdays);
-
-  @override
-  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
-    int limit = 6,
-  }) async => Success(wishlistItems);
 
   @override
   Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async =>
@@ -78,25 +71,47 @@ Future<void> pumpFrames(WidgetTester tester) async {
   }
 }
 
+class _FakeWishlistRepository implements WishlistRepository {
+  const _FakeWishlistRepository(this.items);
+
+  final List<WishlistItem> items;
+
+  @override
+  Future<Result<List<WishlistItem>>> fetchMine() async => const Success([]);
+
+  @override
+  Future<Result<List<WishlistItem>>> fetchFor(String profileId) async =>
+      Success(items.where((i) => i.ownerId == profileId).toList());
+
+  @override
+  Future<Result<WishlistItem>> add({
+    required String title,
+    String? note,
+    String? url,
+    String? linkPreviewId,
+  }) async => const ResultFailure(NetworkFailure('read-only fake'));
+
+  @override
+  Future<Result<void>> delete(String itemId) async => const Success(null);
+}
+
 void main() {
   Future<void> pumpHome(
     WidgetTester tester, {
     required List<UpcomingBirthday> birthdays,
     List<FriendEntry> friendEntries = const [],
-    List<FriendWishlistItem> wishlistItems = const [],
     List<HomeEvent> events = const [],
     SurpriseTeaser? teaser,
+    List<WishlistItem> friendWishes = const [],
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           homeRepositoryProvider.overrideWithValue(
-            _FakeHomeRepository(
-              birthdays,
-              wishlistItems: wishlistItems,
-              events: events,
-              teaser: teaser,
-            ),
+            _FakeHomeRepository(birthdays, events: events, teaser: teaser),
+          ),
+          wishlistRepositoryProvider.overrideWithValue(
+            _FakeWishlistRepository(friendWishes),
           ),
           mediaStoreProvider.overrideWithValue(const FakeMediaStore()),
           friendshipRepositoryProvider.overrideWithValue(
@@ -198,16 +213,6 @@ void main() {
       tester,
       birthdays: const [],
       friendEntries: const [acceptedFriend],
-      wishlistItems: [
-        FriendWishlistItem(
-          itemId: 'w1',
-          title: 'Ski goggles',
-          ownerId: 'p9',
-          ownerUsername: 'zeynep',
-          ownerDisplayName: 'Zeynep',
-          createdAt: DateTime(2026, 9, 12),
-        ),
-      ],
       events: [
         HomeEvent(
           kind: HomeEventKind.giftReceived,
@@ -226,8 +231,6 @@ void main() {
       ],
     );
 
-    expect(find.text("From friends' wishlists"), findsOneWidget);
-    expect(find.text('Ski goggles'), findsOneWidget);
     // The stories strip (G-202) sits above; the lower sections need a scroll.
     await tester.drag(find.text('Upcoming'), const Offset(0, -400));
     await tester.pumpAndSettle();
@@ -248,8 +251,8 @@ void main() {
 
     await tester.drag(find.text('Upcoming'), const Offset(0, -400));
     await tester.pumpAndSettle();
-    expect(find.text('Invite'), findsNWidgets(2));
-    expect(find.textContaining('gift ideas pile up'), findsOneWidget);
+    expect(find.text('Invite'), findsOneWidget);
+    expect(find.textContaining('things happen here'), findsOneWidget);
   });
 
   testWidgets('cold start (no friends) hides sections, shows one CTA', (
@@ -258,7 +261,6 @@ void main() {
     await pumpHome(tester, birthdays: const []);
 
     expect(find.text('Find friends'), findsOneWidget);
-    expect(find.text("From friends' wishlists"), findsNothing);
     expect(find.text('Activity'), findsNothing);
   });
 
@@ -330,5 +332,39 @@ void main() {
 
     expect(find.text('A surprise is on its way to you'), findsOneWidget);
     expect(find.text('Opens on October 16'), findsOneWidget);
+  });
+
+  testWidgets("a birthday row expands into that friend's wishlist", (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      birthdays: [
+        UpcomingBirthday(
+          friendId: 'z',
+          username: 'zeynep',
+          displayName: 'Zeynep',
+          birthday: DateTime(1997, 9, 12),
+          daysUntil: 3,
+        ),
+      ],
+      friendWishes: const [
+        WishlistItem(id: 'w1', ownerId: 'z', title: 'Ski goggles'),
+        WishlistItem(id: 'w2', ownerId: 'other', title: 'Not hers'),
+      ],
+    );
+    expect(find.text('Ski goggles'), findsNothing);
+
+    await tester.tap(find.text('Zeynep'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ski goggles'), findsOneWidget);
+    expect(find.text('Not hers'), findsNothing);
+    expect(find.text('See full wishlist'), findsOneWidget);
+
+    // Collapses again on a second tap.
+    await tester.tap(find.text('Zeynep'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ski goggles'), findsNothing);
   });
 }

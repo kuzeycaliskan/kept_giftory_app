@@ -58,11 +58,6 @@ class _FakeHomeRepository implements HomeRepository {
   }) async => Success(birthdays);
 
   @override
-  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
-    int limit = 6,
-  }) async => const Success([]);
-
-  @override
   Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async =>
       const Success([]);
 }

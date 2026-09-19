@@ -39,9 +39,6 @@
   "tabAdd": "Add",
   "tabMe": "Me",
   "homeUpcomingSection": "Upcoming",
-  "homeWishlistSection": "From friends' wishlists",
-  "homeWishlistError": "Could not load friends' wishes",
-  "homeWishlistEmptyNudge": "No wishes from friends yet — gift ideas pile up here as your circle grows.",
   "homeActivitySection": "Activity",
   "homeActivityError": "Could not load activity",
   "homeActivityEmptyNudge": "Quiet for now — things happen here as you add friends.",
@@ -391,5 +388,7 @@
     }
   },
   "giftDetailReactionsSection": "Reactions",
-  "reactionsWhoReacted": "See who reacted"
+  "reactionsWhoReacted": "See who reacted",
+  "homeWishlistSeeAll": "See full wishlist",
+  "homeWishlistEmptyInline": "No wishes yet"
 }

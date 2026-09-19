@@ -33,6 +33,7 @@
 - ✅ Home (V1): üst "Önemli/Yaklaşan" GERÇEK veri; alt "Aktivite" panosu **scaffold+mock**,
   gerçek veri V2'de (G-82). Boş-panel sorununu önler.
 - ✅ Profil: header + sekmeli (Wishlist/Geçmiş/Hakkında), görünürlük-duyarlı (G-84).
+- ✅ Home düzeni (19 Eyl 2026, Kuzey kararı): "Arkadaşlarının isteklerinden" bölümü KALDIRILDI; Yaklaşanlar satırı dokununca açılır ve o kişinin wishlist kartlarını + "Tüm listeyi gör" bağlantısını gösterir (avatar → profil, Hediye butonu → kayıt). Aktivite = hediye kartlı feed (G-210).
 - ✅ Sıra (1.0-a): `G-01 → G-03(baseline friends-only RLS) → G-31 → G-41/42/51/52` — arkadaş
   görüntüleme PBI'larından önce RLS boundary'si (inceleme bulgusu B1).
 - ✅ Büyüme (V1): **davet linki (G-34) birincil** cold-start döngüsü; rehber eşleştirme (G-33)

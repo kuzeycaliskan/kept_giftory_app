@@ -25,9 +25,6 @@
   "tabAdd": "Ekle",
   "tabMe": "Ben",
   "homeUpcomingSection": "Yaklaşanlar",
-  "homeWishlistSection": "Arkadaşlarının isteklerinden",
-  "homeWishlistError": "Arkadaş istekleri yüklenemedi",
-  "homeWishlistEmptyNudge": "Arkadaşlarından henüz istek yok — çevren büyüdükçe hediye fikirleri burada birikir.",
   "homeActivitySection": "Aktivite",
   "homeActivityError": "Aktivite yüklenemedi",
   "homeActivityEmptyNudge": "Şimdilik sessiz — arkadaş ekledikçe burası hareketlenir.",
@@ -259,5 +256,7 @@
   "homeSurpriseTeaserTitle": "Sana bir sürpriz hazırlanıyor",
   "homeSurpriseTeaserOpens": "{date} günü açılıyor",
   "giftDetailReactionsSection": "Tepkiler",
-  "reactionsWhoReacted": "Kim tepki verdi"
+  "reactionsWhoReacted": "Kim tepki verdi",
+  "homeWishlistSeeAll": "Tüm listeyi gör",
+  "homeWishlistEmptyInline": "Henüz istek yok"
 }

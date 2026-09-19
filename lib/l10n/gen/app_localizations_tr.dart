@@ -89,16 +89,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeUpcomingSection => 'Yaklaşanlar';
 
   @override
-  String get homeWishlistSection => 'Arkadaşlarının isteklerinden';
-
-  @override
-  String get homeWishlistError => 'Arkadaş istekleri yüklenemedi';
-
-  @override
-  String get homeWishlistEmptyNudge =>
-      'Arkadaşlarından henüz istek yok — çevren büyüdükçe hediye fikirleri burada birikir.';
-
-  @override
   String get homeActivitySection => 'Aktivite';
 
   @override
@@ -842,4 +832,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get reactionsWhoReacted => 'Kim tepki verdi';
+
+  @override
+  String get homeWishlistSeeAll => 'Tüm listeyi gör';
+
+  @override
+  String get homeWishlistEmptyInline => 'Henüz istek yok';
 }

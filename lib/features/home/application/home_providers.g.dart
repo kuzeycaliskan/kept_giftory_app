@@ -44,28 +44,6 @@ final upcomingBirthdaysProvider =
 // ignore: unused_element
 typedef UpcomingBirthdaysRef =
     AutoDisposeFutureProviderRef<List<UpcomingBirthday>>;
-String _$friendWishlistFeedHash() =>
-    r'9d904d1539795ffeb8682a456d8ef1d1af48a31c';
-
-/// Middle Home section: friends' latest wishlist additions (G-82).
-///
-/// Copied from [friendWishlistFeed].
-@ProviderFor(friendWishlistFeed)
-final friendWishlistFeedProvider =
-    AutoDisposeFutureProvider<List<FriendWishlistItem>>.internal(
-      friendWishlistFeed,
-      name: r'friendWishlistFeedProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$friendWishlistFeedHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef FriendWishlistFeedRef =
-    AutoDisposeFutureProviderRef<List<FriendWishlistItem>>;
 String _$homeEventsHash() => r'ef45afa89004c535236329e73c562b984eddbe7f';
 
 /// Lower Home section: my real social events (G-82; feed proper is V2/G-210).

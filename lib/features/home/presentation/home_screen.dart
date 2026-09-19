@@ -18,18 +18,22 @@ import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/push/application/push_providers.dart';
+import 'package:kept/features/wishlist/application/wishlist_providers.dart';
+import 'package:kept/features/wishlist/domain/wishlist_item.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
 import 'package:kept/shared/widgets/kept_section_header.dart';
 import 'package:kept/shared/widgets/kept_shimmer.dart';
 import 'package:kept/shared/widgets/link_preview_card.dart';
 import 'package:kept/shared/widgets/private_media_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Home dashboard (G-82).
 ///
 /// Friends' live moments (stories strip, G-202) on top, then upcoming
-/// birthdays; the bell (with a pending-request badge) opens the Activity
-/// center (G-86). Feed + dashboard merge fully with G-210.
+/// birthdays (each row expands into that friend's wishlist); the bell (with
+/// a pending-request badge) opens the Activity center (G-86). Feed +
+/// dashboard merge fully with G-210.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -37,7 +41,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final upcoming = ref.watch(upcomingBirthdaysProvider);
-    final wishlistFeed = ref.watch(friendWishlistFeedProvider);
     final events = ref.watch(homeEventsProvider);
     final teaser = ref.watch(surpriseTeaserProvider).valueOrNull;
     final friendEntries = ref.watch(friendEntriesProvider);
@@ -100,7 +103,6 @@ class HomeScreen extends ConsumerWidget {
             ..invalidate(storyGroupsProvider)
             ..invalidate(surpriseTeaserProvider)
             ..invalidate(upcomingBirthdaysProvider)
-            ..invalidate(friendWishlistFeedProvider)
             ..invalidate(homeEventsProvider)
             ..invalidate(friendEntriesProvider);
           await ref.read(upcomingBirthdaysProvider.future);
@@ -120,9 +122,6 @@ class HomeScreen extends ConsumerWidget {
             KeptSectionHeader(l10n.homeUpcomingSection),
             _UpcomingSection(state: upcoming),
             if (hasFriends) ...[
-              const SizedBox(height: KeptSpacing.xl),
-              KeptSectionHeader(l10n.homeWishlistSection),
-              _WishlistFeedSection(state: wishlistFeed),
               const SizedBox(height: KeptSpacing.xl),
               KeptSectionHeader(l10n.homeActivitySection),
               if (teaser != null) ...[
@@ -245,42 +244,204 @@ class _UpcomingSection extends StatelessWidget {
   }
 }
 
-class _BirthdayRow extends StatelessWidget {
+/// Upcoming-birthday row that expands into the friend's wishlist — the
+/// gift idea sits right under the reason to buy one. Avatar → profile,
+/// row → toggle, Gift → log form.
+class _BirthdayRow extends ConsumerStatefulWidget {
   const _BirthdayRow({required this.birthday});
 
   final UpcomingBirthday birthday;
 
-  String _countdown(BuildContext context) => switch (birthday.daysUntil) {
-    0 => context.l10n.homeCountdownToday,
-    1 => context.l10n.homeCountdownTomorrow,
-    final d => context.l10n.homeCountdownInDays(d),
-  };
+  @override
+  ConsumerState<_BirthdayRow> createState() => _BirthdayRowState();
+}
+
+class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
+  bool _expanded = false;
+
+  String _countdown(BuildContext context) =>
+      switch (widget.birthday.daysUntil) {
+        0 => context.l10n.homeCountdownToday,
+        1 => context.l10n.homeCountdownTomorrow,
+        final d => context.l10n.homeCountdownInDays(d),
+      };
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return ListTile(
-      leading: KeptAvatar(
-        label: birthday.label,
-        avatarValue: birthday.avatarUrl,
-      ),
-      title: Text(birthday.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-      // Countdown only: the username lives one tap away on the profile and
-      // "@name · in N days" wrapped onto two lines on narrow screens.
-      subtitle: Text(
-        _countdown(context),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      // Tap → the friend's profile (wishlist + history in its tabs).
-      onTap: () => context.push(
+    final birthday = widget.birthday;
+    final profileRoute =
         '/users/${birthday.friendId}'
-        '?name=${Uri.encodeComponent(birthday.label)}',
+        '?name=${Uri.encodeComponent(birthday.label)}';
+    return Column(
+      children: [
+        ListTile(
+          leading: GestureDetector(
+            onTap: () => context.push(profileRoute),
+            child: KeptAvatar(
+              label: birthday.label,
+              avatarValue: birthday.avatarUrl,
+            ),
+          ),
+          title: Text(
+            birthday.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          // Countdown only: the username lives one tap away on the profile.
+          subtitle: Text(
+            _countdown(context),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          onTap: () => setState(() => _expanded = !_expanded),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FilledButton.tonal(
+                onPressed: () => context.push('/gifts/log'),
+                child: Text(l10n.homeGiftCta),
+              ),
+              AnimatedRotation(
+                turns: _expanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.expand_more,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: _expanded
+              ? _FriendWishes(
+                  friendId: birthday.friendId,
+                  label: birthday.label,
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
+    );
+  }
+}
+
+/// The friend's wishlist inside the expanded row: a few items as cards,
+/// then a link to the full list. Loads lazily on first expand; RLS decides
+/// what the viewer may see.
+class _FriendWishes extends ConsumerWidget {
+  const _FriendWishes({required this.friendId, required this.label});
+
+  final String friendId;
+  final String label;
+
+  static const int _preview = 4;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final wishes = ref.watch(friendWishlistProvider(friendId));
+    return ColoredBox(
+      color: scheme.surfaceContainerLow,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          KeptSpacing.lg,
+          KeptSpacing.sm,
+          KeptSpacing.lg,
+          KeptSpacing.sm,
+        ),
+        child: wishes.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(KeptSpacing.md),
+            child: Center(
+              child: SizedBox.square(
+                dimension: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+          error: (error, _) => Text(
+            l10n.wishlistError,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          data: (items) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (items.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: KeptSpacing.sm),
+                  child: Text(
+                    l10n.homeWishlistEmptyInline,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else
+                for (final item in items.take(_preview)) _WishCard(item: item),
+              if (items.length > _preview || items.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.push(
+                      '/users/$friendId/wishlist'
+                      '?name=${Uri.encodeComponent(label)}',
+                    ),
+                    child: Text(l10n.homeWishlistSeeAll),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
-      trailing: FilledButton.tonal(
-        onPressed: () => context.push('/gifts/log'),
-        child: Text(l10n.homeGiftCta),
-      ),
+    );
+  }
+}
+
+/// One wish: the product card when a link preview exists, else a flat row.
+class _WishCard extends StatelessWidget {
+  const _WishCard({required this.item});
+
+  final WishlistItem item;
+
+  Future<void> _openLink(BuildContext context, String url) async {
+    final ok = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.legalOpenError)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = item.preview;
+    if (preview != null) {
+      final link = preview.url ?? item.url;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: KeptSpacing.xs),
+        child: LinkPreviewCard(
+          preview: preview,
+          onTap: link == null ? null : () => _openLink(context, link),
+        ),
+      );
+    }
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      dense: true,
+      leading: const KeptIconBadge(Icons.star_outline),
+      title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: item.note == null
+          ? null
+          : Text(item.note!, maxLines: 1, overflow: TextOverflow.ellipsis),
+      onTap: item.url == null ? null : () => _openLink(context, item.url!),
     );
   }
 }
@@ -303,52 +464,6 @@ class _InlineError extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Friends' latest wishlist additions — the discovery half of Home (G-82).
-class _WishlistFeedSection extends StatelessWidget {
-  const _WishlistFeedSection({required this.state});
-
-  final AsyncValue<List<FriendWishlistItem>> state;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return state.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(24),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      error: (error, _) => _InlineError(message: l10n.homeWishlistError),
-      data: (items) {
-        if (items.isEmpty) {
-          return _InviteNudge(message: l10n.homeWishlistEmptyNudge);
-        }
-        return KeptListGroup(
-          children: [
-            for (final item in items)
-              ListTile(
-                leading: const KeptIconBadge(Icons.star_outline),
-                title: Text(
-                  item.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  '@${item.ownerUsername}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () => context.push(
-                  '/users/${item.ownerId}'
-                  '?name=${Uri.encodeComponent(item.ownerLabel)}',
-                ),
-              ),
-          ],
-        );
-      },
     );
   }
 }

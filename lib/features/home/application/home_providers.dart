@@ -33,18 +33,6 @@ Future<List<UpcomingBirthday>> upcomingBirthdays(Ref ref) async {
   );
 }
 
-/// Middle Home section: friends' latest wishlist additions (G-82).
-@riverpod
-Future<List<FriendWishlistItem>> friendWishlistFeed(Ref ref) async {
-  final result = await ref
-      .watch(homeRepositoryProvider)
-      .recentFriendWishlistItems();
-  return result.when(
-    success: (list) => list,
-    failure: (failure) => throw failure,
-  );
-}
-
 /// Lower Home section: my real social events (G-82; feed proper is V2/G-210).
 @riverpod
 Future<List<HomeEvent>> homeEvents(Ref ref) async {

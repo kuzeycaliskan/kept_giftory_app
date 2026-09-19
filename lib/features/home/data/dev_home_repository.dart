@@ -36,31 +36,6 @@ class DevHomeRepository implements HomeRepository {
   }
 
   @override
-  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
-    int limit = 6,
-  }) async {
-    final now = _now();
-    return Success([
-      FriendWishlistItem(
-        itemId: 'dev-w1',
-        title: 'Kayak gözlüğü',
-        ownerId: 'dev-zeynep',
-        ownerUsername: 'zeynep',
-        ownerDisplayName: 'Zeynep',
-        createdAt: now.subtract(const Duration(hours: 3)),
-      ),
-      FriendWishlistItem(
-        itemId: 'dev-w2',
-        title: 'Mekanik klavye',
-        ownerId: 'dev-ali',
-        ownerUsername: 'ali',
-        ownerDisplayName: 'Ali',
-        createdAt: now.subtract(const Duration(days: 1)),
-      ),
-    ]);
-  }
-
-  @override
   Future<Result<List<HomeEvent>>> recentEvents({int limit = 6}) async {
     final now = _now();
     return Success([
@@ -93,11 +68,6 @@ class EmptyHomeRepository implements HomeRepository {
   @override
   Future<Result<List<UpcomingBirthday>>> upcomingBirthdays({
     int limit = 10,
-  }) async => const Success([]);
-
-  @override
-  Future<Result<List<FriendWishlistItem>>> recentFriendWishlistItems({
-    int limit = 6,
   }) async => const Success([]);
 
   @override

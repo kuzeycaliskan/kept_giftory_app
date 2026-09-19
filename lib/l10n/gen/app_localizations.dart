@@ -248,24 +248,6 @@ abstract class AppLocalizations {
   /// **'Upcoming'**
   String get homeUpcomingSection;
 
-  /// No description provided for @homeWishlistSection.
-  ///
-  /// In en, this message translates to:
-  /// **'From friends\' wishlists'**
-  String get homeWishlistSection;
-
-  /// No description provided for @homeWishlistError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load friends\' wishes'**
-  String get homeWishlistError;
-
-  /// No description provided for @homeWishlistEmptyNudge.
-  ///
-  /// In en, this message translates to:
-  /// **'No wishes from friends yet — gift ideas pile up here as your circle grows.'**
-  String get homeWishlistEmptyNudge;
-
   /// No description provided for @homeActivitySection.
   ///
   /// In en, this message translates to:
@@ -1657,6 +1639,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See who reacted'**
   String get reactionsWhoReacted;
+
+  /// No description provided for @homeWishlistSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See full wishlist'**
+  String get homeWishlistSeeAll;
+
+  /// No description provided for @homeWishlistEmptyInline.
+  ///
+  /// In en, this message translates to:
+  /// **'No wishes yet'**
+  String get homeWishlistEmptyInline;
 }
 
 class _AppLocalizationsDelegate

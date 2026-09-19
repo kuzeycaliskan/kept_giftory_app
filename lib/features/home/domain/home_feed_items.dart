@@ -1,28 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 
-/// A friend's recent wishlist addition (Home "from friends' wishlists").
-@immutable
-class FriendWishlistItem {
-  const FriendWishlistItem({
-    required this.itemId,
-    required this.title,
-    required this.ownerId,
-    required this.ownerUsername,
-    required this.createdAt,
-    this.ownerDisplayName,
-  });
-
-  final String itemId;
-  final String title;
-  final String ownerId;
-  final String ownerUsername;
-  final String? ownerDisplayName;
-  final DateTime createdAt;
-
-  String get ownerLabel => ownerDisplayName ?? ownerUsername;
-}
-
 /// Real V1 activity: my own social events (Home "activity").
 enum HomeEventKind {
   friendAccepted,
