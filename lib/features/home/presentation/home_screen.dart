@@ -259,6 +259,10 @@ class _BirthdayRow extends ConsumerStatefulWidget {
 class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
   bool _expanded = false;
 
+  /// Row width (at 1x text) below which the two action buttons no longer
+  /// fit beside the name/countdown; scaled with the text factor.
+  static const double _inlineMinWidth = 300;
+
   String _countdown(BuildContext context) =>
       switch (widget.birthday.daysUntil) {
         0 => context.l10n.homeCountdownToday,
@@ -313,6 +317,19 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
       ],
     );
 
+    final name = Text(
+      birthday.label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.bodyLarge,
+    );
+    final countdown = Text(
+      _countdown(context),
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+
     return Column(
       children: [
         InkWell(
@@ -324,43 +341,47 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
               KeptSpacing.lg,
               KeptSpacing.md,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () => context.push(profileRoute),
-                  child: KeptAvatar(
-                    label: birthday.label,
-                    avatarValue: birthday.avatarUrl,
-                  ),
-                ),
-                const SizedBox(width: KeptSpacing.lg),
-                // The text column owns the leftover width: name (one line,
-                // ellipsis is fine for user text), countdown (soft-wraps,
-                // never clipped — design.md §5), then the actions aligned
-                // with the text, not floating at the card edge.
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        birthday.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyLarge,
+            // Actions sit at the right on one line when the row is wide
+            // enough for text + two labels; otherwise (narrow phone, large
+            // text) they drop under the text. Width-based, so nothing can
+            // overflow (design.md §5).
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final scale = MediaQuery.textScalerOf(context).scale(1);
+                final inline = constraints.maxWidth >= _inlineMinWidth * scale;
+                return Row(
+                  crossAxisAlignment: inline
+                      ? CrossAxisAlignment.center
+                      : CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.push(profileRoute),
+                      child: KeptAvatar(
+                        label: birthday.label,
+                        avatarValue: birthday.avatarUrl,
                       ),
-                      Text(
-                        _countdown(context),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                    ),
+                    const SizedBox(width: KeptSpacing.lg),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          name,
+                          countdown,
+                          if (!inline) ...[
+                            const SizedBox(height: KeptSpacing.sm),
+                            actions,
+                          ],
+                        ],
                       ),
-                      const SizedBox(height: KeptSpacing.sm),
+                    ),
+                    if (inline) ...[
+                      const SizedBox(width: KeptSpacing.sm),
                       actions,
                     ],
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ),
