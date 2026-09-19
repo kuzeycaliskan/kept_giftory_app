@@ -32,7 +32,7 @@ Future<void> showMediaGallery(
   return showGeneralDialog<void>(
     context: context,
     barrierLabel: MaterialLocalizations.of(context).closeButtonLabel,
-    barrierColor: Colors.black87,
+    barrierColor: Colors.black,
     pageBuilder: (context, _, __) => _GalleryPage(
       items: items,
       initialIndex: initialIndex,
@@ -90,7 +90,8 @@ class _GalleryPageState extends State<_GalleryPage> {
     final current = items[_index];
     final canRemove = current.onRemove != null;
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      // Opaque base: nothing of the screen underneath may bleed through.
+      backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -110,22 +111,24 @@ class _GalleryPageState extends State<_GalleryPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Frosted backdrop: the photo itself, blurred and dimmed, so the
-          // letterbox bands take the photo's own colour instead of black.
+          // Frosted backdrop: the photo itself stretched to cover, then a
+          // backdrop blur + light dim over it, so the letterbox bands take
+          // the photo's own colour instead of black. BackdropFilter (not
+          // ImageFiltered) so the blur is applied to painted pixels only.
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            child: ImageFiltered(
+            child: PrivateMediaImage(
               key: ValueKey(current.path),
-              imageFilter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-              child: PrivateMediaImage(
-                bucket: current.bucket,
-                path: current.path,
-                fit: BoxFit.cover,
-                compact: true,
-              ),
+              bucket: current.bucket,
+              path: current.path,
+              fit: BoxFit.cover,
+              compact: true,
             ),
           ),
-          const ColoredBox(color: Colors.black54),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+            child: const ColoredBox(color: Colors.black26),
+          ),
           SafeArea(
             child: Column(
               children: [
