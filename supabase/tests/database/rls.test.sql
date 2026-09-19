@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(113);
+select plan(117);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1301,6 +1301,59 @@ select ok(
   exists (select 1 from public.surprise_reveal_targets()
            where gift_id = '00000000-0000-0000-0000-000000000c02' and recipient_id = '00000000-0000-0000-0000-00000000000a'),
   '113: a surprise past its reveal time is a reveal target'
+);
+
+-- ── 114-117: social hardening ───────────────────────────────────────────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a11","role":"authenticated"}';
+
+select throws_ok(
+  $$ select * from public.surprise_reveal_targets() $$,
+  '42501',
+  null,
+  '114: push-target functions are not callable by users (device tokens)'
+);
+
+-- ivy comments on dave's public moment; hank blocks ivy → the comment is
+-- gone for hank even though both still see the moment.
+reset role;
+insert into public.post_comments (id, post_id, author_id, body)
+values ('00000000-0000-0000-0000-000000000e10', '00000000-0000-0000-0000-000000000d01', '00000000-0000-0000-0000-000000000a12', 'selam');
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000a11","role":"authenticated"}';
+select public.block_user('00000000-0000-0000-0000-000000000a12');
+select is(
+  (select count(*) from public.post_comments where id = '00000000-0000-0000-0000-000000000e10'),
+  0::bigint,
+  '115: a blocked user''s comment is hidden on a shared moment'
+);
+select public.unblock_user('00000000-0000-0000-0000-000000000a12');
+
+-- Comment targets require current visibility: carol (device below) is a
+-- target while she is alice's friend, not after the friendship ends.
+reset role;
+insert into public.device_tokens (token, user_id, platform)
+values ('tok-carol', '00000000-0000-0000-0000-00000000000c', 'android');
+insert into public.gift_comments (id, gift_id, author_id, body)
+values ('00000000-0000-0000-0000-000000000e11', '00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000e', 'Sevindim');
+
+select is(
+  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e11')
+    where notified_user = '00000000-0000-0000-0000-00000000000c'),
+  1::bigint,
+  '116: an earlier commenter who still sees the gift is a target'
+);
+
+delete from public.friendships
+ where (requester_id = '00000000-0000-0000-0000-00000000000c' and addressee_id = '00000000-0000-0000-0000-00000000000a')
+    or (requester_id = '00000000-0000-0000-0000-00000000000a' and addressee_id = '00000000-0000-0000-0000-00000000000c');
+select is(
+  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e11')
+    where notified_user = '00000000-0000-0000-0000-00000000000c'),
+  0::bigint,
+  '117: once the gift is hidden from them, no more comment pushes'
 );
 
 select * from finish();

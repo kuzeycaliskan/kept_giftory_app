@@ -176,3 +176,15 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   `birthday-reminders` share `_shared/fcm.ts` (token + send + stale cleanup)
   and `_shared/messages.ts` (copy; deno tests). **Deploy all three with
   `--no-verify-jwt`.** pgTAP 110-113.
+
+## Hardening notes (review 2026-09-19)
+
+- **Function privileges:** Supabase grants EXECUTE on new `public` functions
+  to anon/authenticated by default. Service-only functions
+  (`comment_push_targets`, `surprise_reveal_targets`, `birthday_reminder_targets`)
+  must `revoke ... from public, anon, authenticated` explicitly — add the
+  revoke in the same migration as the function. pgTAP 114 guards this.
+- Blocked pairs are filtered on comments/reactions select policies (115).
+- Comment pushes re-derive visibility per target (116-117).
+- `notify_comment_inserted` wraps pg_net in an exception block: a lost push
+  never fails the user's insert.
