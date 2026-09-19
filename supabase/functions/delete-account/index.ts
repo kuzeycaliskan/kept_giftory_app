@@ -15,21 +15,28 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 /** Buckets whose objects live under '<uid>/...'. Keep in sync with MediaStore users. */
 const USER_MEDIA_BUCKETS = ["avatars", "posts", "gift-media"] as const;
 
-/** Removes every object in `<uid>/` of a bucket. Returns an error message or null. */
+/** Removes every object in `<uid>/` of a bucket. Storage `list` caps at
+ * one page, so loop until the folder reads empty — each pass shrinks it, no
+ * offset bookkeeping. Returns an error message or null. */
 async function removeUserFolder(
   admin: SupabaseClient,
   bucket: string,
   uid: string,
 ): Promise<string | null> {
-  const { data: files, error: listError } = await admin.storage
-    .from(bucket)
-    .list(uid, { limit: 1000 });
-  if (listError) return `list ${bucket}: ${listError.message}`;
-  if (!files || files.length === 0) return null;
-  const { error: removeError } = await admin.storage
-    .from(bucket)
-    .remove(files.map((f) => `${uid}/${f.name}`));
-  return removeError ? `remove ${bucket}: ${removeError.message}` : null;
+  const PAGE = 1000;
+  for (let pass = 0; pass < 100; pass++) {
+    const { data: files, error: listError } = await admin.storage
+      .from(bucket)
+      .list(uid, { limit: PAGE });
+    if (listError) return `list ${bucket}: ${listError.message}`;
+    if (!files || files.length === 0) return null;
+    const { error: removeError } = await admin.storage
+      .from(bucket)
+      .remove(files.map((f) => `${uid}/${f.name}`));
+    if (removeError) return `remove ${bucket}: ${removeError.message}`;
+    if (files.length < PAGE) return null;
+  }
+  return `remove ${bucket}: folder did not drain`;
 }
 
 Deno.serve(async (req) => {
