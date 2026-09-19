@@ -11,6 +11,8 @@ import 'package:kept/features/feed/domain/post.dart';
 import 'package:kept/features/feed/domain/story_group.dart';
 import 'package:kept/features/feed/presentation/reaction_bar.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/safety/domain/safety_repository.dart';
+import 'package:kept/features/safety/presentation/report_sheet.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/comments_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
@@ -168,6 +170,18 @@ class _StoryPageState extends ConsumerState<_StoryPage>
 
   void _previous() => _show(_index > 0 ? _index - 1 : 0);
 
+  Future<void> _report(Post post) async {
+    await showReportSheet(
+      context,
+      ReportTarget(
+        type: ReportTargetType.post,
+        id: post.id,
+        ownerId: post.authorId,
+      ),
+    );
+    if (mounted) unawaited(_progress.forward());
+  }
+
   /// The story pauses while the comments sheet is open.
   Future<void> _openComments(Post post, String? myId) async {
     _progress.stop();
@@ -182,6 +196,14 @@ class _StoryPageState extends ConsumerState<_StoryPage>
       reactions: post.reactions,
       onReactionsTap: () =>
           showReactorsSheet(context, reactions: post.reactions),
+      onReport: (comment) => showReportSheet(
+        context,
+        ReportTarget(
+          type: ReportTargetType.postComment,
+          id: comment.id,
+          ownerId: comment.authorId,
+        ),
+      ),
     );
     if (mounted) unawaited(_progress.forward());
   }
@@ -242,21 +264,32 @@ class _StoryPageState extends ConsumerState<_StoryPage>
     if (widget.group.posts.length <= 1) navigator.pop();
   }
 
-  Future<void> _showActions() async {
+  Future<void> _showActions({required bool isMine}) async {
     _progress.stop();
     var picked = false;
+    final post = widget.group.posts[_index];
     await showKeptActionSheet(
       context,
       actions: [
-        KeptSheetAction(
-          icon: Icons.delete_outline,
-          label: context.l10n.storyDelete,
-          destructive: true,
-          onTap: () {
-            picked = true;
-            unawaited(_deleteCurrent());
-          },
-        ),
+        if (isMine)
+          KeptSheetAction(
+            icon: Icons.delete_outline,
+            label: context.l10n.storyDelete,
+            destructive: true,
+            onTap: () {
+              picked = true;
+              unawaited(_deleteCurrent());
+            },
+          )
+        else
+          KeptSheetAction(
+            icon: Icons.flag_outlined,
+            label: context.l10n.reportAction,
+            onTap: () {
+              picked = true;
+              unawaited(_report(post));
+            },
+          ),
       ],
     );
     // Dismissed without choosing: resume. (Delete manages its own resume.)
@@ -366,12 +399,11 @@ class _StoryPageState extends ConsumerState<_StoryPage>
                         ).textTheme.titleSmall?.copyWith(color: Colors.white),
                       ),
                     ),
-                    if (isMine)
-                      IconButton(
-                        tooltip: l10n.storyMoreActions,
-                        icon: const Icon(Icons.more_horiz, color: Colors.white),
-                        onPressed: _showActions,
-                      ),
+                    IconButton(
+                      tooltip: l10n.storyMoreActions,
+                      icon: const Icon(Icons.more_horiz, color: Colors.white),
+                      onPressed: () => _showActions(isMine: isMine),
+                    ),
                     CloseButton(
                       color: Colors.white,
                       onPressed: () => Navigator.of(context).pop(),

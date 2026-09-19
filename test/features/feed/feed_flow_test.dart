@@ -110,8 +110,13 @@ void main() {
       expect(find.textContaining('Zeynep · Just now'), findsOneWidget);
       // No backend in tests → the private photo resolves to the fallback.
       expect(find.text('Photo unavailable'), findsOneWidget);
-      // A friend's story has no owner menu.
-      expect(find.byIcon(Icons.more_horiz), findsNothing);
+      // A friend's story: ⋯ offers report, not delete (G-209).
+      await tester.tap(find.byIcon(Icons.more_horiz));
+      await pumpViewer(tester);
+      expect(find.text('Report'), findsOneWidget);
+      expect(find.text('Delete moment'), findsNothing);
+      await tester.tap(find.text('Cancel'));
+      await pumpViewer(tester);
 
       await tester.tap(find.byType(CloseButton));
       await tester.pumpAndSettle();

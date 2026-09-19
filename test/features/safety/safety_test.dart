@@ -35,11 +35,11 @@ class _FakeSafetyRepository implements SafetyRepository {
 
   @override
   Future<Result<void>> report(
-    String userId,
+    ReportTarget target,
     ReportReason reason, {
     String? details,
   }) async {
-    reports.add((userId, reason, details));
+    reports.add((target.ownerId, reason, details));
     return const Success(null);
   }
 }

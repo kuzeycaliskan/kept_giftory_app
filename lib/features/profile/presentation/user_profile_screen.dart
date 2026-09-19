@@ -6,6 +6,7 @@ import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/presentation/profile_panel.dart';
 import 'package:kept/features/safety/application/safety_providers.dart';
+import 'package:kept/features/safety/domain/safety_repository.dart';
 import 'package:kept/features/safety/presentation/report_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
@@ -177,7 +178,8 @@ class _SafetyMenu extends ConsumerWidget {
           KeptSheetAction(
             icon: Icons.flag_outlined,
             label: l10n.reportAction,
-            onTap: () => showReportSheet(context, profileId),
+            onTap: () =>
+                showReportSheet(context, ReportTarget.profile(profileId)),
           ),
         ],
       ),

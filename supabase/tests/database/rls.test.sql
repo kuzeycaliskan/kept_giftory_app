@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(106);
+select plan(109);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1226,6 +1226,34 @@ select is(
   (select count(*) from public.post_comments where id = '00000000-0000-0000-0000-000000000e02'),
   0::bigint,
   '106: the moment''s author can remove a comment on it'
+);
+reset role;
+
+-- ── 107-109: content reports (G-209) ────────────────────────────────────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+
+select lives_ok(
+  $$ insert into public.reports (reporter_id, reported_id, reason, target_type, target_id)
+     values ('00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000d', 'spam', 'post', '00000000-0000-0000-0000-000000000d01') $$,
+  '107: a moment can be reported (owner stays accountable)'
+);
+
+select throws_ok(
+  $$ insert into public.reports (reporter_id, reported_id, reason, target_type, target_id)
+     values ('00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000d', 'other', 'post', '00000000-0000-0000-0000-000000000d01') $$,
+  '23505',
+  null,
+  '108: the same target is reported once per reporter'
+);
+
+select throws_ok(
+  $$ insert into public.reports (reporter_id, reported_id, reason, target_type, target_id)
+     values ('00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000d', 'spam', 'profile', '00000000-0000-0000-0000-000000000d01') $$,
+  '23514',
+  null,
+  '109: a profile report must target the profile itself'
 );
 reset role;
 

@@ -75,6 +75,7 @@ Future<void> showCommentsSheet(
   required String? viewerId,
   List<Reaction> reactions = const [],
   VoidCallback? onReactionsTap,
+  ValueChanged<Comment>? onReport,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -90,6 +91,7 @@ Future<void> showCommentsSheet(
           viewerId: viewerId,
           reactions: reactions,
           onReactionsTap: onReactionsTap,
+          onReport: onReport,
         ),
       ),
     ),
@@ -102,12 +104,16 @@ class _CommentsSheet extends StatefulWidget {
     required this.viewerId,
     required this.reactions,
     required this.onReactionsTap,
+    required this.onReport,
   });
 
   final CommentTarget target;
   final String? viewerId;
   final List<Reaction> reactions;
   final VoidCallback? onReactionsTap;
+
+  /// Report flow for someone else's comment (G-209); null = not offered.
+  final ValueChanged<Comment>? onReport;
 
   @override
   State<_CommentsSheet> createState() => _CommentsSheetState();
@@ -150,28 +156,40 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     }
   }
 
+  /// Long-press menu: delete when allowed, report when it's not mine.
   Future<void> _actions(Comment comment) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
+    final canDelete = widget.target.canDelete(comment, widget.viewerId);
+    final canReport =
+        widget.onReport != null && comment.authorId != widget.viewerId;
+    if (!canDelete && !canReport) return;
     await showKeptActionSheet(
       context,
       actions: [
-        KeptSheetAction(
-          icon: Icons.delete_outline,
-          label: l10n.commentsDelete,
-          destructive: true,
-          onTap: () async {
-            try {
-              await widget.target.remove(comment);
-              _reload();
-            } catch (e) {
-              debugPrint('comment delete failed: $e');
-              messenger.showSnackBar(
-                SnackBar(content: Text(l10n.commentsDeleteFailed)),
-              );
-            }
-          },
-        ),
+        if (canReport)
+          KeptSheetAction(
+            icon: Icons.flag_outlined,
+            label: l10n.reportAction,
+            onTap: () => widget.onReport!(comment),
+          ),
+        if (canDelete)
+          KeptSheetAction(
+            icon: Icons.delete_outline,
+            label: l10n.commentsDelete,
+            destructive: true,
+            onTap: () async {
+              try {
+                await widget.target.remove(comment);
+                _reload();
+              } catch (e) {
+                debugPrint('comment delete failed: $e');
+                messenger.showSnackBar(
+                  SnackBar(content: Text(l10n.commentsDeleteFailed)),
+                );
+              }
+            },
+          ),
       ],
     );
   }
@@ -237,7 +255,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                       c.user?.displayName ??
                       c.user?.username ??
                       l10n.giftAnonymousGiver;
-                  final deletable = widget.target.canDelete(c, widget.viewerId);
+                  final actionable =
+                      widget.target.canDelete(c, widget.viewerId) ||
+                      (widget.onReport != null &&
+                          c.authorId != widget.viewerId);
                   return ListTile(
                     leading: KeptAvatar(
                       label: name,
@@ -264,7 +285,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                       ],
                     ),
                     subtitle: Text(c.body),
-                    onLongPress: deletable ? () => _actions(c) : null,
+                    onLongPress: actionable ? () => _actions(c) : null,
                   );
                 },
               );

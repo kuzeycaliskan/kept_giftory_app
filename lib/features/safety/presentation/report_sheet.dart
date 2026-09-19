@@ -4,20 +4,21 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/safety/application/safety_providers.dart';
 import 'package:kept/features/safety/domain/safety_repository.dart';
 
-/// Opens the report flow (G-73) for [userId]. Resolves after the sheet
-/// closes; shows its own success snackbar.
-Future<void> showReportSheet(BuildContext context, String userId) {
+/// Opens the report flow (G-73/G-209) for [target] — a profile, a moment, a
+/// gift or a comment. Resolves after the sheet closes; shows its own
+/// success snackbar.
+Future<void> showReportSheet(BuildContext context, ReportTarget target) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => _ReportSheet(userId: userId),
+    builder: (_) => _ReportSheet(target: target),
   );
 }
 
 class _ReportSheet extends ConsumerStatefulWidget {
-  const _ReportSheet({required this.userId});
+  const _ReportSheet({required this.target});
 
-  final String userId;
+  final ReportTarget target;
 
   @override
   ConsumerState<_ReportSheet> createState() => _ReportSheetState();
@@ -51,7 +52,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
     final navigator = Navigator.of(context);
     final ok = await ref
         .read(safetyControllerProvider.notifier)
-        .report(widget.userId, _reason, details: _details.text);
+        .report(widget.target, _reason, details: _details.text);
     if (!mounted) return;
     if (ok) {
       navigator.pop();

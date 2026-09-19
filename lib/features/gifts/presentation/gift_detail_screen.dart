@@ -11,7 +11,10 @@ import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
 import 'package:kept/features/gifts/presentation/widgets/gift_reaction_row.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/safety/domain/safety_repository.dart';
+import 'package:kept/features/safety/presentation/report_sheet.dart';
 import 'package:kept/shared/domain/reaction.dart';
+import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_section_header.dart';
 import 'package:kept/shared/widgets/link_preview_card.dart';
 import 'package:kept/shared/widgets/media_gallery_viewer.dart';
@@ -110,8 +113,40 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
     final myId = ref.watch(myProfileProvider).valueOrNull?.id;
     final busy = ref.watch(giftPhotoControllerProvider).isLoading;
 
+    final loaded = gift.valueOrNull;
+    // Someone else's gift: offer the report flow (G-209). The accountable
+    // person is the giver when a member, else the recipient who logged it.
+    final reportOwner = loaded == null || loaded.isParty(myId)
+        ? null
+        : (loaded.giverId ?? loaded.recipientId);
+    final reportTarget = loaded != null && reportOwner != null
+        ? ReportTarget(
+            type: ReportTargetType.gift,
+            id: loaded.id,
+            ownerId: reportOwner,
+          )
+        : null;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.giftDetailTitle)),
+      appBar: AppBar(
+        title: Text(l10n.giftDetailTitle),
+        actions: [
+          if (reportTarget != null)
+            IconButton(
+              tooltip: l10n.storyMoreActions,
+              icon: const Icon(Icons.more_horiz),
+              onPressed: () => showKeptActionSheet(
+                context,
+                actions: [
+                  KeptSheetAction(
+                    icon: Icons.flag_outlined,
+                    label: l10n.reportAction,
+                    onTap: () => showReportSheet(context, reportTarget),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
       body: gift.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(l10n.giftsError)),

@@ -6,6 +6,8 @@ import 'package:kept/features/gifts/application/gift_comment_target.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
+import 'package:kept/features/safety/domain/safety_repository.dart';
+import 'package:kept/features/safety/presentation/report_sheet.dart';
 import 'package:kept/shared/domain/reaction.dart';
 import 'package:kept/shared/widgets/comments_sheet.dart';
 
@@ -49,6 +51,14 @@ class GiftReactionRow extends ConsumerWidget {
               reactions: gift.reactions,
               onReactionsTap: () =>
                   showReactorsSheet(context, reactions: gift.reactions),
+              onReport: (comment) => showReportSheet(
+                context,
+                ReportTarget(
+                  type: ReportTargetType.giftComment,
+                  id: comment.id,
+                  ownerId: comment.authorId,
+                ),
+              ),
             ),
           ),
         ),

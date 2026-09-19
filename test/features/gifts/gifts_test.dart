@@ -766,11 +766,13 @@ void main() {
       );
 
       expect(find.text('Take a photo'), findsNothing);
-      // Opens the gallery, but no remove affordance for someone else's photo.
+      // Not a party: the app bar ⋯ offers report (G-209)...
+      expect(find.byIcon(Icons.more_horiz), findsOneWidget);
+      // ...and the gallery adds no remove affordance for someone else's photo.
       await tester.tap(find.byType(PrivateMediaImage).first);
       await tester.pumpAndSettle();
       expect(find.text('1 / 1'), findsOneWidget);
-      expect(find.byIcon(Icons.more_horiz), findsNothing);
+      expect(find.byIcon(Icons.more_horiz), findsOneWidget);
     });
 
     testWidgets('gallery swipes across all photos', (tester) async {

@@ -28,7 +28,7 @@ class DevSafetyRepository implements SafetyRepository {
 
   @override
   Future<Result<void>> report(
-    String userId,
+    ReportTarget target,
     ReportReason reason, {
     String? details,
   }) async => const Success(null);
@@ -49,7 +49,7 @@ class EmptySafetyRepository implements SafetyRepository {
 
   @override
   Future<Result<void>> report(
-    String userId,
+    ReportTarget target,
     ReportReason reason, {
     String? details,
   }) async => const Success(null);

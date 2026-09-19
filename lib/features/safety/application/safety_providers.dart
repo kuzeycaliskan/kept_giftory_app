@@ -69,16 +69,19 @@ class SafetyController extends _$SafetyController {
     );
   });
 
-  Future<bool> report(String userId, ReportReason reason, {String? details}) =>
-      _run(() async {
-        final result = await ref
-            .read(safetyRepositoryProvider)
-            .report(userId, reason, details: details);
-        return result.when(
-          success: (_) => true,
-          failure: (Failure failure) => throw failure,
-        );
-      });
+  Future<bool> report(
+    ReportTarget target,
+    ReportReason reason, {
+    String? details,
+  }) => _run(() async {
+    final result = await ref
+        .read(safetyRepositoryProvider)
+        .report(target, reason, details: details);
+    return result.when(
+      success: (_) => true,
+      failure: (Failure failure) => throw failure,
+    );
+  });
 
   /// Runs an action, mirroring it into [state]; returns false on failure so
   /// callers can keep dialogs open / skip navigation.

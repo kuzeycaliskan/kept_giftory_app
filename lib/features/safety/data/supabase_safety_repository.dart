@@ -57,7 +57,7 @@ class SupabaseSafetyRepository implements SafetyRepository {
 
   @override
   Future<Result<void>> report(
-    String userId,
+    ReportTarget target,
     ReportReason reason, {
     String? details,
   }) async {
@@ -66,14 +66,16 @@ class SupabaseSafetyRepository implements SafetyRepository {
     try {
       await _client.from('reports').insert({
         'reporter_id': myId,
-        'reported_id': userId,
+        'reported_id': target.ownerId,
+        'target_type': target.wireType,
+        'target_id': target.id,
         'reason': reason.name,
         if (details != null && details.trim().isNotEmpty)
           'details': details.trim(),
       });
       return const Success(null);
     } on PostgrestException catch (e) {
-      // 23505 = the pair is already in the queue — success for the reporter.
+      // 23505 = this target is already in the queue — success for the reporter.
       if (e.code == '23505') return const Success(null);
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
