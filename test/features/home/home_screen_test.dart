@@ -398,7 +398,7 @@ void main() {
     final countdown = tester.widget<Text>(find.text('In 361 days'));
     expect(countdown.overflow, isNot(TextOverflow.ellipsis));
     expect(countdown.maxLines, isNull);
-    expect(find.widgetWithText(FilledButton, 'Wishlist'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Wishlist'), findsOneWidget);
 
     await tester.tap(find.text('In 361 days'));
     await tester.pumpAndSettle();

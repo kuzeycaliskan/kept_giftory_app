@@ -101,8 +101,8 @@ kabul edilmez.** Her ekran, uzun içerikle ve büyük yazı ölçeğiyle ayakta 
   test hatasıdır). Örnek: `home_screen_test.dart` "2x text scale".
 - **Sayısal/durum metinleri (geri sayım, tarih, sayaç) hiçbir zaman "…" ile
   kısaltılmaz:** `maxLines`/`ellipsis` verilmez, satır `Wrap` ya da `Expanded`
-  içinde sarmalanır; yan aksiyonlar dar alanda metnin ALTINA iner (bkz.
-  Home doğum günü satırı, `_stackActionsAtScale`).
+  içinde sarmalanır; satır aksiyonları metin sütununun altında, metinle
+  hizalı ve `Wrap` içinde durur (bkz. Home doğum günü satırı).
 
 ## 6. Hareket
 

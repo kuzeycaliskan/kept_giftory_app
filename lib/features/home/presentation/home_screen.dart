@@ -259,11 +259,6 @@ class _BirthdayRow extends ConsumerStatefulWidget {
 class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
   bool _expanded = false;
 
-  /// Above this text scale the two action buttons no longer fit beside
-  /// the text on a narrow phone; they move under it instead of squeezing
-  /// the name and countdown (design.md §5: nothing ever clips or overflows).
-  static const double _stackActionsAtScale = 1.5;
-
   String _countdown(BuildContext context) =>
       switch (widget.birthday.daysUntil) {
         0 => context.l10n.homeCountdownToday,
@@ -281,37 +276,41 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
     final profileRoute =
         '/users/${birthday.friendId}'
         '?name=${Uri.encodeComponent(birthday.label)}';
-    final stackActions =
-        MediaQuery.textScalerOf(context).scale(1) >= _stackActionsAtScale;
 
     // Two labelled actions: the wishlist toggle (filled while open) and
     // Gift. Labels, not icons — "wishlist" has no glyph everyone reads.
-    // A Wrap so two wide labels (2x text) fall onto two lines rather than
-    // overflow.
+    // Compact secondary-tier buttons (design.md §4 hierarchy: outlined =
+    // tertiary toggle, tonal = the one real action). A Wrap so two wide
+    // labels at 2x text fall onto two lines rather than overflow.
+    final compact = ButtonStyle(
+      visualDensity: VisualDensity.compact,
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: KeptSpacing.md),
+      ),
+      textStyle: WidgetStatePropertyAll(theme.textTheme.labelMedium),
+    );
     final actions = Wrap(
       spacing: KeptSpacing.sm,
-      runSpacing: KeptSpacing.sm,
-      alignment: WrapAlignment.end,
+      runSpacing: KeptSpacing.xs,
       children: [
         if (_expanded)
-          FilledButton(onPressed: _toggle, child: Text(l10n.homeWishlistToggle))
+          FilledButton(
+            style: compact,
+            onPressed: _toggle,
+            child: Text(l10n.homeWishlistToggle),
+          )
         else
-          FilledButton.tonal(
+          OutlinedButton(
+            style: compact,
             onPressed: _toggle,
             child: Text(l10n.homeWishlistToggle),
           ),
         FilledButton.tonal(
+          style: compact,
           onPressed: () => context.push('/gifts/log'),
           child: Text(l10n.homeGiftCta),
         ),
       ],
-    );
-
-    final countdown = Text(
-      _countdown(context),
-      style: theme.textTheme.bodyMedium?.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
     );
 
     return Column(
@@ -325,46 +324,42 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
               KeptSpacing.lg,
               KeptSpacing.md,
             ),
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Line 1: avatar + name.
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.push(profileRoute),
-                      child: KeptAvatar(
-                        label: birthday.label,
-                        avatarValue: birthday.avatarUrl,
-                      ),
-                    ),
-                    const SizedBox(width: KeptSpacing.lg),
-                    Expanded(
-                      child: Text(
+                GestureDetector(
+                  onTap: () => context.push(profileRoute),
+                  child: KeptAvatar(
+                    label: birthday.label,
+                    avatarValue: birthday.avatarUrl,
+                  ),
+                ),
+                const SizedBox(width: KeptSpacing.lg),
+                // The text column owns the leftover width: name (one line,
+                // ellipsis is fine for user text), countdown (soft-wraps,
+                // never clipped — design.md §5), then the actions aligned
+                // with the text, not floating at the card edge.
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         birthday.label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyLarge,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: KeptSpacing.sm),
-                // Line 2: countdown left, actions right. Countdown is
-                // Expanded and soft-wraps — never clipped (design.md §5);
-                // at large text scales the actions drop to a third line.
-                if (stackActions) ...[
-                  countdown,
-                  const SizedBox(height: KeptSpacing.sm),
-                  Align(alignment: Alignment.centerRight, child: actions),
-                ] else
-                  Row(
-                    children: [
-                      Expanded(child: countdown),
-                      const SizedBox(width: KeptSpacing.sm),
+                      Text(
+                        _countdown(context),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: KeptSpacing.sm),
                       actions,
                     ],
                   ),
+                ),
               ],
             ),
           ),
