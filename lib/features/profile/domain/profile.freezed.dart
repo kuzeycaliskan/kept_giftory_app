@@ -41,6 +41,8 @@ mixin _$Profile {
   String? get inviteCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'birthday_reminders_enabled')
   bool get birthdayRemindersEnabled => throw _privateConstructorUsedError;
+  @JsonKey(name: 'social_notifications_enabled')
+  bool get socialNotificationsEnabled => throw _privateConstructorUsedError;
 
   /// Serializes this Profile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -70,6 +72,8 @@ abstract class $ProfileCopyWith<$Res> {
     @JsonKey(name: 'gift_history_visibility') Visibility giftHistoryVisibility,
     @JsonKey(name: 'invite_code') String? inviteCode,
     @JsonKey(name: 'birthday_reminders_enabled') bool birthdayRemindersEnabled,
+    @JsonKey(name: 'social_notifications_enabled')
+    bool socialNotificationsEnabled,
   });
 }
 
@@ -101,6 +105,7 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
     Object? giftHistoryVisibility = null,
     Object? inviteCode = freezed,
     Object? birthdayRemindersEnabled = null,
+    Object? socialNotificationsEnabled = null,
   }) {
     return _then(
       _value.copyWith(
@@ -156,6 +161,10 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
                 ? _value.birthdayRemindersEnabled
                 : birthdayRemindersEnabled // ignore: cast_nullable_to_non_nullable
                       as bool,
+            socialNotificationsEnabled: null == socialNotificationsEnabled
+                ? _value.socialNotificationsEnabled
+                : socialNotificationsEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -184,6 +193,8 @@ abstract class _$$ProfileImplCopyWith<$Res> implements $ProfileCopyWith<$Res> {
     @JsonKey(name: 'gift_history_visibility') Visibility giftHistoryVisibility,
     @JsonKey(name: 'invite_code') String? inviteCode,
     @JsonKey(name: 'birthday_reminders_enabled') bool birthdayRemindersEnabled,
+    @JsonKey(name: 'social_notifications_enabled')
+    bool socialNotificationsEnabled,
   });
 }
 
@@ -214,6 +225,7 @@ class __$$ProfileImplCopyWithImpl<$Res>
     Object? giftHistoryVisibility = null,
     Object? inviteCode = freezed,
     Object? birthdayRemindersEnabled = null,
+    Object? socialNotificationsEnabled = null,
   }) {
     return _then(
       _$ProfileImpl(
@@ -269,6 +281,10 @@ class __$$ProfileImplCopyWithImpl<$Res>
             ? _value.birthdayRemindersEnabled
             : birthdayRemindersEnabled // ignore: cast_nullable_to_non_nullable
                   as bool,
+        socialNotificationsEnabled: null == socialNotificationsEnabled
+            ? _value.socialNotificationsEnabled
+            : socialNotificationsEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -295,6 +311,8 @@ class _$ProfileImpl implements _Profile {
     @JsonKey(name: 'invite_code') this.inviteCode,
     @JsonKey(name: 'birthday_reminders_enabled')
     this.birthdayRemindersEnabled = true,
+    @JsonKey(name: 'social_notifications_enabled')
+    this.socialNotificationsEnabled = true,
   });
 
   factory _$ProfileImpl.fromJson(Map<String, dynamic> json) =>
@@ -333,10 +351,13 @@ class _$ProfileImpl implements _Profile {
   @override
   @JsonKey(name: 'birthday_reminders_enabled')
   final bool birthdayRemindersEnabled;
+  @override
+  @JsonKey(name: 'social_notifications_enabled')
+  final bool socialNotificationsEnabled;
 
   @override
   String toString() {
-    return 'Profile(id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl, birthday: $birthday, gender: $gender, occupation: $occupation, bio: $bio, profileVisibility: $profileVisibility, wishlistVisibility: $wishlistVisibility, giftHistoryVisibility: $giftHistoryVisibility, inviteCode: $inviteCode, birthdayRemindersEnabled: $birthdayRemindersEnabled)';
+    return 'Profile(id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl, birthday: $birthday, gender: $gender, occupation: $occupation, bio: $bio, profileVisibility: $profileVisibility, wishlistVisibility: $wishlistVisibility, giftHistoryVisibility: $giftHistoryVisibility, inviteCode: $inviteCode, birthdayRemindersEnabled: $birthdayRemindersEnabled, socialNotificationsEnabled: $socialNotificationsEnabled)';
   }
 
   @override
@@ -369,7 +390,13 @@ class _$ProfileImpl implements _Profile {
                   other.birthdayRemindersEnabled,
                   birthdayRemindersEnabled,
                 ) ||
-                other.birthdayRemindersEnabled == birthdayRemindersEnabled));
+                other.birthdayRemindersEnabled == birthdayRemindersEnabled) &&
+            (identical(
+                  other.socialNotificationsEnabled,
+                  socialNotificationsEnabled,
+                ) ||
+                other.socialNotificationsEnabled ==
+                    socialNotificationsEnabled));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -389,6 +416,7 @@ class _$ProfileImpl implements _Profile {
     giftHistoryVisibility,
     inviteCode,
     birthdayRemindersEnabled,
+    socialNotificationsEnabled,
   );
 
   /// Create a copy of Profile
@@ -422,6 +450,8 @@ abstract class _Profile implements Profile {
     @JsonKey(name: 'invite_code') final String? inviteCode,
     @JsonKey(name: 'birthday_reminders_enabled')
     final bool birthdayRemindersEnabled,
+    @JsonKey(name: 'social_notifications_enabled')
+    final bool socialNotificationsEnabled,
   }) = _$ProfileImpl;
 
   factory _Profile.fromJson(Map<String, dynamic> json) = _$ProfileImpl.fromJson;
@@ -459,6 +489,9 @@ abstract class _Profile implements Profile {
   @override
   @JsonKey(name: 'birthday_reminders_enabled')
   bool get birthdayRemindersEnabled;
+  @override
+  @JsonKey(name: 'social_notifications_enabled')
+  bool get socialNotificationsEnabled;
 
   /// Create a copy of Profile
   /// with the given fields replaced by the non-null parameter values.

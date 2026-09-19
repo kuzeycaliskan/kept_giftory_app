@@ -269,5 +269,7 @@
   "commentsSendFailed": "Gönderilemedi. Tekrar dene.",
   "commentsDelete": "Yorumu sil",
   "commentsDeleteFailed": "Yorum silinemedi",
-  "commentsDaysAgo": "{days} g"
+  "commentsDaysAgo": "{days} g",
+  "notifSocial": "Yorumlar ve sürprizler",
+  "notifSocialDesc": "Hediyene ya da anına yorum gelince ve bir sürpriz açılınca"
 }

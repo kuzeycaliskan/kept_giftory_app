@@ -23,6 +23,11 @@ class _FakeProfileRepository implements ProfileRepository {
       const Success(Profile(id: 'x', username: 'x'));
 
   @override
+  Future<Result<Profile>> setSocialNotifications({
+    required bool enabled,
+  }) async => const Success(Profile(id: 'x', username: 'x'));
+
+  @override
   Future<Result<Profile>> updateAvatarPath(String path) async =>
       const Success(Profile(id: 'x', username: 'x'));
 

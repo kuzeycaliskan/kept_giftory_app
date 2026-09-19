@@ -37,6 +37,9 @@ class Profile with _$Profile {
     @JsonKey(name: 'birthday_reminders_enabled')
     @Default(true)
     bool birthdayRemindersEnabled,
+    @JsonKey(name: 'social_notifications_enabled')
+    @Default(true)
+    bool socialNotificationsEnabled,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) =>

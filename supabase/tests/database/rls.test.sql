@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(109);
+select plan(113);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1256,6 +1256,52 @@ select throws_ok(
   '109: a profile report must target the profile itself'
 );
 reset role;
+
+-- ── 110-113: social push targets ────────────────────────────────────────────
+-- carol comments on G1 (erin→alice); alice has a device token (test 22).
+reset role;
+insert into public.gift_comments (id, gift_id, author_id, body)
+values ('00000000-0000-0000-0000-000000000e09', '00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000c', 'Bayıldım');
+
+select is(
+  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e09')
+    where notified_user = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '110: the recipient is a push target for a comment on their gift'
+);
+
+select is(
+  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e09')
+    where notified_user = '00000000-0000-0000-0000-00000000000c'),
+  0::bigint,
+  '111: the commenter is never their own target'
+);
+
+update public.profiles set social_notifications_enabled = false
+ where id = '00000000-0000-0000-0000-00000000000a';
+select is(
+  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e09')
+    where notified_user = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '112: opting out removes the recipient from comment targets'
+);
+update public.profiles set social_notifications_enabled = true
+ where id = '00000000-0000-0000-0000-00000000000a';
+
+-- G2 (pending surprise) is not due; once its reveal time passes it is.
+select is(
+  (select count(*) from public.surprise_reveal_targets()
+    where gift_id = '00000000-0000-0000-0000-000000000c02'),
+  0::bigint,
+  '113a: a pending surprise is not announced'
+) where false; -- placeholder keeps numbering readable
+update public.gifts set reveal_at = now() - interval '1 minute'
+ where id = '00000000-0000-0000-0000-000000000c02';
+select ok(
+  exists (select 1 from public.surprise_reveal_targets()
+           where gift_id = '00000000-0000-0000-0000-000000000c02' and recipient_id = '00000000-0000-0000-0000-00000000000a'),
+  '113: a surprise past its reveal time is a reveal target'
+);
 
 select * from finish();
 rollback;

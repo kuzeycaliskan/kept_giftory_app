@@ -1717,6 +1717,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days}d'**
   String commentsDaysAgo(int days);
+
+  /// No description provided for @notifSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments & surprises'**
+  String get notifSocial;
+
+  /// No description provided for @notifSocialDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone comments on your gifts or moments, and when a surprise opens'**
+  String get notifSocialDesc;
 }
 
 class _AppLocalizationsDelegate

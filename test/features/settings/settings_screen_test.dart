@@ -45,6 +45,7 @@ class _FakeAuthRepository implements AuthRepository {
 class _FakeProfileRepository implements ProfileRepository {
   Profile me = const Profile(id: 'u1', username: 'you');
   final List<bool> reminderCalls = [];
+  final List<bool> socialCalls = [];
 
   @override
   Future<Result<Profile?>> fetchMyProfile() async => Success(me);
@@ -78,6 +79,15 @@ class _FakeProfileRepository implements ProfileRepository {
   Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async {
     reminderCalls.add(enabled);
     me = me.copyWith(birthdayRemindersEnabled: enabled);
+    return Success(me);
+  }
+
+  @override
+  Future<Result<Profile>> setSocialNotifications({
+    required bool enabled,
+  }) async {
+    socialCalls.add(enabled);
+    me = me.copyWith(socialNotificationsEnabled: enabled);
     return Success(me);
   }
 
@@ -179,7 +189,10 @@ void main() {
     final profiles = _FakeProfileRepository();
     await pump(tester, _FakeAuthRepository(), profiles: profiles);
 
-    final switchFinder = find.byType(SwitchListTile);
+    final switchFinder = find.widgetWithText(
+      SwitchListTile,
+      'Birthday reminders',
+    );
     expect(switchFinder, findsOneWidget);
     expect(tester.widget<SwitchListTile>(switchFinder).value, isTrue);
 
@@ -188,5 +201,25 @@ void main() {
 
     expect(profiles.reminderCalls, [false]);
     expect(tester.widget<SwitchListTile>(switchFinder).value, isFalse);
+  });
+
+  testWidgets('comments & surprises switch updates the profile', (
+    tester,
+  ) async {
+    final profiles = _FakeProfileRepository();
+    await pump(tester, _FakeAuthRepository(), profiles: profiles);
+    await tester.scrollUntilVisible(
+      find.text('Comments & surprises'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    final social = find.widgetWithText(SwitchListTile, 'Comments & surprises');
+    expect(tester.widget<SwitchListTile>(social).value, isTrue);
+
+    await tester.tap(social);
+    await tester.pumpAndSettle();
+
+    expect(profiles.socialCalls, [false]);
+    expect(tester.widget<SwitchListTile>(social).value, isFalse);
   });
 }

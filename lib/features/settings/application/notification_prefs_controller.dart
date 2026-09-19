@@ -27,4 +27,20 @@ class NotificationPrefsController extends _$NotificationPrefsController {
       },
     );
   }
+
+  Future<void> setSocialNotifications({required bool enabled}) async {
+    state = const AsyncLoading();
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .setSocialNotifications(enabled: enabled);
+    result.when(
+      success: (_) {
+        ref.invalidate(myProfileProvider);
+        state = const AsyncData(null);
+      },
+      failure: (Failure failure) {
+        state = AsyncError(failure, StackTrace.current);
+      },
+    );
+  }
 }

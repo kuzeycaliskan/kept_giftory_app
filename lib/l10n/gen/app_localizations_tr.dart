@@ -881,4 +881,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String commentsDaysAgo(int days) {
     return '$days g';
   }
+
+  @override
+  String get notifSocial => 'Yorumlar ve sürprizler';
+
+  @override
+  String get notifSocialDesc =>
+      'Hediyene ya da anına yorum gelince ve bir sürpriz açılınca';
 }

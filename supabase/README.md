@@ -159,3 +159,20 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - `profile_cards(uuid[])` (definer, block-aware): batch discovery cards so
   reactor identities resolve in one call regardless of profile visibility.
   pgTAP 93-98.
+
+## Social push (G-210 slice 3)
+
+- Kinds: **comments** (on my gifts/moments, and on threads I commented in)
+  and **"your surprise opened"**. Reactions never push (product decision).
+- Preference: `profiles.social_notifications_enabled` (Settings →
+  Notifications), filtered server-side in `comment_push_targets`; the
+  surprise job marks opted-out gifts announced without sending.
+- Spoiler guard: the recipient of a still-pending surprise is never a
+  comment target for that gift.
+- Wiring: DB trigger on both comment tables → pg_net → `notify-comment`
+  (Vault secret; skipped locally). Hourly pg_cron `surprise-revealed-hourly`
+  → `surprise-revealed` (`gifts.reveal_notified_at` = idempotency; already
+  open surprises were backfilled as announced). Both functions and
+  `birthday-reminders` share `_shared/fcm.ts` (token + send + stale cleanup)
+  and `_shared/messages.ts` (copy; deno tests). **Deploy all three with
+  `--no-verify-jwt`.** pgTAP 110-113.

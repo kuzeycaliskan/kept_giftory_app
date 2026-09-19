@@ -7,7 +7,7 @@ part of 'notification_prefs_controller.dart';
 // **************************************************************************
 
 String _$notificationPrefsControllerHash() =>
-    r'76ebbce095ec2b81fed46db776647e2e7266a85d';
+    r'b8389f6688efbb0a3dfc0eaf3d37af401f73eb5c';
 
 /// Applies notification-preference changes (G-63). Values are read from
 /// [myProfileProvider]; a successful update refreshes it so every consumer

@@ -883,4 +883,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String commentsDaysAgo(int days) {
     return '${days}d';
   }
+
+  @override
+  String get notifSocial => 'Comments & surprises';
+
+  @override
+  String get notifSocialDesc =>
+      'When someone comments on your gifts or moments, and when a surprise opens';
 }

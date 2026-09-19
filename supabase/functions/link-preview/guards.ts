@@ -52,7 +52,8 @@ export async function guardedFetch(url: URL): Promise<Response | null> {
         signal: controller.signal,
         headers: {
           // Some shops gate OG tags behind crawler-ish user agents.
-          "User-Agent": "Mozilla/5.0 (compatible; KeptBot/1.0; +https://kuzeycaliskan.github.io/kept.html)",
+          "User-Agent":
+            "Mozilla/5.0 (compatible; KeptBot/1.0; +https://kuzeycaliskan.github.io/kept.html)",
           "Accept": "text/html,application/xhtml+xml",
         },
       });
@@ -146,7 +147,6 @@ function decodeEntities(s: string): string {
     .replace(/&#39;|&apos;/g, "'")
     .replace(/&nbsp;/g, " ");
 }
-
 
 /// Sniffs real image type from magic bytes — client-supplied bytes are
 /// never trusted by declared content type. Returns extension or null.

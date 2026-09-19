@@ -43,7 +43,7 @@ final blockedUsersProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef BlockedUsersRef = AutoDisposeFutureProviderRef<List<ProfileCard>>;
-String _$safetyControllerHash() => r'488d5de0f01766a283f57aaada46b10971b718f3';
+String _$safetyControllerHash() => r'6a60a19ffaf1483227ee51293780ea7b2421634e';
 
 /// Block / unblock / report actions. Blocking invalidates every provider
 /// that could still be showing the (now invisible) counterpart.

@@ -38,6 +38,9 @@ abstract interface class ProfileRepository {
   /// dispatch query filters on this server-side.
   Future<Result<Profile>> setBirthdayReminders({required bool enabled});
 
+  /// Comment + "surprise opened" pushes on/off (G-210); filtered server-side.
+  Future<Result<Profile>> setSocialNotifications({required bool enabled});
+
   /// Username / display-name search (G-32), excluding the caller. Every
   /// profile is discoverable (Instagram-style) but only as a minimal card;
   /// visibility gates the full profile, not existence.

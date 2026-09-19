@@ -63,12 +63,23 @@ Deno.test("empty html yields nothing", () => {
 });
 
 Deno.test("sniffs image magic bytes, rejects fakes", () => {
-  assertEquals(sniffImage(new Uint8Array([0xff, 0xd8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])), "jpg");
-  assertEquals(sniffImage(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 0, 0, 0, 0, 0, 0, 0])), "png");
+  assertEquals(
+    sniffImage(new Uint8Array([0xff, 0xd8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])),
+    "jpg",
+  );
+  assertEquals(
+    sniffImage(
+      new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 0, 0, 0, 0, 0, 0, 0]),
+    ),
+    "png",
+  );
   const webp = new Uint8Array(12);
   webp.set([0x52, 0x49, 0x46, 0x46], 0);
   webp.set([0x57, 0x45, 0x42, 0x50], 8);
   assertEquals(sniffImage(webp), "webp");
-  assertEquals(sniffImage(new TextEncoder().encode("<script>hi</script>")), null);
+  assertEquals(
+    sniffImage(new TextEncoder().encode("<script>hi</script>")),
+    null,
+  );
   assertEquals(sniffImage(new Uint8Array(4)), null);
 });

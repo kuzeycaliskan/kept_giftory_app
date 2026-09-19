@@ -79,6 +79,14 @@ class DevProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> setSocialNotifications({
+    required bool enabled,
+  }) async {
+    _me = _me.copyWith(socialNotificationsEnabled: enabled);
+    return Success(_me);
+  }
+
+  @override
   Future<Result<Profile>> updateAvatarPath(String path) async {
     _me = _me.copyWith(avatarUrl: path);
     return Success(_me);
@@ -150,6 +158,11 @@ class EmptyProfileRepository implements ProfileRepository {
   @override
   Future<Result<Profile>> setBirthdayReminders({required bool enabled}) async =>
       const ResultFailure(AuthFailure('No backend configured'));
+
+  @override
+  Future<Result<Profile>> setSocialNotifications({
+    required bool enabled,
+  }) async => const ResultFailure(AuthFailure('No backend configured'));
 
   @override
   Future<Result<Profile>> updateAvatarPath(String path) async =>

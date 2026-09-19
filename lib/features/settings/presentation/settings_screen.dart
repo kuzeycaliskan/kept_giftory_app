@@ -101,6 +101,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const Divider(),
               _SectionLabel(l10n.settingsNotificationsSection),
               const _BirthdayRemindersSwitch(),
+              const _SocialNotificationsSwitch(),
               const Divider(),
               _SectionLabel(l10n.settingsLegalSection),
               ListTile(
@@ -199,6 +200,32 @@ class _SectionLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(text, style: Theme.of(context).textTheme.titleSmall),
+    );
+  }
+}
+
+/// G-210: comment + "surprise opened" pushes on/off (reactions never push).
+class _SocialNotificationsSwitch extends ConsumerWidget {
+  const _SocialNotificationsSwitch();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final profile = ref.watch(myProfileProvider);
+    final saving = ref.watch(notificationPrefsControllerProvider).isLoading;
+    final enabled = profile.valueOrNull?.socialNotificationsEnabled ?? true;
+    final interactive = !saving && profile.valueOrNull != null;
+
+    return SwitchListTile(
+      secondary: const Icon(Icons.mode_comment_outlined),
+      title: Text(l10n.notifSocial),
+      subtitle: Text(l10n.notifSocialDesc),
+      value: enabled,
+      onChanged: interactive
+          ? (value) => ref
+                .read(notificationPrefsControllerProvider.notifier)
+                .setSocialNotifications(enabled: value)
+          : null,
     );
   }
 }

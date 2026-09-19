@@ -170,6 +170,27 @@ class SupabaseProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<Profile>> setSocialNotifications({
+    required bool enabled,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    try {
+      final row = await _client
+          .from(_table)
+          .update({'social_notifications_enabled': enabled})
+          .eq('id', userId)
+          .select()
+          .single();
+      return Success(Profile.fromJson(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Result<List<ProfileCard>>> searchProfiles(String query) async {
     if (_client.auth.currentUser == null) {
       return const ResultFailure(AuthFailure('Signed out'));
