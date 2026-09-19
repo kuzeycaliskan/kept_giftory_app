@@ -17,12 +17,13 @@ class GalleryItem {
   final Future<void> Function()? onRemove;
 }
 
-/// Full-screen swipeable gallery for private media (gift photos): the
-/// current photo, blurred and dimmed, is the backdrop (frosted stage instead
-/// of flat black); pinch-zoom per page; counter on top and a pill indicator
-/// at the bottom so it is obvious there is more to swipe; optional remove for
-/// items the viewer owns. White chrome is the same deliberate exception as
-/// the avatar preview.
+/// Full-screen swipeable gallery for private media (gift photos), drawn as
+/// frosted glass over the screen that opened it: the page underneath stays
+/// visible through a blur + translucent scrim, so the gallery feels like a
+/// layer of the same screen rather than a separate black room. Pinch-zoom
+/// per page, counter on top, pill indicator at the bottom, pull to dismiss,
+/// optional remove for items the viewer owns. Chrome uses theme roles so it
+/// reads in both light and dark.
 Future<void> showMediaGallery(
   BuildContext context, {
   required List<GalleryItem> items,
@@ -32,7 +33,7 @@ Future<void> showMediaGallery(
   return showGeneralDialog<void>(
     context: context,
     barrierLabel: MaterialLocalizations.of(context).closeButtonLabel,
-    barrierColor: Colors.black,
+    barrierColor: Colors.transparent,
     pageBuilder: (context, _, __) => _GalleryPage(
       items: items,
       initialIndex: initialIndex,
@@ -155,14 +156,14 @@ class _GalleryPageState extends State<_GalleryPage>
     final items = widget.items;
     final current = items[_index];
     final canRemove = current.onRemove != null;
+    final scheme = Theme.of(context).colorScheme;
     return AnimatedBuilder(
       animation: _pull,
       builder: (context, _) {
         final progress = (_pull.value.abs() / _dismissDistance).clamp(0.0, 1.0);
         final chromeOpacity = 1 - progress;
         return Scaffold(
-          // Opaque base: nothing of the screen underneath may bleed through.
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -170,7 +171,7 @@ class _GalleryPageState extends State<_GalleryPage>
               opacity: chromeOpacity,
               child: AppBar(
                 backgroundColor: Colors.transparent,
-                foregroundColor: Colors.white,
+                foregroundColor: scheme.onSurface,
                 leading: CloseButton(
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -190,28 +191,17 @@ class _GalleryPageState extends State<_GalleryPage>
           body: Stack(
             fit: StackFit.expand,
             children: [
-              // Frosted backdrop: the photo itself stretched to cover, then a
-              // backdrop blur + light dim over it, so the letterbox bands take
-              // the photo's own colour instead of black. Fades as the photo is
-              // pulled away so the dismissal reads as "letting go".
-              Opacity(
-                opacity: chromeOpacity,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: SizedBox.expand(
-                    key: ValueKey(current.path),
-                    child: PrivateMediaImage(
-                      bucket: current.bucket,
-                      path: current.path,
-                      fit: BoxFit.cover,
-                      compact: true,
-                    ),
+              // Frosted glass over the opening screen: blur what is beneath
+              // and lay a translucent surface-coloured scrim on it. The scrim
+              // thins as the photo is pulled away, so the page underneath
+              // comes back into focus as the dismissal completes.
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: ColoredBox(
+                  color: scheme.surface.withValues(
+                    alpha: _scrimAlpha * chromeOpacity,
                   ),
                 ),
-              ),
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                child: const ColoredBox(color: Colors.black26),
               ),
               SafeArea(
                 child: Column(
@@ -272,6 +262,10 @@ class _GalleryPageState extends State<_GalleryPage>
       },
     );
   }
+
+  /// How much the scrim hides the blurred page: enough for the photo and
+  /// chrome to read cleanly, little enough that the page is recognisable.
+  static const double _scrimAlpha = 0.72;
 }
 
 /// Pill indicator: the active page stretches, the rest are dots — reads as
@@ -284,6 +278,7 @@ class _PageIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Semantics(
       label: '${index + 1} / $count',
       child: Row(
@@ -298,7 +293,9 @@ class _PageIndicator extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 3),
               decoration: BoxDecoration(
                 borderRadius: KeptRadius.pillAll,
-                color: i == index ? Colors.white : Colors.white38,
+                color: i == index
+                    ? scheme.onSurface
+                    : scheme.onSurface.withValues(alpha: 0.3),
               ),
             ),
         ],
