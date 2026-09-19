@@ -59,8 +59,74 @@ class _GalleryPage extends StatefulWidget {
   State<_GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<_GalleryPage> {
+class _GalleryPageState extends State<_GalleryPage>
+    with SingleTickerProviderStateMixin {
+  /// Drag distance after which letting go dismisses; also the distance over
+  /// which the chrome fades to nothing.
+  static const double _dismissDistance = 140;
+  static const double _dismissVelocity = 800;
+
   late int _index = widget.initialIndex.clamp(0, widget.items.length - 1);
+  late final PageController _pages = PageController(initialPage: _index);
+  final _zoom = TransformationController();
+  bool _zoomed = false;
+
+  /// Vertical pull-to-dismiss offset (pixels), animated back on release.
+  late final AnimationController _pull = AnimationController(
+    vsync: this,
+    lowerBound: -600,
+    upperBound: 600,
+    value: 0,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _zoom.addListener(_onZoom);
+  }
+
+  @override
+  void dispose() {
+    _zoom
+      ..removeListener(_onZoom)
+      ..dispose();
+    _pages.dispose();
+    _pull.dispose();
+    super.dispose();
+  }
+
+  void _onZoom() {
+    final zoomed = _zoom.value.getMaxScaleOnAxis() > 1.01;
+    if (zoomed != _zoomed) setState(() => _zoomed = zoomed);
+  }
+
+  void _onPageChanged(int i) {
+    _zoom.value = Matrix4.identity();
+    setState(() => _index = i);
+  }
+
+  void _onPullUpdate(DragUpdateDetails details) {
+    _pull.value = (_pull.value + details.delta.dy).clamp(
+      _pull.lowerBound,
+      _pull.upperBound,
+    );
+  }
+
+  void _onPullEnd(DragEndDetails details) {
+    final far = _pull.value.abs() > _dismissDistance;
+    final fast =
+        details.primaryVelocity != null &&
+        details.primaryVelocity!.abs() > _dismissVelocity;
+    if (far || fast) {
+      Navigator.of(context).pop();
+      return;
+    }
+    _pull.animateTo(
+      0,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   Future<void> _actions() async {
     final onRemove = widget.items[_index].onRemove;
@@ -89,85 +155,121 @@ class _GalleryPageState extends State<_GalleryPage> {
     final items = widget.items;
     final current = items[_index];
     final canRemove = current.onRemove != null;
-    return Scaffold(
-      // Opaque base: nothing of the screen underneath may bleed through.
-      backgroundColor: Colors.black,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        leading: CloseButton(onPressed: () => Navigator.of(context).pop()),
-        title: Text('${_index + 1} / ${items.length}'),
-        centerTitle: true,
-        actions: [
-          if (canRemove)
-            IconButton(
-              tooltip: context.l10n.storyMoreActions,
-              icon: const Icon(Icons.more_horiz),
-              onPressed: _actions,
-            ),
-        ],
-      ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Frosted backdrop: the photo itself stretched to cover, then a
-          // backdrop blur + light dim over it, so the letterbox bands take
-          // the photo's own colour instead of black. BackdropFilter (not
-          // ImageFiltered) so the blur is applied to painted pixels only.
-          // SizedBox.expand: AnimatedSwitcher lays its child out loosely, so
-          // without it the backdrop shrank to the photo's own box and only a
-          // glow halo around the photo was blurred, the rest stayed black.
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            child: SizedBox.expand(
-              key: ValueKey(current.path),
-              child: PrivateMediaImage(
-                bucket: current.bucket,
-                path: current.path,
-                fit: BoxFit.cover,
-                compact: true,
+    return AnimatedBuilder(
+      animation: _pull,
+      builder: (context, _) {
+        final progress = (_pull.value.abs() / _dismissDistance).clamp(0.0, 1.0);
+        final chromeOpacity = 1 - progress;
+        return Scaffold(
+          // Opaque base: nothing of the screen underneath may bleed through.
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: Opacity(
+              opacity: chromeOpacity,
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                leading: CloseButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                title: Text('${_index + 1} / ${items.length}'),
+                centerTitle: true,
+                actions: [
+                  if (canRemove)
+                    IconButton(
+                      tooltip: context.l10n.storyMoreActions,
+                      icon: const Icon(Icons.more_horiz),
+                      onPressed: _actions,
+                    ),
+                ],
               ),
             ),
           ),
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-            child: const ColoredBox(color: Colors.black26),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    controller: PageController(initialPage: _index),
-                    itemCount: items.length,
-                    onPageChanged: (i) => setState(() => _index = i),
-                    itemBuilder: (context, i) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: KeptSpacing.xs,
-                      ),
-                      child: InteractiveViewer(
-                        maxScale: 4,
-                        child: PrivateMediaImage(
-                          bucket: items[i].bucket,
-                          path: items[i].path,
-                        ),
-                      ),
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Frosted backdrop: the photo itself stretched to cover, then a
+              // backdrop blur + light dim over it, so the letterbox bands take
+              // the photo's own colour instead of black. Fades as the photo is
+              // pulled away so the dismissal reads as "letting go".
+              Opacity(
+                opacity: chromeOpacity,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: SizedBox.expand(
+                    key: ValueKey(current.path),
+                    child: PrivateMediaImage(
+                      bucket: current.bucket,
+                      path: current.path,
+                      fit: BoxFit.cover,
+                      compact: true,
                     ),
                   ),
                 ),
-                if (items.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: KeptSpacing.lg,
+              ),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                child: const ColoredBox(color: Colors.black26),
+              ),
+              SafeArea(
+                child: Column(
+                  children: [
+                    Expanded(
+                      // Pull-to-dismiss only while not zoomed: zoomed, the
+                      // drag belongs to panning the photo.
+                      child: GestureDetector(
+                        onVerticalDragUpdate: _zoomed ? null : _onPullUpdate,
+                        onVerticalDragEnd: _zoomed ? null : _onPullEnd,
+                        child: Transform.translate(
+                          offset: Offset(0, _pull.value),
+                          child: PageView.builder(
+                            controller: _pages,
+                            physics: _zoomed
+                                ? const NeverScrollableScrollPhysics()
+                                : null,
+                            itemCount: items.length,
+                            onPageChanged: _onPageChanged,
+                            itemBuilder: (context, i) => Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: KeptSpacing.xs,
+                              ),
+                              child: InteractiveViewer(
+                                transformationController: i == _index
+                                    ? _zoom
+                                    : null,
+                                maxScale: 4,
+                                child: PrivateMediaImage(
+                                  bucket: items[i].bucket,
+                                  path: items[i].path,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: _PageIndicator(count: items.length, index: _index),
-                  ),
-              ],
-            ),
+                    if (items.length > 1)
+                      Opacity(
+                        opacity: chromeOpacity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: KeptSpacing.lg,
+                          ),
+                          child: _PageIndicator(
+                            count: items.length,
+                            index: _index,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

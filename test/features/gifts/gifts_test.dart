@@ -716,6 +716,26 @@ void main() {
       await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
       await tester.pumpAndSettle();
       expect(find.text('3 / 3'), findsOneWidget);
+
+      // Pull down past the threshold → the gallery closes.
+      await tester.drag(find.byType(PageView), const Offset(0, 260));
+      await tester.pumpAndSettle();
+      expect(find.text('3 / 3'), findsNothing);
+      expect(find.text('Gift'), findsOneWidget);
+    });
+
+    testWidgets('a short pull springs the photo back', (tester) async {
+      await pump(
+        tester,
+        gifts: _FakeGiftRepository(given: [giftWithPhotos(id: 'g7', count: 2)]),
+        initial: '/gifts/g7?side=recipient',
+      );
+      await tester.tap(find.byType(PrivateMediaImage).first);
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(PageView), const Offset(0, 60));
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 2'), findsOneWidget);
     });
 
     testWidgets('the cap hides the add button', (tester) async {
