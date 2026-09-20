@@ -64,3 +64,10 @@ Definition of Done**.
   kullanıcı. Analiz: `g207-medya-analizi.md`.
 - **Launch Free planda:** keepalive + günlük yedek workflow'ları Pro'ya kadar yaşar
   (CLAUDE.md §11). Pro sinyali: medya büyümesi / ~10k kullanıcı / yedek-SLA ihtiyacı.
+
+## Karar: V3 event modeli (2026-09-20, Kuzey)
+- Event'i yalnız sahibinin arkadaşları açar; sahibi reveal'a kadar hiçbir şey görmez.
+- 14 gün kala push + Home kartı; ilk kabul eden açar.
+- Chat yerine pano (yorum altyapısı) + dış grup linki; WhatsApp API yok, numara toplanmıyor.
+- Ortak hediye = taahhüt; ödeme V4.
+
