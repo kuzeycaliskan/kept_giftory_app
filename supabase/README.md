@@ -205,3 +205,21 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   `event_invitable_friends`; `gift_event_for_honoree` (Home row lookup).
 - 14-day nudge: pg_cron `event-suggestion-daily` → `birthday-reminders?days=14&kind=event`
   (log PK gained `kind`). pgTAP 120-129.
+
+## Wishlist claims + group gifts (V3.0-b: G-303/G-304)
+
+- `wishlist_claims`: one row per wishlist item (`item_id` unique = the double-buy
+  guard). `owner_id` is stamped by a definer trigger from the item; `kind` is
+  `solo` or `shared`; `target_amount` only for pools. Guard triggers keep the
+  identity columns immutable and forbid `shared → solo`.
+- `claim_pledges`: `(claim_id, user_id)` unique, `amount > 0`; insert/update
+  refused unless the claim is `shared` (trigger, 23514).
+- **RLS is honoree-blind:** only friends of the owner who may view the list
+  read/write claims (`owner_id <> auth.uid() and are_friends(...) and
+  can_view_wishlist(...)`); pledges defer to the parent claim. The owner and
+  strangers get empty results — no teaser, no counts. The claimer updates or
+  deletes their claim; a pledge is deleted by its author or the claim's
+  organiser. Identities resolve on the client through `profile_cards()`.
+- Cascade: deleting the item, the claim, or either profile removes the rows;
+  no anonymisation needed (nothing here is history worth keeping).
+- pgTAP 137-147.

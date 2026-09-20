@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/wishlist/application/claims_providers.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
-import 'package:kept/shared/widgets/link_preview_card.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:kept/features/wishlist/presentation/claim_bar.dart';
+import 'package:kept/features/wishlist/presentation/claimable_wishlist.dart';
+import 'package:kept/features/wishlist/presentation/wishlist_item_tile.dart';
 
 /// Wishlist screen (G-41/G-42) — one widget, two modes:
 ///  * mine (`ownerId == null`): editable — FAB add + swipe-to-delete;
-///  * a friend's (`ownerId` set): read-only, RLS-scoped.
+///  * a friend's (`ownerId` set): read-only items + the reservation strip
+///    under each (G-303/G-304); the owner never sees a strip.
 class WishlistScreen extends ConsumerWidget {
   const WishlistScreen({this.ownerId, this.ownerLabel, super.key});
 
@@ -27,6 +30,7 @@ class WishlistScreen extends ConsumerWidget {
     final items = _isMine
         ? ref.watch(myWishlistProvider)
         : ref.watch(friendWishlistProvider(ownerId!));
+    final claims = _isMine ? null : ref.watch(wishlistClaimsProvider(ownerId!));
 
     ref.listen(wishlistControllerProvider, (_, next) {
       if (next.hasError) {
@@ -102,7 +106,9 @@ class WishlistScreen extends ConsumerWidget {
                 ref.invalidate(myWishlistProvider);
                 await ref.read(myWishlistProvider.future);
               } else {
-                ref.invalidate(friendWishlistProvider(ownerId!));
+                ref
+                  ..invalidate(friendWishlistProvider(ownerId!))
+                  ..invalidate(wishlistClaimsProvider(ownerId!));
                 await ref.read(friendWishlistProvider(ownerId!).future);
               }
             },
@@ -110,66 +116,21 @@ class WishlistScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
+                if (claims != null && claims.hasError)
+                  ClaimsErrorRow(ownerId: ownerId!),
                 for (final item in list)
-                  _isMine
-                      ? _DismissibleItemTile(item: item)
-                      : _ItemTile(item: item),
+                  if (_isMine)
+                    _DismissibleItemTile(item: item)
+                  else ...[
+                    WishlistItemTile(item: item),
+                    if (claims != null && !claims.hasError)
+                      ClaimBar(item: item, claim: claims.valueOrNull?[item.id]),
+                  ],
               ],
             ),
           );
         },
       ),
-    );
-  }
-}
-
-class _ItemTile extends StatelessWidget {
-  const _ItemTile({required this.item});
-
-  final WishlistItem item;
-
-  Future<void> _openLink(BuildContext context, String url) async {
-    final ok = await launchUrl(
-      Uri.parse(url),
-      mode: LaunchMode.externalApplication,
-    );
-    if (!ok && context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.legalOpenError)));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Product-card rendering when a preview is attached (G-211); the plain
-    // tile stays the fallback for free-text items.
-    final preview = item.preview;
-    if (preview != null) {
-      final link = preview.url ?? item.url;
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: LinkPreviewCard(
-          preview: preview,
-          onTap: link == null ? null : () => _openLink(context, link),
-        ),
-      );
-    }
-    final subtitleParts = [
-      if (item.note != null) item.note!,
-      if (item.url != null) item.url!,
-    ];
-    return ListTile(
-      leading: const Icon(Icons.card_giftcard_outlined),
-      title: Text(item.title),
-      subtitle: subtitleParts.isEmpty
-          ? null
-          : Text(
-              subtitleParts.join('\n'),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-      onTap: item.url == null ? null : () => _openLink(context, item.url!),
     );
   }
 }
@@ -206,7 +167,7 @@ class _DismissibleItemTile extends ConsumerWidget {
         }
         return true;
       },
-      child: _ItemTile(item: item),
+      child: WishlistItemTile(item: item),
     );
   }
 }

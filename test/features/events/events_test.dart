@@ -16,7 +16,35 @@ import 'package:kept/features/friends/domain/friendship_repository.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/features/wishlist/application/wishlist_providers.dart';
+import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/features/wishlist/domain/wishlist_repository.dart';
 import 'package:kept/shared/domain/comment.dart';
+
+/// The honoree's wishlist as the event's gift ideas (G-303).
+class _FakeWishlistRepository implements WishlistRepository {
+  const _FakeWishlistRepository(this.items);
+
+  final List<WishlistItem> items;
+
+  @override
+  Future<Result<List<WishlistItem>>> fetchMine() async => const Success([]);
+
+  @override
+  Future<Result<List<WishlistItem>>> fetchFor(String profileId) async =>
+      Success(items);
+
+  @override
+  Future<Result<WishlistItem>> add({
+    required String title,
+    String? note,
+    String? url,
+    String? linkPreviewId,
+  }) async => const ResultFailure(UnknownFailure());
+
+  @override
+  Future<Result<void>> delete(String itemId) async => const Success(null);
+}
 
 class _FakeEventsRepository implements EventsRepository {
   _FakeEventsRepository({List<GiftEvent> events = const []})
@@ -192,6 +220,7 @@ void main() {
     required _FakeEventsRepository repo,
     String initial = '/events',
     List<FriendEntry> friends = const [],
+    List<WishlistItem> wishlist = const [],
   }) async {
     final router = GoRouter(
       initialLocation: initial,
@@ -216,6 +245,9 @@ void main() {
           ),
           friendshipRepositoryProvider.overrideWithValue(
             _FakeFriendshipRepository(friends),
+          ),
+          wishlistRepositoryProvider.overrideWithValue(
+            _FakeWishlistRepository(wishlist),
           ),
         ],
         child: MaterialApp.router(
@@ -272,6 +304,13 @@ void main() {
     expect(find.text('Kamil'), findsOneWidget);
     expect(find.text('Open group chat'), findsOneWidget);
 
+    // The gift-ideas section pushed the invite row below the fold.
+    await tester.scrollUntilVisible(
+      find.text('Invite friends'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Invite friends'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Invite'));
@@ -307,6 +346,44 @@ void main() {
     expect(repo.calls, ['create:ali']);
     expect(find.text("Ali's birthday"), findsOneWidget);
     expect(find.text('Organizer'), findsOneWidget);
+  });
+
+  testWidgets("gift ideas list the honoree's wishlist with claim strips", (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository(
+      events: [event(id: 'e4', myStatus: EventMemberStatus.joined)],
+    );
+    await pump(
+      tester,
+      repo: repo,
+      initial: '/events/e4',
+      wishlist: const [
+        WishlistItem(id: 'w1', ownerId: 'ali', title: 'Coffee grinder'),
+      ],
+    );
+
+    expect(find.text('Gift ideas'), findsOneWidget);
+    expect(find.text('Coffee grinder'), findsOneWidget);
+    expect(find.text("I'll get this"), findsOneWidget);
+    expect(find.text('Open the wishlist'), findsOneWidget);
+  });
+
+  testWidgets('an invitee sees no gift ideas yet', (tester) async {
+    final repo = _FakeEventsRepository(
+      events: [event(id: 'e5', myStatus: EventMemberStatus.invited)],
+    );
+    await pump(
+      tester,
+      repo: repo,
+      initial: '/events/e5',
+      wishlist: const [
+        WishlistItem(id: 'w1', ownerId: 'ali', title: 'Coffee grinder'),
+      ],
+    );
+
+    expect(find.text('Gift ideas'), findsNothing);
+    expect(find.text('Coffee grinder'), findsNothing);
   });
 
   testWidgets('joined members write on the notes board', (tester) async {

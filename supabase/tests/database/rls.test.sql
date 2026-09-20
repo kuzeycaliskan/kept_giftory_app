@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(136);
+select plan(147);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1554,6 +1554,120 @@ select is(
   (select count(*) from public.link_previews where id = '00000000-0000-0000-0000-000000000d02'),
   0::bigint,
   '136: the recipient cannot read the preview of an unrevealed surprise'
+);
+reset role;
+
+-- ── 137-147: wishlist claims + pledges (G-303/G-304) ────────────────────────
+-- Fresh actors: q1 owns the list; q2 and q3 are q1's friends; q4 a stranger.
+reset role;
+insert into auth.users (id, email)
+values
+  ('00000000-0000-0000-0000-000000000b31', 'q1@test.dev'),
+  ('00000000-0000-0000-0000-000000000b32', 'q2@test.dev'),
+  ('00000000-0000-0000-0000-000000000b33', 'q3@test.dev'),
+  ('00000000-0000-0000-0000-000000000b34', 'q4@test.dev');
+insert into public.profiles (id, username)
+values
+  ('00000000-0000-0000-0000-000000000b31', 'claim_owner'),
+  ('00000000-0000-0000-0000-000000000b32', 'claim_buyer'),
+  ('00000000-0000-0000-0000-000000000b33', 'claim_friend'),
+  ('00000000-0000-0000-0000-000000000b34', 'claim_stranger');
+insert into public.friendships (requester_id, addressee_id, status)
+values
+  ('00000000-0000-0000-0000-000000000b31', '00000000-0000-0000-0000-000000000b32', 'accepted'),
+  ('00000000-0000-0000-0000-000000000b31', '00000000-0000-0000-0000-000000000b33', 'accepted');
+insert into public.wishlist_items (id, owner_id, title)
+values ('00000000-0000-0000-0000-000000000e01', '00000000-0000-0000-0000-000000000b31', 'Espresso machine');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b31","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.wishlist_claims (item_id, claimer_id)
+     values ('00000000-0000-0000-0000-000000000e01', '00000000-0000-0000-0000-000000000b31') $$,
+  '42501',
+  null,
+  '137: the owner cannot claim their own item'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.wishlist_claims (id, item_id, claimer_id)
+     values ('00000000-0000-0000-0000-000000000e11',
+             '00000000-0000-0000-0000-000000000e01',
+             '00000000-0000-0000-0000-000000000b32') $$,
+  '138: a friend claims the item'
+);
+select is(
+  (select owner_id from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e11'),
+  '00000000-0000-0000-0000-000000000b31'::uuid,
+  '139: the owner is stamped from the item, not the client'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.wishlist_claims (item_id, claimer_id)
+     values ('00000000-0000-0000-0000-000000000e01', '00000000-0000-0000-0000-000000000b33') $$,
+  '23505',
+  null,
+  '140: a second claim on the same item is refused (double-buy guard)'
+);
+select is(
+  (select count(*) from public.wishlist_claims where item_id = '00000000-0000-0000-0000-000000000e01'),
+  1::bigint,
+  '141: another friend sees the claim'
+);
+select throws_ok(
+  $$ insert into public.claim_pledges (claim_id, user_id, amount)
+     values ('00000000-0000-0000-0000-000000000e11', '00000000-0000-0000-0000-000000000b33', 200) $$,
+  '23514',
+  null,
+  '142: no pledges on a solo claim'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b31","role":"authenticated"}';
+select is(
+  (select count(*) from public.wishlist_claims),
+  0::bigint,
+  '143: the owner sees no claims (honoree-blind)'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b34","role":"authenticated"}';
+select is(
+  (select count(*) from public.wishlist_claims),
+  0::bigint,
+  '144: a stranger sees no claims'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+select lives_ok(
+  $$ update public.wishlist_claims set kind = 'shared', target_amount = 3000
+     where id = '00000000-0000-0000-0000-000000000e11' $$,
+  '145: the claimer turns it into a group gift'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.claim_pledges (claim_id, user_id, amount)
+     values ('00000000-0000-0000-0000-000000000e11', '00000000-0000-0000-0000-000000000b33', 500) $$,
+  '146: a friend pledges into the pool'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+delete from public.claim_pledges
+  where claim_id = '00000000-0000-0000-0000-000000000e11'
+    and user_id = '00000000-0000-0000-0000-000000000b33';
+select is(
+  (select count(*) from public.claim_pledges where claim_id = '00000000-0000-0000-0000-000000000e11'),
+  0::bigint,
+  '147: the organiser can remove a participant'
 );
 reset role;
 

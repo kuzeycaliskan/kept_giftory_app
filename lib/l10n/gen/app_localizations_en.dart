@@ -1051,4 +1051,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventsBoardSection => 'Notes';
+
+  @override
+  String get claimsIdeasSection => 'Gift ideas';
+
+  @override
+  String get claimsIdeasEmpty => 'Their wishlist is empty for now';
+
+  @override
+  String get claimsIdeasSeeAll => 'Open the wishlist';
+
+  @override
+  String get claimsError => 'Couldn\'t load reservations';
+
+  @override
+  String get claimSolo => 'I\'ll get this';
+
+  @override
+  String get claimShared => 'Chip in together';
+
+  @override
+  String get claimMine => 'You\'re getting this';
+
+  @override
+  String claimByOther(String name) {
+    return '$name is getting this';
+  }
+
+  @override
+  String get claimByFriend => 'A friend is getting this';
+
+  @override
+  String get claimRelease => 'Release';
+
+  @override
+  String claimSharedSummary(int count, String total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count in',
+      one: '1 in',
+    );
+    return 'Group gift · $_temp0 · $total';
+  }
+
+  @override
+  String claimSharedTarget(String total, String target) {
+    return '$total of $target';
+  }
+
+  @override
+  String get claimJoin => 'Join';
+
+  @override
+  String claimMyPledge(String amount) {
+    return 'Your share: $amount';
+  }
+
+  @override
+  String get claimPledgeTitle => 'Your contribution';
+
+  @override
+  String get claimPledgeHint => 'Amount (₺)';
+
+  @override
+  String get claimPledgeInvalid => 'Enter an amount above zero';
+
+  @override
+  String get claimTargetHint => 'Target amount (optional)';
+
+  @override
+  String get claimSharedTitle => 'Start a group gift';
+
+  @override
+  String get claimSharedBody =>
+      'Friends pledge what they\'ll put in. Money changes hands outside Kept.';
+
+  @override
+  String get claimMakeShared => 'Turn into a group gift';
+
+  @override
+  String get claimWithdraw => 'Withdraw my share';
+
+  @override
+  String get claimCancelShared => 'Cancel the group gift';
+
+  @override
+  String get claimParticipants => 'Who\'s in';
+
+  @override
+  String get claimRemovePledge => 'Remove';
+
+  @override
+  String get claimNoPledges => 'Nobody has joined yet';
+
+  @override
+  String get claimTaken => 'Someone already reserved this';
+
+  @override
+  String get claimFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get claimOrganizer => 'Organizer';
 }

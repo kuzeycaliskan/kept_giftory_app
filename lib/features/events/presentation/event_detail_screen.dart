@@ -8,6 +8,7 @@ import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/wishlist/presentation/claimable_wishlist.dart';
 import 'package:kept/shared/widgets/comments_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
@@ -278,6 +279,12 @@ class _Body extends ConsumerWidget {
           ),
         ],
         if (event.me(myId)?.status == EventMemberStatus.joined) ...[
+          // The honoree's wishlist with "I'll get this" / group-gift strips:
+          // the coordination core (G-303/G-304). Members only — an invitee
+          // hasn't committed to keeping the secret yet.
+          const SizedBox(height: KeptSpacing.xl),
+          KeptSectionHeader(l10n.claimsIdeasSection),
+          ClaimableWishlist(ownerId: event.honoreeId, ownerLabel: label),
           const SizedBox(height: KeptSpacing.xl),
           KeptSectionHeader(l10n.eventsBoardSection),
           CommentPill(

@@ -1987,6 +1987,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get eventsBoardSection;
+
+  /// No description provided for @claimsIdeasSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift ideas'**
+  String get claimsIdeasSection;
+
+  /// No description provided for @claimsIdeasEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wishlist is empty for now'**
+  String get claimsIdeasEmpty;
+
+  /// No description provided for @claimsIdeasSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the wishlist'**
+  String get claimsIdeasSeeAll;
+
+  /// No description provided for @claimsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load reservations'**
+  String get claimsError;
+
+  /// No description provided for @claimSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll get this'**
+  String get claimSolo;
+
+  /// No description provided for @claimShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Chip in together'**
+  String get claimShared;
+
+  /// No description provided for @claimMine.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re getting this'**
+  String get claimMine;
+
+  /// No description provided for @claimByOther.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is getting this'**
+  String claimByOther(String name);
+
+  /// No description provided for @claimByFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'A friend is getting this'**
+  String get claimByFriend;
+
+  /// No description provided for @claimRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'Release'**
+  String get claimRelease;
+
+  /// No description provided for @claimSharedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Group gift · {count, plural, =1{1 in} other{{count} in}} · {total}'**
+  String claimSharedSummary(int count, String total);
+
+  /// No description provided for @claimSharedTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} of {target}'**
+  String claimSharedTarget(String total, String target);
+
+  /// No description provided for @claimJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get claimJoin;
+
+  /// No description provided for @claimMyPledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share: {amount}'**
+  String claimMyPledge(String amount);
+
+  /// No description provided for @claimPledgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your contribution'**
+  String get claimPledgeTitle;
+
+  /// No description provided for @claimPledgeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (₺)'**
+  String get claimPledgeHint;
+
+  /// No description provided for @claimPledgeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get claimPledgeInvalid;
+
+  /// No description provided for @claimTargetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Target amount (optional)'**
+  String get claimTargetHint;
+
+  /// No description provided for @claimSharedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a group gift'**
+  String get claimSharedTitle;
+
+  /// No description provided for @claimSharedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends pledge what they\'ll put in. Money changes hands outside Kept.'**
+  String get claimSharedBody;
+
+  /// No description provided for @claimMakeShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn into a group gift'**
+  String get claimMakeShared;
+
+  /// No description provided for @claimWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw my share'**
+  String get claimWithdraw;
+
+  /// No description provided for @claimCancelShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the group gift'**
+  String get claimCancelShared;
+
+  /// No description provided for @claimParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Who\'s in'**
+  String get claimParticipants;
+
+  /// No description provided for @claimRemovePledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get claimRemovePledge;
+
+  /// No description provided for @claimNoPledges.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has joined yet'**
+  String get claimNoPledges;
+
+  /// No description provided for @claimTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone already reserved this'**
+  String get claimTaken;
+
+  /// No description provided for @claimFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get claimFailed;
+
+  /// No description provided for @claimOrganizer.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizer'**
+  String get claimOrganizer;
 }
 
 class _AppLocalizationsDelegate

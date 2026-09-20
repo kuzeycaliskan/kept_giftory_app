@@ -36,6 +36,12 @@ class ValidationFailure extends Failure {
   const ValidationFailure([super.message = 'Validation error']);
 }
 
+/// The action raced another user and lost (e.g. a wishlist item someone
+/// else reserved first). The UI refreshes and explains — no retry.
+class ConflictFailure extends Failure {
+  const ConflictFailure([super.message = 'Already taken']);
+}
+
 class UnknownFailure extends Failure {
   const UnknownFailure([super.message = 'Unknown error']);
 }

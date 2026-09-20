@@ -1036,4 +1036,106 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get eventsBoardSection => 'Konuşma';
+
+  @override
+  String get claimsIdeasSection => 'Hediye fikirleri';
+
+  @override
+  String get claimsIdeasEmpty => 'İstek listesi şimdilik boş';
+
+  @override
+  String get claimsIdeasSeeAll => 'İstek listesini aç';
+
+  @override
+  String get claimsError => 'Rezervasyonlar yüklenemedi';
+
+  @override
+  String get claimSolo => 'Ben alıyorum';
+
+  @override
+  String get claimShared => 'Ortak alalım';
+
+  @override
+  String get claimMine => 'Bunu sen alıyorsun';
+
+  @override
+  String claimByOther(String name) {
+    return '$name alıyor';
+  }
+
+  @override
+  String get claimByFriend => 'Bir arkadaşın alıyor';
+
+  @override
+  String get claimRelease => 'Bırak';
+
+  @override
+  String claimSharedSummary(int count, String total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi',
+      one: '1 kişi',
+    );
+    return 'Ortak hediye · $_temp0 · $total';
+  }
+
+  @override
+  String claimSharedTarget(String total, String target) {
+    return '$total / $target';
+  }
+
+  @override
+  String get claimJoin => 'Katıl';
+
+  @override
+  String claimMyPledge(String amount) {
+    return 'Katkın: $amount';
+  }
+
+  @override
+  String get claimPledgeTitle => 'Katkın';
+
+  @override
+  String get claimPledgeHint => 'Tutar (₺)';
+
+  @override
+  String get claimPledgeInvalid => 'Sıfırdan büyük bir tutar gir';
+
+  @override
+  String get claimTargetHint => 'Hedef tutar (isteğe bağlı)';
+
+  @override
+  String get claimSharedTitle => 'Ortak hediye başlat';
+
+  @override
+  String get claimSharedBody =>
+      'Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir.';
+
+  @override
+  String get claimMakeShared => 'Ortak hediyeye çevir';
+
+  @override
+  String get claimWithdraw => 'Katkımı geri çek';
+
+  @override
+  String get claimCancelShared => 'Ortak hediyeyi iptal et';
+
+  @override
+  String get claimParticipants => 'Katılanlar';
+
+  @override
+  String get claimRemovePledge => 'Çıkar';
+
+  @override
+  String get claimNoPledges => 'Henüz kimse katılmadı';
+
+  @override
+  String get claimTaken => 'Bunu başkası ayırmış';
+
+  @override
+  String get claimFailed => 'Kaydedilemedi. Tekrar dene.';
+
+  @override
+  String get claimOrganizer => 'Organizatör';
 }

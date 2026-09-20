@@ -519,5 +519,68 @@
   "eventsCancel": "Cancel event",
   "eventsCancelConfirmTitle": "Cancel this event?",
   "eventsCancelConfirmBody": "Everyone loses access. This can't be undone.",
-  "eventsBoardSection": "Notes"
+  "eventsBoardSection": "Notes",
+  "claimsIdeasSection": "Gift ideas",
+  "claimsIdeasEmpty": "Their wishlist is empty for now",
+  "claimsIdeasSeeAll": "Open the wishlist",
+  "claimsError": "Couldn't load reservations",
+  "claimSolo": "I'll get this",
+  "claimShared": "Chip in together",
+  "claimMine": "You're getting this",
+  "claimByOther": "{name} is getting this",
+  "@claimByOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "claimByFriend": "A friend is getting this",
+  "claimRelease": "Release",
+  "claimSharedSummary": "Group gift · {count, plural, =1{1 in} other{{count} in}} · {total}",
+  "@claimSharedSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "claimSharedTarget": "{total} of {target}",
+  "@claimSharedTarget": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "claimJoin": "Join",
+  "claimMyPledge": "Your share: {amount}",
+  "@claimMyPledge": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "claimPledgeTitle": "Your contribution",
+  "claimPledgeHint": "Amount (₺)",
+  "claimPledgeInvalid": "Enter an amount above zero",
+  "claimTargetHint": "Target amount (optional)",
+  "claimSharedTitle": "Start a group gift",
+  "claimSharedBody": "Friends pledge what they'll put in. Money changes hands outside Kept.",
+  "claimMakeShared": "Turn into a group gift",
+  "claimWithdraw": "Withdraw my share",
+  "claimCancelShared": "Cancel the group gift",
+  "claimParticipants": "Who's in",
+  "claimRemovePledge": "Remove",
+  "claimNoPledges": "Nobody has joined yet",
+  "claimTaken": "Someone already reserved this",
+  "claimFailed": "Couldn't save. Try again.",
+  "claimOrganizer": "Organizer"
 }
