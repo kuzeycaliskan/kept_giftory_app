@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(133);
+select plan(136);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1499,6 +1499,61 @@ select throws_ok(
   '42501',
   null,
   '133: an outsider cannot write on the board'
+);
+reset role;
+
+-- ── 134-136: link previews follow gift visibility ───────────────────────────
+-- Fresh actors: p1 gives to p2; p3 is p2's friend; p4 is a stranger.
+reset role;
+insert into auth.users (id, email)
+values
+  ('00000000-0000-0000-0000-000000000b21', 'p1@test.dev'),
+  ('00000000-0000-0000-0000-000000000b22', 'p2@test.dev'),
+  ('00000000-0000-0000-0000-000000000b23', 'p3@test.dev'),
+  ('00000000-0000-0000-0000-000000000b24', 'p4@test.dev');
+insert into public.profiles (id, username)
+values
+  ('00000000-0000-0000-0000-000000000b21', 'preview_giver'),
+  ('00000000-0000-0000-0000-000000000b22', 'preview_taker'),
+  ('00000000-0000-0000-0000-000000000b23', 'preview_friend'),
+  ('00000000-0000-0000-0000-000000000b24', 'preview_stranger');
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-000000000b22',
+        '00000000-0000-0000-0000-000000000b23', 'accepted');
+insert into public.link_previews (id, url_hash, url, title)
+values
+  ('00000000-0000-0000-0000-000000000d01', 'lp-open', 'https://shop.test/open', 'Open gift'),
+  ('00000000-0000-0000-0000-000000000d02', 'lp-secret', 'https://shop.test/secret', 'Secret gift');
+insert into public.gifts (giver_id, recipient_id, item, link_preview_id, is_surprise, reveal_at)
+values
+  ('00000000-0000-0000-0000-000000000b21', '00000000-0000-0000-0000-000000000b22',
+   'Open', '00000000-0000-0000-0000-000000000d01', false, null),
+  ('00000000-0000-0000-0000-000000000b21', '00000000-0000-0000-0000-000000000b22',
+   'Secret', '00000000-0000-0000-0000-000000000d02', true, now() + interval '5 days');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b23","role":"authenticated"}';
+select is(
+  (select count(*) from public.link_previews where id = '00000000-0000-0000-0000-000000000d01'),
+  1::bigint,
+  '134: the recipient''s friend reads the preview of a gift they can see'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b24","role":"authenticated"}';
+select is(
+  (select count(*) from public.link_previews where id = '00000000-0000-0000-0000-000000000d01'),
+  0::bigint,
+  '135: a stranger reads no preview'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b22","role":"authenticated"}';
+select is(
+  (select count(*) from public.link_previews where id = '00000000-0000-0000-0000-000000000d02'),
+  0::bigint,
+  '136: the recipient cannot read the preview of an unrevealed surprise'
 );
 reset role;
 
