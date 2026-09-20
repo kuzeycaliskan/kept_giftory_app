@@ -123,6 +123,19 @@ void main() {
       expect(find.text('Upcoming'), findsOneWidget);
     });
 
+    testWidgets('pulling the story down closes it', (tester) async {
+      await pumpApp(tester, feed: FakeFeedRepository(posts: friendsPosts()));
+      await tester.tap(find.text('Zeynep'));
+      await pumpViewer(tester);
+      expect(find.text('Yeni kupa!'), findsOneWidget);
+
+      await tester.drag(find.byType(PageView), const Offset(0, 260));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Yeni kupa!'), findsNothing);
+      expect(find.text('Upcoming'), findsOneWidget);
+    });
+
     testWidgets('watched stories are remembered locally', (tester) async {
       await pumpApp(tester, feed: FakeFeedRepository(posts: friendsPosts()));
 

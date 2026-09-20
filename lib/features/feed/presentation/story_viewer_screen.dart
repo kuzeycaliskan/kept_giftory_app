@@ -32,8 +32,45 @@ class StoryViewerScreen extends ConsumerStatefulWidget {
   ConsumerState<StoryViewerScreen> createState() => _StoryViewerScreenState();
 }
 
-class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> {
+class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
+    with SingleTickerProviderStateMixin {
   PageController? _pages;
+
+  /// Pull-to-dismiss (same feel as the photo gallery): the stage follows
+  /// the finger and fades; past the distance or a fast fling it closes.
+  static const double _dismissDistance = 140;
+  static const double _dismissVelocity = 800;
+  late final AnimationController _pull = AnimationController(
+    vsync: this,
+    lowerBound: -600,
+    upperBound: 600,
+    value: 0,
+  );
+
+  void _onPullUpdate(DragUpdateDetails details) {
+    _pull.value = (_pull.value + details.delta.dy).clamp(
+      _pull.lowerBound,
+      _pull.upperBound,
+    );
+  }
+
+  void _onPullEnd(DragEndDetails details) {
+    final far = _pull.value.abs() > _dismissDistance;
+    final fast =
+        details.primaryVelocity != null &&
+        details.primaryVelocity!.abs() > _dismissVelocity;
+    if (far || fast) {
+      Navigator.of(context).pop();
+      return;
+    }
+    unawaited(
+      _pull.animateTo(
+        0,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
 
   /// The author currently on screen — the viewer follows this, not the
   /// author it opened on, so an earlier story expiring mid-swipe doesn't
@@ -43,6 +80,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> {
   @override
   void dispose() {
     _pages?.dispose();
+    _pull.dispose();
     super.dispose();
   }
 
@@ -93,14 +131,34 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen> {
             return const SizedBox.shrink();
           }
           final pages = _pages ??= PageController(initialPage: start);
-          return PageView.builder(
-            controller: pages,
-            itemCount: groups.length,
-            onPageChanged: (i) => _currentAuthorId = groups[i].author.id,
-            itemBuilder: (context, index) => _StoryPage(
-              key: ValueKey(groups[index].author.id),
-              group: groups[index],
-              onFinished: () => _onGroupFinished(index, groups.length),
+          return GestureDetector(
+            onVerticalDragUpdate: _onPullUpdate,
+            onVerticalDragEnd: _onPullEnd,
+            child: AnimatedBuilder(
+              animation: _pull,
+              builder: (context, child) {
+                final progress = (_pull.value.abs() / _dismissDistance).clamp(
+                  0.0,
+                  1.0,
+                );
+                return Opacity(
+                  opacity: 1 - progress * 0.6,
+                  child: Transform.translate(
+                    offset: Offset(0, _pull.value),
+                    child: child,
+                  ),
+                );
+              },
+              child: PageView.builder(
+                controller: pages,
+                itemCount: groups.length,
+                onPageChanged: (i) => _currentAuthorId = groups[i].author.id,
+                itemBuilder: (context, index) => _StoryPage(
+                  key: ValueKey(groups[index].author.id),
+                  group: groups[index],
+                  onFinished: () => _onGroupFinished(index, groups.length),
+                ),
+              ),
             ),
           );
         },
