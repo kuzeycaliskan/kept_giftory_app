@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/events/presentation/events_page.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 
-/// Activity center (G-86, absorbs G-64): incoming friend requests with
-/// accept/decline plus upcoming birthdays, in one list. Rows disappear as
+/// Activity center (G-86, absorbs G-64): incoming friend requests and gift
+/// event invitations (V3) with accept/decline, plus upcoming birthdays. Rows disappear as
 /// they're acted on — that's the V1 read state; a persistent notification
 /// log arrives with the V2 event feed (G-210).
 class ActivityScreen extends ConsumerWidget {
@@ -20,6 +24,8 @@ class ActivityScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final entries = ref.watch(friendEntriesProvider);
     final upcoming = ref.watch(upcomingBirthdaysProvider);
+    final events = ref.watch(myEventsProvider);
+    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
 
     ref.listen(friendsControllerProvider, (_, next) {
       if (next.hasError) {
@@ -39,6 +45,9 @@ class ActivityScreen extends ConsumerWidget {
             .toList() ??
         const <FriendEntry>[];
     final birthdays = upcoming.valueOrNull ?? const <UpcomingBirthday>[];
+    final invites =
+        events.valueOrNull?.where((e) => e.isInvited(myId)).toList() ??
+        const <GiftEvent>[];
     final loading = entries.isLoading || upcoming.isLoading;
 
     return Scaffold(
@@ -47,12 +56,13 @@ class ActivityScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(friendEntriesProvider)
-            ..invalidate(upcomingBirthdaysProvider);
+            ..invalidate(upcomingBirthdaysProvider)
+            ..invalidate(myEventsProvider);
           await ref.read(friendEntriesProvider.future);
         },
         child: loading
             ? const Center(child: CircularProgressIndicator())
-            : (requests.isEmpty && birthdays.isEmpty)
+            : (requests.isEmpty && invites.isEmpty && birthdays.isEmpty)
             ? _EmptyState(l10n: l10n)
             : ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -61,6 +71,10 @@ class ActivityScreen extends ConsumerWidget {
                   if (requests.isNotEmpty) ...[
                     _SectionLabel(l10n.friendsRequestsSection),
                     for (final e in requests) _RequestRow(entry: e),
+                  ],
+                  if (invites.isNotEmpty) ...[
+                    _SectionLabel(l10n.eventsInvitesSection),
+                    for (final e in invites) EventInviteRow(event: e),
                   ],
                   if (birthdays.isNotEmpty) ...[
                     _SectionLabel(l10n.homeUpcomingSection),

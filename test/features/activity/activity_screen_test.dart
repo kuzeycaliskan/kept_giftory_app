@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/activity/presentation/activity_screen.dart';
+import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/events_repository.dart';
+import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -12,6 +16,9 @@ import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/profile/data/dev_profile_repository.dart';
+import 'package:kept/features/profile/domain/profile_card.dart';
 
 class _FakeFriendshipRepository implements FriendshipRepository {
   _FakeFriendshipRepository(this.entries);
@@ -79,11 +86,75 @@ final _birthday = UpcomingBirthday(
   daysUntil: 3,
 );
 
+class _FakeEventsRepository implements EventsRepository {
+  _FakeEventsRepository(this.events);
+
+  List<GiftEvent> events;
+  final calls = <String>[];
+
+  @override
+  Future<Result<List<GiftEvent>>> fetchMine() async => Success(events);
+
+  @override
+  Future<Result<GiftEvent?>> fetchEvent(String eventId) async =>
+      Success(events.where((e) => e.id == eventId).firstOrNull);
+
+  @override
+  Future<Result<String>> createOrJoin(String honoreeId) async =>
+      const ResultFailure(NetworkFailure('fake'));
+
+  @override
+  Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId) async =>
+      const Success(null);
+
+  @override
+  Future<Result<List<ProfileCard>>> invitableFriends(String eventId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<void>> invite(String eventId, String userId) async =>
+      const Success(null);
+
+  @override
+  Future<Result<void>> respond(String eventId, {required bool join}) async {
+    calls.add('respond:$eventId:$join');
+    events = events.where((e) => e.id != eventId).toList();
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> leave(String eventId) async => const Success(null);
+
+  @override
+  Future<Result<void>> cancel(String eventId) async => const Success(null);
+
+  @override
+  Future<Result<void>> setChatUrl(String eventId, String? url) async =>
+      const Success(null);
+}
+
+GiftEvent _invite(String id) => GiftEvent(
+  id: id,
+  honoreeId: 'ali',
+  honoree: const ProfileCard(id: 'ali', username: 'ali', displayName: 'Ali'),
+  eventDate: DateTime(2026, 10, 4),
+  revealAt: DateTime(2026, 10, 5),
+  status: EventStatus.open,
+  members: const [
+    EventMember(
+      userId: 'dev-me',
+      role: EventMemberRole.member,
+      status: EventMemberStatus.invited,
+    ),
+  ],
+);
+
 void main() {
   String? pushedLocation;
 
   Future<void> pump(
     WidgetTester tester, {
+    List<GiftEvent> invites = const [],
     List<FriendEntry> requests = const [],
     List<UpcomingBirthday> birthdays = const [],
     _FakeFriendshipRepository? friendships,
@@ -105,6 +176,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          eventsRepositoryProvider.overrideWithValue(
+            _FakeEventsRepository(invites),
+          ),
+          profileRepositoryProvider.overrideWithValue(
+            const DevProfileRepository(),
+          ),
           friendshipRepositoryProvider.overrideWithValue(
             friendships ?? _FakeFriendshipRepository(List.of(requests)),
           ),
@@ -155,5 +232,39 @@ void main() {
     await tester.tap(find.text('Selin'));
     await tester.pumpAndSettle();
     expect(pushedLocation, '/users/selin-id?name=Selin');
+  });
+
+  testWidgets('event invitations show like requests and can be accepted', (
+    tester,
+  ) async {
+    final fake = _FakeEventsRepository([_invite('e1')]);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          eventsRepositoryProvider.overrideWithValue(fake),
+          profileRepositoryProvider.overrideWithValue(
+            const DevProfileRepository(),
+          ),
+          friendshipRepositoryProvider.overrideWithValue(
+            _FakeFriendshipRepository(const []),
+          ),
+          homeRepositoryProvider.overrideWithValue(_FakeHomeRepository([])),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: ActivityScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Invitations'), findsOneWidget);
+    expect(find.text('Join the gift event for Ali?'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Join'));
+    await tester.pumpAndSettle();
+    expect(fake.calls, ['respond:e1:true']);
+    expect(find.text('Nothing here yet'), findsOneWidget);
   });
 }

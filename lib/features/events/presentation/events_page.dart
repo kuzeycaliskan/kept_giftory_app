@@ -48,7 +48,7 @@ class EventsPage extends ConsumerWidget {
               if (invites.isNotEmpty) ...[
                 KeptSectionHeader(l10n.eventsInvitesSection),
                 KeptListGroup(
-                  children: [for (final e in invites) _InviteRow(event: e)],
+                  children: [for (final e in invites) EventInviteRow(event: e)],
                 ),
                 const SizedBox(height: KeptSpacing.xl),
               ],
@@ -136,8 +136,10 @@ class _EventRow extends StatelessWidget {
   }
 }
 
-class _InviteRow extends ConsumerWidget {
-  const _InviteRow({required this.event});
+/// Invitation row with accept/decline — the hub and the Activity center
+/// (bell) render the same row so an invite reads like a friend request.
+class EventInviteRow extends ConsumerWidget {
+  const EventInviteRow({required this.event, super.key});
 
   final GiftEvent event;
 

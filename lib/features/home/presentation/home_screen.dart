@@ -46,15 +46,26 @@ class HomeScreen extends ConsumerWidget {
     final events = ref.watch(homeEventsProvider);
     final teaser = ref.watch(surpriseTeaserProvider).valueOrNull;
     final friendEntries = ref.watch(friendEntriesProvider);
-    final pendingRequests =
-        friendEntries.valueOrNull
-            ?.where(
-              (e) =>
-                  e.status == FriendshipStatus.pending &&
-                  e.direction == RequestDirection.incoming,
-            )
+    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final pendingInvites =
+        ref
+            .watch(myEventsProvider)
+            .valueOrNull
+            ?.where((e) => e.isInvited(myId))
             .length ??
         0;
+    // The bell counts everything waiting for an answer: friend requests
+    // and gift event invitations.
+    final pendingRequests =
+        (friendEntries.valueOrNull
+                ?.where(
+                  (e) =>
+                      e.status == FriendshipStatus.pending &&
+                      e.direction == RequestDirection.incoming,
+                )
+                .length ??
+            0) +
+        pendingInvites;
     // Cold start: no accepted friends → one focused invite card instead of
     // three empty sections all begging separately (G-36).
     final hasFriends =
@@ -103,6 +114,7 @@ class HomeScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(storyGroupsProvider)
+            ..invalidate(myEventsProvider)
             ..invalidate(surpriseTeaserProvider)
             ..invalidate(upcomingBirthdaysProvider)
             ..invalidate(homeEventsProvider)
