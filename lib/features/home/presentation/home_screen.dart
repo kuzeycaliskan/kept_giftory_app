@@ -783,7 +783,7 @@ class _SurpriseTeaserCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.auto_awesome, color: scheme.onPrimaryContainer),
+            Icon(Icons.redeem, color: scheme.onPrimaryContainer),
             const SizedBox(width: KeptSpacing.md),
             Expanded(
               child: Column(

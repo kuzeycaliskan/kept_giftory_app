@@ -162,8 +162,10 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 
 ## Social push (G-210 slice 3)
 
-- Kinds: **comments** (on my gifts/moments, and on threads I commented in)
-  and **"your surprise opened"**. Reactions never push (product decision).
+- Kinds: **comments** (on my gifts/moments, and on threads I commented in),
+  **"a gift was logged for you"** (plain member gifts, on insert → `notify-gift`;
+  surprises wait for reveal, external gifts never push) and **"your surprise
+  opened"**. Reactions never push (product decision).
 - Preference: `profiles.social_notifications_enabled` (Settings →
   Notifications), filtered server-side in `comment_push_targets`; the
   surprise job marks opted-out gifts announced without sending.

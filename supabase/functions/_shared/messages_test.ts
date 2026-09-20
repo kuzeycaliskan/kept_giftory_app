@@ -1,6 +1,6 @@
 // deno test messages_test.ts — push copy stays short and readable.
 import { assertEquals } from "jsr:@std/assert";
-import { commentPush, surprisePush } from "./messages.ts";
+import { commentPush, giftLoggedPush, surprisePush } from "./messages.ts";
 
 Deno.test("gift comment: commenter · item, clipped snippet", () => {
   const m = commentPush(
@@ -34,4 +34,8 @@ Deno.test("surprise: names the giver when known", () => {
     surprisePush(null, "Saat").body,
     "Sana bir hediye kaydedilmiş: Saat",
   );
+});
+
+Deno.test("gift logged: giver and item", () => {
+  assertEquals(giftLoggedPush("Kamil", "LEGO Şato").body, "Kamil: LEGO Şato");
 });

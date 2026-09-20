@@ -36,3 +36,13 @@ export function surprisePush(
       : `Sana bir hediye kaydedilmiş: ${clip(itemLabel, 40)}`,
   };
 }
+
+export function giftLoggedPush(
+  giver: string,
+  itemLabel: string,
+): { title: string; body: string } {
+  return {
+    title: "Sana bir hediye kaydedildi 🎁",
+    body: `${giver}: ${clip(itemLabel, 60)}`,
+  };
+}

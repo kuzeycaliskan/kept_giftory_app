@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(117);
+select plan(119);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1354,6 +1354,22 @@ select is(
     where notified_user = '00000000-0000-0000-0000-00000000000c'),
   0::bigint,
   '117: once the gift is hidden from them, no more comment pushes'
+);
+
+-- ── 118-119: "a gift was logged for you" push targets ───────────────────────
+-- G1 erin→alice plain (alice has a device); G2 erin→alice surprise.
+reset role;
+select is(
+  (select count(*) from public.gift_push_targets('00000000-0000-0000-0000-000000000c01')
+    where recipient_id = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '118: the recipient of a plain member gift is a push target'
+);
+
+select is(
+  (select count(*) from public.gift_push_targets('00000000-0000-0000-0000-000000000c02')),
+  0::bigint,
+  '119: a surprise never pushes on insert (revealed later)'
 );
 
 select * from finish();
