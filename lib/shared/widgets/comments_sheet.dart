@@ -219,15 +219,17 @@ class _CommentsSheetState extends State<_CommentsSheet> {
               Expanded(
                 child: Text(
                   l10n.commentsTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleMedium,
                 ),
               ),
+              // Digest is at most five glyphs + a number: intrinsic width,
+              // flush right; the title absorbs whatever is left.
               if (reactionSummary != null)
-                Flexible(
-                  child: TextButton(
-                    onPressed: widget.onReactionsTap,
-                    child: Text(reactionSummary, maxLines: 1, softWrap: false),
-                  ),
+                TextButton(
+                  onPressed: widget.onReactionsTap,
+                  child: Text(reactionSummary, maxLines: 1, softWrap: false),
                 ),
             ],
           ),
