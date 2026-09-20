@@ -209,8 +209,8 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
   }
 }
 
-/// Three equal cards side by side: photos, then (for a party under the cap)
-/// one camera card, then quiet empty slots so the row keeps its shape.
+/// Up to three equal cards side by side: photos, then (for a party under
+/// the cap) one camera card; nothing else is drawn.
 class _PhotoCards extends StatelessWidget {
   const _PhotoCards({
     required this.photos,
@@ -287,19 +287,13 @@ class _PhotoCards extends StatelessWidget {
         ),
       );
     }
-    while (slots.length < giftPhotoCap) {
-      slots.add(
-        _PhotoCard(
-          onTap: null,
-          child: ColoredBox(color: scheme.surfaceContainerLow),
-        ),
-      );
-    }
+    // Unused slots stay invisible (spacers keep every card at 1/3 width);
+    // empty boxes read as missing content, which they are not.
     return Row(
       children: [
-        for (var i = 0; i < slots.length; i++) ...[
+        for (var i = 0; i < giftPhotoCap; i++) ...[
           if (i > 0) const SizedBox(width: KeptSpacing.sm),
-          Expanded(child: slots[i]),
+          if (i < slots.length) Expanded(child: slots[i]) else const Spacer(),
         ],
       ],
     );
