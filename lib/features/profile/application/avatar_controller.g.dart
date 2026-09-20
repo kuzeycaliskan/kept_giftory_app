@@ -6,7 +6,7 @@ part of 'avatar_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$avatarControllerHash() => r'949cf5f14fa7524e1c33e7dac35e3e992dee92d5';
+String _$avatarControllerHash() => r'b46c7da418341d446f0c58b44b39bf89a53559f0';
 
 /// Avatar pipeline (G-23 handover; first MediaStore consumer), split in two
 /// steps so the UI can host the in-app crop screen between them:

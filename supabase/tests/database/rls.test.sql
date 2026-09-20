@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(119);
+select plan(129);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1371,6 +1371,96 @@ select is(
   0::bigint,
   '119: a surprise never pushes on insert (revealed later)'
 );
+
+-- ── 120-129: gift events (V3.0-a) ───────────────────────────────────────────
+-- alice = honoree (birthday set below); erin + carol her friends (carol
+-- re-friended); dave stranger.
+reset role;
+update public.profiles set birthday = date '1994-11-03' where id = '00000000-0000-0000-0000-00000000000a';
+insert into public.friendships (requester_id, addressee_id, status, responded_at)
+values ('00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000a', 'accepted', now());
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+
+select ok(
+  (select public.create_gift_event('00000000-0000-0000-0000-00000000000a')) is not null,
+  '120: a friend opens an event for the honoree''s next birthday'
+);
+
+select is(
+  (select count(*) from public.gift_event_members m
+    join public.gift_events e on e.id = m.event_id
+    where e.honoree_id = '00000000-0000-0000-0000-00000000000a' and m.user_id = '00000000-0000-0000-0000-00000000000e'
+      and m.role = 'organizer' and m.status = 'joined'),
+  1::bigint,
+  '121: the creator is the joined organizer'
+);
+
+select is(
+  (select event_date from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'),
+  public.next_birthday(date '1994-11-03', (now() at time zone 'Europe/Istanbul')::date),
+  '122: the event targets the next birthday'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+select is(
+  (select count(*) from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  '123: the honoree sees no event about themselves'
+);
+select is(
+  (select count(*) from public.gift_event_members),
+  0::bigint,
+  '124: ...nor its members'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+select throws_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-00000000000a') $$,
+  '42501',
+  null,
+  '125: a stranger cannot open an event for a non-friend'
+);
+
+-- erin invites carol; carol sees + joins.
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+select is(
+  (select count(*) from public.event_invitable_friends(
+     (select id from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'))
+    where id = '00000000-0000-0000-0000-00000000000c'),
+  1::bigint,
+  '126: the honoree''s other friends are invitable'
+);
+select public.invite_to_gift_event(
+  (select id from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'), '00000000-0000-0000-0000-00000000000c');
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+select is(
+  (select count(*) from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'),
+  1::bigint,
+  '127: an invited friend sees the event'
+);
+update public.gift_event_members set status = 'joined'
+ where user_id = '00000000-0000-0000-0000-00000000000c';
+select is(
+  (select my_status::text from public.gift_event_for_honoree('00000000-0000-0000-0000-00000000000a')),
+  'joined',
+  '128: responding joins; the Home lookup reflects it'
+);
+
+-- A second "create" by a friend joins the existing event instead.
+select is(
+  (select public.create_gift_event('00000000-0000-0000-0000-00000000000a')),
+  (select id from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'),
+  '129: one event per honoree per birthday — creating again joins it'
+);
+reset role;
 
 select * from finish();
 rollback;

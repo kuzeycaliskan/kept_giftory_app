@@ -8,6 +8,8 @@
 // Auth: requires the X-Cron-Secret header (CRON_SECRET env). Secrets:
 //   CRON_SECRET, FCM_SERVICE_ACCOUNT (Firebase service-account JSON).
 // `?dry=1` computes and returns the plan without sending or logging.
+// `?days=N&kind=event` (V3): the 14-day "open a gift event" nudge on the
+// same pipeline — separate idempotency key (log.kind), own copy and route.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
@@ -42,7 +44,10 @@ Deno.serve(async (req) => {
   if (req.headers.get("x-cron-secret") !== Deno.env.get("CRON_SECRET")) {
     return new Response("forbidden", { status: 403 });
   }
-  const dry = new URL(req.url).searchParams.get("dry") === "1";
+  const params = new URL(req.url).searchParams;
+  const dry = params.get("dry") === "1";
+  const kind = params.get("kind") === "event" ? "event" : "reminder";
+  const daysAhead = Number(params.get("days") ?? REMINDER_DAYS);
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -52,7 +57,7 @@ Deno.serve(async (req) => {
   // Target celebrated date = today + REMINDER_DAYS in Istanbul.
   const today = istanbulToday();
   const target = new Date(today);
-  target.setUTCDate(target.getUTCDate() + REMINDER_DAYS);
+  target.setUTCDate(target.getUTCDate() + daysAhead);
   const mm = String(target.getUTCMonth() + 1).padStart(2, "0");
   const dd = String(target.getUTCDate()).padStart(2, "0");
   const targetMmdd = `${mm}-${dd}`;
@@ -76,7 +81,13 @@ Deno.serve(async (req) => {
 
   if (dry) {
     return new Response(
-      JSON.stringify({ dry: true, birthdayOn, count: targets.length, targets }),
+      JSON.stringify({
+        dry: true,
+        kind,
+        birthdayOn,
+        count: targets.length,
+        targets,
+      }),
       { headers: { "Content-Type": "application/json" } },
     );
   }
@@ -101,19 +112,33 @@ Deno.serve(async (req) => {
           notified_user: t.notified_user,
           birthday_user: t.birthday_user,
           birthday_on: birthdayOn,
+          kind,
         });
       if (logError) continue; // already sent in a previous run
       seenPairs.add(pairKey);
     }
 
-    const result = await sendPush(accessToken, projectId, {
-      token: t.token,
-      title: "🎁 Kept",
-      body: `${t.birthday_label} doğum gününe ${REMINDER_DAYS} gün kaldı! ` +
-        "Hediye fikirlerine göz at.",
-      route: `/users/${t.birthday_user}` +
-        `?name=${encodeURIComponent(t.birthday_label)}`,
-    });
+    const result = await sendPush(
+      accessToken,
+      projectId,
+      kind === "event"
+        ? {
+          token: t.token,
+          title: "🎁 Kept",
+          body: `${t.birthday_label} doğum gününe ${daysAhead} gün kaldı — ` +
+            "arkadaşlarla hediye event'i aç.",
+          route: `/events/for/${t.birthday_user}` +
+            `?name=${encodeURIComponent(t.birthday_label)}`,
+        }
+        : {
+          token: t.token,
+          title: "🎁 Kept",
+          body: `${t.birthday_label} doğum gününe ${daysAhead} gün kaldı! ` +
+            "Hediye fikirlerine göz at.",
+          route: `/users/${t.birthday_user}` +
+            `?name=${encodeURIComponent(t.birthday_label)}`,
+        },
+    );
     if (result === "sent") {
       sent++;
     } else if (result === "stale") {

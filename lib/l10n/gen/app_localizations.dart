@@ -1771,6 +1771,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mirror'**
   String get imageEditMirror;
+
+  /// No description provided for @giftsEventsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get giftsEventsTab;
+
+  /// No description provided for @eventsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load events'**
+  String get eventsError;
+
+  /// No description provided for @eventsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No gift events yet'**
+  String get eventsEmpty;
+
+  /// No description provided for @eventsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Team up with friends before a birthday — the birthday person never sees it.'**
+  String get eventsEmptyHint;
+
+  /// No description provided for @eventsCreateCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a gift event'**
+  String get eventsCreateCta;
+
+  /// No description provided for @eventsOpenCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open event'**
+  String get eventsOpenCta;
+
+  /// No description provided for @eventsGoCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get eventsGoCta;
+
+  /// No description provided for @eventsInvitesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations'**
+  String get eventsInvitesSection;
+
+  /// No description provided for @eventsMineSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Your events'**
+  String get eventsMineSection;
+
+  /// No description provided for @eventsRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s birthday'**
+  String eventsRowTitle(String name);
+
+  /// No description provided for @eventsRowSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {count, plural, =1{1 person} other{{count} people}}'**
+  String eventsRowSubtitle(String date, int count);
+
+  /// No description provided for @eventsInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the gift event for {name}?'**
+  String eventsInviteTitle(String name);
+
+  /// No description provided for @eventsOrganizerBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizer'**
+  String get eventsOrganizerBadge;
+
+  /// No description provided for @eventsJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get eventsJoin;
+
+  /// No description provided for @eventsDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get eventsDecline;
+
+  /// No description provided for @eventsPickFriendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Whose birthday?'**
+  String get eventsPickFriendTitle;
+
+  /// No description provided for @eventsPickFriendEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends with a birthday yet. Ask them to add it to their profile.'**
+  String get eventsPickFriendEmpty;
+
+  /// No description provided for @eventsCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the event'**
+  String get eventsCreateFailed;
+
+  /// No description provided for @eventsDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift event'**
+  String get eventsDetailTitle;
+
+  /// No description provided for @eventsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This event is no longer available'**
+  String get eventsMissing;
+
+  /// No description provided for @eventsSecretNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can\'t see this event or who\'s in it.'**
+  String eventsSecretNote(String name);
+
+  /// No description provided for @eventsOpenChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open group chat'**
+  String get eventsOpenChat;
+
+  /// No description provided for @eventsSetChatLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Group chat link'**
+  String get eventsSetChatLink;
+
+  /// No description provided for @eventsChatLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://chat.whatsapp.com/…'**
+  String get eventsChatLinkHint;
+
+  /// No description provided for @eventsMembersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String eventsMembersSection(int count);
+
+  /// No description provided for @eventsMemberInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get eventsMemberInvited;
+
+  /// No description provided for @eventsInviteMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends'**
+  String get eventsInviteMore;
+
+  /// No description provided for @eventsInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get eventsInvite;
+
+  /// No description provided for @eventsInviteNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone who can join is already here.'**
+  String get eventsInviteNobody;
+
+  /// No description provided for @eventsLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave event'**
+  String get eventsLeave;
+
+  /// No description provided for @eventsLeaveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this event?'**
+  String get eventsLeaveConfirmTitle;
+
+  /// No description provided for @eventsLeaveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can be invited again later.'**
+  String get eventsLeaveConfirmBody;
+
+  /// No description provided for @eventsCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel event'**
+  String get eventsCancel;
+
+  /// No description provided for @eventsCancelConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this event?'**
+  String get eventsCancelConfirmTitle;
+
+  /// No description provided for @eventsCancelConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone loses access. This can\'t be undone.'**
+  String get eventsCancelConfirmBody;
 }
 
 class _AppLocalizationsDelegate

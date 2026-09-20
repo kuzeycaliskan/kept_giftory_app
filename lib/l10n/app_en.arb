@@ -445,5 +445,78 @@
     }
   },
   "imageEditRotate": "Rotate",
-  "imageEditMirror": "Mirror"
+  "imageEditMirror": "Mirror",
+  "giftsEventsTab": "Events",
+  "eventsError": "Couldn't load events",
+  "eventsEmpty": "No gift events yet",
+  "eventsEmptyHint": "Team up with friends before a birthday — the birthday person never sees it.",
+  "eventsCreateCta": "Open a gift event",
+  "eventsOpenCta": "Open event",
+  "eventsGoCta": "Event",
+  "eventsInvitesSection": "Invitations",
+  "eventsMineSection": "Your events",
+  "eventsRowTitle": "{name}'s birthday",
+  "@eventsRowTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsRowSubtitle": "{date} · {count, plural, =1{1 person} other{{count} people}}",
+  "@eventsRowSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsInviteTitle": "Join the gift event for {name}?",
+  "@eventsInviteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsOrganizerBadge": "Organizer",
+  "eventsJoin": "Join",
+  "eventsDecline": "Decline",
+  "eventsPickFriendTitle": "Whose birthday?",
+  "eventsPickFriendEmpty": "No friends with a birthday yet. Ask them to add it to their profile.",
+  "eventsCreateFailed": "Couldn't open the event",
+  "eventsDetailTitle": "Gift event",
+  "eventsMissing": "This event is no longer available",
+  "eventsSecretNote": "{name} can't see this event or who's in it.",
+  "@eventsSecretNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsOpenChat": "Open group chat",
+  "eventsSetChatLink": "Group chat link",
+  "eventsChatLinkHint": "https://chat.whatsapp.com/…",
+  "eventsMembersSection": "{count, plural, =1{1 member} other{{count} members}}",
+  "@eventsMembersSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsMemberInvited": "Invited",
+  "eventsInviteMore": "Invite friends",
+  "eventsInvite": "Invite",
+  "eventsInviteNobody": "Everyone who can join is already here.",
+  "eventsLeave": "Leave event",
+  "eventsLeaveConfirmTitle": "Leave this event?",
+  "eventsLeaveConfirmBody": "You can be invited again later.",
+  "eventsCancel": "Cancel event",
+  "eventsCancelConfirmTitle": "Cancel this event?",
+  "eventsCancelConfirmBody": "Everyone loses access. This can't be undone."
 }

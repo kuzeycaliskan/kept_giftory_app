@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
+import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
@@ -259,9 +261,13 @@ class _BirthdayRow extends ConsumerStatefulWidget {
 class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
   bool _expanded = false;
 
-  /// Row width (at 1x text) below which the two action buttons no longer
-  /// fit beside the name/countdown; scaled with the text factor.
+  /// Row width (at 1x text) below which the action buttons no longer fit
+  /// beside the name/countdown; scaled with the text factor.
   static const double _inlineMinWidth = 300;
+
+  /// Days before a birthday when the event nudge appears (product decision:
+  /// 14, same as the push).
+  static const int _eventWindowDays = 14;
 
   String _countdown(BuildContext context) =>
       switch (widget.birthday.daysUntil) {
@@ -314,6 +320,10 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
           onPressed: () => context.push('/gifts/log'),
           child: Text(l10n.homeGiftCta),
         ),
+        // Within the suggestion window (V3): open the gift event, or go to
+        // the one a friend already opened.
+        if (birthday.daysUntil <= _eventWindowDays)
+          _EventButton(friendId: birthday.friendId, style: compact),
       ],
     );
 
@@ -397,6 +407,32 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
               : const SizedBox(width: double.infinity),
         ),
       ],
+    );
+  }
+}
+
+/// "Open event" / "Event" on an upcoming-birthday row; state comes from the
+/// honoree lookup (never visible to the honoree themselves).
+class _EventButton extends ConsumerWidget {
+  const _EventButton({required this.friendId, required this.style});
+
+  final String friendId;
+  final ButtonStyle style;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lookup = ref.watch(eventForHonoreeProvider(friendId)).valueOrNull;
+    final joined =
+        lookup != null &&
+        (lookup.myStatus == EventMemberStatus.joined ||
+            lookup.myStatus == EventMemberStatus.invited);
+    return FilledButton.tonal(
+      style: style,
+      onPressed: () => context.push(
+        joined ? '/events/${lookup.eventId}' : '/events/for/$friendId',
+      ),
+      child: Text(lookup == null ? l10n.eventsOpenCta : l10n.eventsGoCta),
     );
   }
 }

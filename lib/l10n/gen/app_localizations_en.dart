@@ -918,4 +918,134 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imageEditMirror => 'Mirror';
+
+  @override
+  String get giftsEventsTab => 'Events';
+
+  @override
+  String get eventsError => 'Couldn\'t load events';
+
+  @override
+  String get eventsEmpty => 'No gift events yet';
+
+  @override
+  String get eventsEmptyHint =>
+      'Team up with friends before a birthday — the birthday person never sees it.';
+
+  @override
+  String get eventsCreateCta => 'Open a gift event';
+
+  @override
+  String get eventsOpenCta => 'Open event';
+
+  @override
+  String get eventsGoCta => 'Event';
+
+  @override
+  String get eventsInvitesSection => 'Invitations';
+
+  @override
+  String get eventsMineSection => 'Your events';
+
+  @override
+  String eventsRowTitle(String name) {
+    return '$name\'s birthday';
+  }
+
+  @override
+  String eventsRowSubtitle(String date, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$date · $_temp0';
+  }
+
+  @override
+  String eventsInviteTitle(String name) {
+    return 'Join the gift event for $name?';
+  }
+
+  @override
+  String get eventsOrganizerBadge => 'Organizer';
+
+  @override
+  String get eventsJoin => 'Join';
+
+  @override
+  String get eventsDecline => 'Decline';
+
+  @override
+  String get eventsPickFriendTitle => 'Whose birthday?';
+
+  @override
+  String get eventsPickFriendEmpty =>
+      'No friends with a birthday yet. Ask them to add it to their profile.';
+
+  @override
+  String get eventsCreateFailed => 'Couldn\'t open the event';
+
+  @override
+  String get eventsDetailTitle => 'Gift event';
+
+  @override
+  String get eventsMissing => 'This event is no longer available';
+
+  @override
+  String eventsSecretNote(String name) {
+    return '$name can\'t see this event or who\'s in it.';
+  }
+
+  @override
+  String get eventsOpenChat => 'Open group chat';
+
+  @override
+  String get eventsSetChatLink => 'Group chat link';
+
+  @override
+  String get eventsChatLinkHint => 'https://chat.whatsapp.com/…';
+
+  @override
+  String eventsMembersSection(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventsMemberInvited => 'Invited';
+
+  @override
+  String get eventsInviteMore => 'Invite friends';
+
+  @override
+  String get eventsInvite => 'Invite';
+
+  @override
+  String get eventsInviteNobody => 'Everyone who can join is already here.';
+
+  @override
+  String get eventsLeave => 'Leave event';
+
+  @override
+  String get eventsLeaveConfirmTitle => 'Leave this event?';
+
+  @override
+  String get eventsLeaveConfirmBody => 'You can be invited again later.';
+
+  @override
+  String get eventsCancel => 'Cancel event';
+
+  @override
+  String get eventsCancelConfirmTitle => 'Cancel this event?';
+
+  @override
+  String get eventsCancelConfirmBody =>
+      'Everyone loses access. This can\'t be undone.';
 }

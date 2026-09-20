@@ -915,4 +915,122 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get imageEditMirror => 'Aynala';
+
+  @override
+  String get giftsEventsTab => 'Event\'ler';
+
+  @override
+  String get eventsError => 'Event\'ler yüklenemedi';
+
+  @override
+  String get eventsEmpty => 'Henüz hediye event\'i yok';
+
+  @override
+  String get eventsEmptyHint =>
+      'Doğum gününden önce arkadaşlarla birleş; doğum günü sahibi hiç görmez.';
+
+  @override
+  String get eventsCreateCta => 'Hediye event\'i aç';
+
+  @override
+  String get eventsOpenCta => 'Event aç';
+
+  @override
+  String get eventsGoCta => 'Event';
+
+  @override
+  String get eventsInvitesSection => 'Davetler';
+
+  @override
+  String get eventsMineSection => 'Event\'lerin';
+
+  @override
+  String eventsRowTitle(String name) {
+    return '$name doğum günü';
+  }
+
+  @override
+  String eventsRowSubtitle(String date, int count) {
+    return '$date · $count kişi';
+  }
+
+  @override
+  String eventsInviteTitle(String name) {
+    return '$name için hediye event\'ine katılır mısın?';
+  }
+
+  @override
+  String get eventsOrganizerBadge => 'Organizatör';
+
+  @override
+  String get eventsJoin => 'Katıl';
+
+  @override
+  String get eventsDecline => 'Reddet';
+
+  @override
+  String get eventsPickFriendTitle => 'Kimin doğum günü?';
+
+  @override
+  String get eventsPickFriendEmpty =>
+      'Doğum günü tanımlı arkadaşın yok. Profillerine eklemelerini iste.';
+
+  @override
+  String get eventsCreateFailed => 'Event açılamadı';
+
+  @override
+  String get eventsDetailTitle => 'Hediye event\'i';
+
+  @override
+  String get eventsMissing => 'Bu event artık görüntülenemiyor';
+
+  @override
+  String eventsSecretNote(String name) {
+    return '$name bu event\'i ve kimlerin olduğunu göremez.';
+  }
+
+  @override
+  String get eventsOpenChat => 'Grup sohbetini aç';
+
+  @override
+  String get eventsSetChatLink => 'Grup sohbeti linki';
+
+  @override
+  String get eventsChatLinkHint => 'https://chat.whatsapp.com/…';
+
+  @override
+  String eventsMembersSection(int count) {
+    return '$count üye';
+  }
+
+  @override
+  String get eventsMemberInvited => 'Davet edildi';
+
+  @override
+  String get eventsInviteMore => 'Arkadaş davet et';
+
+  @override
+  String get eventsInvite => 'Davet et';
+
+  @override
+  String get eventsInviteNobody => 'Katılabilecek herkes zaten burada.';
+
+  @override
+  String get eventsLeave => 'Event\'ten ayrıl';
+
+  @override
+  String get eventsLeaveConfirmTitle => 'Bu event\'ten ayrılmak istiyor musun?';
+
+  @override
+  String get eventsLeaveConfirmBody => 'Sonra yeniden davet edilebilirsin.';
+
+  @override
+  String get eventsCancel => 'Event\'i iptal et';
+
+  @override
+  String get eventsCancelConfirmTitle => 'Bu event iptal edilsin mi?';
+
+  @override
+  String get eventsCancelConfirmBody =>
+      'Herkes erişimini kaybeder. Geri alınamaz.';
 }

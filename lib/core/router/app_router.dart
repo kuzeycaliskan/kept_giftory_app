@@ -6,6 +6,8 @@ import 'package:kept/features/activity/presentation/activity_screen.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
+import 'package:kept/features/events/presentation/event_detail_screen.dart';
+import 'package:kept/features/events/presentation/event_for_honoree_screen.dart';
 import 'package:kept/features/feed/presentation/compose_post_screen.dart';
 import 'package:kept/features/feed/presentation/moment_capture.dart';
 import 'package:kept/features/feed/presentation/story_viewer_screen.dart';
@@ -187,6 +189,19 @@ GoRouter appRouter(Ref ref) {
         name: 'compose-post',
         builder: (context, state) =>
             ComposePostScreen(imageBytes: state.extra! as Uint8List),
+      ),
+      GoRoute(
+        path: '/events/for/:honoreeId',
+        name: 'event-for-honoree',
+        builder: (context, state) => EventForHonoreeScreen(
+          honoreeId: state.pathParameters['honoreeId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/events/:id',
+        name: 'event-detail',
+        builder: (context, state) =>
+            EventDetailScreen(eventId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/stories/:authorId',

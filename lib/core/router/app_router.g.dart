@@ -6,23 +6,9 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'6c3c560acb0fe0deae8130a8519ff5bbb05d5c58';
+String _$appRouterHash() => r'f79760e87fced97a90ab51a14ce8b03329e7f9bd';
 
-/// App navigation graph (G-81).
-///
-/// The router is created ONCE (keepAlive) — auth/dev-session changes tick a
-/// refresh listenable instead of rebuilding the router, so navigation state
-/// survives sign-in events (rebuilding used to reset to '/' and skip
-/// onboarding).
-///
-/// Redirect rules:
-///  * signed-out → only /sign-in;
-///  * signed-in without a profile row → /onboarding (async check, cached by
-///    myProfileProvider);
-///  * signed-in with a profile → /sign-in and /onboarding bounce to '/'.
-/// Backend-less runs (no --dart-define config) skip auth entirely.
-///
-/// Copied from [appRouter].
+/// See also [appRouter].
 @ProviderFor(appRouter)
 final appRouterProvider = Provider<GoRouter>.internal(
   appRouter,

@@ -190,3 +190,18 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - Comment pushes re-derive visibility per target (116-117).
 - `notify_comment_inserted` wraps pg_net in an exception block: a lost push
   never fails the user's insert.
+
+## Gift events (V3.0-a: G-301/G-302)
+
+- Tables `gift_events` (honoree, creator, event_date, reveal_at, status,
+  external_chat_url; one per honoree per birthday) and `gift_event_members`
+  (organizer/member × invited/joined/declined).
+- **The honoree never sees the event or its members** (select policies
+  exclude them; they are never a member). Only members see it. Organizers
+  update status/chat link; identity/date columns are frozen by trigger.
+- RPCs (definer, authenticated): `create_gift_event(honoree)` — friend-only,
+  next birthday, creates or joins the existing open one; `invite_to_gift_event`
+  — joined members invite the honoree's friends (block-aware);
+  `event_invitable_friends`; `gift_event_for_honoree` (Home row lookup).
+- 14-day nudge: pg_cron `event-suggestion-daily` → `birthday-reminders?days=14&kind=event`
+  (log PK gained `kind`). pgTAP 120-129.

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/events/presentation/events_page.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/presentation/widgets/gift_list_tile.dart';
 
-/// Gifts tab (G-51/G-52): Given / Received segments. In V3 this evolves into
-/// the event hub.
+/// Which page of the Gifts tab is showing.
+enum GiftsSegment { given, received, events }
+
+/// Gifts tab (G-51/G-52) + the event hub (V3): Given / Received / Events.
 class GiftsScreen extends ConsumerStatefulWidget {
   const GiftsScreen({super.key});
 
@@ -16,7 +19,7 @@ class GiftsScreen extends ConsumerStatefulWidget {
 }
 
 class _GiftsScreenState extends ConsumerState<GiftsScreen> {
-  bool _showGiven = true;
+  GiftsSegment _segment = GiftsSegment.given;
   final _pageController = PageController();
 
   @override
@@ -25,14 +28,20 @@ class _GiftsScreenState extends ConsumerState<GiftsScreen> {
     super.dispose();
   }
 
-  void _select({required bool given}) {
-    setState(() => _showGiven = given);
+  void _select(GiftsSegment segment) {
+    setState(() => _segment = segment);
     _pageController.animateToPage(
-      given ? 0 : 1,
+      segment.index,
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
     );
   }
+
+  void _onFab(BuildContext context) => switch (_segment) {
+    GiftsSegment.given => context.push('/gifts/log'),
+    GiftsSegment.received => context.push('/gifts/log-external'),
+    GiftsSegment.events => showCreateEventSheet(context),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -48,46 +57,53 @@ class _GiftsScreenState extends ConsumerState<GiftsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.giftsTitle)),
-      // FAB follows the visible tab: Given logs a gift I bought; Received
-      // records one from outside the app (G-212).
+      // FAB follows the visible page: log a gift I bought, record one from
+      // outside the app (G-212), or open a gift event (V3).
       floatingActionButton: FloatingActionButton(
-        tooltip: _showGiven ? l10n.logGiftTitle : l10n.logExternalTitle,
-        onPressed: () =>
-            context.push(_showGiven ? '/gifts/log' : '/gifts/log-external'),
+        tooltip: switch (_segment) {
+          GiftsSegment.given => l10n.logGiftTitle,
+          GiftsSegment.received => l10n.logExternalTitle,
+          GiftsSegment.events => l10n.eventsCreateCta,
+        },
+        onPressed: () => _onFab(context),
         child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: SegmentedButton<bool>(
+            child: SegmentedButton<GiftsSegment>(
+              showSelectedIcon: false,
               segments: [
                 ButtonSegment(
-                  value: true,
+                  value: GiftsSegment.given,
                   label: Text(l10n.giftsGivenTab),
-                  icon: const Icon(Icons.north_east),
                 ),
                 ButtonSegment(
-                  value: false,
+                  value: GiftsSegment.received,
                   label: Text(l10n.giftsReceivedTab),
-                  icon: const Icon(Icons.south_west),
+                ),
+                ButtonSegment(
+                  value: GiftsSegment.events,
+                  label: Text(l10n.giftsEventsTab),
                 ),
               ],
-              selected: {_showGiven},
-              onSelectionChanged: (selection) =>
-                  _select(given: selection.first),
+              selected: {_segment},
+              onSelectionChanged: (selection) => _select(selection.first),
             ),
           ),
-          // Horizontal swipe moves between the two lists; the segment stays
-          // in sync. Row-level Dismissibles win the gesture arena on rows,
-          // so swipe-to-delete keeps working.
+          // Horizontal swipe moves between the pages; the segment stays in
+          // sync. Row-level Dismissibles win the gesture arena on rows, so
+          // swipe-to-delete keeps working.
           Expanded(
             child: PageView(
               controller: _pageController,
-              onPageChanged: (page) => setState(() => _showGiven = page == 0),
+              onPageChanged: (page) =>
+                  setState(() => _segment = GiftsSegment.values[page]),
               children: const [
                 _GiftListPage(given: true),
                 _GiftListPage(given: false),
+                EventsPage(),
               ],
             ),
           ),
