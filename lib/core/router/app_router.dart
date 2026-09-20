@@ -46,6 +46,8 @@ part 'app_router.g.dart';
 ///    myProfileProvider);
 ///  * signed-in with a profile → /sign-in and /onboarding bounce to '/'.
 /// Backend-less runs (no --dart-define config) skip auth entirely.
+const _profileGateTimeout = Duration(seconds: 8);
+
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
   final refresh = ValueNotifier(0);
@@ -75,10 +77,17 @@ GoRouter appRouter(Ref ref) {
       }
 
       try {
-        final profile = await ref.read(myProfileProvider.future);
+        // Hard cap: while an async redirect is pending go_router paints
+        // nothing, so a hung session refresh / request would mean a black
+        // screen forever. Past the cap we let the user through.
+        final profile = await ref
+            .read(myProfileProvider.future)
+            .timeout(_profileGateTimeout);
         if (profile == null) return onOnboarding ? null : '/onboarding';
-      } catch (_) {
-        // Profile check failed (e.g. offline): don't trap the user.
+      } catch (e) {
+        // Profile check failed (offline, expired session, timeout): don't
+        // trap the user; Home degrades per-section.
+        debugPrint('router: profile gate skipped: $e');
         return onSignIn ? '/' : null;
       }
 
