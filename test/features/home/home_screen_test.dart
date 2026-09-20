@@ -330,7 +330,7 @@ void main() {
     await tester.drag(find.text('Upcoming'), const Offset(0, -500));
     await pumpFrames(tester);
 
-    expect(find.text('A surprise is on its way to you'), findsOneWidget);
+    expect(find.text('Something special is on its way to you'), findsOneWidget);
     expect(find.text('Opens on October 16'), findsOneWidget);
   });
 

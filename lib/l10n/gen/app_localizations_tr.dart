@@ -820,7 +820,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get homeSurpriseTeaserTitle => 'Sana bir sürpriz hazırlanıyor';
+  String get homeSurpriseTeaserTitle => 'Sana sürpriz hazırlanıyor';
 
   @override
   String homeSurpriseTeaserOpens(String date) {

@@ -1619,7 +1619,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSurpriseTeaserTitle.
   ///
   /// In en, this message translates to:
-  /// **'A surprise is on its way to you'**
+  /// **'Something special is on its way to you'**
   String get homeSurpriseTeaserTitle;
 
   /// No description provided for @homeSurpriseTeaserOpens.

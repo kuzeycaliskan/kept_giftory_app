@@ -822,7 +822,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeSurpriseTeaserTitle => 'A surprise is on its way to you';
+  String get homeSurpriseTeaserTitle =>
+      'Something special is on its way to you';
 
   @override
   String homeSurpriseTeaserOpens(String date) {

@@ -378,7 +378,7 @@
       }
     }
   },
-  "homeSurpriseTeaserTitle": "A surprise is on its way to you",
+  "homeSurpriseTeaserTitle": "Something special is on its way to you",
   "homeSurpriseTeaserOpens": "Opens on {date}",
   "@homeSurpriseTeaserOpens": {
     "placeholders": {
