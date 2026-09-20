@@ -136,6 +136,33 @@ void main() {
       expect(find.text('Upcoming'), findsOneWidget);
     });
 
+    testWidgets('the story ending mid-pull closes the viewer once', (
+      tester,
+    ) async {
+      await pumpApp(tester, feed: FakeFeedRepository(posts: friendsPosts()));
+      await tester.tap(find.text('Zeynep'));
+      await pumpViewer(tester);
+
+      // Hold the stage part-way down while the last story runs out.
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(PageView)),
+      );
+      for (var i = 0; i < 10; i++) {
+        await gesture.moveBy(const Offset(0, 20));
+        await tester.pump();
+      }
+      // Past the 5s post duration: the viewer starts popping while the
+      // finger is still down and the pop transition is mid-flight.
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 50));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Yeni kupa!'), findsNothing);
+      expect(find.text('Upcoming'), findsOneWidget);
+    });
+
     testWidgets('watched stories are remembered locally', (tester) async {
       await pumpApp(tester, feed: FakeFeedRepository(posts: friendsPosts()));
 

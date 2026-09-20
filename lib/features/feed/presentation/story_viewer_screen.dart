@@ -60,7 +60,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
         details.primaryVelocity != null &&
         details.primaryVelocity!.abs() > _dismissVelocity;
     if (far || fast) {
-      Navigator.of(context).pop();
+      _close();
       return;
     }
     unawaited(
@@ -84,11 +84,21 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     super.dispose();
   }
 
+  /// Every way out of the viewer funnels through here: the pull gesture,
+  /// the close button, the last story ending and a vanished group can all
+  /// fire within the same frame (a story expiring mid-pull did), and a
+  /// second pop would empty the router's page stack.
+  bool _closing = false;
+
+  void _close() {
+    if (_closing || !mounted) return;
+    _closing = true;
+    Navigator.of(context).pop();
+  }
+
   void _closeAfterFrame() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
+      if (mounted && Navigator.of(context).canPop()) _close();
     });
   }
 
@@ -96,7 +106,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     final pages = _pages;
     if (pages == null) return;
     if (index + 1 >= count) {
-      Navigator.of(context).pop();
+      _close();
       return;
     }
     pages.nextPage(
@@ -157,6 +167,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                   key: ValueKey(groups[index].author.id),
                   group: groups[index],
                   onFinished: () => _onGroupFinished(index, groups.length),
+                  onClose: _close,
                 ),
               ),
             ),
@@ -168,10 +179,18 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
 }
 
 class _StoryPage extends ConsumerStatefulWidget {
-  const _StoryPage({required this.group, required this.onFinished, super.key});
+  const _StoryPage({
+    required this.group,
+    required this.onFinished,
+    required this.onClose,
+    super.key,
+  });
 
   final StoryGroup group;
   final VoidCallback onFinished;
+
+  /// Closing is the viewer's job (single pop guard) — pages only ask.
+  final VoidCallback onClose;
 
   @override
   ConsumerState<_StoryPage> createState() => _StoryPageState();
@@ -288,7 +307,6 @@ class _StoryPageState extends ConsumerState<_StoryPage>
     final l10n = context.l10n;
     final post = widget.group.posts[_index];
     final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
     _progress.stop();
 
     final confirmed = await showDialog<bool>(
@@ -326,7 +344,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
     }
     messenger.showSnackBar(SnackBar(content: Text(l10n.storyDeleted)));
     // Last post of my story → nothing left to show here.
-    if (widget.group.posts.length <= 1) navigator.pop();
+    if (widget.group.posts.length <= 1) widget.onClose();
   }
 
   Future<void> _showActions({required bool isMine}) async {
@@ -471,10 +489,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
                       icon: const Icon(Icons.more_horiz, color: Colors.white),
                       onPressed: () => _showActions(isMine: isMine),
                     ),
-                    CloseButton(
-                      color: Colors.white,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
+                    CloseButton(color: Colors.white, onPressed: widget.onClose),
                   ],
                 ),
               ],
