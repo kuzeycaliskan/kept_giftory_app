@@ -14,6 +14,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   guardedFetch,
   parseMeta,
+  previewRow,
   readCapped,
   sniffImage,
   validateTargetUrl,
@@ -113,7 +114,6 @@ Deno.serve(async (req) => {
       price: str(clientMeta.price),
       site: str(clientMeta.site),
     };
-    if (!meta.title) return json(422, { error: "no_metadata" });
   } else {
     const res = await guardedFetch(url);
     if (!res) return json(422, { error: "fetch_failed" });
@@ -124,8 +124,8 @@ Deno.serve(async (req) => {
     const bytes = await readCapped(res, MAX_HTML_BYTES);
     if (!bytes) return json(422, { error: "too_large" });
     meta = parseMeta(new TextDecoder().decode(bytes));
-    if (!meta.title) return json(422, { error: "no_metadata" });
   }
+  if (!meta.title) return json(422, { error: "no_metadata" });
 
   // Image: prefer client-supplied bytes (bot-walled CDNs), else download
   // here. Bytes are size-capped and magic-byte sniffed — declared types
@@ -176,14 +176,13 @@ Deno.serve(async (req) => {
   const { data: row, error: insErr } = await admin
     .from("link_previews")
     .upsert(
-      {
-        url_hash: urlHash,
+      previewRow({
+        urlHash,
         url: normalized,
-        title: meta.title.slice(0, 300),
-        image_path: imagePath,
-        price: meta.price?.slice(0, 60) ?? null,
-        site: (meta.site ?? url.hostname).slice(0, 100),
-      },
+        hostname: url.hostname,
+        meta: { title: meta.title, price: meta.price, site: meta.site },
+        imagePath,
+      }),
       { onConflict: "url_hash" },
     )
     .select("id, title, image_path, price, site")

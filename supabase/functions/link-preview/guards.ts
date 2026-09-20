@@ -164,3 +164,24 @@ export function sniffImage(bytes: Uint8Array): "jpg" | "png" | "webp" | null {
   ) return "webp";
   return null;
 }
+
+/// The `link_previews` upsert payload. `image_path` is only sent when this
+/// fetch produced an image: PostgREST updates just the columns present, so a
+/// concurrent fetch that failed its image download cannot wipe an image a
+/// sibling request stored a moment earlier (first-fetch race on a new URL).
+export function previewRow(input: {
+  urlHash: string;
+  url: string;
+  hostname: string;
+  meta: { title: string; price?: string; site?: string };
+  imagePath: string | null;
+}): Record<string, string | null> {
+  return {
+    url_hash: input.urlHash,
+    url: input.url,
+    title: input.meta.title.slice(0, 300),
+    ...(input.imagePath === null ? {} : { image_path: input.imagePath }),
+    price: input.meta.price?.slice(0, 60) ?? null,
+    site: (input.meta.site ?? input.hostname).slice(0, 100),
+  };
+}

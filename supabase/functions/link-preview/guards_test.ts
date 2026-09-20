@@ -1,6 +1,11 @@
 // deno test guards_test.ts — SSRF validation + OG parsing (G-211).
 import { assertEquals, assertExists } from "jsr:@std/assert";
-import { parseMeta, sniffImage, validateTargetUrl } from "./guards.ts";
+import {
+  parseMeta,
+  previewRow,
+  sniffImage,
+  validateTargetUrl,
+} from "./guards.ts";
 
 Deno.test("accepts normal product urls", () => {
   assertExists(validateTargetUrl("https://www.trendyol.com/x/y-p-123"));
@@ -82,4 +87,19 @@ Deno.test("sniffs image magic bytes, rejects fakes", () => {
     null,
   );
   assertEquals(sniffImage(new Uint8Array(4)), null);
+});
+
+Deno.test("upsert row omits image_path when this fetch has no image", () => {
+  const base = {
+    urlHash: "h",
+    url: "https://shop.test/x",
+    hostname: "shop.test",
+    meta: { title: "T" },
+  };
+  const withImage = previewRow({ ...base, imagePath: "h.jpg" });
+  assertEquals(withImage.image_path, "h.jpg");
+  const without = previewRow({ ...base, imagePath: null });
+  assertEquals("image_path" in without, false);
+  assertEquals(without.site, "shop.test");
+  assertEquals(without.price, null);
 });
