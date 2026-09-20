@@ -6,9 +6,9 @@ import 'package:kept/core/media/image_encoding.dart';
 
 /// 2×1 image: left pixel red, right pixel blue.
 Uint8List twoByOne() {
-  final image = img.Image(width: 2, height: 1);
-  image.setPixelRgb(0, 0, 255, 0, 0);
-  image.setPixelRgb(1, 0, 0, 0, 255);
+  final image = img.Image(width: 2, height: 1)
+    ..setPixelRgb(0, 0, 255, 0, 0)
+    ..setPixelRgb(1, 0, 0, 0, 255);
   return Uint8List.fromList(img.encodePng(image));
 }
 
