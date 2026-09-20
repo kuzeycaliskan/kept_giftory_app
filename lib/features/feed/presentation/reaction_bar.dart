@@ -163,26 +163,31 @@ class _Glyph extends StatelessWidget {
     final kind = this.kind;
     return SizedBox.square(
       dimension: _box,
-      child: kind == null
-          ? Icon(Icons.favorite_border, size: 20, color: color)
-          : TweenAnimationBuilder<double>(
-              key: ValueKey(kind),
-              tween: Tween(begin: 1.35, end: 1),
-              duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutBack,
-              builder: (context, scale, child) =>
-                  Transform.scale(scale: scale, child: child),
-              child: Center(
+      child: Center(
+        child: kind == null
+            ? Icon(Icons.favorite_border, size: 20, color: color)
+            : TweenAnimationBuilder<double>(
+                key: ValueKey(kind),
+                tween: Tween(begin: 1.35, end: 1),
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOutBack,
+                builder: (context, scale, child) =>
+                    Transform.scale(scale: scale, child: child),
+                // Forced strut: emoji fonts (Apple Color Emoji especially)
+                // carry tall ascents that push the glyph below centre; a
+                // line box pinned to the font size centres it everywhere.
                 child: Text(
                   reactionGlyph(kind),
-                  style: const TextStyle(fontSize: 17, height: 1),
-                  textHeightBehavior: const TextHeightBehavior(
-                    applyHeightToFirstAscent: false,
-                    applyHeightToLastDescent: false,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 17),
+                  strutStyle: const StrutStyle(
+                    fontSize: 17,
+                    height: 1,
+                    forceStrutHeight: true,
                   ),
                 ),
               ),
-            ),
+      ),
     );
   }
 }
@@ -229,6 +234,11 @@ class _ReactionPicker extends StatelessWidget {
                     child: Text(
                       reactionGlyph(kind),
                       style: const TextStyle(fontSize: 26),
+                      strutStyle: const StrutStyle(
+                        fontSize: 26,
+                        height: 1,
+                        forceStrutHeight: true,
+                      ),
                     ),
                   ),
                 ),
