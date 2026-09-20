@@ -355,7 +355,15 @@ class _Heading extends StatelessWidget {
           ),
           const SizedBox(height: KeptSpacing.xs),
           Text(
-            '$counterpart · $date',
+            counterpart,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            l10n.giftDetailGiftDate(date),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

@@ -645,7 +645,9 @@ class _GiftPostCard extends ConsumerWidget {
     final myId = ref.watch(myProfileProvider).valueOrNull?.id;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final date = DateFormat.yMMMd(locale).format(gift.giftDate);
+    // The feed sorts by logging time, so the card says when it was logged;
+    // the gift's own date lives on the detail screen.
+    final date = _loggedLabel(context, event.at, locale);
     final preview = gift.preview;
     final headLabel = event.kind == HomeEventKind.friendGiftReceived
         ? (event.recipientLabel ?? '')
@@ -850,4 +852,20 @@ class _InviteNudge extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Today" / "Yesterday" / "3 days ago" / a date — relative while fresh,
+/// absolute once it stops reading naturally.
+String _loggedLabel(BuildContext context, DateTime at, String locale) {
+  final l10n = context.l10n;
+  final now = DateTime.now();
+  final days = DateTime(
+    now.year,
+    now.month,
+    now.day,
+  ).difference(DateTime(at.year, at.month, at.day)).inDays;
+  if (days <= 0) return l10n.homeLoggedToday;
+  if (days == 1) return l10n.homeLoggedYesterday;
+  if (days < 7) return l10n.homeLoggedDaysAgo(days);
+  return DateFormat.yMMMd(locale).format(at);
 }

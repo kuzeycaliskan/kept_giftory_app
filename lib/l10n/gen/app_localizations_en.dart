@@ -895,4 +895,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeEventFriendGiftExternal(String name) {
     return '$name got a gift';
   }
+
+  @override
+  String get homeLoggedToday => 'Today';
+
+  @override
+  String get homeLoggedYesterday => 'Yesterday';
+
+  @override
+  String homeLoggedDaysAgo(int days) {
+    return '$days days ago';
+  }
+
+  @override
+  String giftDetailGiftDate(String date) {
+    return 'Gift date: $date';
+  }
 }

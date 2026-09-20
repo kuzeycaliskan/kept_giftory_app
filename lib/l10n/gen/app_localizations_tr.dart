@@ -893,4 +893,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String homeEventFriendGiftExternal(String name) {
     return '$name bir hediye aldı';
   }
+
+  @override
+  String get homeLoggedToday => 'Bugün';
+
+  @override
+  String get homeLoggedYesterday => 'Dün';
+
+  @override
+  String homeLoggedDaysAgo(int days) {
+    return '$days gün önce';
+  }
+
+  @override
+  String giftDetailGiftDate(String date) {
+    return 'Hediye tarihi: $date';
+  }
 }

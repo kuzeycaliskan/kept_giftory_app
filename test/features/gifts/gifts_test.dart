@@ -745,7 +745,8 @@ void main() {
       expect(find.text('Gift'), findsOneWidget);
       expect(find.text('Take a photo'), findsOneWidget);
       expect(find.text('No photos yet'), findsNothing);
-      expect(find.textContaining('Ali ·'), findsOneWidget);
+      expect(find.text('Ali'), findsOneWidget);
+      expect(find.textContaining('Gift date:'), findsOneWidget);
     });
 
     testWidgets('a bystander sees photos but cannot add', (tester) async {

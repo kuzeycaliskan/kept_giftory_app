@@ -1735,6 +1735,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} got a gift'**
   String homeEventFriendGiftExternal(String name);
+
+  /// No description provided for @homeLoggedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get homeLoggedToday;
+
+  /// No description provided for @homeLoggedYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get homeLoggedYesterday;
+
+  /// No description provided for @homeLoggedDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days ago'**
+  String homeLoggedDaysAgo(int days);
+
+  /// No description provided for @giftDetailGiftDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift date: {date}'**
+  String giftDetailGiftDate(String date);
 }
 
 class _AppLocalizationsDelegate

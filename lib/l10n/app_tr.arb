@@ -272,5 +272,9 @@
   "commentsDaysAgo": "{days} g",
   "notifSocial": "Yorumlar ve sürprizler",
   "notifSocialDesc": "Hediyene ya da anına yorum gelince ve bir sürpriz açılınca",
-  "homeEventFriendGiftExternal": "{name} bir hediye aldı"
+  "homeEventFriendGiftExternal": "{name} bir hediye aldı",
+  "homeLoggedToday": "Bugün",
+  "homeLoggedYesterday": "Dün",
+  "homeLoggedDaysAgo": "{days} gün önce",
+  "giftDetailGiftDate": "Hediye tarihi: {date}"
 }

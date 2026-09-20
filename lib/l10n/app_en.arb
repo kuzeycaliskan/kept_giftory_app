@@ -425,5 +425,23 @@
         "type": "String"
       }
     }
+  },
+  "homeLoggedToday": "Today",
+  "homeLoggedYesterday": "Yesterday",
+  "homeLoggedDaysAgo": "{days} days ago",
+  "@homeLoggedDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "giftDetailGiftDate": "Gift date: {date}",
+  "@giftDetailGiftDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }
