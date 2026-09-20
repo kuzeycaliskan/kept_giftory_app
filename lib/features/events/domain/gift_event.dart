@@ -43,6 +43,7 @@ class GiftEvent {
     this.honoree,
     this.externalChatUrl,
     this.creatorId,
+    this.commentCount = 0,
   });
 
   final String id;
@@ -54,6 +55,9 @@ class GiftEvent {
   final String? externalChatUrl;
   final String? creatorId;
   final List<EventMember> members;
+
+  /// Notes on the board (visible ones); the list loads on demand.
+  final int commentCount;
 
   String honoreeLabel(String fallback) =>
       honoree?.displayName ?? honoree?.username ?? fallback;
@@ -87,6 +91,7 @@ class GiftEvent {
         externalChatUrl: externalChatUrl,
         creatorId: creatorId,
         members: members ?? this.members,
+        commentCount: commentCount,
       );
 }
 

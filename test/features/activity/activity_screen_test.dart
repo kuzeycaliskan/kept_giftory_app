@@ -19,6 +19,7 @@ import 'package:kept/features/home/domain/upcoming_birthday.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/comment.dart';
 
 class _FakeFriendshipRepository implements FriendshipRepository {
   _FakeFriendshipRepository(this.entries);
@@ -127,6 +128,30 @@ class _FakeEventsRepository implements EventsRepository {
 
   @override
   Future<Result<void>> cancel(String eventId) async => const Success(null);
+
+  final notes = <Comment>[];
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String eventId) async =>
+      Success(notes);
+
+  @override
+  Future<Result<Comment>> addComment(String eventId, String body) async {
+    final c = Comment(
+      id: 'n${notes.length + 1}',
+      authorId: 'dev-me',
+      body: body,
+      createdAt: DateTime.now(),
+    );
+    notes.add(c);
+    return Success(c);
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    notes.removeWhere((c) => c.id == commentId);
+    return const Success(null);
+  }
 
   @override
   Future<Result<void>> setChatUrl(String eventId, String? url) async =>

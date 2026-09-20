@@ -1048,4 +1048,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get eventsCancelConfirmBody =>
       'Everyone loses access. This can\'t be undone.';
+
+  @override
+  String get eventsBoardSection => 'Notes';
 }

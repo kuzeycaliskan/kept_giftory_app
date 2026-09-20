@@ -1,5 +1,5 @@
 // G-210 — Push for a new comment. Called by the DB trigger (pg_net) with
-// { kind: 'gift' | 'post', comment_id }. Targets and spoiler/opt-out/block
+// { kind: 'gift' | 'post' | 'event', comment_id }. Targets and spoiler/opt-out/block
 // rules live in SQL (comment_push_targets); this just sends.
 // Auth: X-Cron-Secret (CRON_SECRET). Deploy with --no-verify-jwt.
 
@@ -22,7 +22,10 @@ Deno.serve(async (req) => {
     return new Response("forbidden", { status: 403 });
   }
   const { kind, comment_id } = await req.json().catch(() => ({}));
-  if ((kind !== "gift" && kind !== "post") || typeof comment_id !== "string") {
+  if (
+    (kind !== "gift" && kind !== "post" && kind !== "event") ||
+    typeof comment_id !== "string"
+  ) {
     return new Response("bad request", { status: 400 });
   }
 
@@ -30,10 +33,14 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
-  const { data, error } = await supabase.rpc("comment_push_targets", {
-    p_kind: kind,
-    p_comment_id: comment_id,
-  });
+  const { data, error } = kind === "event"
+    ? await supabase.rpc("event_comment_push_targets", {
+      p_comment_id: comment_id,
+    })
+    : await supabase.rpc("comment_push_targets", {
+      p_kind: kind,
+      p_comment_id: comment_id,
+    });
   if (error) return new Response(error.message, { status: 500 });
   const targets = (data ?? []) as Target[];
   if (targets.length === 0) return Response.json({ sent: 0 });

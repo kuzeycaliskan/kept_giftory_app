@@ -518,5 +518,6 @@
   "eventsLeaveConfirmBody": "You can be invited again later.",
   "eventsCancel": "Cancel event",
   "eventsCancelConfirmTitle": "Cancel this event?",
-  "eventsCancelConfirmBody": "Everyone loses access. This can't be undone."
+  "eventsCancelConfirmBody": "Everyone loses access. This can't be undone.",
+  "eventsBoardSection": "Notes"
 }

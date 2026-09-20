@@ -16,6 +16,7 @@ import 'package:kept/features/friends/domain/friendship_repository.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/comment.dart';
 
 class _FakeEventsRepository implements EventsRepository {
   _FakeEventsRepository({List<GiftEvent> events = const []})
@@ -104,6 +105,30 @@ class _FakeEventsRepository implements EventsRepository {
   Future<Result<void>> cancel(String eventId) async {
     calls.add('cancel:$eventId');
     events.removeWhere((e) => e.id == eventId);
+    return const Success(null);
+  }
+
+  final notes = <Comment>[];
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String eventId) async =>
+      Success(notes);
+
+  @override
+  Future<Result<Comment>> addComment(String eventId, String body) async {
+    final c = Comment(
+      id: 'n${notes.length + 1}',
+      authorId: 'dev-me',
+      body: body,
+      createdAt: DateTime.now(),
+    );
+    notes.add(c);
+    return Success(c);
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    notes.removeWhere((c) => c.id == commentId);
     return const Success(null);
   }
 
@@ -282,5 +307,22 @@ void main() {
     expect(repo.calls, ['create:ali']);
     expect(find.text("Ali's birthday"), findsOneWidget);
     expect(find.text('Organizer'), findsOneWidget);
+  });
+
+  testWidgets('joined members write on the notes board', (tester) async {
+    final repo = _FakeEventsRepository(
+      events: [event(id: 'e3', myStatus: EventMemberStatus.joined)],
+    );
+    await pump(tester, repo: repo, initial: '/events/e3');
+
+    expect(find.text('Notes'), findsOneWidget);
+    await tester.tap(find.text('Write a comment…'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, 'Pastayı ben alıyorum');
+    await tester.tap(find.byTooltip('Send'));
+    await tester.pumpAndSettle();
+
+    expect(repo.notes.single.body, 'Pastayı ben alıyorum');
+    expect(find.text('Pastayı ben alıyorum'), findsOneWidget);
   });
 }

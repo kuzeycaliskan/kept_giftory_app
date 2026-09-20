@@ -30,12 +30,28 @@ class EventsPage extends ConsumerWidget {
       data: (list) {
         final invites = list.where((e) => e.isInvited(myId)).toList();
         final mine = list.where((e) => !e.isInvited(myId)).toList();
-        if (list.isEmpty) return const _EmptyState();
+        Future<void> refresh() async {
+          ref.invalidate(myEventsProvider);
+          await ref.read(myEventsProvider.future);
+        }
+
+        if (list.isEmpty) {
+          // Scrollable so pull-to-refresh works on the empty state too.
+          return RefreshIndicator(
+            onRefresh: refresh,
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: constraints.maxHeight,
+                  child: const _EmptyState(),
+                ),
+              ),
+            ),
+          );
+        }
         return RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(myEventsProvider);
-            await ref.read(myEventsProvider.future);
-          },
+          onRefresh: refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(

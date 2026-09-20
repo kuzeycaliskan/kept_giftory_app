@@ -39,3 +39,8 @@ Deno.test("surprise: names the giver when known", () => {
 Deno.test("gift logged: giver and item", () => {
   assertEquals(giftLoggedPush("Kamil", "LEGO Şato").body, "Kamil: LEGO Şato");
 });
+
+Deno.test("event note: names the honoree's event", () => {
+  const m = commentPush("Kamil", "Ali", "Pastayı aldım", "event");
+  assertEquals(m.title, "Kamil · Ali event'i");
+});

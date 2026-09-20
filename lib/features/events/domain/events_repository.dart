@@ -1,6 +1,7 @@
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
+import 'package:kept/shared/domain/comment.dart';
 
 /// Gift events boundary (V3.0-a). Everything that touches who-may-see or
 /// who-may-join is enforced by RLS + definer RPCs; the repository never
@@ -34,4 +35,12 @@ abstract interface class EventsRepository {
 
   /// Organizer only (RLS); null clears.
   Future<Result<void>> setChatUrl(String eventId, String? url);
+
+  /// Notes board (G-305): members only, oldest first.
+  Future<Result<List<Comment>>> fetchComments(String eventId);
+
+  Future<Result<Comment>> addComment(String eventId, String body);
+
+  /// Author or organizer (RLS).
+  Future<Result<void>> deleteComment(String commentId);
 }

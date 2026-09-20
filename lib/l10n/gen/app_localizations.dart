@@ -1981,6 +1981,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Everyone loses access. This can\'t be undone.'**
   String get eventsCancelConfirmBody;
+
+  /// No description provided for @eventsBoardSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get eventsBoardSection;
 }
 
 class _AppLocalizationsDelegate

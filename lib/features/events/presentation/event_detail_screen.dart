@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
+import 'package:kept/features/events/application/event_comment_target.dart';
 import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/shared/widgets/comments_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
@@ -273,6 +275,24 @@ class _Body extends ConsumerWidget {
             ),
             icon: const Icon(Icons.chat_outlined),
             label: Text(l10n.eventsOpenChat),
+          ),
+        ],
+        if (event.me(myId)?.status == EventMemberStatus.joined) ...[
+          const SizedBox(height: KeptSpacing.xl),
+          KeptSectionHeader(l10n.eventsBoardSection),
+          CommentPill(
+            count: event.commentCount,
+            onTap: () => showCommentsSheet(
+              context,
+              target: EventCommentTarget(
+                ref.read(eventsRepositoryProvider),
+                event,
+                onChanged: () => ref
+                  ..invalidate(eventDetailProvider)
+                  ..invalidate(myEventsProvider),
+              ),
+              viewerId: myId,
+            ),
           ),
         ],
         const SizedBox(height: KeptSpacing.xl),

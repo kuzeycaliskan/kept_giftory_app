@@ -2,8 +2,11 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/gifts/data/gift_row_mapper.dart'
+    show embeddedCount;
 import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/shared/data/profile_cards.dart';
+import 'package:kept/shared/domain/comment.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Supabase-backed [EventsRepository]. Rows arrive already filtered by RLS
@@ -17,7 +20,8 @@ class SupabaseEventsRepository implements EventsRepository {
   static const _select =
       'id, honoree_id, creator_id, event_date, reveal_at, status, '
       'external_chat_url, '
-      'members:gift_event_members(user_id, role, status)';
+      'members:gift_event_members(user_id, role, status), '
+      'comments:event_comments(count)';
 
   @override
   Future<Result<List<GiftEvent>>> fetchMine() async {
@@ -64,6 +68,7 @@ class SupabaseEventsRepository implements EventsRepository {
     revealAt: DateTime.parse(row['reveal_at']! as String),
     status: EventStatus.values.byName(row['status']! as String),
     externalChatUrl: row['external_chat_url'] as String?,
+    commentCount: embeddedCount(row['comments']),
     members: [
       for (final m
           in (row['members'] as List<dynamic>? ?? const [])
@@ -244,6 +249,65 @@ class SupabaseEventsRepository implements EventsRepository {
       return ResultFailure(UnknownFailure(e.toString()));
     }
   }
+
+  static const _commentSelect = 'id, author_id, body, created_at';
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String eventId) async {
+    try {
+      final rows = await _client
+          .from('event_comments')
+          .select(_commentSelect)
+          .eq('event_id', eventId)
+          .order('created_at', ascending: true);
+      final comments = rows.map(Comment.fromJson).toList();
+      final cards = await fetchProfileCards(
+        _client,
+        comments.map((c) => c.authorId),
+      );
+      return Success([
+        for (final c in comments) c.copyWith(user: cards[c.authorId]),
+      ]);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<Comment>> addComment(String eventId, String body) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || trimmed.length > commentMaxLength) {
+      return const ResultFailure(ValidationFailure('Invalid comment'));
+    }
+    try {
+      final row = await _client
+          .from('event_comments')
+          .insert({'event_id': eventId, 'author_id': userId, 'body': trimmed})
+          .select(_commentSelect)
+          .single();
+      return Success(Comment.fromJson(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async {
+    try {
+      await _client.from('event_comments').delete().eq('id', commentId);
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
 }
 
 /// Backend-less runs (no --dart-define config).
@@ -288,4 +352,15 @@ class EmptyEventsRepository implements EventsRepository {
   @override
   Future<Result<void>> setChatUrl(String eventId, String? url) async =>
       _offline;
+
+  @override
+  Future<Result<List<Comment>>> fetchComments(String eventId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<Comment>> addComment(String eventId, String body) async =>
+      _offline;
+
+  @override
+  Future<Result<void>> deleteComment(String commentId) async => _offline;
 }

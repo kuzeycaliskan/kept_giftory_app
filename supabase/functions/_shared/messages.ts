@@ -12,8 +12,15 @@ export function commentPush(
   commenter: string,
   itemLabel: string,
   snippet: string,
-  kind: "gift" | "post",
+  kind: "gift" | "post" | "event",
 ): { title: string; body: string } {
+  if (kind === "event") {
+    // itemLabel = the honoree's name.
+    return {
+      title: `${commenter} · ${clip(itemLabel, 30)} event'i`,
+      body: clip(snippet),
+    };
+  }
   const where = kind === "gift"
     ? (itemLabel ? clip(itemLabel, 40) : "hediye")
     : "anına";

@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(129);
+select plan(133);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1459,6 +1459,46 @@ select is(
   (select public.create_gift_event('00000000-0000-0000-0000-00000000000a')),
   (select id from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'),
   '129: one event per honoree per birthday — creating again joins it'
+);
+reset role;
+
+-- ── 130-133: event notes board ──────────────────────────────────────────────
+-- erin (organizer) writes; carol (joined) reads; alice (honoree) and dave
+-- (outsider) see nothing / cannot write.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.event_comments (id, event_id, author_id, body)
+     values ('00000000-0000-0000-0000-000000000f01', (select id from public.gift_events where honoree_id = '00000000-0000-0000-0000-00000000000a'),
+             '00000000-0000-0000-0000-00000000000e', 'Pastayı ben alıyorum') $$,
+  '130: a joined member writes on the event board'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+select is(
+  (select count(*) from public.event_comments where id = '00000000-0000-0000-0000-000000000f01'),
+  1::bigint,
+  '131: other joined members read the board'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+select is(
+  (select count(*) from public.event_comments),
+  0::bigint,
+  '132: the honoree sees no notes'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.event_comments (event_id, author_id, body)
+     values ((select id from public.gift_events limit 1), '00000000-0000-0000-0000-00000000000d', 'hi') $$,
+  '42501',
+  null,
+  '133: an outsider cannot write on the board'
 );
 reset role;
 

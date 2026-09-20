@@ -1033,4 +1033,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get eventsCancelConfirmBody =>
       'Herkes erişimini kaybeder. Geri alınamaz.';
+
+  @override
+  String get eventsBoardSection => 'Konuşma';
 }
