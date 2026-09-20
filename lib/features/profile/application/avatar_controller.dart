@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/error/failure.dart';
+import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
@@ -46,7 +47,11 @@ class AvatarController extends _$AvatarController {
       debugPrint('avatar pick cancelled or lost');
       return null;
     }
-    return picked.readAsBytes();
+    // Bake EXIF orientation first: the cropper works on raw pixels, so a
+    // front-camera "mirrored" orientation flag would otherwise flip the
+    // saved avatar relative to what the user framed.
+    final raw = await picked.readAsBytes();
+    return compute(normalizeOrientation, raw);
   }
 
   /// Shrinks the cropped square to the avatar format and stores it.

@@ -40,3 +40,31 @@ Uint8List toUploadJpeg(Uint8List input) {
     img.encodeJpg(resized, quality: UploadImage.jpegQuality),
   );
 }
+
+/// Working-copy quality for edits before the final upload encode: high, so
+/// rotate/flip/crop never compound visible loss.
+const int _editQuality = 92;
+
+Uint8List _encodeEdit(img.Image image) =>
+    Uint8List.fromList(img.encodeJpg(image, quality: _editQuality));
+
+img.Image _decodeOrThrow(Uint8List input) {
+  final decoded = img.decodeImage(input);
+  if (decoded == null) throw const FormatException('Undecodable image');
+  return decoded;
+}
+
+/// Bakes the EXIF orientation into the pixels and drops the tag. Front
+/// cameras often store the shot with a mirrored orientation flag: viewers
+/// honour it, pixel-level croppers don't — normalising first keeps what the
+/// user frames and what gets saved identical (no surprise mirror).
+Uint8List normalizeOrientation(Uint8List input) =>
+    _encodeEdit(img.bakeOrientation(_decodeOrThrow(input)));
+
+/// Rotates a quarter turn clockwise.
+Uint8List rotateQuarterTurn(Uint8List input) =>
+    _encodeEdit(img.copyRotate(_decodeOrThrow(input), angle: 90));
+
+/// Mirrors left ↔ right.
+Uint8List flipHorizontal(Uint8List input) =>
+    _encodeEdit(img.flipHorizontal(_decodeOrThrow(input)));

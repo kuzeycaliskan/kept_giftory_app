@@ -276,5 +276,7 @@
   "homeLoggedToday": "Bugün",
   "homeLoggedYesterday": "Dün",
   "homeLoggedDaysAgo": "{days} gün önce",
-  "giftDetailGiftDate": "Hediye tarihi: {date}"
+  "giftDetailGiftDate": "Hediye tarihi: {date}",
+  "imageEditRotate": "Döndür",
+  "imageEditMirror": "Aynala"
 }

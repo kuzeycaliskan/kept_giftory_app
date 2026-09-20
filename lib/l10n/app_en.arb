@@ -443,5 +443,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "imageEditRotate": "Rotate",
+  "imageEditMirror": "Mirror"
 }

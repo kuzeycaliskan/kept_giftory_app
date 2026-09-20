@@ -1759,6 +1759,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gift date: {date}'**
   String giftDetailGiftDate(String date);
+
+  /// No description provided for @imageEditRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get imageEditRotate;
+
+  /// No description provided for @imageEditMirror.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror'**
+  String get imageEditMirror;
 }
 
 class _AppLocalizationsDelegate

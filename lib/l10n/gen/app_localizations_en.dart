@@ -911,4 +911,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String giftDetailGiftDate(String date) {
     return 'Gift date: $date';
   }
+
+  @override
+  String get imageEditRotate => 'Rotate';
+
+  @override
+  String get imageEditMirror => 'Mirror';
 }
