@@ -117,10 +117,25 @@ class WebviewOgFetcher {
   /// Loads [url] invisibly and returns the extracted OG fields, or null on
   /// any failure/timeout — callers fall back to free text as usual.
   Future<Map<String, String?>?> fetch(String url) async {
+    // First pass without page scripts: the shops we care about print title,
+    // OG tags and price server-side, and a script-free load is a fraction
+    // of the work (no WebGL, no service workers) — Amazon's full page took
+    // an emulator's WebView renderer down, and Android kills the whole app
+    // with it. Only a page that yields no title gets the scripted retry.
+    return await _attempt(url, scripts: false) ??
+        await _attempt(url, scripts: true);
+  }
+
+  Future<Map<String, String?>?> _attempt(
+    String url, {
+    required bool scripts,
+  }) async {
     try {
       final loaded = Completer<bool>();
       final controller = WebViewController();
-      await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+      await controller.setJavaScriptMode(
+        scripts ? JavaScriptMode.unrestricted : JavaScriptMode.disabled,
+      );
       await controller.setNavigationDelegate(
         NavigationDelegate(
           onNavigationRequest: (request) {
@@ -158,8 +173,14 @@ class WebviewOgFetcher {
       await controller.loadRequest(Uri.parse(url));
       final ok = await loaded.future.timeout(_timeout, onTimeout: () => false);
       if (!ok) debugPrint('webview og fetch: load timed out, reading DOM');
-      // Give client-rendered pages a beat to inject their meta tags.
-      await Future<void>.delayed(const Duration(milliseconds: 400));
+      if (scripts) {
+        // Give client-rendered pages a beat to inject their meta tags.
+        await Future<void>.delayed(const Duration(milliseconds: 400));
+      } else {
+        // Our extractor needs the engine on; page scripts already parsed
+        // as inert stay inert (no reload happens).
+        await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+      }
       final raw = await controller.runJavaScriptReturningResult(_extractJs);
       var jsonText = raw.toString();
       // Platforms wrap the JS string result differently — unquote if needed.
@@ -170,7 +191,10 @@ class WebviewOgFetcher {
       String? str(Object? v) =>
           v is String && v.trim().isNotEmpty ? v.trim() : null;
       final title = str(map['title']);
-      if (title == null) return null;
+      if (title == null) {
+        debugPrint('webview og fetch: no title (scripts: $scripts) for $url');
+        return null;
+      }
       return {
         'title': title,
         'image': str(map['image']),
@@ -178,7 +202,7 @@ class WebviewOgFetcher {
         'site': str(map['site']),
       };
     } catch (e) {
-      debugPrint('webview og fetch failed: $e');
+      debugPrint('webview og fetch failed (scripts: $scripts): $e');
       return null;
     }
   }
