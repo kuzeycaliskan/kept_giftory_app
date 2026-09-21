@@ -151,9 +151,11 @@ Deno.serve(async (req) => {
 
   // Image: prefer client-supplied bytes (bot-walled CDNs), else download
   // here. Bytes are size-capped and magic-byte sniffed — declared types
-  // are never trusted.
+  // are never trusted. A refresh is about the price: an image the row
+  // already has is kept (a guessed hero image must never replace it).
   let imagePath: string | null = null;
-  const b64 = clientMeta?.image_b64;
+  const keepImage = refresh && cached?.image_path != null;
+  const b64 = keepImage ? undefined : clientMeta?.image_b64;
   if (typeof b64 === "string" && b64.length <= MAX_IMAGE_BYTES * 1.4) {
     try {
       const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
@@ -172,7 +174,7 @@ Deno.serve(async (req) => {
       // invalid base64 → treated as no image
     }
   }
-  if (imagePath === null && meta.image) {
+  if (imagePath === null && !keepImage && meta.image) {
     const imgUrl = validateTargetUrl(new URL(meta.image, url).toString());
     if (imgUrl) {
       const imgRes = await guardedFetch(imgUrl);

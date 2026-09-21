@@ -17,10 +17,13 @@ class PreviewRefresher extends _$PreviewRefresher {
   @override
   void build() {}
 
-  /// True when at least one preview came back different (the caller then
-  /// reloads its list so cards pick up the new price).
+  /// Asks for the due previews and, when at least one came back different,
+  /// invalidates [reload] so the list picks up the new price. The reload
+  /// goes through this notifier's own ref: the screen that asked may be
+  /// gone by then (a WidgetRef would throw).
   Future<bool> refreshDue(
     Iterable<LinkPreview> previews, {
+    ProviderOrFamily? reload,
     DateTime? now,
   }) async {
     final clock = now ?? DateTime.now();
@@ -41,6 +44,7 @@ class PreviewRefresher extends _$PreviewRefresher {
         changed = true;
       }
     }
+    if (changed && reload != null) ref.invalidate(reload);
     return changed;
   }
 }

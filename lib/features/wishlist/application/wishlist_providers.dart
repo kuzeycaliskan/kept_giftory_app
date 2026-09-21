@@ -90,8 +90,9 @@ class WishlistController extends _$WishlistController {
   }
 }
 
-/// Offers the list's previews for a periodic price refresh and reloads the
-/// list when something changed. Call from a `ref.listen` on [provider].
+/// Offers the list's previews for a periodic price refresh; the refresher
+/// reloads [provider] itself when a price changed. Call from a `ref.listen`
+/// on [provider] — nothing here touches the widget after the await.
 void refreshPreviewsOf(
   WidgetRef ref,
   List<WishlistItem> items,
@@ -103,10 +104,8 @@ void refreshPreviewsOf(
   ];
   if (previews.isEmpty) return;
   unawaited(
-    ref.read(previewRefresherProvider.notifier).refreshDue(previews).then((
-      changed,
-    ) {
-      if (changed) ref.invalidate(provider);
-    }),
+    ref
+        .read(previewRefresherProvider.notifier)
+        .refreshDue(previews, reload: provider),
   );
 }

@@ -29,11 +29,15 @@ class WebviewOgFetcher {
     if (l) img = l.getAttribute("href");
   }
   if (!img) {
-    // Fallback: largest rendered image on the page (product hero).
+    // Fallback: largest rendered image on the page (product hero). Only
+    // product-shaped images qualify — a tall sprite sheet of icons is
+    // "large" too, and once won on Amazon.
     var best = null, bestArea = 40000; // require at least ~200x200
     document.querySelectorAll("img").forEach(function (e) {
-      var a = (e.naturalWidth || 0) * (e.naturalHeight || 0);
-      if (a > bestArea && e.src && e.src.indexOf("http") === 0) {
+      var w = e.naturalWidth || 0, h = e.naturalHeight || 0;
+      var a = w * h, ratio = h > 0 ? w / h : 0;
+      var shaped = w >= 200 && h >= 200 && ratio >= 0.5 && ratio <= 2;
+      if (shaped && a > bestArea && e.src && e.src.indexOf("http") === 0) {
         best = e.src; bestArea = a;
       }
     });

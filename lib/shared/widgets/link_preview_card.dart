@@ -35,7 +35,8 @@ class LinkPreviewCard extends StatelessWidget {
     // Product-card composition: image flush to the card's left edge,
     // text padded on the right (design.md §4). The card grows with its
     // text (title up to two lines, site, price — at any text scale); the
-    // image column stretches to the row so it never dictates a height.
+    // image fills the row from behind (a positioned child adds nothing to
+    // the intrinsic height, so a tall image can never stretch the card).
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -48,13 +49,19 @@ class LinkPreviewCard extends StatelessWidget {
               children: [
                 SizedBox(
                   width: _minHeight,
-                  child: preview.imagePath == null
-                      ? fallbackImage
-                      : Image.network(
-                          Env.linkPreviewImageUrl(preview.imagePath!),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => fallbackImage,
-                        ),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: preview.imagePath == null
+                            ? fallbackImage
+                            : Image.network(
+                                Env.linkPreviewImageUrl(preview.imagePath!),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => fallbackImage,
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: Padding(

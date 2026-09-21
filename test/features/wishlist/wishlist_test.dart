@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -58,14 +60,18 @@ class _FakeWishlistRepository implements WishlistRepository {
 }
 
 class _FakeLinkPreviewRepository implements LinkPreviewRepository {
-  _FakeLinkPreviewRepository({this.preview});
+  _FakeLinkPreviewRepository({this.preview, this.gate});
 
   final LinkPreview? preview;
+
+  /// When set, a fetch waits on this before answering (in-flight tests).
+  final Future<LinkPreview?>? gate;
   final List<String> fetched = [];
 
   @override
   Future<LinkPreview?> fetch(String url, {bool refresh = false}) async {
     fetched.add(refresh ? 'refresh:$url' : url);
+    if (gate != null) return gate;
     return preview;
   }
 }
@@ -186,6 +192,40 @@ void main() {
     // not again for the same link (session guard).
     expect(linkPreviews.fetched, ['refresh:https://shop.example.com/stale']);
     expect(repo.friendFetches, 2);
+  });
+
+  testWidgets('leaving the screen mid-refresh never throws', (tester) async {
+    final stale = LinkPreview(
+      id: 'lp-stale',
+      url: 'https://shop.example.com/slow',
+      title: 'Slow product',
+      priceCheckedAt: DateTime.now().subtract(const Duration(days: 2)),
+    );
+    final repo = _FakeWishlistRepository(
+      friendItems: [
+        WishlistItem(id: 'f1', ownerId: 'ali', title: 'X', preview: stale),
+      ],
+    );
+    final gate = Completer<LinkPreview?>();
+    final linkPreviews = _FakeLinkPreviewRepository(
+      preview: stale.copyWith(price: '₺99'),
+      gate: gate.future,
+    );
+    await pump(
+      tester,
+      repo,
+      initial: '/users/ali/wishlist?name=Ali',
+      linkPreviews: linkPreviews,
+    );
+    expect(linkPreviews.fetched, ['refresh:https://shop.example.com/slow']);
+
+    // Navigate away while the refresh is still in flight, then let it land.
+    GoRouter.of(tester.element(find.byType(WishlistScreen))).go('/wishlist');
+    await tester.pumpAndSettle();
+    gate.complete(stale.copyWith(price: '₺99'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a fresh priced preview is left alone', (tester) async {
