@@ -6,6 +6,7 @@ import {
   previewRow,
   sniffImage,
   structuredPrice,
+  unwrapTrackingLink,
   validateTargetUrl,
 } from "./guards.ts";
 
@@ -44,6 +45,30 @@ Deno.test("rejects credentials and odd ports", () => {
 
 Deno.test("rejects bare ip literals even if public", () => {
   assertEquals(validateTargetUrl("http://8.8.8.8/x"), null);
+});
+
+Deno.test("unwraps an Adjust interstitial to the shop's web page", () => {
+  const adj = new URL(
+    "https://p8zh.adj.st/mk12x3o?adjust_t=x&adjust_deeplink=ty%3A%2F%2F%3FPage%3DProduct" +
+      "&adjust_redirect=https%3A%2F%2Fwww.trendyol.com%2FMoliendo%2Fkahve-p-859268209%3FboutiqueId%3D61",
+  );
+  assertEquals(
+    unwrapTrackingLink(adj)?.toString(),
+    "https://www.trendyol.com/Moliendo/kahve-p-859268209?boutiqueId=61",
+  );
+  const fallbackOnly = new URL(
+    "https://app.adjust.com/abc?adj_fallback=https%3A%2F%2Fshop.example.com%2Fx",
+  );
+  assertEquals(
+    unwrapTrackingLink(fallbackOnly)?.toString(),
+    "https://shop.example.com/x",
+  );
+  // A private fallback is refused like any other target.
+  const evil = new URL(
+    "https://p8zh.adj.st/x?adjust_redirect=http%3A%2F%2F127.0.0.1%2Fadmin",
+  );
+  assertEquals(unwrapTrackingLink(evil), null);
+  assertEquals(unwrapTrackingLink(new URL("https://www.trendyol.com/x")), null);
 });
 
 Deno.test("parses og tags in either attribute order", () => {

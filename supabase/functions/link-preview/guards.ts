@@ -39,10 +39,45 @@ export function validateTargetUrl(raw: string): URL | null {
   return url;
 }
 
+/// Shops' share links (ty.gl, app.hb.biz) bounce through an Adjust
+/// interstitial (`*.adj.st`) that tries the app first and only later moves
+/// to the web page via JS — a plain fetch stops there with the title
+/// "adjust deeplinking...". The web fallback rides along as a query
+/// parameter; return it, or null when this is not such a link.
+export function unwrapTrackingLink(url: URL): URL | null {
+  const host = url.hostname.toLowerCase();
+  const isAdjust = host === "adj.st" || host.endsWith(".adj.st") ||
+    host === "app.adjust.com";
+  if (!isAdjust) return null;
+  for (
+    const key of [
+      "adjust_redirect",
+      "adj_redirect",
+      "adjust_fallback",
+      "adj_fallback",
+      "adjust_redirect_ios",
+      "adj_redirect_ios",
+      "adjust_redirect_android",
+      "adj_redirect_android",
+    ]
+  ) {
+    const raw = url.searchParams.get(key);
+    if (!raw) continue;
+    const target = validateTargetUrl(raw);
+    if (target) return target;
+  }
+  return null;
+}
+
 /** Fetch with manual redirects so every hop is re-validated. */
 export async function guardedFetch(url: URL): Promise<Response | null> {
   let current = url;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const unwrapped = unwrapTrackingLink(current);
+    if (unwrapped) {
+      current = unwrapped;
+      continue;
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     let res: Response;

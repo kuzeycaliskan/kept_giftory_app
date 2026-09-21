@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:kept/features/link_preview/domain/tracking_link.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// Client-side OG extraction through a hidden WebView (G-211 fallback).
@@ -52,6 +53,16 @@ class WebviewOgFetcher {
   };
   var price = m("product:price:amount") || m("og:price:amount") || null;
   if (!price) {
+    // Amazon: no structured price; the accessible price node carries it.
+    var amz = document.querySelector(
+      "#corePrice_mobile_feature_div .a-offscreen," +
+      "#corePrice_feature_div .a-offscreen," +
+      "#corePriceDisplay_desktop_feature_div .a-offscreen," +
+      "#corePriceDisplay_mobile_feature_div .a-offscreen");
+    var amzText = amz && (amz.textContent || "").trim();
+    if (amzText) price = amzText.replace(/([0-9])(TL|TRY)$/, "$1 $2");
+  }
+  if (!price) {
     var ip = document.querySelector("[itemprop='price']");
     var ipv = ip && (ip.getAttribute("content") || ip.textContent);
     var ipc = document.querySelector("[itemprop='priceCurrency']");
@@ -85,7 +96,31 @@ class WebviewOgFetcher {
       await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
       await controller.setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (_) {
+          onNavigationRequest: (request) {
+            final target = Uri.tryParse(request.url);
+            if (target == null) return NavigationDecision.prevent;
+            // App schemes (ty://, hb://) have no page to read.
+            if (!target.isScheme('http') && !target.isScheme('https')) {
+              return NavigationDecision.prevent;
+            }
+            final unwrapped = unwrapTrackingLink(target);
+            if (unwrapped != null) {
+              unawaited(controller.loadRequest(unwrapped));
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+          onPageFinished: (finished) {
+            // Belt and braces: a redirect the delegate did not see still
+            // lands on the interstitial — move on instead of reading it.
+            final landed = Uri.tryParse(finished);
+            final unwrapped = landed == null
+                ? null
+                : unwrapTrackingLink(landed);
+            if (unwrapped != null) {
+              unawaited(controller.loadRequest(unwrapped));
+              return;
+            }
             if (!loaded.isCompleted) loaded.complete(true);
           },
           onWebResourceError: (_) {
