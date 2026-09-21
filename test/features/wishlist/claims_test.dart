@@ -305,7 +305,7 @@ void main() {
             kind: ClaimKind.shared,
             targetAmount: 1000,
             claimer: zeynep,
-            pledges: [Pledge(userId: 'zeynep', amount: 1200, user: zeynep)],
+            pledges: [Pledge(userId: 'zeynep', amount: 1000, user: zeynep)],
           ),
         },
       );
@@ -313,6 +313,69 @@ void main() {
 
       expect(find.text('Fully funded'), findsOneWidget);
       expect(find.textContaining('left'), findsNothing);
+    });
+
+    testWidgets('a pool past its price says by how much, never blocks', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository(
+        claims: const {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'zeynep',
+            kind: ClaimKind.shared,
+            targetAmount: 511,
+            claimer: zeynep,
+            pledges: [
+              Pledge(userId: 'zeynep', amount: 250, user: zeynep),
+              Pledge(userId: 'kamil', amount: 300),
+            ],
+          ),
+        },
+      );
+      await pump(tester, claims: claims);
+
+      expect(find.text('107% · ₺39 over the price'), findsOneWidget);
+      expect(find.text('Fully funded'), findsNothing);
+    });
+
+    testWidgets('joining offers what is still missing and warns past it', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository(
+        claims: const {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'zeynep',
+            kind: ClaimKind.shared,
+            targetAmount: 1000,
+            claimer: zeynep,
+            pledges: [Pledge(userId: 'zeynep', amount: 400, user: zeynep)],
+          ),
+        },
+      );
+      await pump(tester, claims: claims);
+      await tester.tap(find.text('Join'));
+      await tester.pumpAndSettle();
+
+      final field = find.byKey(const Key('claim-amount'));
+      expect(tester.widget<TextField>(field).controller!.text, '600');
+      expect(find.textContaining('over the price'), findsNothing);
+
+      await tester.enterText(field, '700');
+      await tester.pump();
+      expect(
+        find.textContaining('This puts the pool ₺100 over the price'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(claims.calls, ['pledge:c1:700.0']);
     });
 
     testWidgets('starting a pool pre-fills the product price, editable', (

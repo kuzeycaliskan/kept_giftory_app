@@ -1184,4 +1184,14 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$remaining left · $_temp0';
   }
+
+  @override
+  String claimOverTarget(String amount) {
+    return '$amount over the price';
+  }
+
+  @override
+  String claimOverTargetHint(String amount) {
+    return 'This puts the pool $amount over the price — fine if the real price is higher.';
+  }
 }

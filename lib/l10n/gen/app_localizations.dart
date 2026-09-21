@@ -2197,6 +2197,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{remaining} left · {count, plural, =1{1 in} other{{count} in}}'**
   String claimJoinHint(String remaining, int count);
+
+  /// No description provided for @claimOverTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over the price'**
+  String claimOverTarget(String amount);
+
+  /// No description provided for @claimOverTargetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This puts the pool {amount} over the price — fine if the real price is higher.'**
+  String claimOverTargetHint(String amount);
 }
 
 class _AppLocalizationsDelegate

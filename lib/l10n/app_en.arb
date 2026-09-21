@@ -612,5 +612,21 @@
         "type": "int"
       }
     }
+  },
+  "claimOverTarget": "{amount} over the price",
+  "@claimOverTarget": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "claimOverTargetHint": "This puts the pool {amount} over the price — fine if the real price is higher.",
+  "@claimOverTargetHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

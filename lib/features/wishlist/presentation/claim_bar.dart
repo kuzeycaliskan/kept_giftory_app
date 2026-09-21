@@ -263,16 +263,24 @@ class _SharedState extends ConsumerWidget {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final target = claim.targetAmount;
+    final mine = claim.pledgeOf(myId)?.amount;
+    final remaining = target == null ? null : _remaining(target);
     final input = await showAmountSheet(
       context,
       title: l10n.claimPledgeTitle,
       body: target == null
           ? null
           : l10n.claimJoinHint(
-              formatTry(locale, _remaining(target)),
+              formatTry(locale, remaining!),
               claim.pledges.length,
             ),
-      initialAmount: claim.pledgeOf(myId)?.amount,
+      // A newcomer is offered what is still missing (editable); someone
+      // changing their share sees it as it is.
+      initialAmount:
+          mine ?? (remaining != null && remaining > 0 ? remaining : null),
+      // The pool stays flexible (street price may differ) — going past the
+      // price only earns a heads-up, never a block.
+      overflowAt: remaining == null ? null : remaining + (mine ?? 0),
     );
     if (input?.amount == null || !context.mounted) return;
     final failure = await ref
@@ -341,25 +349,36 @@ class _SharedState extends ConsumerWidget {
       children: [
         summary,
         _PoolProgress(
-          fraction: (claim.pledgedTotal / target).clamp(0, 1).toDouble(),
+          fraction: claim.pledgedTotal / target,
           remaining: _remaining(target),
+          over: (claim.pledgedTotal - target).clamp(0, double.infinity),
         ),
       ],
     );
   }
 }
 
-/// How far the pool got: a bar, the percentage and what is still missing.
+/// How far the pool got: a bar, the percentage and what is still missing —
+/// or, past the price, by how much (the pool is deliberately not capped).
 class _PoolProgress extends StatelessWidget {
-  const _PoolProgress({required this.fraction, required this.remaining});
+  const _PoolProgress({
+    required this.fraction,
+    required this.remaining,
+    required this.over,
+  });
 
+  /// pledged / price; may exceed 1.
   final double fraction;
   final double remaining;
+  final double over;
 
   String _progressLabel(AppLocalizations l10n, String locale) {
     final percent = l10n.claimProgressPercent((fraction * 100).floor());
-    final left = l10n.claimRemaining(formatTry(locale, remaining));
-    return '$percent · $left';
+    if (over > 0) {
+      return '$percent · ${l10n.claimOverTarget(formatTry(locale, over))}';
+    }
+    if (remaining <= 0) return l10n.claimFunded;
+    return '$percent · ${l10n.claimRemaining(formatTry(locale, remaining))}';
   }
 
   @override
@@ -367,7 +386,7 @@ class _PoolProgress extends StatelessWidget {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final theme = Theme.of(context);
-    final funded = remaining <= 0;
+    final overTarget = over > 0;
     return Padding(
       padding: const EdgeInsets.only(top: KeptSpacing.xs),
       child: Row(
@@ -376,8 +395,9 @@ class _PoolProgress extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(KeptRadius.pill),
               child: LinearProgressIndicator(
-                value: fraction,
+                value: fraction.clamp(0, 1).toDouble(),
                 minHeight: 6,
+                color: overTarget ? theme.colorScheme.tertiary : null,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
               ),
             ),
@@ -387,11 +407,13 @@ class _PoolProgress extends StatelessWidget {
           // and ellipsizes instead of overflowing.
           Flexible(
             child: Text(
-              funded ? l10n.claimFunded : _progressLabel(l10n, locale),
+              _progressLabel(l10n, locale),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: overTarget
+                    ? theme.colorScheme.tertiary
+                    : theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -419,6 +441,7 @@ Future<AmountInput?> showAmountSheet(
   bool askTarget = false,
   double? initialAmount,
   double? initialTarget,
+  double? overflowAt,
 }) {
   return showModalBottomSheet<AmountInput>(
     context: context,
@@ -430,6 +453,7 @@ Future<AmountInput?> showAmountSheet(
       askTarget: askTarget,
       initialAmount: initialAmount,
       initialTarget: initialTarget,
+      overflowAt: overflowAt,
     ),
   );
 }
@@ -441,6 +465,7 @@ class _AmountSheet extends StatefulWidget {
     this.body,
     this.initialAmount,
     this.initialTarget,
+    this.overflowAt,
   });
 
   final String title;
@@ -450,6 +475,10 @@ class _AmountSheet extends StatefulWidget {
 
   /// Pre-filled pool goal (the product card's price); editable.
   final double? initialTarget;
+
+  /// Amount above which the pool passes its price — shown as a hint while
+  /// typing, never enforced.
+  final double? overflowAt;
 
   @override
   State<_AmountSheet> createState() => _AmountSheetState();
@@ -467,6 +496,14 @@ class _AmountSheetState extends State<_AmountSheet> {
         : plainAmount(widget.initialTarget!),
   );
   String? _amountError;
+
+  String? _overflowHint(AppLocalizations l10n, String locale) {
+    final limit = widget.overflowAt;
+    if (limit == null) return null;
+    final amount = parseAmount(_amount.text);
+    if (amount == null || amount <= limit) return null;
+    return l10n.claimOverTargetHint(formatTry(locale, amount - limit));
+  }
 
   @override
   void dispose() {
@@ -494,6 +531,7 @@ class _AmountSheetState extends State<_AmountSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -543,7 +581,10 @@ class _AmountSheetState extends State<_AmountSheet> {
             decoration: InputDecoration(
               prefixText: '₺ ',
               errorText: _amountError,
+              helperText: _overflowHint(l10n, locale),
+              helperMaxLines: 2,
             ),
+            onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: KeptSpacing.lg),

@@ -1169,4 +1169,14 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return 'Kalan $remaining · $_temp0';
   }
+
+  @override
+  String claimOverTarget(String amount) {
+    return 'Fiyatın $amount üzerinde';
+  }
+
+  @override
+  String claimOverTargetHint(String amount) {
+    return 'Bu tutarla havuz fiyatı $amount aşar; gerçek fiyat yüksekse sorun değil.';
+  }
 }
