@@ -19,6 +19,9 @@ class LinkPreviewCard extends StatelessWidget {
   final VoidCallback? onRemove;
   final VoidCallback? onTap;
 
+  /// Image column width and the card's floor height.
+  static const double _minHeight = 84;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -30,78 +33,82 @@ class LinkPreviewCard extends StatelessWidget {
     );
 
     // Product-card composition: image flush to the card's left edge,
-    // text padded on the right (design.md §4).
+    // text padded on the right (design.md §4). The card grows with its
+    // text (title up to two lines, site, price — at any text scale); the
+    // image column stretches to the row so it never dictates a height.
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(
-          height: 84,
-          child: Row(
-            children: [
-              SizedBox(
-                width: 84,
-                height: 84,
-                child: preview.imagePath == null
-                    ? fallbackImage
-                    : Image.network(
-                        Env.linkPreviewImageUrl(preview.imagePath!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => fallbackImage,
-                      ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: KeptSpacing.md,
-                    vertical: KeptSpacing.sm,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        preview.title ?? preview.url ?? '',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      if (subtitle.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: scheme.onSurfaceVariant),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: _minHeight),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  width: _minHeight,
+                  child: preview.imagePath == null
+                      ? fallbackImage
+                      : Image.network(
+                          Env.linkPreviewImageUrl(preview.imagePath!),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => fallbackImage,
                         ),
-                      ],
-                      if (preview.price != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          preview.price!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(color: scheme.primary),
-                        ),
-                      ],
-                    ],
-                  ),
                 ),
-              ),
-              if (onRemove != null)
-                Padding(
-                  padding: const EdgeInsets.only(right: KeptSpacing.xs),
-                  child: Center(
-                    child: IconButton(
-                      tooltip: context.l10n.linkPreviewRemove,
-                      icon: const Icon(Icons.close),
-                      onPressed: onRemove,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: KeptSpacing.md,
+                      vertical: KeptSpacing.sm,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          preview.title ?? preview.url ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                        ],
+                        if (preview.price != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            preview.price!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(color: scheme.primary),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
-            ],
+                if (onRemove != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: KeptSpacing.xs),
+                    child: Center(
+                      child: IconButton(
+                        tooltip: context.l10n.linkPreviewRemove,
+                        icon: const Icon(Icons.close),
+                        onPressed: onRemove,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
