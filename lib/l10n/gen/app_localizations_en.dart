@@ -1153,4 +1153,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get claimOrganizer => 'Organizer';
+
+  @override
+  String get linkPreviewUnavailable =>
+      'Couldn\'t fetch a preview — you can type the name yourself';
 }

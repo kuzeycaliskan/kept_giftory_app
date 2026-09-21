@@ -582,5 +582,6 @@
   "claimNoPledges": "Nobody has joined yet",
   "claimTaken": "Someone already reserved this",
   "claimFailed": "Couldn't save. Try again.",
-  "claimOrganizer": "Organizer"
+  "claimOrganizer": "Organizer",
+  "linkPreviewUnavailable": "Couldn't fetch a preview — you can type the name yourself"
 }

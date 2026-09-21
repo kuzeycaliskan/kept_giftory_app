@@ -1138,4 +1138,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get claimOrganizer => 'Organizatör';
+
+  @override
+  String get linkPreviewUnavailable =>
+      'Önizleme alınamadı; adı kendin yazabilirsin';
 }

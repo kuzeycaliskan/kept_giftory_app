@@ -12,6 +12,7 @@ import 'package:kept/features/wishlist/domain/wishlist_item.dart';
 import 'package:kept/features/wishlist/domain/wishlist_repository.dart';
 import 'package:kept/features/wishlist/presentation/add_wishlist_item_screen.dart';
 import 'package:kept/features/wishlist/presentation/wishlist_screen.dart';
+import 'package:kept/shared/widgets/link_preview_field.dart';
 
 class _FakeWishlistRepository implements WishlistRepository {
   _FakeWishlistRepository({List<WishlistItem>? mine, this.friendItems})
@@ -231,6 +232,47 @@ void main() {
     expect(repo.lastLinkPreviewId, isNull);
   });
 
+  testWidgets('share-sheet text is reduced to its link before fetching', (
+    tester,
+  ) async {
+    final repo = _FakeWishlistRepository();
+    final linkPreviews = _FakeLinkPreviewRepository(preview: racketPreview);
+    await pump(tester, repo, linkPreviews: linkPreviews);
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Link (optional)'),
+      'Bu ürüne bir göz at! https://shop.example.com/racket?ref=share. '
+      'Uygulamadan gönderildi',
+    );
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+
+    expect(linkPreviews.fetched, ['https://shop.example.com/racket?ref=share']);
+    expect(
+      find.text('https://shop.example.com/racket?ref=share'),
+      findsOneWidget,
+    );
+    expect(find.text('Babolat Pure Drive'), findsWidgets);
+  });
+
+  test('extractUrl trims the punctuation share sheets glue on', () {
+    expect(
+      LinkPreviewField.extractUrl('Look: (https://a.example.com/x).'),
+      'https://a.example.com/x',
+    );
+    expect(LinkPreviewField.extractUrl('no link here'), isNull);
+    // A shop's "copy" puts the product name on one line and the link below.
+    expect(
+      LinkPreviewField.extractUrl(
+        'Clinique Moisture Surge™️ 100 Saat Etkili Nemlendirici | Aloe Vera'
+        '\nhttps://app.hb.biz/p8xWROJg1G7V',
+      ),
+      'https://app.hb.biz/p8xWROJg1G7V',
+    );
+  });
+
   testWidgets('preview failure falls back silently to free text', (
     tester,
   ) async {
@@ -248,6 +290,8 @@ void main() {
       'https://unreachable.example.com/x',
     );
     await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+    expect(find.textContaining("Couldn't fetch a preview"), findsOneWidget);
     await tester.pumpAndSettle();
 
     expect(find.byType(Card), findsNothing);

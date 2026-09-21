@@ -343,5 +343,6 @@
   "claimNoPledges": "Henüz kimse katılmadı",
   "claimTaken": "Bunu başkası ayırmış",
   "claimFailed": "Kaydedilemedi. Tekrar dene.",
-  "claimOrganizer": "Organizatör"
+  "claimOrganizer": "Organizatör",
+  "linkPreviewUnavailable": "Önizleme alınamadı; adı kendin yazabilirsin"
 }

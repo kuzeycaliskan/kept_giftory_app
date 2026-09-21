@@ -2161,6 +2161,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Organizer'**
   String get claimOrganizer;
+
+  /// No description provided for @linkPreviewUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t fetch a preview — you can type the name yourself'**
+  String get linkPreviewUnavailable;
 }
 
 class _AppLocalizationsDelegate

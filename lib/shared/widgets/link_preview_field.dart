@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/link_preview/application/link_preview_providers.dart';
 import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/shared/widgets/link_preview_card.dart';
 
 /// URL input with debounced product-preview fetching (G-211): pasting a
-/// link shows a dismissible [LinkPreviewCard] under the field. Every failure
-/// collapses silently to free text — the surrounding form never blocks.
+/// link shows a dismissible [LinkPreviewCard] under the field. A failed
+/// fetch collapses to free text with a one-line hint — the surrounding form
+/// never blocks. Share-sheet text ("Check this out! https://…") is reduced
+/// to its link, since shops wrap the URL in words the user never wants kept.
 ///
 /// The parent owns [controller]; the attached preview is reported through
 /// [onPreviewChanged] (null when absent/dismissed).
@@ -26,6 +29,20 @@ class LinkPreviewField extends ConsumerStatefulWidget {
   final ValueChanged<LinkPreview?> onPreviewChanged;
   final bool enabled;
 
+  static final _urlPattern = RegExp(r'https?://[^\s<>"]+');
+
+  /// The first http(s) link in [text], stripped of the closing punctuation
+  /// share sheets tend to glue on; null when there is none.
+  static String? extractUrl(String text) {
+    final match = _urlPattern.firstMatch(text);
+    if (match == null) return null;
+    var url = match.group(0)!;
+    while (url.isNotEmpty && ')].,;!?\'"'.contains(url[url.length - 1])) {
+      url = url.substring(0, url.length - 1);
+    }
+    return url;
+  }
+
   @override
   ConsumerState<LinkPreviewField> createState() => _LinkPreviewFieldState();
 }
@@ -38,6 +55,8 @@ class _LinkPreviewFieldState extends ConsumerState<LinkPreviewField> {
   bool _fetching = false;
   // Dismissal sticks for the CURRENT url text only.
   String? _dismissedForUrl;
+  // The url whose fetch came back empty — the hint shows while it stays.
+  String? _failedForUrl;
 
   @override
   void dispose() {
@@ -52,9 +71,21 @@ class _LinkPreviewFieldState extends ConsumerState<LinkPreviewField> {
 
   void _onChanged(String value) {
     _timer?.cancel();
-    final trimmed = value.trim();
+    var trimmed = value.trim();
+    final embedded = LinkPreviewField.extractUrl(trimmed);
+    if (embedded != null && embedded != trimmed) {
+      // Pasted share text: keep only the link (what gets saved as the url).
+      trimmed = embedded;
+      widget.controller.value = TextEditingValue(
+        text: embedded,
+        selection: TextSelection.collapsed(offset: embedded.length),
+      );
+    }
     if (_dismissedForUrl != null && _dismissedForUrl != trimmed) {
       _dismissedForUrl = null;
+    }
+    if (_failedForUrl != null && _failedForUrl != trimmed) {
+      _failedForUrl = null;
     }
     final parsed = Uri.tryParse(trimmed);
     final looksFetchable =
@@ -73,8 +104,11 @@ class _LinkPreviewFieldState extends ConsumerState<LinkPreviewField> {
           .fetch(trimmed);
       // The field may have moved on while fetching — apply only if current.
       if (!mounted || widget.controller.text.trim() != trimmed) return;
-      setState(() => _fetching = false);
-      _setPreview(preview); // null = silent fallback to free text
+      setState(() {
+        _fetching = false;
+        _failedForUrl = preview == null ? trimmed : null;
+      });
+      _setPreview(preview); // null = free text, with the hint below
     });
   }
 
@@ -85,6 +119,8 @@ class _LinkPreviewFieldState extends ConsumerState<LinkPreviewField> {
 
   @override
   Widget build(BuildContext context) {
+    final failed =
+        _failedForUrl != null && _failedForUrl == widget.controller.text.trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -96,6 +132,8 @@ class _LinkPreviewFieldState extends ConsumerState<LinkPreviewField> {
           decoration: InputDecoration(
             labelText: widget.label,
             border: const OutlineInputBorder(),
+            helperText: failed ? context.l10n.linkPreviewUnavailable : null,
+            helperMaxLines: 2,
             suffixIcon: _fetching
                 ? const Padding(
                     padding: EdgeInsets.all(12),
