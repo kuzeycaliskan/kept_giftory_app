@@ -223,3 +223,22 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - Cascade: deleting the item, the claim, or either profile removes the rows;
   no anonymisation needed (nothing here is history worth keeping).
 - pgTAP 137-147.
+
+## Link-preview extractor (single source, 2026-09-21)
+
+- `supabase/functions/link-preview/extractor.js` is the ONE place that knows
+  how a shop page exposes title / image / price / site (og tags, JSON-LD,
+  itemprop, Amazon's price-to-pay block). Plain script, returns JSON.
+- Two hosts run it unchanged: the Edge Function over deno-dom
+  (`extract.ts`, text import) for pages the server may fetch, and the app's
+  hidden WebView (`WebviewOgFetcher`, the file is bundled as a Flutter asset).
+  The WebView loads script-free first (Amazon's full page crashed an
+  emulator renderer — Android kills the app with it) and retries with
+  scripts only when no title came back.
+- `fixtures/*.html` are trimmed real pages per shop; `extractor_test.ts`
+  runs the extractor over them. Add a fixture whenever a shop breaks.
+- Adjust share links (ty.gl, app.hb.biz → *.adj.st) are unwrapped to the
+  web fallback on both hosts (`unwrapTrackingLink`, `tracking_link.dart`).
+- Price refresh cadence: `price_checked_at`, daily without a price, monthly
+  with one; the server claims the slot, clients only ask (≤3 per list load,
+  once per link per session). A refresh never replaces a stored image.

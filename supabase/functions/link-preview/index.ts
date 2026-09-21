@@ -14,12 +14,12 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   guardedFetch,
   isRefreshDue,
-  parseMeta,
   previewRow,
   readCapped,
   sniffImage,
   validateTargetUrl,
 } from "./guards.ts";
+import { extractMeta } from "./extract.ts";
 
 const MAX_HTML_BYTES = 1_000_000;
 const MAX_IMAGE_BYTES = 300_000;
@@ -145,7 +145,7 @@ Deno.serve(async (req) => {
     }
     const bytes = await readCapped(res, MAX_HTML_BYTES);
     if (!bytes) return json(422, { error: "too_large" });
-    meta = parseMeta(new TextDecoder().decode(bytes));
+    meta = extractMeta(new TextDecoder().decode(bytes), url.hostname);
   }
   if (!meta.title) return json(422, { error: "no_metadata" });
 
