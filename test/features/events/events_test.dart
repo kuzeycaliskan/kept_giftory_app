@@ -369,6 +369,40 @@ void main() {
     expect(find.text('Open the wishlist'), findsOneWidget);
   });
 
+  testWidgets('pulling the detail down refetches the event', (tester) async {
+    final repo = _FakeEventsRepository(
+      events: [event(id: 'e6', myStatus: EventMemberStatus.joined)],
+    );
+    await pump(tester, repo: repo, initial: '/events/e6');
+    expect(find.text("Ali's birthday"), findsOneWidget);
+
+    // Someone joined meanwhile — the pull shows the new member count.
+    final e = repo.events.single;
+    repo.events = [
+      e.copyWith(
+        members: [
+          ...e.members,
+          const EventMember(
+            userId: 'zeynep',
+            role: EventMemberRole.member,
+            status: EventMemberStatus.joined,
+            user: ProfileCard(
+              id: 'zeynep',
+              username: 'zeynep',
+              displayName: 'Zeynep',
+            ),
+          ),
+        ],
+      ),
+    ];
+    expect(find.text('Zeynep'), findsNothing);
+
+    await tester.fling(find.byType(ListView), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Zeynep'), findsOneWidget);
+  });
+
   testWidgets('an invitee sees no gift ideas yet', (tester) async {
     final repo = _FakeEventsRepository(
       events: [event(id: 'e5', myStatus: EventMemberStatus.invited)],

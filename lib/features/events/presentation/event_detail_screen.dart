@@ -8,6 +8,8 @@ import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/wishlist/application/claims_providers.dart';
+import 'package:kept/features/wishlist/application/wishlist_providers.dart';
 import 'package:kept/features/wishlist/presentation/claimable_wishlist.dart';
 import 'package:kept/shared/widgets/comments_sheet.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
@@ -56,7 +58,18 @@ class EventDetailScreen extends ConsumerWidget {
         error: (error, _) => Center(child: Text(l10n.eventsError)),
         data: (e) {
           if (e == null) return Center(child: Text(l10n.eventsMissing));
-          return _Body(event: e, myId: myId, busy: busy);
+          // Pull refreshes everything on the page: the event (members,
+          // notes count) and the honoree's ideas with their claims.
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref
+                ..invalidate(eventDetailProvider(eventId))
+                ..invalidate(friendWishlistProvider(e.honoreeId))
+                ..invalidate(wishlistClaimsProvider(e.honoreeId));
+              await ref.read(eventDetailProvider(eventId).future);
+            },
+            child: _Body(event: e, myId: myId, busy: busy),
+          );
         },
       ),
     );
@@ -202,6 +215,7 @@ class _Body extends ConsumerWidget {
     final chat = event.externalChatUrl;
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(KeptSpacing.lg),
       children: [
         Row(
