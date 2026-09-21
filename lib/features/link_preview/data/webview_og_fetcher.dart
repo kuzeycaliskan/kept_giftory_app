@@ -43,11 +43,41 @@ class WebviewOgFetcher {
     required bool scripts,
   }) async {
     try {
-      final loaded = Completer<bool>();
+      final result = Completer<Map<String, String?>?>();
       final controller = WebViewController();
       await controller.setJavaScriptMode(
         scripts ? JavaScriptMode.unrestricted : JavaScriptMode.disabled,
       );
+      var engineOn = scripts;
+
+      // Reads the document as it is now; null when it has no title yet.
+      Future<Map<String, String?>?> read() async {
+        if (!engineOn) {
+          // Our extractor needs the engine on; page scripts already parsed
+          // as inert stay inert (no reload happens).
+          await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+          engineOn = true;
+        }
+        final raw = await controller.runJavaScriptReturningResult(
+          await _script.load(),
+        );
+        return parseExtractorResult(raw.toString());
+      }
+
+      // Android fires onPageFinished for a redirect target once while the
+      // document is still about:blank (amzn.eu → amazon: title "", 3
+      // nodes) and again when the page really landed. So every finish is
+      // a read attempt, and the first one with a title wins.
+      Future<void> tryRead() async {
+        if (result.isCompleted) return;
+        try {
+          final meta = await read();
+          if (meta != null && !result.isCompleted) result.complete(meta);
+        } catch (e) {
+          debugPrint('webview og fetch: read failed: $e');
+        }
+      }
+
       await controller.setNavigationDelegate(
         NavigationDelegate(
           onNavigationRequest: (request) {
@@ -75,7 +105,16 @@ class WebviewOgFetcher {
               unawaited(controller.loadRequest(unwrapped));
               return;
             }
-            if (!loaded.isCompleted) loaded.complete(true);
+            if (scripts) {
+              // Give client-rendered pages a beat to inject their meta.
+              unawaited(
+                Future<void>.delayed(
+                  const Duration(milliseconds: 400),
+                ).then((_) => tryRead()),
+              );
+            } else {
+              unawaited(tryRead());
+            }
           },
           onWebResourceError: (_) {
             // Subresource errors are normal; only give up via timeout.
@@ -83,41 +122,49 @@ class WebviewOgFetcher {
         ),
       );
       await controller.loadRequest(Uri.parse(url));
-      final ok = await loaded.future.timeout(_timeout, onTimeout: () => false);
-      if (!ok) debugPrint('webview og fetch: load timed out, reading DOM');
-      if (scripts) {
-        // Give client-rendered pages a beat to inject their meta tags.
-        await Future<void>.delayed(const Duration(milliseconds: 400));
-      } else {
-        // Our extractor needs the engine on; page scripts already parsed
-        // as inert stay inert (no reload happens).
-        await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-      }
-      final raw = await controller.runJavaScriptReturningResult(
-        await _script.load(),
+      final meta = await result.future.timeout(
+        _timeout,
+        onTimeout: () async {
+          // Slow page: read whatever the DOM holds right now.
+          debugPrint('webview og fetch: load timed out, reading DOM');
+          try {
+            return await read();
+          } catch (e) {
+            debugPrint('webview og fetch: read failed: $e');
+            return null;
+          }
+        },
       );
-      var jsonText = raw.toString();
-      // Platforms wrap the JS string result differently — unquote if needed.
-      if (jsonText.startsWith('"')) {
-        jsonText = json.decode(jsonText) as String;
-      }
-      final map = json.decode(jsonText) as Map<String, dynamic>;
-      String? str(Object? v) =>
-          v is String && v.trim().isNotEmpty ? v.trim() : null;
-      final title = str(map['title']);
-      if (title == null) {
+      if (meta == null) {
         debugPrint('webview og fetch: no title (scripts: $scripts) for $url');
-        return null;
       }
-      return {
-        'title': title,
-        'image': str(map['image']),
-        'price': str(map['price']),
-        'site': str(map['site']),
-      };
+      return meta;
     } catch (e) {
       debugPrint('webview og fetch failed (scripts: $scripts): $e');
       return null;
     }
   }
+}
+
+/// The extractor's JSON, unwrapped from the platform's string quoting;
+/// null when the document had no title (not a page worth keeping — an
+/// about:blank between redirects, a shell before its content).
+@visibleForTesting
+Map<String, String?>? parseExtractorResult(String raw) {
+  var jsonText = raw;
+  // Platforms wrap the JS string result differently — unquote if needed.
+  if (jsonText.startsWith('"')) {
+    jsonText = json.decode(jsonText) as String;
+  }
+  final map = json.decode(jsonText) as Map<String, dynamic>;
+  String? str(Object? v) =>
+      v is String && v.trim().isNotEmpty ? v.trim() : null;
+  final title = str(map['title']);
+  if (title == null) return null;
+  return {
+    'title': title,
+    'image': str(map['image']),
+    'price': str(map['price']),
+    'site': str(map['site']),
+  };
 }
