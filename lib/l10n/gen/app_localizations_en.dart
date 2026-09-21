@@ -1194,4 +1194,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String claimOverTargetHint(String amount) {
     return 'This puts the pool $amount over the price — fine if the real price is higher.';
   }
+
+  @override
+  String get claimPoolFull => 'Pool is full';
 }

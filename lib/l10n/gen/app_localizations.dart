@@ -2209,6 +2209,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This puts the pool {amount} over the price — fine if the real price is higher.'**
   String claimOverTargetHint(String amount);
+
+  /// No description provided for @claimPoolFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Pool is full'**
+  String get claimPoolFull;
 }
 
 class _AppLocalizationsDelegate

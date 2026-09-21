@@ -628,5 +628,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "claimPoolFull": "Pool is full"
 }

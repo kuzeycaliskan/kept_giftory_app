@@ -351,5 +351,6 @@
   "claimProgressPercent": "%{percent}",
   "claimJoinHint": "Kalan {remaining} · {count, plural, =1{1 kişi} other{{count} kişi}}",
   "claimOverTarget": "Fiyatın {amount} üzerinde",
-  "claimOverTargetHint": "Bu tutarla havuz fiyatı {amount} aşar; gerçek fiyat yüksekse sorun değil."
+  "claimOverTargetHint": "Bu tutarla havuz fiyatı {amount} aşar; gerçek fiyat yüksekse sorun değil.",
+  "claimPoolFull": "Havuz doldu"
 }

@@ -1179,4 +1179,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String claimOverTargetHint(String amount) {
     return 'Bu tutarla havuz fiyatı $amount aşar; gerçek fiyat yüksekse sorun değil.';
   }
+
+  @override
+  String get claimPoolFull => 'Havuz doldu';
 }

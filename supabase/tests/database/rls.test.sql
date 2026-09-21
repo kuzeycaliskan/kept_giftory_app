@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(147);
+select plan(150);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1668,6 +1668,46 @@ select is(
   (select count(*) from public.claim_pledges where claim_id = '00000000-0000-0000-0000-000000000e11'),
   0::bigint,
   '147: the organiser can remove a participant'
+);
+reset role;
+
+-- ── 148-150: a fully funded pool takes no new participants ─────────────────
+reset role;
+insert into auth.users (id, email)
+values ('00000000-0000-0000-0000-000000000b35', 'q5@test.dev');
+insert into public.profiles (id, username)
+values ('00000000-0000-0000-0000-000000000b35', 'claim_latecomer');
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-000000000b31', '00000000-0000-0000-0000-000000000b35', 'accepted');
+update public.wishlist_claims set target_amount = 100
+  where id = '00000000-0000-0000-0000-000000000e11';
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.claim_pledges (claim_id, user_id, amount)
+     values ('00000000-0000-0000-0000-000000000e11', '00000000-0000-0000-0000-000000000b33', 100) $$,
+  '148: a pledge that reaches the price is accepted'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b35","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.claim_pledges (claim_id, user_id, amount)
+     values ('00000000-0000-0000-0000-000000000e11', '00000000-0000-0000-0000-000000000b35', 10) $$,
+  '23514',
+  null,
+  '149: once fully funded, a newcomer cannot join'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+select lives_ok(
+  $$ update public.claim_pledges set amount = 120
+     where claim_id = '00000000-0000-0000-0000-000000000e11'
+       and user_id = '00000000-0000-0000-0000-000000000b33' $$,
+  '150: an existing participant may still change their share'
 );
 reset role;
 

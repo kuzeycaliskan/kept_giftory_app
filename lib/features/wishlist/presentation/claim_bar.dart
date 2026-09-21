@@ -286,8 +286,20 @@ class _SharedState extends ConsumerWidget {
     final failure = await ref
         .read(claimsControllerProvider.notifier)
         .pledge(item.ownerId, claim.id, input!.amount!);
-    if (context.mounted) _report(context, failure);
+    if (!context.mounted) return;
+    if (failure is ConflictFailure) {
+      // The pool filled up while the sheet was open.
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.claimPoolFull)));
+      return;
+    }
+    _report(context, failure);
   }
+
+  /// Reached its price: closed to newcomers (server-enforced too).
+  bool get _full =>
+      claim.targetAmount != null && claim.pledgedTotal >= claim.targetAmount!;
 
   double _remaining(double target) =>
       (target - claim.pledgedTotal).clamp(0, target).toDouble();
@@ -325,7 +337,14 @@ class _SharedState extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: KeptSpacing.sm),
-        if (mine == null)
+        if (mine == null && _full)
+          Text(
+            l10n.claimPoolFull,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
+          )
+        else if (mine == null)
           FilledButton.tonal(
             style: _compact,
             onPressed: busy ? null : () => _pledge(context, ref),

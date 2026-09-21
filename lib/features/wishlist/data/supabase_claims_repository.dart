@@ -114,6 +114,8 @@ class SupabaseClaimsRepository implements ClaimsRepository {
       return const Success(null);
     } on PostgrestException catch (e) {
       if (e.code == '42501') return const ResultFailure(PermissionFailure());
+      // 23514 = a guard trigger said no (pool fully funded, not a pool).
+      if (e.code == '23514') return const ResultFailure(ConflictFailure());
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));

@@ -341,6 +341,42 @@ void main() {
       expect(find.text('Fully funded'), findsNothing);
     });
 
+    testWidgets('a full pool takes no newcomers but lets a member adjust', (
+      tester,
+    ) async {
+      const full = WishlistClaim(
+        id: 'c1',
+        itemId: 'f1',
+        ownerId: 'ali',
+        claimerId: 'zeynep',
+        kind: ClaimKind.shared,
+        targetAmount: 500,
+        claimer: zeynep,
+        pledges: [Pledge(userId: 'zeynep', amount: 500, user: zeynep)],
+      );
+      await pump(tester, claims: _FakeClaimsRepository(claims: {'f1': full}));
+      expect(find.text('Pool is full'), findsOneWidget);
+      expect(find.text('Join'), findsNothing);
+
+      // The same pool seen by a participant (dev-me pledged).
+      const mine = WishlistClaim(
+        id: 'c1',
+        itemId: 'f1',
+        ownerId: 'ali',
+        claimerId: 'zeynep',
+        kind: ClaimKind.shared,
+        targetAmount: 500,
+        claimer: zeynep,
+        pledges: [
+          Pledge(userId: 'zeynep', amount: 300, user: zeynep),
+          Pledge(userId: 'dev-me', amount: 200),
+        ],
+      );
+      await pump(tester, claims: _FakeClaimsRepository(claims: {'f1': mine}));
+      expect(find.text('Pool is full'), findsNothing);
+      expect(find.text('Your share: ₺200'), findsOneWidget);
+    });
+
     testWidgets('joining offers what is still missing and warns past it', (
       tester,
     ) async {
