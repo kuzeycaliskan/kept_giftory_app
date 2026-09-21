@@ -7,7 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Column list every gift read shares (photos + link preview embedded).
 /// `counterpartKey` picks which embedded profile becomes the counterpart.
 const String giftEmbeds =
-    ' preview:link_previews(id, url, title, image_path, price, site), '
+    ' preview:link_previews(id, url, title, image_path, price, site, '
+    'price_checked_at), '
     'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at), '
     'reactions:gift_reactions(user_id, kind), '
     'comments:gift_comments(count)';

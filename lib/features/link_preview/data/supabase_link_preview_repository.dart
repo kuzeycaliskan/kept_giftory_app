@@ -26,7 +26,7 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
   static const _maxImageBytes = 300 * 1024;
 
   @override
-  Future<LinkPreview?> fetch(String url) async {
+  Future<LinkPreview?> fetch(String url, {bool refresh = false}) async {
     final trimmed = url.trim();
     final parsed = Uri.tryParse(trimmed);
     final schemeOk =
@@ -37,7 +37,13 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
     // 1) Server-side fetch (cached, SSRF-guarded) — primary path. A row
     //    that still lacks its image or price gets one on-device try per
     //    session (the server refetches such rows on a fresh paste too).
-    final server = await _invoke({'url': trimmed});
+    //    A refresh the server declined (slot not due) is final.
+    final response = await _invoke({
+      'url': trimmed,
+      if (refresh) 'refresh': true,
+    });
+    final server = response?.preview;
+    if (refresh && response != null && response.cached) return server;
     final complete =
         server != null && server.imagePath != null && server.price != null;
     if (complete || (server != null && _enriched.contains(trimmed))) {
@@ -54,9 +60,10 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
     final imageB64 = await _downloadImage(meta['image'], referer: trimmed);
     final enriched = await _invoke({
       'url': trimmed,
+      if (refresh) 'refresh': true,
       'meta': {...meta, if (imageB64 != null) 'image_b64': imageB64},
     });
-    return enriched ?? server;
+    return enriched?.preview ?? server;
   }
 
   /// Fetches the product image on-device (≤300KB) and base64-encodes it.
@@ -97,7 +104,7 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
     }
   }
 
-  Future<LinkPreview?> _invoke(Map<String, dynamic> body) async {
+  Future<_PreviewResponse?> _invoke(Map<String, dynamic> body) async {
     try {
       final response = await _client.functions.invoke(
         'link-preview',
@@ -107,11 +114,23 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
       if (data is! Map<String, dynamic>) return null;
       final preview = data['preview'];
       if (preview is! Map<String, dynamic>) return null;
-      return LinkPreview.fromJson(preview);
+      return _PreviewResponse(
+        LinkPreview.fromJson(preview),
+        cached: data['cached'] == true,
+      );
     } catch (e) {
       // Enhancement only — log and fall back to free text (design: G-211).
       debugPrint('link-preview fetch failed: $e');
       return null;
     }
   }
+}
+
+/// The function's answer: the row, and whether it came straight from the
+/// cache (no fetch happened — nothing further to try this time).
+class _PreviewResponse {
+  const _PreviewResponse(this.preview, {required this.cached});
+
+  final LinkPreview preview;
+  final bool cached;
 }

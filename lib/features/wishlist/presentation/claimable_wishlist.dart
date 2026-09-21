@@ -27,6 +27,11 @@ class ClaimableWishlist extends ConsumerWidget {
     final theme = Theme.of(context);
     final items = ref.watch(friendWishlistProvider(ownerId));
     final claims = ref.watch(wishlistClaimsProvider(ownerId));
+    ref.listen(friendWishlistProvider(ownerId), (_, next) {
+      next.whenData(
+        (list) => refreshPreviewsOf(ref, list, friendWishlistProvider(ownerId)),
+      );
+    });
     final muted = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );

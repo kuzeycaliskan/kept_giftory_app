@@ -108,9 +108,13 @@ class _WishlistTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final items = isMine
-        ? ref.watch(myWishlistProvider)
-        : ref.watch(friendWishlistProvider(profile.id));
+    final listProvider = isMine
+        ? myWishlistProvider
+        : friendWishlistProvider(profile.id);
+    final items = ref.watch(listProvider);
+    ref.listen(listProvider, (_, next) {
+      next.whenData((list) => refreshPreviewsOf(ref, list, listProvider));
+    });
     // Same rows as the wishlist screen: product cards, and on a friend's
     // profile the reservation strip (G-303) — never on one's own.
     final claims = isMine

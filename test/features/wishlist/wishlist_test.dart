@@ -20,13 +20,16 @@ class _FakeWishlistRepository implements WishlistRepository {
 
   final List<WishlistItem> mine;
   final List<WishlistItem>? friendItems;
+  int friendFetches = 0;
 
   @override
   Future<Result<List<WishlistItem>>> fetchMine() async => Success(mine);
 
   @override
-  Future<Result<List<WishlistItem>>> fetchFor(String profileId) async =>
-      Success(friendItems ?? const []);
+  Future<Result<List<WishlistItem>>> fetchFor(String profileId) async {
+    friendFetches++;
+    return Success(friendItems ?? const []);
+  }
 
   String? lastLinkPreviewId;
 
@@ -61,8 +64,8 @@ class _FakeLinkPreviewRepository implements LinkPreviewRepository {
   final List<String> fetched = [];
 
   @override
-  Future<LinkPreview?> fetch(String url) async {
-    fetched.add(url);
+  Future<LinkPreview?> fetch(String url, {bool refresh = false}) async {
+    fetched.add(refresh ? 'refresh:$url' : url);
     return preview;
   }
 }
@@ -153,6 +156,75 @@ void main() {
 
     expect(repo.mine, isEmpty);
     expect(find.text('Your wishlist is empty'), findsOneWidget);
+  });
+
+  testWidgets('a stale price-less preview is offered for refresh once', (
+    tester,
+  ) async {
+    final stale = LinkPreview(
+      id: 'lp-stale',
+      url: 'https://shop.example.com/stale',
+      title: 'Stale product',
+      priceCheckedAt: DateTime.now().subtract(const Duration(days: 2)),
+    );
+    final repo = _FakeWishlistRepository(
+      friendItems: [
+        WishlistItem(id: 'f1', ownerId: 'ali', title: 'X', preview: stale),
+      ],
+    );
+    final linkPreviews = _FakeLinkPreviewRepository(
+      preview: stale.copyWith(price: '₺99'),
+    );
+    await pump(
+      tester,
+      repo,
+      initial: '/users/ali/wishlist?name=Ali',
+      linkPreviews: linkPreviews,
+    );
+
+    // One refresh ask, and the list reloaded once the price changed —
+    // not again for the same link (session guard).
+    expect(linkPreviews.fetched, ['refresh:https://shop.example.com/stale']);
+    expect(repo.friendFetches, 2);
+  });
+
+  testWidgets('a fresh priced preview is left alone', (tester) async {
+    final fresh = LinkPreview(
+      id: 'lp-fresh',
+      url: 'https://shop.example.com/fresh',
+      title: 'Fresh product',
+      price: '₺10',
+      priceCheckedAt: DateTime.now().subtract(const Duration(days: 3)),
+    );
+    final repo = _FakeWishlistRepository(
+      friendItems: [
+        WishlistItem(id: 'f1', ownerId: 'ali', title: 'X', preview: fresh),
+      ],
+    );
+    final linkPreviews = _FakeLinkPreviewRepository(preview: fresh);
+    await pump(
+      tester,
+      repo,
+      initial: '/users/ali/wishlist?name=Ali',
+      linkPreviews: linkPreviews,
+    );
+
+    expect(linkPreviews.fetched, isEmpty);
+    expect(repo.friendFetches, 1);
+  });
+
+  test('refresh cadence: daily without a price, monthly with one', () {
+    final now = DateTime(2026, 9, 21, 12);
+    LinkPreview at({required int hoursAgo, String? price}) => LinkPreview(
+      id: 'x',
+      price: price,
+      priceCheckedAt: now.subtract(Duration(hours: hoursAgo)),
+    );
+    expect(at(hoursAgo: 23).isPriceRefreshDue(now), isFalse);
+    expect(at(hoursAgo: 25).isPriceRefreshDue(now), isTrue);
+    expect(at(price: '₺1', hoursAgo: 29 * 24).isPriceRefreshDue(now), isFalse);
+    expect(at(price: '₺1', hoursAgo: 31 * 24).isPriceRefreshDue(now), isTrue);
+    expect(const LinkPreview(id: 'x').isPriceRefreshDue(now), isTrue);
   });
 
   testWidgets("friend's list is read-only", (tester) async {

@@ -14,6 +14,9 @@ _$LinkPreviewImpl _$$LinkPreviewImplFromJson(Map<String, dynamic> json) =>
       imagePath: json['image_path'] as String?,
       price: json['price'] as String?,
       site: json['site'] as String?,
+      priceCheckedAt: json['price_checked_at'] == null
+          ? null
+          : DateTime.parse(json['price_checked_at'] as String),
     );
 
 Map<String, dynamic> _$$LinkPreviewImplToJson(_$LinkPreviewImpl instance) =>
@@ -24,4 +27,5 @@ Map<String, dynamic> _$$LinkPreviewImplToJson(_$LinkPreviewImpl instance) =>
       'image_path': instance.imagePath,
       'price': instance.price,
       'site': instance.site,
+      'price_checked_at': instance.priceCheckedAt?.toIso8601String(),
     };

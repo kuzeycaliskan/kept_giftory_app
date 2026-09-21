@@ -7,7 +7,7 @@ class DevLinkPreviewRepository implements LinkPreviewRepository {
   const DevLinkPreviewRepository();
 
   @override
-  Future<LinkPreview?> fetch(String url) async {
+  Future<LinkPreview?> fetch(String url, {bool refresh = false}) async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     final parsed = Uri.tryParse(url.trim());
     if (parsed == null || !parsed.hasScheme || url.contains('fail')) {
@@ -28,5 +28,5 @@ class EmptyLinkPreviewRepository implements LinkPreviewRepository {
   const EmptyLinkPreviewRepository();
 
   @override
-  Future<LinkPreview?> fetch(String url) async => null;
+  Future<LinkPreview?> fetch(String url, {bool refresh = false}) async => null;
 }

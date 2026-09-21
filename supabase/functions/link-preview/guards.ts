@@ -261,6 +261,7 @@ export function previewRow(input: {
   hostname: string;
   meta: { title: string; price?: string; site?: string };
   imagePath: string | null;
+  now?: string;
 }): Record<string, string | null> {
   return {
     url_hash: input.urlHash,
@@ -273,5 +274,24 @@ export function previewRow(input: {
       ? {}
       : { price: input.meta.price.slice(0, 60) }),
     site: (input.meta.site ?? input.hostname).slice(0, 100),
+    fetched_at: input.now ?? new Date().toISOString(),
+    price_checked_at: input.now ?? new Date().toISOString(),
   };
+}
+
+/// Refresh cadence for a cached preview: a missing price is worth a daily
+/// look (shops fix their markup, we improve the parser), a known price a
+/// monthly one (prices move). `checkedAt` is the last claimed attempt.
+export const PRICE_RETRY_MS = 24 * 60 * 60 * 1000;
+export const PRICE_REFRESH_MS = 30 * 24 * 60 * 60 * 1000;
+
+export function isRefreshDue(
+  price: string | null,
+  checkedAt: string | null,
+  now: number = Date.now(),
+): boolean {
+  if (!checkedAt) return true;
+  const last = Date.parse(checkedAt);
+  if (!Number.isFinite(last)) return true;
+  return now - last >= (price === null ? PRICE_RETRY_MS : PRICE_REFRESH_MS);
 }

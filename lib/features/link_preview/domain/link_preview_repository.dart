@@ -7,5 +7,8 @@ import 'package:kept/features/link_preview/domain/link_preview.dart';
 /// tags, rate limit, network) collapses to null and the form silently keeps
 /// its free-text behavior — the flow must never block on this.
 abstract interface class LinkPreviewRepository {
-  Future<LinkPreview?> fetch(String url);
+  /// [refresh] asks the server to re-check a cached row's price/image if
+  /// its slot is due (daily without a price, monthly with one); otherwise
+  /// the cached row comes back untouched.
+  Future<LinkPreview?> fetch(String url, {bool refresh = false});
 }

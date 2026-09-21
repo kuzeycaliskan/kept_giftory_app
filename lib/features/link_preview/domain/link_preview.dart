@@ -15,6 +15,9 @@ class LinkPreview with _$LinkPreview {
     @JsonKey(name: 'image_path') String? imagePath,
     String? price,
     String? site,
+
+    /// Server clock for the price refresh cadence (see [isPriceRefreshDue]).
+    @JsonKey(name: 'price_checked_at') DateTime? priceCheckedAt,
   }) = _LinkPreview;
 
   factory LinkPreview.fromJson(Map<String, dynamic> json) =>
@@ -33,5 +36,23 @@ extension LinkPreviewTitleFit on LinkPreview {
     return t.length <= kLinkPreviewTitleMaxLength
         ? t
         : t.substring(0, kLinkPreviewTitleMaxLength).trimRight();
+  }
+}
+
+/// Refresh cadence mirrored from the server: a missing price is asked
+/// about once a day, a known one once a month. The server keeps the real
+/// clock and claims the slot; this only decides whether asking is worth
+/// a round trip.
+const Duration kPriceRetryInterval = Duration(days: 1);
+const Duration kPriceRefreshInterval = Duration(days: 30);
+
+extension LinkPreviewRefresh on LinkPreview {
+  bool isPriceRefreshDue(DateTime now) {
+    final last = priceCheckedAt;
+    if (last == null) return true;
+    final interval = price == null
+        ? kPriceRetryInterval
+        : kPriceRefreshInterval;
+    return now.difference(last) >= interval;
   }
 }

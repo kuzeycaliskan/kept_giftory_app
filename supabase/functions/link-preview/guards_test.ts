@@ -2,6 +2,7 @@
 import { assertEquals, assertExists } from "jsr:@std/assert";
 import {
   formatPrice,
+  isRefreshDue,
   parseMeta,
   previewRow,
   sniffImage,
@@ -160,4 +161,27 @@ Deno.test("upsert row omits image_path when this fetch has no image", () => {
     imagePath: null,
   });
   assertEquals(priced.price, "₺1.299,00");
+});
+
+Deno.test("refresh is due daily without a price, monthly with one", () => {
+  const now = Date.parse("2026-09-21T12:00:00Z");
+  const hoursAgo = (h: number) => new Date(now - h * 3600_000).toISOString();
+  assertEquals(isRefreshDue(null, hoursAgo(23), now), false);
+  assertEquals(isRefreshDue(null, hoursAgo(25), now), true);
+  assertEquals(isRefreshDue("₺10", hoursAgo(29 * 24), now), false);
+  assertEquals(isRefreshDue("₺10", hoursAgo(31 * 24), now), true);
+  assertEquals(isRefreshDue("₺10", null, now), true);
+});
+
+Deno.test("upsert row stamps both timestamps", () => {
+  const row = previewRow({
+    urlHash: "h",
+    url: "https://shop.test/x",
+    hostname: "shop.test",
+    meta: { title: "T" },
+    imagePath: null,
+    now: "2026-09-21T12:00:00.000Z",
+  });
+  assertEquals(row.fetched_at, "2026-09-21T12:00:00.000Z");
+  assertEquals(row.price_checked_at, "2026-09-21T12:00:00.000Z");
 });

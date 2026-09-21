@@ -28,7 +28,8 @@ class SupabaseWishlistRepository implements WishlistRepository {
       final rows = await _client
           .from(_table)
           .select(
-            '*, preview:link_previews(id, url, title, image_path, price, site)',
+            '*, preview:link_previews(id, url, title, image_path, price, '
+            'site, price_checked_at)',
           )
           .eq('owner_id', ownerId)
           .order('created_at');

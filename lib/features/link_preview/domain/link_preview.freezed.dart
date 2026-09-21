@@ -29,6 +29,10 @@ mixin _$LinkPreview {
   String? get price => throw _privateConstructorUsedError;
   String? get site => throw _privateConstructorUsedError;
 
+  /// Server clock for the price refresh cadence (see [isPriceRefreshDue]).
+  @JsonKey(name: 'price_checked_at')
+  DateTime? get priceCheckedAt => throw _privateConstructorUsedError;
+
   /// Serializes this LinkPreview to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -53,6 +57,7 @@ abstract class $LinkPreviewCopyWith<$Res> {
     @JsonKey(name: 'image_path') String? imagePath,
     String? price,
     String? site,
+    @JsonKey(name: 'price_checked_at') DateTime? priceCheckedAt,
   });
 }
 
@@ -77,6 +82,7 @@ class _$LinkPreviewCopyWithImpl<$Res, $Val extends LinkPreview>
     Object? imagePath = freezed,
     Object? price = freezed,
     Object? site = freezed,
+    Object? priceCheckedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -104,6 +110,10 @@ class _$LinkPreviewCopyWithImpl<$Res, $Val extends LinkPreview>
                 ? _value.site
                 : site // ignore: cast_nullable_to_non_nullable
                       as String?,
+            priceCheckedAt: freezed == priceCheckedAt
+                ? _value.priceCheckedAt
+                : priceCheckedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -126,6 +136,7 @@ abstract class _$$LinkPreviewImplCopyWith<$Res>
     @JsonKey(name: 'image_path') String? imagePath,
     String? price,
     String? site,
+    @JsonKey(name: 'price_checked_at') DateTime? priceCheckedAt,
   });
 }
 
@@ -149,6 +160,7 @@ class __$$LinkPreviewImplCopyWithImpl<$Res>
     Object? imagePath = freezed,
     Object? price = freezed,
     Object? site = freezed,
+    Object? priceCheckedAt = freezed,
   }) {
     return _then(
       _$LinkPreviewImpl(
@@ -176,6 +188,10 @@ class __$$LinkPreviewImplCopyWithImpl<$Res>
             ? _value.site
             : site // ignore: cast_nullable_to_non_nullable
                   as String?,
+        priceCheckedAt: freezed == priceCheckedAt
+            ? _value.priceCheckedAt
+            : priceCheckedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -191,6 +207,7 @@ class _$LinkPreviewImpl implements _LinkPreview {
     @JsonKey(name: 'image_path') this.imagePath,
     this.price,
     this.site,
+    @JsonKey(name: 'price_checked_at') this.priceCheckedAt,
   });
 
   factory _$LinkPreviewImpl.fromJson(Map<String, dynamic> json) =>
@@ -210,9 +227,14 @@ class _$LinkPreviewImpl implements _LinkPreview {
   @override
   final String? site;
 
+  /// Server clock for the price refresh cadence (see [isPriceRefreshDue]).
+  @override
+  @JsonKey(name: 'price_checked_at')
+  final DateTime? priceCheckedAt;
+
   @override
   String toString() {
-    return 'LinkPreview(id: $id, url: $url, title: $title, imagePath: $imagePath, price: $price, site: $site)';
+    return 'LinkPreview(id: $id, url: $url, title: $title, imagePath: $imagePath, price: $price, site: $site, priceCheckedAt: $priceCheckedAt)';
   }
 
   @override
@@ -226,13 +248,23 @@ class _$LinkPreviewImpl implements _LinkPreview {
             (identical(other.imagePath, imagePath) ||
                 other.imagePath == imagePath) &&
             (identical(other.price, price) || other.price == price) &&
-            (identical(other.site, site) || other.site == site));
+            (identical(other.site, site) || other.site == site) &&
+            (identical(other.priceCheckedAt, priceCheckedAt) ||
+                other.priceCheckedAt == priceCheckedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, url, title, imagePath, price, site);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    url,
+    title,
+    imagePath,
+    price,
+    site,
+    priceCheckedAt,
+  );
 
   /// Create a copy of LinkPreview
   /// with the given fields replaced by the non-null parameter values.
@@ -256,6 +288,7 @@ abstract class _LinkPreview implements LinkPreview {
     @JsonKey(name: 'image_path') final String? imagePath,
     final String? price,
     final String? site,
+    @JsonKey(name: 'price_checked_at') final DateTime? priceCheckedAt,
   }) = _$LinkPreviewImpl;
 
   factory _LinkPreview.fromJson(Map<String, dynamic> json) =
@@ -274,6 +307,11 @@ abstract class _LinkPreview implements LinkPreview {
   String? get price;
   @override
   String? get site;
+
+  /// Server clock for the price refresh cadence (see [isPriceRefreshDue]).
+  @override
+  @JsonKey(name: 'price_checked_at')
+  DateTime? get priceCheckedAt;
 
   /// Create a copy of LinkPreview
   /// with the given fields replaced by the non-null parameter values.

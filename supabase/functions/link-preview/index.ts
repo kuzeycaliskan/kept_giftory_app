@@ -13,6 +13,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   guardedFetch,
+  isRefreshDue,
   parseMeta,
   previewRow,
   readCapped,
@@ -65,6 +66,10 @@ Deno.serve(async (req) => {
   // Trust note: meta is user-supplied content (same trust level as free
   // text); worst case is a cosmetic wrong title in the shared cache.
   const clientMeta = body?.meta;
+  // A periodic refresh ask (see isRefreshDue): the server decides whether
+  // the slot is open and claims it before trying, so concurrent viewers of
+  // the same product cost one attempt per period.
+  const refresh = body?.refresh === true;
   if (typeof rawUrl !== "string") return json(400, { error: "bad_request" });
 
   const url = validateTargetUrl(rawUrl.trim());
@@ -81,13 +86,26 @@ Deno.serve(async (req) => {
   // row as it was). Nothing retries in the background.
   const { data: cached } = await admin
     .from("link_previews")
-    .select("id, title, image_path, price, site")
+    .select("id, title, image_path, price, site, price_checked_at")
     .eq("url_hash", urlHash)
     .maybeSingle();
-  const incomplete = cached !== null &&
-    (cached.image_path === null || cached.price === null);
-  if (cached && !incomplete) {
-    return json(200, { preview: cached, cached: true });
+  if (cached) {
+    const incomplete = cached.image_path === null || cached.price === null;
+    const due = isRefreshDue(cached.price, cached.price_checked_at);
+    // Posting meta: accepted for an incomplete row, or as the second half
+    // of a refresh this server already opened. Plain lookups: refetch only
+    // an incomplete row (a fresh paste) or a refresh whose slot is due.
+    const proceed = clientMeta
+      ? incomplete || refresh
+      : incomplete || (refresh && due);
+    if (!proceed) return json(200, { preview: cached, cached: true });
+    if (refresh && !clientMeta) {
+      // Claim the slot now: a failed attempt still waits a full period.
+      await admin
+        .from("link_previews")
+        .update({ price_checked_at: new Date().toISOString() })
+        .eq("id", cached.id);
+    }
   }
 
   // Rate limit: N fetches per user per minute.
@@ -189,7 +207,7 @@ Deno.serve(async (req) => {
       }),
       { onConflict: "url_hash" },
     )
-    .select("id, title, image_path, price, site")
+    .select("id, title, image_path, price, site, price_checked_at")
     .single();
   if (insErr) return json(500, { error: "store_failed" });
 

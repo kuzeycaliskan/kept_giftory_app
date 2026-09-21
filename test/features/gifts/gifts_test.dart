@@ -272,7 +272,8 @@ class _FakeLinkPreviewRepository implements LinkPreviewRepository {
   final LinkPreview? preview;
 
   @override
-  Future<LinkPreview?> fetch(String url) async => preview;
+  Future<LinkPreview?> fetch(String url, {bool refresh = false}) async =>
+      preview;
 }
 
 /// Forms grew past one screen (photo section): bring the target into the

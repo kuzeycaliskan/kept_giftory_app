@@ -31,14 +31,21 @@ class WishlistScreen extends ConsumerWidget {
         ? ref.watch(myWishlistProvider)
         : ref.watch(friendWishlistProvider(ownerId!));
     final claims = _isMine ? null : ref.watch(wishlistClaimsProvider(ownerId!));
-
-    ref.listen(wishlistControllerProvider, (_, next) {
-      if (next.hasError) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
-      }
-    });
+    // Lists coming on screen are when stale prices get another look.
+    final listProvider = _isMine
+        ? myWishlistProvider
+        : friendWishlistProvider(ownerId!);
+    ref
+      ..listen(listProvider, (_, next) {
+        next.whenData((list) => refreshPreviewsOf(ref, list, listProvider));
+      })
+      ..listen(wishlistControllerProvider, (_, next) {
+        if (next.hasError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        }
+      });
 
     return Scaffold(
       appBar: AppBar(

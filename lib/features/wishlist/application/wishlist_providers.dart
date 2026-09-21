@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
+import 'package:kept/features/link_preview/application/preview_refresher.dart';
 import 'package:kept/features/wishlist/data/dev_wishlist_repository.dart';
 import 'package:kept/features/wishlist/data/supabase_wishlist_repository.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
@@ -85,4 +88,25 @@ class WishlistController extends _$WishlistController {
       },
     );
   }
+}
+
+/// Offers the list's previews for a periodic price refresh and reloads the
+/// list when something changed. Call from a `ref.listen` on [provider].
+void refreshPreviewsOf(
+  WidgetRef ref,
+  List<WishlistItem> items,
+  ProviderOrFamily provider,
+) {
+  final previews = [
+    for (final item in items)
+      if (item.preview != null) item.preview!,
+  ];
+  if (previews.isEmpty) return;
+  unawaited(
+    ref.read(previewRefresherProvider.notifier).refreshDue(previews).then((
+      changed,
+    ) {
+      if (changed) ref.invalidate(provider);
+    }),
+  );
 }
