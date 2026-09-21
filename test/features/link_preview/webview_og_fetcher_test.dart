@@ -14,7 +14,7 @@ void main() {
 
   test('platform-quoted and plain JSON both parse; blanks become null', () {
     const plain =
-        '{"title":" Roborock ","image":"","price":"1.904,06 TL",'
+        '{"title":" Roborock ","image":"","price":"1.904,06 TL", '
         '"site":"www.amazon.com.tr"}';
     final expected = {
       'title': 'Roborock',
