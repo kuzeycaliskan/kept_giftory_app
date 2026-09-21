@@ -59,14 +59,35 @@ class WebviewOgFetcher {
   };
   var price = m("product:price:amount") || m("og:price:amount") || null;
   if (!price) {
-    // Amazon: no structured price; the accessible price node carries it.
-    var amz = document.querySelector(
-      "#corePrice_mobile_feature_div .a-offscreen," +
-      "#corePrice_feature_div .a-offscreen," +
-      "#corePriceDisplay_desktop_feature_div .a-offscreen," +
-      "#corePriceDisplay_mobile_feature_div .a-offscreen");
-    var amzText = amz && (amz.textContent || "").trim();
-    if (amzText) price = amzText.replace(/([0-9])(TL|TRY)$/, "$1 $2");
+    // Amazon: no structured price. The price-to-pay block is the one that
+    // is not a struck-through list price or a per-unit price; its
+    // accessible text is often empty on mobile, so assemble the parts.
+    var pay = document.querySelector(
+      ".priceToPay," +
+      "#corePriceDisplay_mobile_feature_div .a-price:not(.a-text-price)," +
+      "#corePrice_mobile_feature_div .a-price:not(.a-text-price)," +
+      "#corePriceDisplay_desktop_feature_div .a-price:not(.a-text-price)," +
+      "#corePrice_feature_div .a-price:not(.a-text-price)");
+    if (pay) {
+      var off = pay.querySelector(".a-offscreen");
+      var t = off ? (off.textContent || "").trim() : "";
+      if (!t) {
+        var whole = pay.querySelector(".a-price-whole");
+        var frac = pay.querySelector(".a-price-fraction");
+        // Amazon renders an empty symbol node before the number and the
+        // real one after it — take the first non-empty.
+        var sym = "";
+        pay.querySelectorAll(".a-price-symbol").forEach(function (e) {
+          if (!sym) sym = (e.textContent || "").trim();
+        });
+        var w = whole ? (whole.textContent || "").replace(/[^0-9.]/g, "") : "";
+        if (w) {
+          t = w + (frac ? "," + (frac.textContent || "").trim() : "") +
+            " " + (sym || "TL");
+        }
+      }
+      if (t) price = t.replace(/([0-9])(TL|TRY)$/, "$1 $2");
+    }
   }
   if (!price) {
     var ip = document.querySelector("[itemprop='price']");
