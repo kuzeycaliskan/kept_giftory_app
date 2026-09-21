@@ -330,7 +330,7 @@
   "claimJoin": "Katıl",
   "claimMyPledge": "Katkın: {amount}",
   "claimPledgeTitle": "Katkın",
-  "claimPledgeHint": "Tutar (₺)",
+  "claimPledgeHint": "Tutar",
   "claimPledgeInvalid": "Sıfırdan büyük bir tutar gir",
   "claimTargetHint": "Ürün fiyatı (hedef)",
   "claimSharedTitle": "Ortak hediye başlat",

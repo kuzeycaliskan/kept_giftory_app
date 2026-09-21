@@ -1097,7 +1097,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get claimPledgeTitle => 'Katkın';
 
   @override
-  String get claimPledgeHint => 'Tutar (₺)';
+  String get claimPledgeHint => 'Tutar';
 
   @override
   String get claimPledgeInvalid => 'Sıfırdan büyük bir tutar gir';

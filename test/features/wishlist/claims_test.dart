@@ -339,17 +339,13 @@ void main() {
 
       await tester.tap(find.text('Chip in together'));
       await tester.pumpAndSettle();
-      final priceField = find.widgetWithText(
-        TextField,
-        'Product price (target)',
-      );
+      expect(find.text('Product price (target)'), findsOneWidget);
+      expect(find.text('Your share (optional)'), findsOneWidget);
+      final priceField = find.byKey(const Key('claim-target'));
       expect(tester.widget<TextField>(priceField).controller!.text, '1299');
 
       await tester.enterText(priceField, '1100');
-      await tester.enterText(
-        find.widgetWithText(TextField, 'Your share (optional)'),
-        '300',
-      );
+      await tester.enterText(find.byKey(const Key('claim-amount')), '300');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 

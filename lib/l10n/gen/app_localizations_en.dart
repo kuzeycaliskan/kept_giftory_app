@@ -1112,7 +1112,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimPledgeTitle => 'Your contribution';
 
   @override
-  String get claimPledgeHint => 'Amount (₺)';
+  String get claimPledgeHint => 'Amount';
 
   @override
   String get claimPledgeInvalid => 'Enter an amount above zero';

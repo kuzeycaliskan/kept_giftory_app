@@ -516,31 +516,32 @@ class _AmountSheetState extends State<_AmountSheet> {
               ),
             ),
           ],
-          const SizedBox(height: KeptSpacing.md),
-          // Labels always float so both fields keep one height regardless
-          // of focus or content.
+          const SizedBox(height: KeptSpacing.lg),
+          // Captions sit above the filled fields (the theme's borderless
+          // fill leaves no room for a floating label), so both fields read
+          // the same and keep one height.
           if (widget.askTarget) ...[
+            _Caption(l10n.claimTargetHint),
             TextField(
+              key: const Key('claim-target'),
               controller: _target,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: InputDecoration(
-                labelText: l10n.claimTargetHint,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-              ),
+              decoration: const InputDecoration(prefixText: '₺ '),
             ),
-            const SizedBox(height: KeptSpacing.sm),
+            const SizedBox(height: KeptSpacing.md),
           ],
+          _Caption(
+            widget.askTarget ? l10n.claimMyShareOptional : l10n.claimPledgeHint,
+          ),
           TextField(
+            key: const Key('claim-amount'),
             controller: _amount,
             autofocus: !widget.askTarget,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: widget.askTarget
-                  ? l10n.claimMyShareOptional
-                  : l10n.claimPledgeHint,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
+              prefixText: '₺ ',
               errorText: _amountError,
             ),
             onSubmitted: (_) => _save(),
@@ -548,6 +549,29 @@ class _AmountSheetState extends State<_AmountSheet> {
           const SizedBox(height: KeptSpacing.lg),
           FilledButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
+      ),
+    );
+  }
+}
+
+class _Caption extends StatelessWidget {
+  const _Caption(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: KeptSpacing.xs,
+        bottom: KeptSpacing.xs,
+      ),
+      child: Text(
+        text,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
       ),
     );
   }

@@ -569,7 +569,7 @@
     }
   },
   "claimPledgeTitle": "Your contribution",
-  "claimPledgeHint": "Amount (₺)",
+  "claimPledgeHint": "Amount",
   "claimPledgeInvalid": "Enter an amount above zero",
   "claimTargetHint": "Product price (target)",
   "claimSharedTitle": "Start a group gift",

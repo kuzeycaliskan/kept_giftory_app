@@ -2081,7 +2081,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimPledgeHint.
   ///
   /// In en, this message translates to:
-  /// **'Amount (₺)'**
+  /// **'Amount'**
   String get claimPledgeHint;
 
   /// No description provided for @claimPledgeInvalid.
