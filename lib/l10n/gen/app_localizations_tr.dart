@@ -1103,14 +1103,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get claimPledgeInvalid => 'Sıfırdan büyük bir tutar gir';
 
   @override
-  String get claimTargetHint => 'Hedef tutar (isteğe bağlı)';
+  String get claimTargetHint => 'Ürün fiyatı (hedef)';
 
   @override
   String get claimSharedTitle => 'Ortak hediye başlat';
 
   @override
   String get claimSharedBody =>
-      'Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir.';
+      'Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir. Ürün fiyatını girersen herkes ne kadar kaldığını görür.';
 
   @override
   String get claimMakeShared => 'Ortak hediyeye çevir';
@@ -1142,4 +1142,31 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get linkPreviewUnavailable =>
       'Önizleme alınamadı; adı kendin yazabilirsin';
+
+  @override
+  String get claimMyShareOptional => 'Senin payın (isteğe bağlı)';
+
+  @override
+  String claimRemaining(String amount) {
+    return 'Kalan $amount';
+  }
+
+  @override
+  String get claimFunded => 'Tamamlandı';
+
+  @override
+  String claimProgressPercent(int percent) {
+    return '%$percent';
+  }
+
+  @override
+  String claimJoinHint(String remaining, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi',
+      one: '1 kişi',
+    );
+    return 'Kalan $remaining · $_temp0';
+  }
 }

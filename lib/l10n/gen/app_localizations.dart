@@ -2093,7 +2093,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimTargetHint.
   ///
   /// In en, this message translates to:
-  /// **'Target amount (optional)'**
+  /// **'Product price (target)'**
   String get claimTargetHint;
 
   /// No description provided for @claimSharedTitle.
@@ -2105,7 +2105,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimSharedBody.
   ///
   /// In en, this message translates to:
-  /// **'Friends pledge what they\'ll put in. Money changes hands outside Kept.'**
+  /// **'Friends pledge what they\'ll put in. Money changes hands outside Kept. With the price set, everyone sees how much is left.'**
   String get claimSharedBody;
 
   /// No description provided for @claimMakeShared.
@@ -2167,6 +2167,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t fetch a preview — you can type the name yourself'**
   String get linkPreviewUnavailable;
+
+  /// No description provided for @claimMyShareOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share (optional)'**
+  String get claimMyShareOptional;
+
+  /// No description provided for @claimRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String claimRemaining(String amount);
+
+  /// No description provided for @claimFunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Fully funded'**
+  String get claimFunded;
+
+  /// No description provided for @claimProgressPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String claimProgressPercent(int percent);
+
+  /// No description provided for @claimJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} left · {count, plural, =1{1 in} other{{count} in}}'**
+  String claimJoinHint(String remaining, int count);
 }
 
 class _AppLocalizationsDelegate

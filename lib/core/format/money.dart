@@ -11,10 +11,23 @@ String formatTry(String locale, double amount) {
   ).format(amount);
 }
 
-/// Accepts "1200", "1.200", "1200,50", "1.200,50" and "1200.50"; null when
-/// not a positive amount.
+/// Plain digits for an editable field: "1299" or "1299,50" — no thousands
+/// separator, so what the user reads back parses the same way.
+String plainAmount(double amount) {
+  final whole = amount == amount.roundToDouble();
+  return whole
+      ? amount.toStringAsFixed(0)
+      : amount.toStringAsFixed(2).replaceAll('.', ',');
+}
+
+/// Accepts "1200", "1.200", "1200,50", "1.200,50", "1200.50" and shop price
+/// strings ("1.299,00 TL", "₺1.299", "1299 TRY"); null when not a positive
+/// amount. Turkish separators win: a lone comma is the decimal point.
 double? parseAmount(String raw) {
-  var text = raw.trim().replaceAll(' ', '').replaceAll('₺', '');
+  var text = raw
+      .trim()
+      .replaceAll(RegExp('[^0-9.,]'), '')
+      .replaceAll(RegExp(r'^[.,]+|[.,]+$'), '');
   if (text.isEmpty) return null;
   final comma = text.lastIndexOf(',');
   final dot = text.lastIndexOf('.');

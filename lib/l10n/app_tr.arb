@@ -332,9 +332,9 @@
   "claimPledgeTitle": "Katkın",
   "claimPledgeHint": "Tutar (₺)",
   "claimPledgeInvalid": "Sıfırdan büyük bir tutar gir",
-  "claimTargetHint": "Hedef tutar (isteğe bağlı)",
+  "claimTargetHint": "Ürün fiyatı (hedef)",
   "claimSharedTitle": "Ortak hediye başlat",
-  "claimSharedBody": "Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir.",
+  "claimSharedBody": "Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir. Ürün fiyatını girersen herkes ne kadar kaldığını görür.",
   "claimMakeShared": "Ortak hediyeye çevir",
   "claimWithdraw": "Katkımı geri çek",
   "claimCancelShared": "Ortak hediyeyi iptal et",
@@ -344,5 +344,10 @@
   "claimTaken": "Bunu başkası ayırmış",
   "claimFailed": "Kaydedilemedi. Tekrar dene.",
   "claimOrganizer": "Organizatör",
-  "linkPreviewUnavailable": "Önizleme alınamadı; adı kendin yazabilirsin"
+  "linkPreviewUnavailable": "Önizleme alınamadı; adı kendin yazabilirsin",
+  "claimMyShareOptional": "Senin payın (isteğe bağlı)",
+  "claimRemaining": "Kalan {amount}",
+  "claimFunded": "Tamamlandı",
+  "claimProgressPercent": "%{percent}",
+  "claimJoinHint": "Kalan {remaining} · {count, plural, =1{1 kişi} other{{count} kişi}}"
 }

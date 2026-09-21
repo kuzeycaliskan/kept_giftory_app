@@ -571,9 +571,9 @@
   "claimPledgeTitle": "Your contribution",
   "claimPledgeHint": "Amount (₺)",
   "claimPledgeInvalid": "Enter an amount above zero",
-  "claimTargetHint": "Target amount (optional)",
+  "claimTargetHint": "Product price (target)",
   "claimSharedTitle": "Start a group gift",
-  "claimSharedBody": "Friends pledge what they'll put in. Money changes hands outside Kept.",
+  "claimSharedBody": "Friends pledge what they'll put in. Money changes hands outside Kept. With the price set, everyone sees how much is left.",
   "claimMakeShared": "Turn into a group gift",
   "claimWithdraw": "Withdraw my share",
   "claimCancelShared": "Cancel the group gift",
@@ -583,5 +583,34 @@
   "claimTaken": "Someone already reserved this",
   "claimFailed": "Couldn't save. Try again.",
   "claimOrganizer": "Organizer",
-  "linkPreviewUnavailable": "Couldn't fetch a preview — you can type the name yourself"
+  "linkPreviewUnavailable": "Couldn't fetch a preview — you can type the name yourself",
+  "claimMyShareOptional": "Your share (optional)",
+  "claimRemaining": "{amount} left",
+  "@claimRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "claimFunded": "Fully funded",
+  "claimProgressPercent": "{percent}%",
+  "@claimProgressPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "claimJoinHint": "{remaining} left · {count, plural, =1{1 in} other{{count} in}}",
+  "@claimJoinHint": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

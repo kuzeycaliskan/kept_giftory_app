@@ -47,6 +47,13 @@ class ClaimBar extends ConsumerWidget {
   }
 }
 
+/// The product card's price, when the shop exposed one — the pool goal
+/// starts there and stays editable.
+double? _priceOf(WishlistItem item) {
+  final price = item.preview?.price;
+  return price == null ? null : parseAmount(price);
+}
+
 /// Shows the outcome of a claim action; a lost race gets its own words.
 void _report(BuildContext context, Failure? failure) {
   if (failure == null || !context.mounted) return;
@@ -87,6 +94,7 @@ class _FreeActions extends ConsumerWidget {
       title: context.l10n.claimSharedTitle,
       body: context.l10n.claimSharedBody,
       askTarget: true,
+      initialTarget: _priceOf(item),
     );
     if (input == null || !context.mounted) return;
     final controller = ref.read(claimsControllerProvider.notifier);
@@ -163,6 +171,7 @@ class _SoloState extends ConsumerWidget {
               title: l10n.claimSharedTitle,
               body: l10n.claimSharedBody,
               askTarget: true,
+              initialTarget: _priceOf(item),
             );
             if (input == null || !context.mounted) return;
             final failure = await controller.makeShared(
@@ -252,9 +261,17 @@ class _SharedState extends ConsumerWidget {
 
   Future<void> _pledge(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final target = claim.targetAmount;
     final input = await showAmountSheet(
       context,
       title: l10n.claimPledgeTitle,
+      body: target == null
+          ? null
+          : l10n.claimJoinHint(
+              formatTry(locale, _remaining(target)),
+              claim.pledges.length,
+            ),
       initialAmount: claim.pledgeOf(myId)?.amount,
     );
     if (input?.amount == null || !context.mounted) return;
@@ -263,6 +280,9 @@ class _SharedState extends ConsumerWidget {
         .pledge(item.ownerId, claim.id, input!.amount!);
     if (context.mounted) _report(context, failure);
   }
+
+  double _remaining(double target) =>
+      (target - claim.pledgedTotal).clamp(0, target).toDouble();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -275,7 +295,7 @@ class _SharedState extends ConsumerWidget {
         ? total
         : l10n.claimSharedTarget(total, formatTry(locale, target));
     final mine = claim.pledgeOf(myId);
-    return Row(
+    final summary = Row(
       children: [
         Icon(Icons.group, size: 18, color: scheme.primary),
         const SizedBox(width: KeptSpacing.sm),
@@ -315,6 +335,69 @@ class _SharedState extends ConsumerWidget {
           ),
       ],
     );
+    if (target == null) return summary;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        summary,
+        _PoolProgress(
+          fraction: (claim.pledgedTotal / target).clamp(0, 1).toDouble(),
+          remaining: _remaining(target),
+        ),
+      ],
+    );
+  }
+}
+
+/// How far the pool got: a bar, the percentage and what is still missing.
+class _PoolProgress extends StatelessWidget {
+  const _PoolProgress({required this.fraction, required this.remaining});
+
+  final double fraction;
+  final double remaining;
+
+  String _progressLabel(AppLocalizations l10n, String locale) {
+    final percent = l10n.claimProgressPercent((fraction * 100).floor());
+    final left = l10n.claimRemaining(formatTry(locale, remaining));
+    return '$percent · $left';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final theme = Theme.of(context);
+    final funded = remaining <= 0;
+    return Padding(
+      padding: const EdgeInsets.only(top: KeptSpacing.xs),
+      child: Row(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(KeptRadius.pill),
+              child: LinearProgressIndicator(
+                value: fraction,
+                minHeight: 6,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+              ),
+            ),
+          ),
+          const SizedBox(width: KeptSpacing.sm),
+          // Loose fit: at large text scales the label yields to the bar
+          // and ellipsizes instead of overflowing.
+          Flexible(
+            child: Text(
+              funded ? l10n.claimFunded : _progressLabel(l10n, locale),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -335,6 +418,7 @@ Future<AmountInput?> showAmountSheet(
   String? body,
   bool askTarget = false,
   double? initialAmount,
+  double? initialTarget,
 }) {
   return showModalBottomSheet<AmountInput>(
     context: context,
@@ -345,6 +429,7 @@ Future<AmountInput?> showAmountSheet(
       body: body,
       askTarget: askTarget,
       initialAmount: initialAmount,
+      initialTarget: initialTarget,
     ),
   );
 }
@@ -355,12 +440,16 @@ class _AmountSheet extends StatefulWidget {
     required this.askTarget,
     this.body,
     this.initialAmount,
+    this.initialTarget,
   });
 
   final String title;
   final String? body;
   final bool askTarget;
   final double? initialAmount;
+
+  /// Pre-filled pool goal (the product card's price); editable.
+  final double? initialTarget;
 
   @override
   State<_AmountSheet> createState() => _AmountSheetState();
@@ -370,9 +459,13 @@ class _AmountSheetState extends State<_AmountSheet> {
   late final _amount = TextEditingController(
     text: widget.initialAmount == null
         ? ''
-        : formatTry('en', widget.initialAmount!).replaceAll('₺', ''),
+        : plainAmount(widget.initialAmount!),
   );
-  final _target = TextEditingController();
+  late final _target = TextEditingController(
+    text: widget.initialTarget == null
+        ? ''
+        : plainAmount(widget.initialTarget!),
+  );
   String? _amountError;
 
   @override
@@ -424,13 +517,18 @@ class _AmountSheetState extends State<_AmountSheet> {
             ),
           ],
           const SizedBox(height: KeptSpacing.md),
+          // Labels always float so both fields keep one height regardless
+          // of focus or content.
           if (widget.askTarget) ...[
             TextField(
               controller: _target,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: InputDecoration(labelText: l10n.claimTargetHint),
+              decoration: InputDecoration(
+                labelText: l10n.claimTargetHint,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+              ),
             ),
             const SizedBox(height: KeptSpacing.sm),
           ],
@@ -440,8 +538,9 @@ class _AmountSheetState extends State<_AmountSheet> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: widget.askTarget
-                  ? l10n.claimPledgeTitle
+                  ? l10n.claimMyShareOptional
                   : l10n.claimPledgeHint,
+              floatingLabelBehavior: FloatingLabelBehavior.always,
               errorText: _amountError,
             ),
             onSubmitted: (_) => _save(),

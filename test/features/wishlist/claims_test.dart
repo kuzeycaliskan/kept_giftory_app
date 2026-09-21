@@ -6,6 +6,7 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/format/money.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
@@ -190,6 +191,16 @@ void main() {
       expect(parseAmount('1200.50'), 1200.5);
       expect(parseAmount('0'), isNull);
       expect(parseAmount('abc'), isNull);
+      // Shop price strings from link previews.
+      expect(parseAmount('1.299,00 TL'), 1299);
+      expect(parseAmount('₺1.299'), 1299);
+      expect(parseAmount('1299 TRY'), 1299);
+    });
+
+    test('plain field text round-trips through parse', () {
+      expect(plainAmount(1299), '1299');
+      expect(plainAmount(1299.5), '1299,50');
+      expect(parseAmount(plainAmount(1299.5)), 1299.5);
     });
 
     test('formats lira without noise', () {
@@ -266,9 +277,11 @@ void main() {
       await pump(tester, claims: claims);
 
       expect(find.text('Group gift · 1 in · ₺1,000 of ₺3,000'), findsOneWidget);
+      expect(find.text('33% · ₺2,000 left'), findsOneWidget);
 
       await tester.tap(find.text('Join'));
       await tester.pumpAndSettle();
+      expect(find.text('₺2,000 left · 1 in'), findsOneWidget);
       await tester.enterText(find.byType(TextField), '500');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
@@ -276,6 +289,73 @@ void main() {
       expect(claims.calls, ['pledge:c1:500.0']);
       expect(find.text('Your share: ₺500'), findsOneWidget);
       expect(find.text('Group gift · 2 in · ₺1,500 of ₺3,000'), findsOneWidget);
+      expect(find.text('50% · ₺1,500 left'), findsOneWidget);
+    });
+
+    testWidgets('a pool that reached its price reads as funded', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository(
+        claims: const {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'zeynep',
+            kind: ClaimKind.shared,
+            targetAmount: 1000,
+            claimer: zeynep,
+            pledges: [Pledge(userId: 'zeynep', amount: 1200, user: zeynep)],
+          ),
+        },
+      );
+      await pump(tester, claims: claims);
+
+      expect(find.text('Fully funded'), findsOneWidget);
+      expect(find.textContaining('left'), findsNothing);
+    });
+
+    testWidgets('starting a pool pre-fills the product price, editable', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository();
+      await pump(
+        tester,
+        claims: claims,
+        items: const [
+          WishlistItem(
+            id: 'f1',
+            ownerId: 'ali',
+            title: 'Racket',
+            preview: LinkPreview(
+              id: 'lp',
+              url: 'https://shop.example.com/racket',
+              title: 'Babolat Pure Drive',
+              price: '1.299,00 TL',
+            ),
+          ),
+        ],
+      );
+
+      await tester.tap(find.text('Chip in together'));
+      await tester.pumpAndSettle();
+      final priceField = find.widgetWithText(
+        TextField,
+        'Product price (target)',
+      );
+      expect(tester.widget<TextField>(priceField).controller!.text, '1299');
+
+      await tester.enterText(priceField, '1100');
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Your share (optional)'),
+        '300',
+      );
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(claims.calls.first, 'claim:f1:shared:1100.0');
+      expect(claims.calls.last, 'pledge:c-f1:300.0');
+      expect(find.text('27% · ₺800 left'), findsOneWidget);
     });
 
     testWidgets('a pledge must be a positive amount', (tester) async {

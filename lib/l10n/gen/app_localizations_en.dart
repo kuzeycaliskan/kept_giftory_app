@@ -1118,14 +1118,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimPledgeInvalid => 'Enter an amount above zero';
 
   @override
-  String get claimTargetHint => 'Target amount (optional)';
+  String get claimTargetHint => 'Product price (target)';
 
   @override
   String get claimSharedTitle => 'Start a group gift';
 
   @override
   String get claimSharedBody =>
-      'Friends pledge what they\'ll put in. Money changes hands outside Kept.';
+      'Friends pledge what they\'ll put in. Money changes hands outside Kept. With the price set, everyone sees how much is left.';
 
   @override
   String get claimMakeShared => 'Turn into a group gift';
@@ -1157,4 +1157,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get linkPreviewUnavailable =>
       'Couldn\'t fetch a preview — you can type the name yourself';
+
+  @override
+  String get claimMyShareOptional => 'Your share (optional)';
+
+  @override
+  String claimRemaining(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String get claimFunded => 'Fully funded';
+
+  @override
+  String claimProgressPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String claimJoinHint(String remaining, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count in',
+      one: '1 in',
+    );
+    return '$remaining left · $_temp0';
+  }
 }
