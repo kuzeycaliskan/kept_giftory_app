@@ -51,14 +51,33 @@ class LinkPreviewCard extends StatelessWidget {
                   width: _minHeight,
                   child: Stack(
                     children: [
+                      // Product photos are shown whole (never cropped) in a
+                      // fixed square, centred on whatever height the text
+                      // gave the row; the column's tint fills the rest.
                       Positioned.fill(
-                        child: preview.imagePath == null
-                            ? fallbackImage
-                            : Image.network(
-                                Env.linkPreviewImageUrl(preview.imagePath!),
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => fallbackImage,
-                              ),
+                        child: ColoredBox(
+                          color: scheme.surfaceContainerLow,
+                          child: Center(
+                            child: SizedBox.square(
+                              dimension: _minHeight,
+                              child: preview.imagePath == null
+                                  ? fallbackImage
+                                  : Padding(
+                                      padding: const EdgeInsets.all(
+                                        KeptSpacing.xs,
+                                      ),
+                                      child: Image.network(
+                                        Env.linkPreviewImageUrl(
+                                          preview.imagePath!,
+                                        ),
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (_, __, ___) =>
+                                            fallbackImage,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

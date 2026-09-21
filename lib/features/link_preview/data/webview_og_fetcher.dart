@@ -13,7 +13,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 /// visited that page themselves to copy the link, so no new information
 /// leaks anywhere.
 class WebviewOgFetcher {
-  static const _timeout = Duration(seconds: 8);
+  /// Heavy shop pages (Amazon) can pass 8s on a phone; the DOM usually has
+  /// its meta and price well before `load`, so a timeout still reads it.
+  static const _timeout = Duration(seconds: 12);
 
   /// JS that pulls the OG/Twitter fields out of the loaded document.
   static const _extractJs = r'''
@@ -134,7 +136,7 @@ class WebviewOgFetcher {
       );
       await controller.loadRequest(Uri.parse(url));
       final ok = await loaded.future.timeout(_timeout, onTimeout: () => false);
-      if (!ok) return null;
+      if (!ok) debugPrint('webview og fetch: load timed out, reading DOM');
       // Give client-rendered pages a beat to inject their meta tags.
       await Future<void>.delayed(const Duration(milliseconds: 400));
       final raw = await controller.runJavaScriptReturningResult(_extractJs);
