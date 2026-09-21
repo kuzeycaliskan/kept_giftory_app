@@ -7,11 +7,15 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
+import 'package:kept/features/link_preview/domain/link_preview.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/features/profile/domain/profile_repository.dart';
 import 'package:kept/features/profile/presentation/user_profile_screen.dart';
+import 'package:kept/features/wishlist/application/wishlist_providers.dart';
+import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/features/wishlist/domain/wishlist_repository.dart';
 
 class _FakeProfileRepository implements ProfileRepository {
   _FakeProfileRepository({this.other, this.card});
@@ -112,11 +116,36 @@ const _ali = Profile(
   occupation: 'Designer',
 );
 
+class _FakeWishlistRepository implements WishlistRepository {
+  const _FakeWishlistRepository(this.items);
+
+  final List<WishlistItem> items;
+
+  @override
+  Future<Result<List<WishlistItem>>> fetchMine() async => const Success([]);
+
+  @override
+  Future<Result<List<WishlistItem>>> fetchFor(String profileId) async =>
+      Success(items);
+
+  @override
+  Future<Result<WishlistItem>> add({
+    required String title,
+    String? note,
+    String? url,
+    String? linkPreviewId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Result<void>> delete(String itemId) async => const Success(null);
+}
+
 void main() {
   Future<void> pump(
     WidgetTester tester, {
     required _FakeProfileRepository profiles,
     _FakeFriendshipRepository? friendships,
+    List<WishlistItem> wishlist = const [],
   }) async {
     final router = GoRouter(
       initialLocation: '/users/ali-id?name=Ali',
@@ -136,6 +165,9 @@ void main() {
           profileRepositoryProvider.overrideWithValue(profiles),
           friendshipRepositoryProvider.overrideWithValue(
             friendships ?? _FakeFriendshipRepository(),
+          ),
+          wishlistRepositoryProvider.overrideWithValue(
+            _FakeWishlistRepository(wishlist),
           ),
         ],
         child: MaterialApp.router(
@@ -187,6 +219,44 @@ void main() {
 
     expect(find.text('Friends'), findsOneWidget);
     expect(find.text('Add friend'), findsNothing);
+  });
+
+  testWidgets("a friend's wishlist tab shows product cards and claim strips", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      profiles: _FakeProfileRepository(other: _ali),
+      friendships: _FakeFriendshipRepository(
+        entries: const [
+          FriendEntry(
+            friendshipId: 'f1',
+            profileId: 'ali-id',
+            username: 'ali',
+            displayName: 'Ali',
+            status: FriendshipStatus.accepted,
+          ),
+        ],
+      ),
+      wishlist: const [
+        WishlistItem(
+          id: 'w1',
+          ownerId: 'ali-id',
+          title: 'Racket',
+          preview: LinkPreview(
+            id: 'lp',
+            url: 'https://shop.example.com/racket',
+            title: 'Babolat Pure Drive',
+            site: 'shop.example.com',
+          ),
+        ),
+      ],
+    );
+
+    // The same product card as the wishlist screen, not a bare title.
+    expect(find.text('Babolat Pure Drive'), findsOneWidget);
+    expect(find.text('shop.example.com'), findsOneWidget);
+    expect(find.text("I'll get this"), findsOneWidget);
   });
 
   testWidgets('About tab shows profile facts', (tester) async {

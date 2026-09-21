@@ -5,8 +5,11 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile.dart';
+import 'package:kept/features/wishlist/application/claims_providers.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
-import 'package:kept/features/wishlist/domain/wishlist_item.dart';
+import 'package:kept/features/wishlist/presentation/claim_bar.dart';
+import 'package:kept/features/wishlist/presentation/claimable_wishlist.dart';
+import 'package:kept/features/wishlist/presentation/wishlist_item_tile.dart';
 import 'package:kept/shared/widgets/avatar_preview.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 
@@ -108,6 +111,11 @@ class _WishlistTab extends ConsumerWidget {
     final items = isMine
         ? ref.watch(myWishlistProvider)
         : ref.watch(friendWishlistProvider(profile.id));
+    // Same rows as the wishlist screen: product cards, and on a friend's
+    // profile the reservation strip (G-303) — never on one's own.
+    final claims = isMine
+        ? null
+        : ref.watch(wishlistClaimsProvider(profile.id));
     return items.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(child: Text(l10n.wishlistError)),
@@ -119,16 +127,18 @@ class _WishlistTab extends ConsumerWidget {
             )
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [for (final item in list) _wishlistTile(item)],
+              children: [
+                if (claims != null && claims.hasError)
+                  ClaimsErrorRow(ownerId: profile.id),
+                for (final item in list) ...[
+                  WishlistItemTile(item: item),
+                  if (claims != null && !claims.hasError)
+                    ClaimBar(item: item, claim: claims.valueOrNull?[item.id]),
+                ],
+              ],
             ),
     );
   }
-
-  Widget _wishlistTile(WishlistItem item) => ListTile(
-    leading: const Icon(Icons.card_giftcard_outlined),
-    title: Text(item.title),
-    subtitle: item.note == null ? null : Text(item.note!),
-  );
 }
 
 class _HistoryTab extends ConsumerWidget {
