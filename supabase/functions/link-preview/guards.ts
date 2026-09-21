@@ -133,9 +133,60 @@ export function parseMeta(html: string): {
       "og:price:amount",
       "product:price:amount",
       "twitter:data1",
-    ]),
+    ]) ?? structuredPrice(html),
     site: meta(["og:site_name"]),
   };
+}
+
+/// Shops that skip the OG price still publish it for Google: JSON-LD
+/// `offers.price` (Product schema) or an `itemprop="price"` meta. Returns a
+/// display string ("₺1.299,00") or undefined.
+export function structuredPrice(html: string): string | undefined {
+  const itemprop = html.match(
+    /<meta[^>]+itemprop=["']price["'][^>]*content=["']([^"']+)["']/i,
+  )?.[1] ??
+    html.match(
+      /<meta[^>]+content=["']([^"']+)["'][^>]*itemprop=["']price["']/i,
+    )?.[1];
+  const currencyProp = html.match(
+    /<meta[^>]+itemprop=["']priceCurrency["'][^>]*content=["']([A-Z]{3})["']/i,
+  )?.[1];
+  if (itemprop) return formatPrice(itemprop, currencyProp);
+
+  const blocks = html.matchAll(
+    /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+  );
+  for (const block of blocks) {
+    const json = block[1];
+    // Regex, not JSON.parse: shop markup is often not strictly valid JSON.
+    const price = json.match(/"(?:price|lowPrice)"\s*:\s*"?([0-9][0-9.,]*)"?/)
+      ?.[1];
+    if (!price) continue;
+    const currency = json.match(/"priceCurrency"\s*:\s*"([A-Z]{3})"/)?.[1];
+    return formatPrice(price, currency);
+  }
+  return undefined;
+}
+
+/// Structured prices are plain numbers ("1299" / "1299.90"); render them
+/// the way the shops' own OG tags read so cards look alike.
+export function formatPrice(
+  raw: string,
+  currency?: string,
+): string | undefined {
+  const normalized = raw.includes(",") && !raw.includes(".")
+    ? raw.replace(",", ".")
+    : raw.replace(/,/g, "");
+  const value = Number(normalized);
+  if (!Number.isFinite(value) || value <= 0) return undefined;
+  try {
+    return new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: currency ?? "TRY",
+    }).format(value);
+  } catch {
+    return undefined;
+  }
 }
 
 function decodeEntities(s: string): string {
@@ -181,7 +232,11 @@ export function previewRow(input: {
     url: input.url,
     title: input.meta.title.slice(0, 300),
     ...(input.imagePath === null ? {} : { image_path: input.imagePath }),
-    price: input.meta.price?.slice(0, 60) ?? null,
+    // Same rule as the image: a fetch that found no price never wipes one
+    // a previous fetch stored.
+    ...(input.meta.price === undefined
+      ? {}
+      : { price: input.meta.price.slice(0, 60) }),
     site: (input.meta.site ?? input.hostname).slice(0, 100),
   };
 }

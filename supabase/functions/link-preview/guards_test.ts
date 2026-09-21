@@ -1,9 +1,11 @@
 // deno test guards_test.ts — SSRF validation + OG parsing (G-211).
 import { assertEquals, assertExists } from "jsr:@std/assert";
 import {
+  formatPrice,
   parseMeta,
   previewRow,
   sniffImage,
+  structuredPrice,
   validateTargetUrl,
 } from "./guards.ts";
 
@@ -57,6 +59,30 @@ Deno.test("parses og tags in either attribute order", () => {
   assertEquals(m.image, "https://cdn.example.com/x.jpg");
 });
 
+Deno.test("reads the price from JSON-LD when og tags omit it", () => {
+  const html = `
+    <meta property="og:title" content="Roborock Qrevo" />
+    <script type="application/ld+json">
+      {"@type":"Product","name":"Roborock Qrevo",
+       "offers":{"@type":"Offer","price":"34999.00","priceCurrency":"TRY"}}
+    </script>`;
+  assertEquals(parseMeta(html).price, "₺34.999,00");
+});
+
+Deno.test("reads an itemprop price and keeps the og price first", () => {
+  const itemprop = `
+    <meta itemprop="priceCurrency" content="TRY">
+    <meta itemprop="price" content="1299.90">`;
+  assertEquals(structuredPrice(itemprop), "₺1.299,90");
+  const both = `
+    <meta property="product:price:amount" content="1.299,00 TL" />
+    <script type="application/ld+json">{"offers":{"price":"999"}}</script>`;
+  assertEquals(parseMeta(both).price, "1.299,00 TL");
+  assertEquals(structuredPrice("<html></html>"), undefined);
+  assertEquals(formatPrice("0"), undefined);
+  assertEquals(formatPrice("abc"), undefined);
+});
+
 Deno.test("falls back to <title> and decodes entities", () => {
   const m = parseMeta("<title>Raket &amp; Kılıf</title>");
   assertEquals(m.title, "Raket & Kılıf");
@@ -101,5 +127,12 @@ Deno.test("upsert row omits image_path when this fetch has no image", () => {
   const without = previewRow({ ...base, imagePath: null });
   assertEquals("image_path" in without, false);
   assertEquals(without.site, "shop.test");
-  assertEquals(without.price, null);
+  // No price found → the column is left alone, never nulled.
+  assertEquals("price" in without, false);
+  const priced = previewRow({
+    ...base,
+    meta: { title: "T", price: "₺1.299,00" },
+    imagePath: null,
+  });
+  assertEquals(priced.price, "₺1.299,00");
 });

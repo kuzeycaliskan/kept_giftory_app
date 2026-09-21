@@ -75,14 +75,18 @@ Deno.serve(async (req) => {
   const normalized = url.toString();
   const urlHash = await sha256Hex(normalized);
 
-  // Cache hit → no rate-limit charge, no refetch. A meta call may still
-  // proceed to ENRICH a cached row that lacks its image.
+  // Cache hit → no rate-limit charge, no refetch — unless the row is still
+  // missing its image or price: a user pasting that link again is the one
+  // moment we try once more (rate-limited like any fetch; a miss keeps the
+  // row as it was). Nothing retries in the background.
   const { data: cached } = await admin
     .from("link_previews")
     .select("id, title, image_path, price, site")
     .eq("url_hash", urlHash)
     .maybeSingle();
-  if (cached && !(clientMeta && cached.image_path === null)) {
+  const incomplete = cached !== null &&
+    (cached.image_path === null || cached.price === null);
+  if (cached && !incomplete) {
     return json(200, { preview: cached, cached: true });
   }
 

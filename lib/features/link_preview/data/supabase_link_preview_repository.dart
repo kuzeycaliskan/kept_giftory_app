@@ -34,14 +34,17 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
     if (!schemeOk) {
       return null;
     }
-    // 1) Server-side fetch (cached, SSRF-guarded) — primary path.
+    // 1) Server-side fetch (cached, SSRF-guarded) — primary path. A row
+    //    that still lacks its image or price gets one on-device try per
+    //    session (the server refetches such rows on a fresh paste too).
     final server = await _invoke({'url': trimmed});
-    if (server != null &&
-        (server.imagePath != null || _enriched.contains(trimmed))) {
+    final complete =
+        server != null && server.imagePath != null && server.price != null;
+    if (complete || (server != null && _enriched.contains(trimmed))) {
       return server;
     }
 
-    // 2) Bot-walled site or image-less cache: extract on-device via hidden
+    // 2) Bot-walled site or incomplete cache: extract on-device via hidden
     //    WebView; the device also downloads the image bytes (some CDNs
     //    require a browserly referer the server can't fake) and the server
     //    validates + stores everything.

@@ -15,7 +15,7 @@ class WebviewOgFetcher {
   static const _timeout = Duration(seconds: 8);
 
   /// JS that pulls the OG/Twitter fields out of the loaded document.
-  static const _extractJs = '''
+  static const _extractJs = r'''
 (function () {
   var m = function (p) {
     var e = document.querySelector(
@@ -39,10 +39,39 @@ class WebviewOgFetcher {
     img = best;
   }
   if (img && img.indexOf("//") === 0) img = "https:" + img;
+  // Price: og tags first; else what shops publish for Google (itemprop,
+  // JSON-LD offers) rendered like an og price ("₺1.299,00").
+  var fmt = function (raw, cur) {
+    var n = Number(String(raw).indexOf(",") >= 0 && String(raw).indexOf(".") < 0
+      ? String(raw).replace(",", ".") : String(raw).replace(/,/g, ""));
+    if (!isFinite(n) || n <= 0) return null;
+    try {
+      return new Intl.NumberFormat("tr-TR",
+        { style: "currency", currency: cur || "TRY" }).format(n);
+    } catch (e) { return null; }
+  };
+  var price = m("product:price:amount") || m("og:price:amount") || null;
+  if (!price) {
+    var ip = document.querySelector("[itemprop='price']");
+    var ipv = ip && (ip.getAttribute("content") || ip.textContent);
+    var ipc = document.querySelector("[itemprop='priceCurrency']");
+    if (ipv) price = fmt(ipv, ipc && ipc.getAttribute("content"));
+  }
+  if (!price) {
+    var scripts = document.querySelectorAll(
+      "script[type='application/ld+json']");
+    for (var i = 0; i < scripts.length && !price; i++) {
+      var t = scripts[i].textContent || "";
+      var pm = t.match(/"(?:price|lowPrice)"\s*:\s*"?([0-9][0-9.,]*)"?/);
+      if (!pm) continue;
+      var cm = t.match(/"priceCurrency"\s*:\s*"([A-Z]{3})"/);
+      price = fmt(pm[1], cm && cm[1]);
+    }
+  }
   return JSON.stringify({
     title: m("og:title") || m("twitter:title") || document.title || null,
     image: img || null,
-    price: m("product:price:amount") || m("og:price:amount") || null,
+    price: price,
     site: m("og:site_name") || location.hostname || null,
   });
 })()''';
