@@ -1,5 +1,6 @@
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/shared/domain/comment.dart';
 
@@ -43,4 +44,15 @@ abstract interface class EventsRepository {
 
   /// Author or organizer (RLS).
   Future<Result<void>> deleteComment(String commentId);
+
+  /// G-306: organizer opens the event early (gift handed over); linked
+  /// surprises open with it. Server-side state machine.
+  Future<Result<void>> reveal(String eventId);
+
+  /// G-307: the honoree's one thank-you on a revealed event.
+  Future<Result<void>> thank(String eventId, String note);
+
+  /// Gifts logged against the event; what the honoree sees once revealed
+  /// and members see as they log them.
+  Future<Result<List<GiftEntry>>> fetchEventGifts(String eventId);
 }

@@ -12,6 +12,7 @@ import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
@@ -156,6 +157,17 @@ class _FakeEventsRepository implements EventsRepository {
   @override
   Future<Result<void>> setChatUrl(String eventId, String? url) async =>
       const Success(null);
+
+  @override
+  Future<Result<void>> reveal(String eventId) async => const Success(null);
+
+  @override
+  Future<Result<void>> thank(String eventId, String note) async =>
+      const Success(null);
+
+  @override
+  Future<Result<List<GiftEntry>>> fetchEventGifts(String eventId) async =>
+      const Success([]);
 }
 
 GiftEvent _invite(String id) => GiftEvent(

@@ -1182,4 +1182,61 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get claimPoolFull => 'Havuz doldu';
+
+  @override
+  String get eventsForYouSection => 'Senin için';
+
+  @override
+  String get eventsHonoreeTitle => 'Arkadaşların senin için bir araya geldi';
+
+  @override
+  String get eventsHonoreeRowTitle => 'Doğum günün';
+
+  @override
+  String eventsRevealedOn(String date) {
+    return '$date tarihinde açıklandı';
+  }
+
+  @override
+  String get eventsRevealNow => 'Şimdi açıkla';
+
+  @override
+  String get eventsRevealConfirmTitle => 'Event şimdi açıklansın mı?';
+
+  @override
+  String eventsRevealConfirmBody(String name) {
+    return '$name kimlerin olduğunu ve burada kaydedilen hediyeleri görür. Hediye teslim edildiyse yap.';
+  }
+
+  @override
+  String get eventsGiftsSection => 'Hediyeler';
+
+  @override
+  String get eventsGiftsEmpty => 'Henüz burada kaydedilmiş hediye yok';
+
+  @override
+  String get eventsLogGift => 'Hediyeyi kaydet';
+
+  @override
+  String get eventsThanksTitle => 'Teşekkür et';
+
+  @override
+  String get eventsThanksHint => 'Katılan herkese birkaç söz…';
+
+  @override
+  String get eventsThanksSend => 'Gönder';
+
+  @override
+  String get eventsThanksSent => 'Teşekkürün herkese ulaştı';
+
+  @override
+  String eventsThanksFrom(String name) {
+    return '$name teşekkür etti';
+  }
+
+  @override
+  String get homeRevealCardTitle => 'Arkadaşların senin için bir araya geldi';
+
+  @override
+  String get homeRevealCardBody => 'Kimler vardı gör, teşekkür et';
 }

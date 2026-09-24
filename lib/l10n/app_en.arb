@@ -629,5 +629,43 @@
       }
     }
   },
-  "claimPoolFull": "Pool is full"
+  "claimPoolFull": "Pool is full",
+  "eventsForYouSection": "For you",
+  "eventsHonoreeTitle": "Your friends came together for you",
+  "eventsHonoreeRowTitle": "Your birthday",
+  "eventsRevealedOn": "Revealed on {date}",
+  "@eventsRevealedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsRevealNow": "Reveal now",
+  "eventsRevealConfirmTitle": "Reveal the event now?",
+  "eventsRevealConfirmBody": "{name} will see who was in and the gifts logged here. Do this once the gift is handed over.",
+  "@eventsRevealConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsGiftsSection": "Gifts",
+  "eventsGiftsEmpty": "No gift logged here yet",
+  "eventsLogGift": "Log the gift",
+  "eventsThanksTitle": "Say thanks",
+  "eventsThanksHint": "A few words for everyone who was in…",
+  "eventsThanksSend": "Send",
+  "eventsThanksSent": "Your thanks reached everyone",
+  "eventsThanksFrom": "{name} says thanks",
+  "@eventsThanksFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRevealCardTitle": "Your friends came together for you",
+  "homeRevealCardBody": "See who was in and say thanks"
 }

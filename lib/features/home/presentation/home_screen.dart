@@ -47,13 +47,14 @@ class HomeScreen extends ConsumerWidget {
     final teaser = ref.watch(surpriseTeaserProvider).valueOrNull;
     final friendEntries = ref.watch(friendEntriesProvider);
     final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myEvents = ref.watch(myEventsProvider).valueOrNull;
     final pendingInvites =
-        ref
-            .watch(myEventsProvider)
-            .valueOrNull
-            ?.where((e) => e.isInvited(myId))
-            .length ??
-        0;
+        myEvents?.where((e) => e.isInvited(myId)).length ?? 0;
+    // G-307: a revealed event for me that I have not thanked yet.
+    final revealForMe = myEvents
+        ?.where((e) => e.isHonoree(myId) && e.isRevealed)
+        .where((e) => e.thanksNote == null)
+        .firstOrNull;
     // The bell counts everything waiting for an answer: friend requests
     // and gift event invitations.
     final pendingRequests =
@@ -133,6 +134,10 @@ class HomeScreen extends ConsumerWidget {
             const StoriesStrip(),
             const SizedBox(height: KeptSpacing.lg),
             const _PushPrimingCard(),
+            if (revealForMe != null) ...[
+              _RevealCard(event: revealForMe),
+              const SizedBox(height: KeptSpacing.lg),
+            ],
             KeptSectionHeader(l10n.homeUpcomingSection),
             _UpcomingSection(state: upcoming),
             if (hasFriends) ...[
@@ -811,6 +816,62 @@ class _PhotoRow extends StatelessWidget {
 
 /// "A surprise is on its way — opens on <date>": the only thing the
 /// recipient learns about pending surprises. Soft shimmer = anticipation.
+/// The honoree's reveal moment on Home (G-307): opens the event page.
+class _RevealCard extends StatelessWidget {
+  const _RevealCard({required this.event});
+
+  final GiftEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    return KeptShimmer(
+      child: Material(
+        color: scheme.primaryContainer,
+        borderRadius: KeptRadius.cardAll,
+        child: InkWell(
+          borderRadius: KeptRadius.cardAll,
+          onTap: () => context.push('/events/${event.id}'),
+          child: Padding(
+            padding: const EdgeInsets.all(KeptSpacing.lg),
+            child: Row(
+              children: [
+                Icon(Icons.celebration, color: scheme.onPrimaryContainer),
+                const SizedBox(width: KeptSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.homeRevealCardTitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: scheme.onPrimaryContainer,
+                        ),
+                      ),
+                      Text(
+                        l10n.homeRevealCardBody,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: scheme.onPrimaryContainer),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _SurpriseTeaserCard extends StatelessWidget {
   const _SurpriseTeaserCard({required this.teaser});
 

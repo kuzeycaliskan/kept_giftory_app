@@ -1197,4 +1197,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get claimPoolFull => 'Pool is full';
+
+  @override
+  String get eventsForYouSection => 'For you';
+
+  @override
+  String get eventsHonoreeTitle => 'Your friends came together for you';
+
+  @override
+  String get eventsHonoreeRowTitle => 'Your birthday';
+
+  @override
+  String eventsRevealedOn(String date) {
+    return 'Revealed on $date';
+  }
+
+  @override
+  String get eventsRevealNow => 'Reveal now';
+
+  @override
+  String get eventsRevealConfirmTitle => 'Reveal the event now?';
+
+  @override
+  String eventsRevealConfirmBody(String name) {
+    return '$name will see who was in and the gifts logged here. Do this once the gift is handed over.';
+  }
+
+  @override
+  String get eventsGiftsSection => 'Gifts';
+
+  @override
+  String get eventsGiftsEmpty => 'No gift logged here yet';
+
+  @override
+  String get eventsLogGift => 'Log the gift';
+
+  @override
+  String get eventsThanksTitle => 'Say thanks';
+
+  @override
+  String get eventsThanksHint => 'A few words for everyone who was in…';
+
+  @override
+  String get eventsThanksSend => 'Send';
+
+  @override
+  String get eventsThanksSent => 'Your thanks reached everyone';
+
+  @override
+  String eventsThanksFrom(String name) {
+    return '$name says thanks';
+  }
+
+  @override
+  String get homeRevealCardTitle => 'Your friends came together for you';
+
+  @override
+  String get homeRevealCardBody => 'See who was in and say thanks';
 }

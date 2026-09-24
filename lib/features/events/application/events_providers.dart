@@ -7,6 +7,7 @@ import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/events/data/supabase_events_repository.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -36,6 +37,16 @@ Future<List<ProfileCard>> invitableFriends(Ref ref, String eventId) async {
   final result = await ref
       .watch(eventsRepositoryProvider)
       .invitableFriends(eventId);
+  return result.when(success: (l) => l, failure: (f) => throw f);
+}
+
+/// Gifts logged against an event (members as they log, honoree once
+/// revealed).
+@riverpod
+Future<List<GiftEntry>> eventGifts(Ref ref, String eventId) async {
+  final result = await ref
+      .watch(eventsRepositoryProvider)
+      .fetchEventGifts(eventId);
   return result.when(success: (l) => l, failure: (f) => throw f);
 }
 
@@ -90,6 +101,12 @@ class EventsController extends _$EventsController {
   Future<bool> setChatUrl(String eventId, String? url) =>
       _run(() => ref.read(eventsRepositoryProvider).setChatUrl(eventId, url));
 
+  Future<bool> reveal(String eventId) =>
+      _run(() => ref.read(eventsRepositoryProvider).reveal(eventId));
+
+  Future<bool> thank(String eventId, String note) =>
+      _run(() => ref.read(eventsRepositoryProvider).thank(eventId, note));
+
   Future<bool> _run(Future<Result<void>> Function() action) async {
     state = const AsyncLoading();
     final result = await action();
@@ -112,6 +129,7 @@ class EventsController extends _$EventsController {
       ..invalidate(myEventsProvider)
       ..invalidate(eventDetailProvider)
       ..invalidate(invitableFriendsProvider)
+      ..invalidate(eventGiftsProvider)
       ..invalidate(eventForHonoreeProvider);
   }
 }

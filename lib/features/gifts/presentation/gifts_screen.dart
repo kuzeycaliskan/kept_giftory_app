@@ -140,13 +140,14 @@ class _GiftListPage extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 88),
             children: [
               for (final gift in list)
-                given
-                    ? _DismissibleGiftTile(gift: gift)
-                    : GiftListTile(
-                        gift: gift,
-                        directionIcon: Icons.south_west,
-                        counterpartIsGiver: true,
-                      ),
+                if (given)
+                  _DismissibleGiftTile(gift: gift)
+                else
+                  GiftListTile(
+                    gift: gift,
+                    directionIcon: Icons.south_west,
+                    counterpartIsGiver: true,
+                  ),
             ],
           ),
         );

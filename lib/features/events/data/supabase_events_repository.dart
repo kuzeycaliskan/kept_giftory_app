@@ -2,8 +2,8 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
-import 'package:kept/features/gifts/data/gift_row_mapper.dart'
-    show embeddedCount;
+import 'package:kept/features/gifts/data/gift_row_mapper.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
 import 'package:kept/shared/data/profile_cards.dart';
 import 'package:kept/shared/domain/comment.dart';
@@ -19,7 +19,7 @@ class SupabaseEventsRepository implements EventsRepository {
 
   static const _select =
       'id, honoree_id, creator_id, event_date, reveal_at, status, '
-      'external_chat_url, '
+      'external_chat_url, revealed_at, thanks_note, thanks_at, '
       'members:gift_event_members(user_id, role, status), '
       'comments:event_comments(count)';
 
@@ -69,6 +69,9 @@ class SupabaseEventsRepository implements EventsRepository {
     status: EventStatus.values.byName(row['status']! as String),
     externalChatUrl: row['external_chat_url'] as String?,
     commentCount: embeddedCount(row['comments']),
+    revealedAt: _time(row['revealed_at']),
+    thanksNote: row['thanks_note'] as String?,
+    thanksAt: _time(row['thanks_at']),
     members: [
       for (final m
           in (row['members'] as List<dynamic>? ?? const [])
@@ -80,6 +83,9 @@ class SupabaseEventsRepository implements EventsRepository {
         ),
     ],
   );
+
+  static DateTime? _time(Object? raw) =>
+      raw is String ? DateTime.parse(raw) : null;
 
   /// One card lookup for every honoree + member in the batch.
   Future<List<GiftEvent>> _resolve(List<GiftEvent> events) async {
@@ -308,6 +314,57 @@ class SupabaseEventsRepository implements EventsRepository {
       return ResultFailure(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Result<void>> reveal(String eventId) async {
+    try {
+      await _client.rpc<void>(
+        'reveal_gift_event',
+        params: {'p_event': eventId},
+      );
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      if (e.code == '42501') return const ResultFailure(PermissionFailure());
+      if (e.code == '23514') return const ResultFailure(ConflictFailure());
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> thank(String eventId, String note) {
+    final trimmed = note.trim();
+    if (trimmed.isEmpty || trimmed.length > 500) {
+      return Future.value(const ResultFailure(ValidationFailure('Note')));
+    }
+    return _update(eventId, {'thanks_note': trimmed});
+  }
+
+  @override
+  Future<Result<List<GiftEntry>>> fetchEventGifts(String eventId) async {
+    try {
+      final rows = await _client
+          .from('gifts')
+          .select(
+            'id, item, note, gift_date, is_surprise, giver_relation, '
+            'reveal_at, giver_id, recipient_id, created_at, '
+            'giver:profiles!gifts_giver_id_fkey(id, username, display_name), '
+            'recipient:profiles!gifts_recipient_id_fkey'
+            '(id, username, display_name), '
+            '$giftEmbeds',
+          )
+          .eq('event_id', eventId)
+          .order('created_at', ascending: false);
+      return Success([
+        for (final row in rows) giftEntryFromRow(row, counterpartKey: 'giver'),
+      ]);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
 }
 
 /// Backend-less runs (no --dart-define config).
@@ -363,4 +420,14 @@ class EmptyEventsRepository implements EventsRepository {
 
   @override
   Future<Result<void>> deleteComment(String commentId) async => _offline;
+
+  @override
+  Future<Result<void>> reveal(String eventId) async => _offline;
+
+  @override
+  Future<Result<void>> thank(String eventId, String note) async => _offline;
+
+  @override
+  Future<Result<List<GiftEntry>>> fetchEventGifts(String eventId) async =>
+      const Success([]);
 }

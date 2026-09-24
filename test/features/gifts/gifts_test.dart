@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +40,7 @@ class _FakeGiftRepository implements GiftRepository {
       received = received ?? [];
 
   String? lastLinkPreviewId;
+  String? lastEventId;
 
   final List<GiftEntry> given;
   final List<GiftEntry> received;
@@ -83,8 +86,10 @@ class _FakeGiftRepository implements GiftRepository {
     String? note,
     DateTime? revealAt,
     String? linkPreviewId,
+    String? eventId,
   }) async {
     lastLinkPreviewId = linkPreviewId;
+    lastEventId = eventId;
     final entry = GiftEntry(
       id: 'new-${given.length}',
       item: item,
@@ -320,7 +325,13 @@ void main() {
       initialLocation: initial,
       routes: [
         GoRoute(path: '/gifts', builder: (_, __) => const GiftsScreen()),
-        GoRoute(path: '/gifts/log', builder: (_, __) => const LogGiftScreen()),
+        GoRoute(
+          path: '/gifts/log',
+          builder: (_, state) => LogGiftScreen(
+            initialRecipientId: state.uri.queryParameters['recipient'],
+            eventId: state.uri.queryParameters['event'],
+          ),
+        ),
         GoRoute(
           path: '/gifts/log-external',
           builder: (_, __) => const LogExternalGiftScreen(),
@@ -431,6 +442,33 @@ void main() {
     expect(repo.given.single.isSurprise, isTrue);
     expect(repo.given.single.revealAt, isNotNull);
     expect(find.text('Kindle'), findsOneWidget);
+  });
+
+  testWidgets('logging from an event pre-selects the honoree and links it', (
+    tester,
+  ) async {
+    final repo = _FakeGiftRepository();
+    await pump(tester, gifts: repo);
+    // Pushed from the event page, so saving can pop back to it.
+    unawaited(
+      GoRouter.of(
+        tester.element(find.byType(GiftsScreen)),
+      ).push('/gifts/log?recipient=ali&event=e1'),
+    );
+    await tester.pumpAndSettle();
+
+    // Recipient already chosen — no picker tap needed.
+    expect(find.text('Ali'), findsWidgets);
+    await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Kindle');
+    await tester.tap(find.text('Reveal date'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await scrollToAndTap(tester, find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(repo.given, hasLength(1));
+    expect(repo.lastEventId, 'e1');
   });
 
   testWidgets('turning surprise off asks for confirmation', (tester) async {

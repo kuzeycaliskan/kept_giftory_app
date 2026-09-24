@@ -43,6 +43,7 @@ final myEventsProvider = AutoDisposeFutureProvider<List<GiftEvent>>.internal(
 // ignore: unused_element
 typedef MyEventsRef = AutoDisposeFutureProviderRef<List<GiftEvent>>;
 String _$eventDetailHash() => r'd4bd2e6b7a60497a3a59340c3cc50637a34b0cb1';
+String _$eventGiftsHash() => r'0000000000000000000000000000000000000000';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -180,6 +181,123 @@ class _EventDetailProviderElement
 
   @override
   String get eventId => (origin as EventDetailProvider).eventId;
+}
+
+/// See also [eventGifts].
+@ProviderFor(eventGifts)
+const eventGiftsProvider = EventGiftsFamily();
+
+/// See also [eventGifts].
+class EventGiftsFamily extends Family<AsyncValue<List<GiftEntry>>> {
+  /// See also [eventGifts].
+  const EventGiftsFamily();
+
+  /// See also [eventGifts].
+  EventGiftsProvider call(String eventId) {
+    return EventGiftsProvider(eventId);
+  }
+
+  @override
+  EventGiftsProvider getProviderOverride(
+    covariant EventGiftsProvider provider,
+  ) {
+    return call(provider.eventId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'eventGiftsProvider';
+}
+
+/// See also [eventGifts].
+class EventGiftsProvider extends AutoDisposeFutureProvider<List<GiftEntry>> {
+  /// See also [eventGifts].
+  EventGiftsProvider(String eventId)
+    : this._internal(
+        (ref) => eventGifts(ref as EventGiftsRef, eventId),
+        from: eventGiftsProvider,
+        name: r'eventGiftsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$eventGiftsHash,
+        dependencies: EventGiftsFamily._dependencies,
+        allTransitiveDependencies: EventGiftsFamily._allTransitiveDependencies,
+        eventId: eventId,
+      );
+
+  EventGiftsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.eventId,
+  }) : super.internal();
+
+  final String eventId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<GiftEntry>> Function(EventGiftsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: EventGiftsProvider._internal(
+        (ref) => create(ref as EventGiftsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        eventId: eventId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<GiftEntry>> createElement() {
+    return _EventGiftsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EventGiftsProvider && other.eventId == eventId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, eventId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin EventGiftsRef on AutoDisposeFutureProviderRef<List<GiftEntry>> {
+  /// The parameter `eventId` of this provider.
+  String get eventId;
+}
+
+class _EventGiftsProviderElement
+    extends AutoDisposeFutureProviderElement<List<GiftEntry>>
+    with EventGiftsRef {
+  _EventGiftsProviderElement(super.provider);
+
+  @override
+  String get eventId => (origin as EventGiftsProvider).eventId;
 }
 
 String _$invitableFriendsHash() => r'cf5435266eec153d1ec1a8ee4fc956ed58ca0888';

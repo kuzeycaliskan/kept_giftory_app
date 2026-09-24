@@ -13,12 +13,15 @@ class KeptListGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    // A Material, not a decorated box: rows are ListTiles, and they paint
+    // their tint and ink on the nearest Material — a DecoratedBox in
+    // between would hide both (the framework asserts on it).
+    return Material(
+      color: scheme.surface,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: scheme.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: KeptRadius.cardAll,
-        border: Border.all(color: scheme.outlineVariant),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

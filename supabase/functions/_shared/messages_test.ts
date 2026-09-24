@@ -1,6 +1,12 @@
 // deno test messages_test.ts — push copy stays short and readable.
 import { assertEquals } from "jsr:@std/assert";
-import { commentPush, giftLoggedPush, surprisePush } from "./messages.ts";
+import {
+  commentPush,
+  eventRevealPush,
+  eventThanksPush,
+  giftLoggedPush,
+  surprisePush,
+} from "./messages.ts";
 
 Deno.test("gift comment: commenter · item, clipped snippet", () => {
   const m = commentPush(
@@ -43,4 +49,18 @@ Deno.test("gift logged: giver and item", () => {
 Deno.test("event note: names the honoree's event", () => {
   const m = commentPush("Kamil", "Ali", "Pastayı aldım", "event");
   assertEquals(m.title, "Kamil · Ali event'i");
+});
+
+Deno.test("event reveal: counts the friends, singular for one", () => {
+  assertEquals(
+    eventRevealPush(3).body,
+    "3 arkadaşın hediyeni birlikte hazırladı. Kimler vardı, gör.",
+  );
+  assertEquals(eventRevealPush(1).body.startsWith("Bir arkadaşın"), true);
+});
+
+Deno.test("event thanks: honoree in the title, note clipped", () => {
+  const m = eventThanksPush("Kuzey", "x".repeat(200));
+  assertEquals(m.title, "Kuzey teşekkür etti 💐");
+  assertEquals(m.body.length <= 91, true);
 });

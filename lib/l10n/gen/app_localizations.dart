@@ -2215,6 +2215,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pool is full'**
   String get claimPoolFull;
+
+  /// No description provided for @eventsForYouSection.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get eventsForYouSection;
+
+  /// No description provided for @eventsHonoreeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friends came together for you'**
+  String get eventsHonoreeTitle;
+
+  /// No description provided for @eventsHonoreeRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your birthday'**
+  String get eventsHonoreeRowTitle;
+
+  /// No description provided for @eventsRevealedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Revealed on {date}'**
+  String eventsRevealedOn(String date);
+
+  /// No description provided for @eventsRevealNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal now'**
+  String get eventsRevealNow;
+
+  /// No description provided for @eventsRevealConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal the event now?'**
+  String get eventsRevealConfirmTitle;
+
+  /// No description provided for @eventsRevealConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will see who was in and the gifts logged here. Do this once the gift is handed over.'**
+  String eventsRevealConfirmBody(String name);
+
+  /// No description provided for @eventsGiftsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts'**
+  String get eventsGiftsSection;
+
+  /// No description provided for @eventsGiftsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No gift logged here yet'**
+  String get eventsGiftsEmpty;
+
+  /// No description provided for @eventsLogGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Log the gift'**
+  String get eventsLogGift;
+
+  /// No description provided for @eventsThanksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Say thanks'**
+  String get eventsThanksTitle;
+
+  /// No description provided for @eventsThanksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A few words for everyone who was in…'**
+  String get eventsThanksHint;
+
+  /// No description provided for @eventsThanksSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get eventsThanksSend;
+
+  /// No description provided for @eventsThanksSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your thanks reached everyone'**
+  String get eventsThanksSent;
+
+  /// No description provided for @eventsThanksFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} says thanks'**
+  String eventsThanksFrom(String name);
+
+  /// No description provided for @homeRevealCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friends came together for you'**
+  String get homeRevealCardTitle;
+
+  /// No description provided for @homeRevealCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See who was in and say thanks'**
+  String get homeRevealCardBody;
 }
 
 class _AppLocalizationsDelegate

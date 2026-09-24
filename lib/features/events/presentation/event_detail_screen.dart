@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/events/application/event_comment_target.dart';
 import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/gifts/presentation/widgets/gift_list_tile.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/wishlist/application/claims_providers.dart';
@@ -64,11 +66,16 @@ class EventDetailScreen extends ConsumerWidget {
             onRefresh: () async {
               ref
                 ..invalidate(eventDetailProvider(eventId))
+                ..invalidate(eventGiftsProvider(eventId))
                 ..invalidate(friendWishlistProvider(e.honoreeId))
                 ..invalidate(wishlistClaimsProvider(e.honoreeId));
               await ref.read(eventDetailProvider(eventId).future);
             },
-            child: _Body(event: e, myId: myId, busy: busy),
+            // The honoree only ever gets here once the event is revealed
+            // (RLS) — a different page: who was in, the gifts, the thanks.
+            child: e.isHonoree(myId)
+                ? _HonoreeBody(event: e, busy: busy)
+                : _Body(event: e, myId: myId, busy: busy),
           );
         },
       ),
@@ -84,9 +91,23 @@ class EventDetailScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final controller = ref.read(eventsControllerProvider.notifier);
     final organizer = event.isOrganizer(myId);
+    final label = event.honoreeLabel(l10n.giftAnonymousGiver);
     await showKeptActionSheet(
       context,
       actions: [
+        if (organizer && event.isOpen)
+          KeptSheetAction(
+            icon: Icons.celebration_outlined,
+            label: l10n.eventsRevealNow,
+            onTap: () => _confirm(
+              context,
+              title: l10n.eventsRevealConfirmTitle,
+              body: l10n.eventsRevealConfirmBody(label),
+              action: l10n.eventsRevealNow,
+              onConfirm: () => controller.reveal(event.id),
+              popAfter: false,
+            ),
+          ),
         if (organizer)
           KeptSheetAction(
             icon: Icons.link,
@@ -257,6 +278,10 @@ class _Body extends ConsumerWidget {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
+        if (event.isRevealed) ...[
+          const SizedBox(height: KeptSpacing.md),
+          _RevealedBanner(event: event),
+        ],
         if (event.isInvited(myId)) ...[
           const SizedBox(height: KeptSpacing.lg),
           Row(
@@ -293,6 +318,22 @@ class _Body extends ConsumerWidget {
           ),
         ],
         if (event.me(myId)?.status == EventMemberStatus.joined) ...[
+          const SizedBox(height: KeptSpacing.xl),
+          KeptSectionHeader(l10n.eventsGiftsSection),
+          _EventGifts(eventId: event.id),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: busy
+                  ? null
+                  : () => context.push(
+                      '/gifts/log?recipient=${event.honoreeId}'
+                      '&event=${event.id}',
+                    ),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.eventsLogGift),
+            ),
+          ),
           // The honoree's wishlist with "I'll get this" / group-gift strips:
           // the coordination core (G-303/G-304). Members only — an invitee
           // hasn't committed to keeping the secret yet.
@@ -456,6 +497,259 @@ class _InviteSheet extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Members' view of a revealed event: when it opened, and the honoree's
+/// thank-you once it arrived.
+class _RevealedBanner extends StatelessWidget {
+  const _RevealedBanner({required this.event});
+
+  final GiftEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final revealed = event.revealedAt;
+    final note = event.thanksNote;
+    final label = event.honoreeLabel(l10n.giftAnonymousGiver);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.celebration_outlined, color: theme.colorScheme.primary),
+            const SizedBox(width: KeptSpacing.sm),
+            Expanded(
+              child: Text(
+                revealed == null
+                    ? l10n.eventsRevealNow
+                    : l10n.eventsRevealedOn(
+                        DateFormat.yMMMMd(locale).format(revealed),
+                      ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (note != null) ...[
+          const SizedBox(height: KeptSpacing.md),
+          _ThanksCard(name: label, note: note),
+        ],
+      ],
+    );
+  }
+}
+
+class _ThanksCard extends StatelessWidget {
+  const _ThanksCard({required this.name, required this.note});
+
+  final String name;
+  final String note;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(KeptSpacing.lg),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: KeptRadius.cardAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.eventsThanksFrom(name),
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onPrimaryContainer,
+            ),
+          ),
+          const SizedBox(height: KeptSpacing.xs),
+          Text(
+            note,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Gifts logged against the event — members see them as they log, the
+/// honoree once revealed (RLS opens linked surprises with the event).
+class _EventGifts extends ConsumerWidget {
+  const _EventGifts({required this.eventId});
+
+  final String eventId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final gifts = ref.watch(eventGiftsProvider(eventId));
+    final muted = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return gifts.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(KeptSpacing.lg),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: KeptSpacing.sm),
+        child: Text(l10n.giftsError, style: muted),
+      ),
+      data: (list) => list.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: KeptSpacing.sm),
+              child: Text(l10n.eventsGiftsEmpty, style: muted),
+            )
+          : KeptListGroup(
+              children: [
+                for (final gift in list)
+                  GiftListTile(
+                    gift: gift,
+                    directionIcon: Icons.redeem_outlined,
+                    counterpartIsGiver: true,
+                  ),
+              ],
+            ),
+    );
+  }
+}
+
+/// The honoree's page (G-307): who came together, what they logged, and
+/// one thank-you back. No board, no reservations — those stay backstage.
+class _HonoreeBody extends ConsumerWidget {
+  const _HonoreeBody({required this.event, required this.busy});
+
+  final GiftEvent event;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final revealed = event.revealedAt;
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(KeptSpacing.lg),
+      children: [
+        Row(
+          children: [
+            const KeptIconBadge(Icons.celebration_outlined),
+            const SizedBox(width: KeptSpacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.eventsHonoreeTitle,
+                    style: theme.textTheme.titleLarge,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (revealed != null)
+                    Text(
+                      l10n.eventsRevealedOn(
+                        DateFormat.yMMMMd(locale).format(revealed),
+                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: KeptSpacing.xl),
+        KeptSectionHeader(l10n.eventsMembersSection(event.joined.length)),
+        KeptListGroup(
+          children: [
+            for (final m in event.joined) _MemberRow(member: m, myId: null),
+          ],
+        ),
+        const SizedBox(height: KeptSpacing.xl),
+        KeptSectionHeader(l10n.eventsGiftsSection),
+        _EventGifts(eventId: event.id),
+        const SizedBox(height: KeptSpacing.xl),
+        KeptSectionHeader(l10n.eventsThanksTitle),
+        if (event.thanksNote != null)
+          _ThanksCard(name: l10n.storiesYou, note: event.thanksNote!)
+        else
+          _ThanksComposer(eventId: event.id, busy: busy),
+      ],
+    );
+  }
+}
+
+class _ThanksComposer extends ConsumerStatefulWidget {
+  const _ThanksComposer({required this.eventId, required this.busy});
+
+  final String eventId;
+  final bool busy;
+
+  @override
+  ConsumerState<_ThanksComposer> createState() => _ThanksComposerState();
+}
+
+class _ThanksComposerState extends ConsumerState<_ThanksComposer> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final note = _controller.text.trim();
+    if (note.isEmpty) return;
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await ref
+        .read(eventsControllerProvider.notifier)
+        .thank(widget.eventId, note);
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(content: Text(ok ? l10n.eventsThanksSent : l10n.errorGeneric)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _controller,
+          maxLength: 500,
+          maxLines: 4,
+          minLines: 2,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(hintText: l10n.eventsThanksHint),
+        ),
+        const SizedBox(height: KeptSpacing.sm),
+        FilledButton.icon(
+          onPressed: widget.busy ? null : _send,
+          icon: const Icon(Icons.send_outlined),
+          label: Text(l10n.eventsThanksSend),
+        ),
+      ],
     );
   }
 }

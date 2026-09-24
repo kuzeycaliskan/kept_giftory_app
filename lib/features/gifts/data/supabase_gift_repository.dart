@@ -91,6 +91,7 @@ class SupabaseGiftRepository implements GiftRepository {
     String? note,
     DateTime? revealAt,
     String? linkPreviewId,
+    String? eventId,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
@@ -113,6 +114,7 @@ class SupabaseGiftRepository implements GiftRepository {
             if (isSurprise) 'reveal_at': revealAt!.toUtc().toIso8601String(),
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
             if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
+            if (eventId != null) 'event_id': eventId,
           })
           .select(_recipientSelect)
           .single();

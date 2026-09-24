@@ -242,3 +242,25 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
 - Price refresh cadence: `price_checked_at`, daily without a price, monthly
   with one; the server claims the slot, clients only ask (≤3 per list load,
   once per link per session). A refresh never replaces a stored image.
+
+## Event reveal + thanks (V3.0-c: G-306/G-307)
+
+- State machine: `open → revealed` when `reveal_at` passes (cron
+  `event-reveal-hourly` → Edge Function `event-reveal` → `event_reveal_targets()`
+  flips due events, opens linked surprises via `open_event_gifts`, returns the
+  honoree's devices; `mark_event_reveal_notified` stamps them) or early via
+  `reveal_gift_event(event)` (organizer only; pings `event-reveal` through
+  pg_net so the push lands within seconds). `cancelled` stays terminal.
+- Honoree-blind while open (unchanged). Revealed: the honoree reads the event
+  and its members; the notes board and the wishlist claims stay hidden from
+  the honoree for good. The honoree's only write is one `thanks_note` on a
+  revealed event (guard trigger: everything else of that update is dropped,
+  organizers cannot touch the note). `gift_events_thanks_notify` → Edge
+  Function `notify-event-thanks` → `event_thanks_targets()` → members' push.
+- `gifts.event_id`: a joined member logs a gift for the honoree against the
+  event (`guard_gift_event_link`, 23514 otherwise); such surprises are
+  excluded from `surprise_reveal_targets` (the event push announces them).
+- Guard bypass for the machine: `set_config('kept.reveal','on',true)` inside
+  the definer RPCs; clients can never set `revealed`.
+- Deploy both functions with `--no-verify-jwt` (cron/trigger auth is the
+  X-Cron-Secret header). pgTAP 151-163.

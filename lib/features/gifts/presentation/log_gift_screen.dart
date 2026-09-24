@@ -19,7 +19,13 @@ import 'package:kept/shared/widgets/link_preview_field.dart';
 /// optional note, surprise flag + reveal date (default: recipient's next
 /// birthday + 1 day; computed server-agnostically from local data).
 class LogGiftScreen extends ConsumerStatefulWidget {
-  const LogGiftScreen({super.key});
+  const LogGiftScreen({this.initialRecipientId, this.eventId, super.key});
+
+  /// Pre-selected friend (e.g. a gift event's honoree).
+  final String? initialRecipientId;
+
+  /// Logging from a gift event: the gift is linked to it and opens with it.
+  final String? eventId;
 
   @override
   ConsumerState<LogGiftScreen> createState() => _LogGiftScreenState();
@@ -31,7 +37,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   final _noteController = TextEditingController();
   LinkPreview? _preview;
 
-  String? _recipientId;
+  late String? _recipientId = widget.initialRecipientId;
   DateTime? _recipientBirthday;
   DateTime _giftDate = DateTime.now();
   // Surprise is the default posture (product decision): logging a gift
@@ -184,6 +190,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           note: _noteController.text,
           revealAt: _isSurprise ? _revealAt : null,
           linkPreviewId: _preview?.id,
+          eventId: widget.eventId,
         );
     if (gift == null || !mounted) return;
     final messenger = ScaffoldMessenger.of(context);

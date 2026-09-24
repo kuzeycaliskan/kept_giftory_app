@@ -29,7 +29,10 @@ class EventsPage extends ConsumerWidget {
       error: (error, _) => Center(child: Text(l10n.eventsError)),
       data: (list) {
         final invites = list.where((e) => e.isInvited(myId)).toList();
-        final mine = list.where((e) => !e.isInvited(myId)).toList();
+        final forYou = list.where((e) => e.isHonoree(myId)).toList();
+        final mine = list
+            .where((e) => !e.isInvited(myId) && !e.isHonoree(myId))
+            .toList();
         Future<void> refresh() async {
           ref.invalidate(myEventsProvider);
           await ref.read(myEventsProvider.future);
@@ -61,6 +64,13 @@ class EventsPage extends ConsumerWidget {
               88,
             ),
             children: [
+              if (forYou.isNotEmpty) ...[
+                KeptSectionHeader(l10n.eventsForYouSection),
+                KeptListGroup(
+                  children: [for (final e in forYou) _ForYouRow(event: e)],
+                ),
+                const SizedBox(height: KeptSpacing.xl),
+              ],
               if (invites.isNotEmpty) ...[
                 KeptSectionHeader(l10n.eventsInvitesSection),
                 KeptListGroup(
@@ -147,6 +157,33 @@ class _EventRow extends StatelessWidget {
               visualDensity: VisualDensity.compact,
             )
           : null,
+      onTap: () => context.push('/events/${event.id}'),
+    );
+  }
+}
+
+/// The honoree's own revealed event (G-307).
+class _ForYouRow extends StatelessWidget {
+  const _ForYouRow({required this.event});
+
+  final GiftEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final date = DateFormat.MMMMd(locale).format(event.eventDate);
+    return ListTile(
+      leading: const KeptIconBadge(Icons.celebration_outlined),
+      title: Text(l10n.eventsHonoreeRowTitle),
+      subtitle: Text(
+        l10n.eventsRowSubtitle(date, event.joined.length),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: event.thanksNote == null
+          ? const Icon(Icons.chevron_right)
+          : const Icon(Icons.favorite, size: 18),
       onTap: () => context.push('/events/${event.id}'),
     );
   }

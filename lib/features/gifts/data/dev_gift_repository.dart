@@ -66,6 +66,7 @@ class DevGiftRepository implements GiftRepository {
     String? note,
     DateTime? revealAt,
     String? linkPreviewId,
+    String? eventId,
   }) async {
     final entry = GiftEntry(
       id: 'dev-new-${_nextId++}',
@@ -179,6 +180,7 @@ class EmptyGiftRepository implements GiftRepository {
     String? note,
     DateTime? revealAt,
     String? linkPreviewId,
+    String? eventId,
   }) async => Success(
     GiftEntry(
       id: 'noop',

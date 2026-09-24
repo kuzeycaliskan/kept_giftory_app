@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(150);
+select plan(163);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1708,6 +1708,130 @@ select lives_ok(
      where claim_id = '00000000-0000-0000-0000-000000000e11'
        and user_id = '00000000-0000-0000-0000-000000000b33' $$,
   '150: an existing participant may still change their share'
+);
+reset role;
+
+-- ── 151-163: event reveal + thanks (G-306/G-307) ────────────────────────────
+-- Fresh actors: r1 honoree; r2 organizer; r3 member; r4 a friend outside.
+reset role;
+insert into auth.users (id, email)
+values
+  ('00000000-0000-0000-0000-000000000b41', 'r1@test.dev'),
+  ('00000000-0000-0000-0000-000000000b42', 'r2@test.dev'),
+  ('00000000-0000-0000-0000-000000000b43', 'r3@test.dev'),
+  ('00000000-0000-0000-0000-000000000b44', 'r4@test.dev');
+insert into public.profiles (id, username)
+values
+  ('00000000-0000-0000-0000-000000000b41', 'reveal_honoree'),
+  ('00000000-0000-0000-0000-000000000b42', 'reveal_organizer'),
+  ('00000000-0000-0000-0000-000000000b43', 'reveal_member'),
+  ('00000000-0000-0000-0000-000000000b44', 'reveal_outsider');
+insert into public.friendships (requester_id, addressee_id, status)
+values
+  ('00000000-0000-0000-0000-000000000b41', '00000000-0000-0000-0000-000000000b42', 'accepted'),
+  ('00000000-0000-0000-0000-000000000b41', '00000000-0000-0000-0000-000000000b43', 'accepted'),
+  ('00000000-0000-0000-0000-000000000b41', '00000000-0000-0000-0000-000000000b44', 'accepted');
+insert into public.gift_events (id, honoree_id, creator_id, event_date, reveal_at)
+values ('00000000-0000-0000-0000-000000000f41', '00000000-0000-0000-0000-000000000b41',
+        '00000000-0000-0000-0000-000000000b42', current_date + 30, now() + interval '31 days');
+insert into public.gift_event_members (event_id, user_id, role, status)
+values
+  ('00000000-0000-0000-0000-000000000f41', '00000000-0000-0000-0000-000000000b42', 'organizer', 'joined'),
+  ('00000000-0000-0000-0000-000000000f41', '00000000-0000-0000-0000-000000000b43', 'member', 'joined');
+insert into public.event_comments (event_id, author_id, body)
+values ('00000000-0000-0000-0000-000000000f41', '00000000-0000-0000-0000-000000000b42', 'kek bende');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b44","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.gifts (giver_id, recipient_id, item, is_surprise, reveal_at, event_id)
+     values ('00000000-0000-0000-0000-000000000b44', '00000000-0000-0000-0000-000000000b41',
+             'Kupa', true, now() + interval '31 days', '00000000-0000-0000-0000-000000000f41') $$,
+  '23514',
+  null,
+  '151: a non-member cannot log a gift against the event'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b43","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at, event_id)
+     values ('00000000-0000-0000-0000-000000000a41', '00000000-0000-0000-0000-000000000b43',
+             '00000000-0000-0000-0000-000000000b41', 'Kupa', true, now() + interval '31 days',
+             '00000000-0000-0000-0000-000000000f41') $$,
+  '152: a joined member logs a surprise gift against the event'
+);
+select throws_ok(
+  $$ select public.reveal_gift_event('00000000-0000-0000-0000-000000000f41') $$,
+  '42501',
+  null,
+  '153: a member cannot reveal'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b41","role":"authenticated"}';
+select is(
+  (select count(*) from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  0::bigint,
+  '154: the honoree does not see the open event'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b42","role":"authenticated"}';
+select lives_ok(
+  $$ select public.reveal_gift_event('00000000-0000-0000-0000-000000000f41') $$,
+  '155: the organizer reveals early'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b41","role":"authenticated"}';
+select is(
+  (select status::text from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  'revealed',
+  '156: revealed, the honoree sees the event'
+);
+select is(
+  (select count(*) from public.gift_event_members where event_id = '00000000-0000-0000-0000-000000000f41'),
+  2::bigint,
+  '157: ... and who was in'
+);
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a41'),
+  1::bigint,
+  '158: ... and the linked surprise, opened with the event'
+);
+select is(
+  (select count(*) from public.event_comments where event_id = '00000000-0000-0000-0000-000000000f41'),
+  0::bigint,
+  '159: the board stays the friends'' backstage'
+);
+select lives_ok(
+  $$ update public.gift_events set thanks_note = 'Çok teşekkür ederim!', external_chat_url = 'https://x.test/hijack'
+     where id = '00000000-0000-0000-0000-000000000f41' $$,
+  '160: the honoree writes the thank-you'
+);
+select is(
+  (select thanks_at is not null and external_chat_url is null
+     from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  true,
+  '161: the thank-you is stamped; nothing else of the honoree''s update lands'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b42","role":"authenticated"}';
+update public.gift_events set thanks_note = 'rewritten'
+  where id = '00000000-0000-0000-0000-000000000f41';
+select is(
+  (select thanks_note from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  'Çok teşekkür ederim!',
+  '162: the organizer cannot touch the thank-you'
+);
+select throws_ok(
+  $$ select * from public.event_reveal_targets() $$,
+  '42501',
+  null,
+  '163: the reveal machine is service-only'
 );
 reset role;
 

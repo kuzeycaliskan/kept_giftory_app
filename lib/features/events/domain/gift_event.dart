@@ -44,6 +44,9 @@ class GiftEvent {
     this.externalChatUrl,
     this.creatorId,
     this.commentCount = 0,
+    this.revealedAt,
+    this.thanksNote,
+    this.thanksAt,
   });
 
   final String id;
@@ -58,6 +61,13 @@ class GiftEvent {
 
   /// Notes on the board (visible ones); the list loads on demand.
   final int commentCount;
+
+  /// G-306: when the state machine (or the organizer) opened the event.
+  final DateTime? revealedAt;
+
+  /// G-307: the honoree's one thank-you, once written.
+  final String? thanksNote;
+  final DateTime? thanksAt;
 
   String honoreeLabel(String fallback) =>
       honoree?.displayName ?? honoree?.username ?? fallback;
@@ -80,6 +90,11 @@ class GiftEvent {
 
   bool get isOpen => status == EventStatus.open;
 
+  bool get isRevealed => status == EventStatus.revealed;
+
+  /// The birthday person — sees the event only once revealed (RLS).
+  bool isHonoree(String? userId) => userId != null && honoreeId == userId;
+
   GiftEvent copyWith({List<EventMember>? members, ProfileCard? honoree}) =>
       GiftEvent(
         id: id,
@@ -92,6 +107,9 @@ class GiftEvent {
         creatorId: creatorId,
         members: members ?? this.members,
         commentCount: commentCount,
+        revealedAt: revealedAt,
+        thanksNote: thanksNote,
+        thanksAt: thanksAt,
       );
 }
 

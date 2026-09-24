@@ -213,7 +213,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/gifts/log',
         name: 'log-gift',
-        builder: (context, state) => const LogGiftScreen(),
+        builder: (context, state) => LogGiftScreen(
+          initialRecipientId: state.uri.queryParameters['recipient'],
+          eventId: state.uri.queryParameters['event'],
+        ),
       ),
       GoRoute(
         path: '/gifts/log-external',

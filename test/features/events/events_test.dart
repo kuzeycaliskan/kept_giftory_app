@@ -13,6 +13,7 @@ import 'package:kept/features/events/presentation/events_page.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
+import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
@@ -165,6 +166,36 @@ class _FakeEventsRepository implements EventsRepository {
     calls.add('chat:$eventId:$url');
     return const Success(null);
   }
+
+  List<GiftEntry> gifts = [];
+
+  @override
+  Future<Result<void>> reveal(String eventId) async {
+    calls.add('reveal:$eventId');
+    final i = events.indexWhere((e) => e.id == eventId);
+    final e = events[i];
+    events[i] = GiftEvent(
+      id: e.id,
+      honoreeId: e.honoreeId,
+      honoree: e.honoree,
+      eventDate: e.eventDate,
+      revealAt: e.revealAt,
+      status: EventStatus.revealed,
+      members: e.members,
+      revealedAt: DateTime(2026, 9, 24),
+    );
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> thank(String eventId, String note) async {
+    calls.add('thank:$eventId:$note');
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<List<GiftEntry>>> fetchEventGifts(String eventId) async =>
+      Success(gifts);
 }
 
 class _FakeFriendshipRepository implements FriendshipRepository {
@@ -195,13 +226,17 @@ GiftEvent event({
   required EventMemberStatus myStatus,
   EventMemberRole myRole = EventMemberRole.member,
   String? chat,
+  EventStatus status = EventStatus.open,
+  String? thanksNote,
 }) => GiftEvent(
   id: id,
   honoreeId: 'ali',
   honoree: const ProfileCard(id: 'ali', username: 'ali', displayName: 'Ali'),
   eventDate: DateTime(2026, 10, 4),
   revealAt: DateTime(2026, 10, 5),
-  status: EventStatus.open,
+  status: status,
+  revealedAt: status == EventStatus.revealed ? DateTime(2026, 9, 24) : null,
+  thanksNote: thanksNote,
   externalChatUrl: chat,
   members: [
     EventMember(userId: 'dev-me', role: myRole, status: myStatus),
@@ -213,6 +248,8 @@ GiftEvent event({
     ),
   ],
 );
+
+Uri? lastLogGiftUri;
 
 void main() {
   Future<void> pump(
@@ -233,6 +270,14 @@ void main() {
           path: '/events/:id',
           builder: (_, state) =>
               EventDetailScreen(eventId: state.pathParameters['id']!),
+        ),
+        // Captures the pre-filled log-gift navigation from an event.
+        GoRoute(
+          path: '/gifts/log',
+          builder: (_, state) {
+            lastLogGiftUri = state.uri;
+            return const Scaffold(body: Text('log gift stub'));
+          },
         ),
       ],
     );
@@ -301,8 +346,14 @@ void main() {
 
     expect(find.text("Ali's birthday"), findsOneWidget);
     expect(find.textContaining("can't see this event"), findsOneWidget);
-    expect(find.text('Kamil'), findsOneWidget);
     expect(find.text('Open group chat'), findsOneWidget);
+    // Members sit below the gifts and ideas sections now.
+    await tester.scrollUntilVisible(
+      find.text('Kamil'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Kamil'), findsOneWidget);
 
     // The gift-ideas section pushed the invite row below the fold.
     await tester.scrollUntilVisible(
@@ -418,6 +469,144 @@ void main() {
 
     expect(find.text('Gift ideas'), findsNothing);
     expect(find.text('Coffee grinder'), findsNothing);
+  });
+
+  /// A revealed event where the signed-in user (dev-me) is the honoree.
+  GiftEvent forMe({String? thanksNote}) => GiftEvent(
+    id: 'mine',
+    honoreeId: 'dev-me',
+    eventDate: DateTime(2026, 9, 20),
+    revealAt: DateTime(2026, 9, 21),
+    status: EventStatus.revealed,
+    revealedAt: DateTime(2026, 9, 21),
+    thanksNote: thanksNote,
+    members: const [
+      EventMember(
+        userId: 'kamil',
+        role: EventMemberRole.organizer,
+        status: EventMemberStatus.joined,
+        user: ProfileCard(id: 'kamil', username: 'kamil', displayName: 'Kamil'),
+      ),
+    ],
+  );
+
+  testWidgets('the honoree sees who was in, the gifts, and says thanks', (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository(events: [forMe()])
+      ..gifts = [
+        GiftEntry(
+          id: 'g1',
+          item: 'Espresso machine',
+          giftDate: DateTime(2026, 9, 20),
+          isSurprise: true,
+          revealAt: DateTime(2026, 9, 21),
+          counterpartId: 'kamil',
+          counterpartLabel: 'Kamil',
+        ),
+      ];
+    await pump(tester, repo: repo, initial: '/events/mine');
+
+    expect(find.text('Your friends came together for you'), findsOneWidget);
+    expect(find.text('Kamil'), findsWidgets);
+    expect(find.text('Espresso machine'), findsOneWidget);
+    // Backstage stays backstage: no board, no gift ideas, no menu.
+    expect(find.text('Notes'), findsNothing);
+    expect(find.text('Gift ideas'), findsNothing);
+    expect(find.byIcon(Icons.more_horiz), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'Çok teşekkür ederim!');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    expect(repo.calls, ['thank:mine:Çok teşekkür ederim!']);
+    expect(find.text('Your thanks reached everyone'), findsOneWidget);
+  });
+
+  testWidgets('the honoree sees their own thank-you once written', (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository(events: [forMe(thanksNote: 'Sağ olun')]);
+    await pump(tester, repo: repo, initial: '/events/mine');
+    expect(find.text('Sağ olun'), findsOneWidget);
+    expect(find.text('Send'), findsNothing);
+  });
+
+  testWidgets('the organizer reveals early after confirming', (tester) async {
+    final repo = _FakeEventsRepository(
+      events: [
+        event(
+          id: 'e7',
+          myStatus: EventMemberStatus.joined,
+          myRole: EventMemberRole.organizer,
+        ),
+      ],
+    );
+    await pump(tester, repo: repo, initial: '/events/e7');
+
+    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reveal now'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reveal the event now?'), findsOneWidget);
+    await tester.tap(find.text('Reveal now').last);
+    await tester.pumpAndSettle();
+
+    expect(repo.calls, ['reveal:e7']);
+    expect(find.textContaining('Revealed on'), findsOneWidget);
+  });
+
+  testWidgets('a member cannot reveal; sees the thank-you when it lands', (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository(
+      events: [
+        event(
+          id: 'e8',
+          myStatus: EventMemberStatus.joined,
+          status: EventStatus.revealed,
+          thanksNote: 'Harikasınız',
+        ),
+      ],
+    );
+    await pump(tester, repo: repo, initial: '/events/e8');
+
+    expect(find.text('Ali says thanks'), findsOneWidget);
+    expect(find.text('Harikasınız'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.pumpAndSettle();
+    expect(find.text('Reveal now'), findsNothing);
+  });
+
+  testWidgets('logging a gift from the event pre-links it', (tester) async {
+    final repo = _FakeEventsRepository(
+      events: [event(id: 'e9', myStatus: EventMemberStatus.joined)],
+    );
+    await pump(tester, repo: repo, initial: '/events/e9');
+
+    await tester.scrollUntilVisible(
+      find.text('Log the gift'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Log the gift'));
+    await tester.pumpAndSettle();
+
+    expect(lastLogGiftUri?.queryParameters, {
+      'recipient': 'ali',
+      'event': 'e9',
+    });
+  });
+
+  testWidgets("the hub lists the honoree's revealed event under For you", (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository(events: [forMe()]);
+    await pump(tester, repo: repo);
+    expect(find.text('For you'), findsOneWidget);
+    expect(find.text('Your birthday'), findsOneWidget);
+    expect(find.text('Your events'), findsNothing);
   });
 
   testWidgets('joined members write on the notes board', (tester) async {

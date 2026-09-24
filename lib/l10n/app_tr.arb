@@ -352,5 +352,22 @@
   "claimJoinHint": "Kalan {remaining} · {count, plural, =1{1 kişi} other{{count} kişi}}",
   "claimOverTarget": "Fiyatın {amount} üzerinde",
   "claimOverTargetHint": "Bu tutarla havuz fiyatı {amount} aşar; gerçek fiyat yüksekse sorun değil.",
-  "claimPoolFull": "Havuz doldu"
+  "claimPoolFull": "Havuz doldu",
+  "eventsForYouSection": "Senin için",
+  "eventsHonoreeTitle": "Arkadaşların senin için bir araya geldi",
+  "eventsHonoreeRowTitle": "Doğum günün",
+  "eventsRevealedOn": "{date} tarihinde açıklandı",
+  "eventsRevealNow": "Şimdi açıkla",
+  "eventsRevealConfirmTitle": "Event şimdi açıklansın mı?",
+  "eventsRevealConfirmBody": "{name} kimlerin olduğunu ve burada kaydedilen hediyeleri görür. Hediye teslim edildiyse yap.",
+  "eventsGiftsSection": "Hediyeler",
+  "eventsGiftsEmpty": "Henüz burada kaydedilmiş hediye yok",
+  "eventsLogGift": "Hediyeyi kaydet",
+  "eventsThanksTitle": "Teşekkür et",
+  "eventsThanksHint": "Katılan herkese birkaç söz…",
+  "eventsThanksSend": "Gönder",
+  "eventsThanksSent": "Teşekkürün herkese ulaştı",
+  "eventsThanksFrom": "{name} teşekkür etti",
+  "homeRevealCardTitle": "Arkadaşların senin için bir araya geldi",
+  "homeRevealCardBody": "Kimler vardı gör, teşekkür et"
 }

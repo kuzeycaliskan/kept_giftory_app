@@ -53,3 +53,26 @@ export function giftLoggedPush(
     body: `${giver}: ${clip(itemLabel, 60)}`,
   };
 }
+
+/// G-307 — the reveal moment, sent once per event to the honoree.
+export function eventRevealPush(
+  memberCount: number,
+): { title: string; body: string } {
+  return {
+    title: "Arkadaşların senin için bir araya geldi 🎁",
+    body: memberCount > 1
+      ? `${memberCount} arkadaşın hediyeni birlikte hazırladı. Kimler vardı, gör.`
+      : "Bir arkadaşın senin için hediye hazırladı. Gör.",
+  };
+}
+
+/// G-307 — the honoree's thank-you, sent to every joined member.
+export function eventThanksPush(
+  honoree: string,
+  note: string,
+): { title: string; body: string } {
+  return {
+    title: `${honoree} teşekkür etti 💐`,
+    body: clip(note, 90),
+  };
+}
