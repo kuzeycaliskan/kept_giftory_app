@@ -457,8 +457,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Recipient already chosen — no picker tap needed.
+    // Recipient already chosen and locked: it is the honoree's event.
     expect(find.text('Ali'), findsWidgets);
+    expect(
+      tester
+          .widget<DropdownButtonFormField<String>>(
+            find.byType(DropdownButtonFormField<String>),
+          )
+          .onChanged,
+      isNull,
+    );
     await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Kindle');
     await tester.tap(find.text('Reveal date'));
     await tester.pumpAndSettle();

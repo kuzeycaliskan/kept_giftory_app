@@ -369,5 +369,6 @@
   "eventsThanksSent": "Teşekkürün herkese ulaştı",
   "eventsThanksFrom": "{name} teşekkür etti",
   "homeRevealCardTitle": "Arkadaşların senin için bir araya geldi",
-  "homeRevealCardBody": "Kimler vardı gör, teşekkür et"
+  "homeRevealCardBody": "Kimler vardı gör, teşekkür et",
+  "eventsThanksEdit": "Düzenle"
 }

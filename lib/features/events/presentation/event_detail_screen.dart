@@ -631,83 +631,121 @@ class _EventGifts extends ConsumerWidget {
 
 /// The honoree's page (G-307): who came together, what they logged, and
 /// one thank-you back. No board, no reservations — those stay backstage.
-class _HonoreeBody extends ConsumerWidget {
+class _HonoreeBody extends StatefulWidget {
   const _HonoreeBody({required this.event, required this.busy});
 
   final GiftEvent event;
   final bool busy;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<_HonoreeBody> createState() => _HonoreeBodyState();
+}
+
+class _HonoreeBodyState extends State<_HonoreeBody> {
+  bool _editing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
+    final event = widget.event;
     final revealed = event.revealedAt;
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(KeptSpacing.lg),
-      children: [
-        Row(
-          children: [
-            const KeptIconBadge(Icons.celebration_outlined),
-            const SizedBox(width: KeptSpacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.eventsHonoreeTitle,
-                    style: theme.textTheme.titleLarge,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (revealed != null)
+    final note = event.thanksNote;
+    // Tapping anywhere outside the composer (or dragging the list) puts
+    // the keyboard away.
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.all(KeptSpacing.lg),
+        children: [
+          Row(
+            children: [
+              const KeptIconBadge(Icons.celebration_outlined),
+              const SizedBox(width: KeptSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      l10n.eventsRevealedOn(
-                        DateFormat.yMMMMd(locale).format(revealed),
-                      ),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      l10n.eventsHonoreeTitle,
+                      style: theme.textTheme.titleLarge,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                ],
+                    if (revealed != null)
+                      Text(
+                        l10n.eventsRevealedOn(
+                          DateFormat.yMMMMd(locale).format(revealed),
+                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: KeptSpacing.xl),
+          KeptSectionHeader(l10n.eventsMembersSection(event.joined.length)),
+          KeptListGroup(
+            children: [
+              for (final m in event.joined) _MemberRow(member: m, myId: null),
+            ],
+          ),
+          const SizedBox(height: KeptSpacing.xl),
+          KeptSectionHeader(l10n.eventsGiftsSection),
+          _EventGifts(eventId: event.id),
+          const SizedBox(height: KeptSpacing.xl),
+          KeptSectionHeader(l10n.eventsThanksTitle),
+          if (note != null && !_editing) ...[
+            _ThanksCard(name: l10n.storiesYou, note: note),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => setState(() => _editing = true),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: Text(l10n.eventsThanksEdit),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: KeptSpacing.xl),
-        KeptSectionHeader(l10n.eventsMembersSection(event.joined.length)),
-        KeptListGroup(
-          children: [
-            for (final m in event.joined) _MemberRow(member: m, myId: null),
-          ],
-        ),
-        const SizedBox(height: KeptSpacing.xl),
-        KeptSectionHeader(l10n.eventsGiftsSection),
-        _EventGifts(eventId: event.id),
-        const SizedBox(height: KeptSpacing.xl),
-        KeptSectionHeader(l10n.eventsThanksTitle),
-        if (event.thanksNote != null)
-          _ThanksCard(name: l10n.storiesYou, note: event.thanksNote!)
-        else
-          _ThanksComposer(eventId: event.id, busy: busy),
-      ],
+          ] else
+            _ThanksComposer(
+              eventId: event.id,
+              busy: widget.busy,
+              initialText: note,
+              onSent: () => setState(() => _editing = false),
+            ),
+        ],
+      ),
     );
   }
 }
 
 class _ThanksComposer extends ConsumerStatefulWidget {
-  const _ThanksComposer({required this.eventId, required this.busy});
+  const _ThanksComposer({
+    required this.eventId,
+    required this.busy,
+    this.initialText,
+    this.onSent,
+  });
 
   final String eventId;
   final bool busy;
+
+  /// Editing an existing note starts from it.
+  final String? initialText;
+  final VoidCallback? onSent;
 
   @override
   ConsumerState<_ThanksComposer> createState() => _ThanksComposerState();
 }
 
 class _ThanksComposerState extends ConsumerState<_ThanksComposer> {
-  final _controller = TextEditingController();
+  late final _controller = TextEditingController(text: widget.initialText);
 
   @override
   void dispose() {
@@ -724,9 +762,11 @@ class _ThanksComposerState extends ConsumerState<_ThanksComposer> {
         .read(eventsControllerProvider.notifier)
         .thank(widget.eventId, note);
     if (!mounted) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     messenger.showSnackBar(
       SnackBar(content: Text(ok ? l10n.eventsThanksSent : l10n.errorGeneric)),
     );
+    if (ok) widget.onSent?.call();
   }
 
   @override

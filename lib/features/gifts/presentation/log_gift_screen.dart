@@ -249,6 +249,12 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   }
 
   Widget _form(AppLocalizations l10n, List<FriendEntry> friends, bool busy) {
+    // From an event the recipient is the honoree — fixed, not a choice.
+    final fromEvent = widget.eventId != null;
+    _recipientBirthday ??= friends
+        .where((f) => f.profileId == _recipientId)
+        .firstOrNull
+        ?.birthday;
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.all(24),
@@ -266,14 +272,16 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
               for (final f in friends)
                 DropdownMenuItem(value: f.profileId, child: Text(f.label)),
             ],
-            onChanged: (value) => setState(() {
-              _recipientId = value;
-              _recipientBirthday = friends
-                  .where((f) => f.profileId == value)
-                  .firstOrNull
-                  ?.birthday;
-              _recipientMissing = false;
-            }),
+            onChanged: fromEvent
+                ? null
+                : (value) => setState(() {
+                    _recipientId = value;
+                    _recipientBirthday = friends
+                        .where((f) => f.profileId == value)
+                        .firstOrNull
+                        ?.birthday;
+                    _recipientMissing = false;
+                  }),
           ),
           const SizedBox(height: 16),
           TextField(

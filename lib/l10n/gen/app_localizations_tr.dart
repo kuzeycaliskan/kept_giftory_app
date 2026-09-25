@@ -1239,4 +1239,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get homeRevealCardBody => 'Kimler vardı gör, teşekkür et';
+
+  @override
+  String get eventsThanksEdit => 'Düzenle';
 }

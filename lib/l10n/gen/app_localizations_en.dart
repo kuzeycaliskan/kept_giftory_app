@@ -1254,4 +1254,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeRevealCardBody => 'See who was in and say thanks';
+
+  @override
+  String get eventsThanksEdit => 'Edit';
 }

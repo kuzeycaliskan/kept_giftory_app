@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(163);
+select plan(165);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1832,6 +1832,23 @@ select throws_ok(
   '42501',
   null,
   '163: the reveal machine is service-only'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b41","role":"authenticated"}';
+update public.gift_events set thanks_note = 'Düzeltilmiş teşekkür'
+  where id = '00000000-0000-0000-0000-000000000f41';
+select is(
+  (select thanks_note from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  'Düzeltilmiş teşekkür',
+  '164: the honoree can edit the thank-you'
+);
+update public.gift_events set thanks_note = null
+  where id = '00000000-0000-0000-0000-000000000f41';
+select is(
+  (select thanks_note from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  'Düzeltilmiş teşekkür',
+  '165: ... but not withdraw it'
 );
 reset role;
 

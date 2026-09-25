@@ -2317,6 +2317,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See who was in and say thanks'**
   String get homeRevealCardBody;
+
+  /// No description provided for @eventsThanksEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get eventsThanksEdit;
 }
 
 class _AppLocalizationsDelegate

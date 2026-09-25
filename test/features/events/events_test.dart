@@ -523,12 +523,25 @@ void main() {
     expect(find.text('Your thanks reached everyone'), findsOneWidget);
   });
 
-  testWidgets('the honoree sees their own thank-you once written', (
+  testWidgets('the honoree sees their own thank-you and can edit it', (
     tester,
   ) async {
     final repo = _FakeEventsRepository(events: [forMe(thanksNote: 'Sağ olun')]);
     await pump(tester, repo: repo, initial: '/events/mine');
     expect(find.text('Sağ olun'), findsOneWidget);
+    expect(find.text('Send'), findsNothing);
+
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Sağ olun',
+    );
+    await tester.enterText(find.byType(TextField), 'Sağ olun, harikasınız');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    expect(repo.calls, ['thank:mine:Sağ olun, harikasınız']);
     expect(find.text('Send'), findsNothing);
   });
 
