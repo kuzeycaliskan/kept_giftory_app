@@ -85,9 +85,11 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     });
   }
 
+  /// Server timestamps arrive in UTC; the day they mean is the local one
+  /// (a reveal at 00:00 Istanbul is still "the 16th", not the 15th).
   String _formatDate(DateTime date) {
     final locale = Localizations.localeOf(context).toString();
-    return DateFormat.yMMMd(locale).format(date);
+    return DateFormat.yMMMd(locale).format(date.toLocal());
   }
 
   Future<void> _pickGiftDate() async {

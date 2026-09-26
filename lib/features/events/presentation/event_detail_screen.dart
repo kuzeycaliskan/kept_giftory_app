@@ -532,7 +532,7 @@ class _RevealedBanner extends StatelessWidget {
                 revealed == null
                     ? l10n.eventsRevealNow
                     : l10n.eventsRevealedOn(
-                        DateFormat.yMMMMd(locale).format(revealed),
+                        DateFormat.yMMMMd(locale).format(revealed.toLocal()),
                       ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -683,7 +683,7 @@ class _HonoreeBodyState extends State<_HonoreeBody> {
                     if (revealed != null)
                       Text(
                         l10n.eventsRevealedOn(
-                          DateFormat.yMMMMd(locale).format(revealed),
+                          DateFormat.yMMMMd(locale).format(revealed.toLocal()),
                         ),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
