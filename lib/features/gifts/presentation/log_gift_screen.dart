@@ -377,9 +377,9 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
               leading: const Icon(Icons.visibility_outlined),
               title: Text(
                 '${l10n.logGiftRevealDateLabel}: '
-                '${_formatDate(_eventRevealAt!)} '
-                '(${l10n.logGiftEventRevealRule})',
+                '${_formatDate(_eventRevealAt!)}',
               ),
+              subtitle: Text(l10n.logGiftEventRevealRule),
             )
           else if (_isSurprise) ...[
             OutlinedButton.icon(

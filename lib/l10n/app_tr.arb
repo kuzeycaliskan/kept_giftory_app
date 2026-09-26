@@ -385,5 +385,5 @@
   "giftGiverWithFriends": "{name} ve {count} arkadaşı",
   "giftContributorsSection": "Ortak verenler",
   "giftContributorFriend": "Bir arkadaş",
-  "logGiftEventRevealRule": "doğum günü + 1 gün"
+  "logGiftEventRevealRule": "Event günü + 1"
 }

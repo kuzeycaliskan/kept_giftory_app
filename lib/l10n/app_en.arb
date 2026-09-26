@@ -693,5 +693,5 @@
   },
   "giftContributorsSection": "Chipped in",
   "giftContributorFriend": "A friend",
-  "logGiftEventRevealRule": "birthday + 1 day"
+  "logGiftEventRevealRule": "Event day + 1"
 }

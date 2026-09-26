@@ -2411,7 +2411,7 @@ abstract class AppLocalizations {
   /// No description provided for @logGiftEventRevealRule.
   ///
   /// In en, this message translates to:
-  /// **'birthday + 1 day'**
+  /// **'Event day + 1'**
   String get logGiftEventRevealRule;
 }
 

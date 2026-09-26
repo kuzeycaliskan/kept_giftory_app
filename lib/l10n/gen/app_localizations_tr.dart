@@ -1291,5 +1291,5 @@ class AppLocalizationsTr extends AppLocalizations {
   String get giftContributorFriend => 'Bir arkadaş';
 
   @override
-  String get logGiftEventRevealRule => 'doğum günü + 1 gün';
+  String get logGiftEventRevealRule => 'Event günü + 1';
 }
