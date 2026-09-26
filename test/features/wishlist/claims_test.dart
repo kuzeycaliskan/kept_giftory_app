@@ -397,6 +397,31 @@ void main() {
       expect(find.text('Fully funded'), findsNothing);
     });
 
+    testWidgets('a full pool asks its organizer to log the gift', (
+      tester,
+    ) async {
+      const full = WishlistClaim(
+        id: 'c1',
+        itemId: 'f1',
+        ownerId: 'ali',
+        claimerId: 'dev-me',
+        kind: ClaimKind.shared,
+        targetAmount: 500,
+        pledges: [
+          Pledge(userId: 'zeynep', amount: 300, user: zeynep),
+          Pledge(userId: 'kamil', amount: 200),
+        ],
+      );
+      await pump(tester, claims: _FakeClaimsRepository(claims: {'f1': full}));
+      expect(find.text('Fully funded'), findsOneWidget);
+
+      await tester.tap(find.text('Log the gift'));
+      await tester.pumpAndSettle();
+
+      expect(lastLogGiftUri?.queryParameters['claim'], 'c1');
+      expect(lastLogGiftUri?.queryParameters['recipient'], 'ali');
+    });
+
     testWidgets('a full pool takes no newcomers but lets a member adjust', (
       tester,
     ) async {

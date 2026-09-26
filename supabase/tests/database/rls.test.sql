@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(174);
+select plan(175);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1924,6 +1924,17 @@ select throws_ok(
   '23514',
   null,
   '172: a claim whose gift is already visible cannot be released'
+);
+-- A second record for the same claim: the slot is taken, atomically.
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values ('00000000-0000-0000-0000-000000000a54', '00000000-0000-0000-0000-000000000b32',
+        '00000000-0000-0000-0000-000000000b31', 'Grinder again', true, now() + interval '5 days');
+select throws_ok(
+  $$ select public.attach_claim_gift('00000000-0000-0000-0000-000000000e12',
+                                     '00000000-0000-0000-0000-000000000a54') $$,
+  '23514',
+  null,
+  '175: a claim takes exactly one gift record, first attach wins'
 );
 
 -- Event gifts: never before the event, always a surprise. f41 is already

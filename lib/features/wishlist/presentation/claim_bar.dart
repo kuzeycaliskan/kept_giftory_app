@@ -435,6 +435,17 @@ class _SharedState extends ConsumerWidget {
             onPressed: () =>
                 context.push('/gifts/${claim.giftId}?side=recipient'),
           )
+        else if (claim.isMine(myId) && _full)
+          // The pool reached its price: the organizer's next step is the
+          // gift record (the server takes exactly one per pool).
+          FilledButton.icon(
+            style: _compact,
+            onPressed: busy
+                ? null
+                : () => context.push(logGiftRouteFor(item, claim, eventId)),
+            icon: const Icon(Icons.redeem_outlined, size: 18),
+            label: Text(l10n.claimLogGift),
+          )
         else if (mine == null && _full)
           Text(
             l10n.claimPoolFull,
