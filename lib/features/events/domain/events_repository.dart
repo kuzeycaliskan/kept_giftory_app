@@ -31,8 +31,9 @@ abstract interface class EventsRepository {
 
   Future<Result<void>> leave(String eventId);
 
-  /// Organizer only (RLS).
-  Future<Result<void>> cancel(String eventId);
+  /// Organizer only, open events only (RLS): members, invitations and
+  /// notes go with it; logged gifts and reservations stay.
+  Future<Result<void>> delete(String eventId);
 
   /// Organizer only (RLS); null clears.
   Future<Result<void>> setChatUrl(String eventId, String? url);

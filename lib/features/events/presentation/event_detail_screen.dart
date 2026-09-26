@@ -114,17 +114,17 @@ class EventDetailScreen extends ConsumerWidget {
             label: l10n.eventsSetChatLink,
             onTap: () => _editChatLink(context, ref, event),
           ),
-        if (organizer)
+        if (organizer && event.isOpen)
           KeptSheetAction(
-            icon: Icons.cancel_outlined,
-            label: l10n.eventsCancel,
+            icon: Icons.delete_outline,
+            label: l10n.eventsDelete,
             destructive: true,
             onTap: () => _confirm(
               context,
-              title: l10n.eventsCancelConfirmTitle,
-              body: l10n.eventsCancelConfirmBody,
-              action: l10n.eventsCancel,
-              onConfirm: () => controller.cancel(event.id),
+              title: l10n.eventsDeleteConfirmTitle,
+              body: l10n.eventsDeleteConfirmBody,
+              action: l10n.eventsDelete,
+              onConfirm: () => controller.delete(event.id),
               popAfter: true,
             ),
           )

@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(175);
+select plan(179);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1968,6 +1968,44 @@ select throws_ok(
   '174: an event gift cannot be a non-surprise'
 );
 reset role;
+
+-- ── 176-178: event deletion ─────────────────────────────────────────────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b42","role":"authenticated"}';
+delete from public.gift_events where id = '00000000-0000-0000-0000-000000000f41';
+select is(
+  (select count(*) from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
+  1::bigint,
+  '176: a revealed event cannot be deleted, even by its organizer'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b41","role":"authenticated"}';
+delete from public.gift_events where id = '00000000-0000-0000-0000-000000000f42';
+reset role;
+select is(
+  (select count(*) from public.gift_events where id = '00000000-0000-0000-0000-000000000f42'),
+  1::bigint,
+  '177: a non-organizer cannot delete an open event'
+);
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b43","role":"authenticated"}';
+delete from public.gift_events where id = '00000000-0000-0000-0000-000000000f42';
+reset role;
+select is(
+  (select count(*) from public.gift_events where id = '00000000-0000-0000-0000-000000000f42')
+  + (select count(*) from public.gift_event_members where event_id = '00000000-0000-0000-0000-000000000f42'),
+  0::bigint,
+  '178: the organizer deletes an open event; members go with it, the logged gift stays unlinked'
+);
+select is(
+  (select event_id is null from public.gifts where id = '00000000-0000-0000-0000-000000000a53'),
+  true,
+  '178b: ... gift kept, event link cleared'
+);
 
 select * from finish();
 rollback;

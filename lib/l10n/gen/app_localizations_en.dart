@@ -1040,16 +1040,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsLeaveConfirmBody => 'You can be invited again later.';
 
   @override
-  String get eventsCancel => 'Cancel event';
-
-  @override
-  String get eventsCancelConfirmTitle => 'Cancel this event?';
-
-  @override
-  String get eventsCancelConfirmBody =>
-      'Everyone loses access. This can\'t be undone.';
-
-  @override
   String get eventsBoardSection => 'Notes';
 
   @override
@@ -1314,4 +1304,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String claimSharedGathered(String total) {
     return '$total gathered';
   }
+
+  @override
+  String get eventsDelete => 'Delete event';
+
+  @override
+  String get eventsDeleteConfirmTitle => 'Delete this event?';
+
+  @override
+  String get eventsDeleteConfirmBody =>
+      'Members, invitations and notes go with it. Logged gifts and reservations stay.';
 }

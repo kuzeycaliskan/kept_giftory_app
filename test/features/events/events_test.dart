@@ -131,8 +131,8 @@ class _FakeEventsRepository implements EventsRepository {
   }
 
   @override
-  Future<Result<void>> cancel(String eventId) async {
-    calls.add('cancel:$eventId');
+  Future<Result<void>> delete(String eventId) async {
+    calls.add('delete:$eventId');
     events.removeWhere((e) => e.id == eventId);
     return const Success(null);
   }

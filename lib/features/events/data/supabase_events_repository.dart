@@ -232,8 +232,16 @@ class SupabaseEventsRepository implements EventsRepository {
   }
 
   @override
-  Future<Result<void>> cancel(String eventId) =>
-      _update(eventId, {'status': 'cancelled'});
+  Future<Result<void>> delete(String eventId) async {
+    try {
+      await _client.from('gift_events').delete().eq('id', eventId);
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return ResultFailure(NetworkFailure(e.message));
+    } catch (e) {
+      return ResultFailure(UnknownFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Result<void>> setChatUrl(String eventId, String? url) =>
@@ -404,7 +412,7 @@ class EmptyEventsRepository implements EventsRepository {
   Future<Result<void>> leave(String eventId) async => _offline;
 
   @override
-  Future<Result<void>> cancel(String eventId) async => _offline;
+  Future<Result<void>> delete(String eventId) async => _offline;
 
   @override
   Future<Result<void>> setChatUrl(String eventId, String? url) async =>

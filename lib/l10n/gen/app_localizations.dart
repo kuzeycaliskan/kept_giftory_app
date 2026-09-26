@@ -1964,24 +1964,6 @@ abstract class AppLocalizations {
   /// **'You can be invited again later.'**
   String get eventsLeaveConfirmBody;
 
-  /// No description provided for @eventsCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel event'**
-  String get eventsCancel;
-
-  /// No description provided for @eventsCancelConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel this event?'**
-  String get eventsCancelConfirmTitle;
-
-  /// No description provided for @eventsCancelConfirmBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Everyone loses access. This can\'t be undone.'**
-  String get eventsCancelConfirmBody;
-
   /// No description provided for @eventsBoardSection.
   ///
   /// In en, this message translates to:
@@ -2413,6 +2395,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{total} gathered'**
   String claimSharedGathered(String total);
+
+  /// No description provided for @eventsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete event'**
+  String get eventsDelete;
+
+  /// No description provided for @eventsDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this event?'**
+  String get eventsDeleteConfirmTitle;
+
+  /// No description provided for @eventsDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Members, invitations and notes go with it. Logged gifts and reservations stay.'**
+  String get eventsDeleteConfirmBody;
 }
 
 class _AppLocalizationsDelegate

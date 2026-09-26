@@ -95,8 +95,8 @@ class EventsController extends _$EventsController {
   Future<bool> leave(String eventId) =>
       _run(() => ref.read(eventsRepositoryProvider).leave(eventId));
 
-  Future<bool> cancel(String eventId) =>
-      _run(() => ref.read(eventsRepositoryProvider).cancel(eventId));
+  Future<bool> delete(String eventId) =>
+      _run(() => ref.read(eventsRepositoryProvider).delete(eventId));
 
   Future<bool> setChatUrl(String eventId, String? url) =>
       _run(() => ref.read(eventsRepositoryProvider).setChatUrl(eventId, url));

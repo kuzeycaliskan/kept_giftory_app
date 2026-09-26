@@ -516,9 +516,6 @@
   "eventsLeave": "Leave event",
   "eventsLeaveConfirmTitle": "Leave this event?",
   "eventsLeaveConfirmBody": "You can be invited again later.",
-  "eventsCancel": "Cancel event",
-  "eventsCancelConfirmTitle": "Cancel this event?",
-  "eventsCancelConfirmBody": "Everyone loses access. This can't be undone.",
   "eventsBoardSection": "Notes",
   "claimsIdeasSection": "Gift ideas",
   "claimsIdeasEmpty": "Their wishlist is empty for now",
@@ -690,5 +687,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "eventsDelete": "Delete event",
+  "eventsDeleteConfirmTitle": "Delete this event?",
+  "eventsDeleteConfirmBody": "Members, invitations and notes go with it. Logged gifts and reservations stay."
 }

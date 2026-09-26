@@ -1025,16 +1025,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get eventsLeaveConfirmBody => 'Sonra yeniden davet edilebilirsin.';
 
   @override
-  String get eventsCancel => 'Event\'i iptal et';
-
-  @override
-  String get eventsCancelConfirmTitle => 'Bu event iptal edilsin mi?';
-
-  @override
-  String get eventsCancelConfirmBody =>
-      'Herkes erişimini kaybeder. Geri alınamaz.';
-
-  @override
   String get eventsBoardSection => 'Konuşma';
 
   @override
@@ -1292,4 +1282,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String claimSharedGathered(String total) {
     return '$total toplandı';
   }
+
+  @override
+  String get eventsDelete => 'Event\'i sil';
+
+  @override
+  String get eventsDeleteConfirmTitle => 'Bu event silinsin mi?';
+
+  @override
+  String get eventsDeleteConfirmBody =>
+      'Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır.';
 }

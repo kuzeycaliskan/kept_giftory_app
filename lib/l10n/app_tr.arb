@@ -311,9 +311,6 @@
   "eventsLeave": "Event'ten ayrıl",
   "eventsLeaveConfirmTitle": "Bu event'ten ayrılmak istiyor musun?",
   "eventsLeaveConfirmBody": "Sonra yeniden davet edilebilirsin.",
-  "eventsCancel": "Event'i iptal et",
-  "eventsCancelConfirmTitle": "Bu event iptal edilsin mi?",
-  "eventsCancelConfirmBody": "Herkes erişimini kaybeder. Geri alınamaz.",
   "eventsBoardSection": "Konuşma",
   "claimsIdeasSection": "Hediye fikirleri",
   "claimsIdeasEmpty": "İstek listesi şimdilik boş",
@@ -385,5 +382,8 @@
   "giftContributorFriend": "Bir arkadaş",
   "logGiftEventRevealRule": "Event günü + 1",
   "claimSharedHeader": "Ortak hediye · {count, plural, =1{1 kişi} other{{count} kişi}}",
-  "claimSharedGathered": "{total} toplandı"
+  "claimSharedGathered": "{total} toplandı",
+  "eventsDelete": "Event'i sil",
+  "eventsDeleteConfirmTitle": "Bu event silinsin mi?",
+  "eventsDeleteConfirmBody": "Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır."
 }

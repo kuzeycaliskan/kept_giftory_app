@@ -128,7 +128,7 @@ class _FakeEventsRepository implements EventsRepository {
   Future<Result<void>> leave(String eventId) async => const Success(null);
 
   @override
-  Future<Result<void>> cancel(String eventId) async => const Success(null);
+  Future<Result<void>> delete(String eventId) async => const Success(null);
 
   final notes = <Comment>[];
 
