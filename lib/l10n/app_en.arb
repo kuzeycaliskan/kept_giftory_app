@@ -537,18 +537,7 @@
   },
   "claimByFriend": "A friend is getting this",
   "claimRelease": "Release",
-  "claimSharedSummary": "Group gift · {count, plural, =1{1 in} other{{count} in}} · {total}",
-  "@claimSharedSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "total": {
-        "type": "String"
-      }
-    }
-  },
-  "claimSharedTarget": "{total} of {target}",
+  "claimSharedTarget": "{total} / {target}",
   "@claimSharedTarget": {
     "placeholders": {
       "total": {
@@ -594,14 +583,6 @@
     }
   },
   "claimFunded": "Fully funded",
-  "claimProgressPercent": "{percent}%",
-  "@claimProgressPercent": {
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "claimJoinHint": "{remaining} left · {count, plural, =1{1 in} other{{count} in}}",
   "@claimJoinHint": {
     "placeholders": {
@@ -693,5 +674,21 @@
   },
   "giftContributorsSection": "Chipped in",
   "giftContributorFriend": "A friend",
-  "logGiftEventRevealRule": "Event day + 1"
+  "logGiftEventRevealRule": "Event day + 1",
+  "claimSharedHeader": "Group gift · {count, plural, =1{1 in} other{{count} in}}",
+  "@claimSharedHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "claimSharedGathered": "{total} gathered",
+  "@claimSharedGathered": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  }
 }

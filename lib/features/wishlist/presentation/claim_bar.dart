@@ -396,117 +396,133 @@ class _SharedState extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final scheme = Theme.of(context).colorScheme;
-    final total = formatTry(locale, claim.pledgedTotal);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final target = claim.targetAmount;
-    final amountText = target == null
-        ? total
-        : l10n.claimSharedTarget(total, formatTry(locale, target));
     final mine = claim.pledgeOf(myId);
-    final summary = Row(
-      children: [
-        Icon(Icons.group, size: 18, color: scheme.primary),
-        const SizedBox(width: KeptSpacing.sm),
-        Expanded(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(KeptRadius.control),
-            onTap: () =>
-                showParticipantsSheet(context, item: item, eventId: eventId),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: KeptSpacing.xs),
-              child: Text(
-                claim.hasGift
-                    ? l10n.claimSharedLogged
-                    : l10n.claimSharedSummary(claim.pledges.length, amountText),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: scheme.primary),
-              ),
-            ),
-          ),
+    final organizer = claim.isMine(myId);
+
+    // One next step, never several: what this viewer can do right now.
+    final Widget action;
+    if (claim.hasGift) {
+      action = TextButton.icon(
+        style: _compact,
+        onPressed: () => context.push('/gifts/${claim.giftId}?side=recipient'),
+        icon: const Icon(Icons.redeem_outlined, size: 18),
+        label: Text(l10n.claimOpenGift),
+      );
+    } else if (organizer && _full) {
+      // The pool reached its price: the organizer's next step is the
+      // gift record (the server takes exactly one per pool).
+      action = FilledButton.icon(
+        style: _compact,
+        onPressed: busy
+            ? null
+            : () => context.push(logGiftRouteFor(item, claim, eventId)),
+        icon: const Icon(Icons.redeem_outlined, size: 18),
+        label: Text(l10n.claimLogGift),
+      );
+    } else if (mine == null && _full) {
+      action = Text(
+        l10n.claimPoolFull,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: scheme.onSurfaceVariant,
         ),
-        const SizedBox(width: KeptSpacing.sm),
-        if (claim.hasGift)
-          IconButton(
-            tooltip: l10n.claimOpenGift,
-            icon: const Icon(Icons.redeem_outlined),
-            onPressed: () =>
-                context.push('/gifts/${claim.giftId}?side=recipient'),
-          )
-        else if (claim.isMine(myId) && _full)
-          // The pool reached its price: the organizer's next step is the
-          // gift record (the server takes exactly one per pool).
-          FilledButton.icon(
-            style: _compact,
-            onPressed: busy
-                ? null
-                : () => context.push(logGiftRouteFor(item, claim, eventId)),
-            icon: const Icon(Icons.redeem_outlined, size: 18),
-            label: Text(l10n.claimLogGift),
-          )
-        else if (mine == null && _full)
-          Text(
-            l10n.claimPoolFull,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
-          )
-        else if (mine == null)
-          FilledButton.tonal(
-            style: _compact,
-            onPressed: busy ? null : () => _pledge(context, ref),
-            child: Text(l10n.claimJoin),
-          )
-        else
-          TextButton(
-            style: _compact,
-            onPressed: busy ? null : () => _pledge(context, ref),
-            child: Text(
-              l10n.claimMyPledge(formatTry(locale, mine.amount)),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-      ],
-    );
-    if (target == null) return summary;
+      );
+    } else if (mine == null) {
+      action = FilledButton.tonal(
+        style: _compact,
+        onPressed: busy ? null : () => _pledge(context, ref),
+        child: Text(l10n.claimJoin),
+      );
+    } else {
+      action = TextButton(
+        style: _compact,
+        onPressed: busy ? null : () => _pledge(context, ref),
+        child: Text(
+          l10n.claimMyPledge(formatTry(locale, mine.amount)),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
+
+    // Three quiet rows: what it is (tap for who's in), where the money
+    // stands, and the one thing to do — instead of one crowded line.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        summary,
-        _PoolProgress(
-          fraction: claim.pledgedTotal / target,
-          remaining: _remaining(target),
-          over: (claim.pledgedTotal - target).clamp(0, double.infinity),
+        InkWell(
+          borderRadius: BorderRadius.circular(KeptRadius.control),
+          onTap: () =>
+              showParticipantsSheet(context, item: item, eventId: eventId),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: KeptSpacing.xs),
+            child: Row(
+              children: [
+                Icon(Icons.group, size: 18, color: scheme.primary),
+                const SizedBox(width: KeptSpacing.sm),
+                Expanded(
+                  child: Text(
+                    claim.hasGift
+                        ? l10n.claimSharedLogged
+                        : l10n.claimSharedHeader(claim.pledges.length),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.primary,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (target != null)
+          _PoolProgress(total: claim.pledgedTotal, target: target)
+        else
+          Text(
+            l10n.claimSharedGathered(formatTry(locale, claim.pledgedTotal)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.only(top: KeptSpacing.xs),
+          child: Align(alignment: Alignment.centerRight, child: action),
         ),
       ],
     );
   }
 }
 
-/// How far the pool got: a bar, the percentage and what is still missing —
-/// or, past the price, by how much (the pool is deliberately not capped).
+/// Where the money stands: a full-width bar and one line under it —
+/// gathered / price, then what is missing, or by how much it went over
+/// (pools are deliberately not capped).
 class _PoolProgress extends StatelessWidget {
-  const _PoolProgress({
-    required this.fraction,
-    required this.remaining,
-    required this.over,
-  });
+  const _PoolProgress({required this.total, required this.target});
 
-  /// pledged / price; may exceed 1.
-  final double fraction;
-  final double remaining;
-  final double over;
+  final double total;
+  final double target;
 
-  String _progressLabel(AppLocalizations l10n, String locale) {
-    final percent = l10n.claimProgressPercent((fraction * 100).floor());
+  String _label(AppLocalizations l10n, String locale) {
+    final amounts = l10n.claimSharedTarget(
+      formatTry(locale, total),
+      formatTry(locale, target),
+    );
+    final over = total - target;
     if (over > 0) {
-      return '$percent · ${l10n.claimOverTarget(formatTry(locale, over))}';
+      return '$amounts · ${l10n.claimOverTarget(formatTry(locale, over))}';
     }
-    if (remaining <= 0) return l10n.claimFunded;
-    return '$percent · ${l10n.claimRemaining(formatTry(locale, remaining))}';
+    if (over == 0) return '$amounts · ${l10n.claimFunded}';
+    return '$amounts · ${l10n.claimRemaining(formatTry(locale, -over))}';
   }
 
   @override
@@ -514,39 +530,31 @@ class _PoolProgress extends StatelessWidget {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final theme = Theme.of(context);
-    final overTarget = over > 0;
-    return Padding(
-      padding: const EdgeInsets.only(top: KeptSpacing.xs),
-      child: Row(
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(KeptRadius.pill),
-              child: LinearProgressIndicator(
-                value: fraction.clamp(0, 1).toDouble(),
-                minHeight: 6,
-                color: overTarget ? theme.colorScheme.tertiary : null,
-                backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              ),
-            ),
+    final overTarget = total > target;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(KeptRadius.pill),
+          child: LinearProgressIndicator(
+            value: (total / target).clamp(0, 1).toDouble(),
+            minHeight: 6,
+            color: overTarget ? theme.colorScheme.tertiary : null,
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
           ),
-          const SizedBox(width: KeptSpacing.sm),
-          // Loose fit: at large text scales the label yields to the bar
-          // and ellipsizes instead of overflowing.
-          Flexible(
-            child: Text(
-              _progressLabel(l10n, locale),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: overTarget
-                    ? theme.colorScheme.tertiary
-                    : theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+        ),
+        const SizedBox(height: KeptSpacing.xs),
+        Text(
+          _label(l10n, locale),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: overTarget
+                ? theme.colorScheme.tertiary
+                : theme.colorScheme.onSurfaceVariant,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -325,7 +325,6 @@
   "claimByOther": "{name} alıyor",
   "claimByFriend": "Bir arkadaşın alıyor",
   "claimRelease": "Bırak",
-  "claimSharedSummary": "Ortak hediye · {count, plural, =1{1 kişi} other{{count} kişi}} · {total}",
   "claimSharedTarget": "{total} / {target}",
   "claimJoin": "Katıl",
   "claimMyPledge": "Katkın: {amount}",
@@ -348,7 +347,6 @@
   "claimMyShareOptional": "Senin payın (isteğe bağlı)",
   "claimRemaining": "Kalan {amount}",
   "claimFunded": "Tamamlandı",
-  "claimProgressPercent": "%{percent}",
   "claimJoinHint": "Kalan {remaining} · {count, plural, =1{1 kişi} other{{count} kişi}}",
   "claimOverTarget": "Fiyatın {amount} üzerinde",
   "claimOverTargetHint": "Bu tutarla havuz fiyatı {amount} aşar; gerçek fiyat yüksekse sorun değil.",
@@ -385,5 +383,7 @@
   "giftGiverWithFriends": "{name} ve {count} arkadaşı",
   "giftContributorsSection": "Ortak verenler",
   "giftContributorFriend": "Bir arkadaş",
-  "logGiftEventRevealRule": "Event günü + 1"
+  "logGiftEventRevealRule": "Event günü + 1",
+  "claimSharedHeader": "Ortak hediye · {count, plural, =1{1 kişi} other{{count} kişi}}",
+  "claimSharedGathered": "{total} toplandı"
 }

@@ -332,8 +332,8 @@ void main() {
       );
       await pump(tester, claims: claims);
 
-      expect(find.text('Group gift · 1 in · ₺1,000 of ₺3,000'), findsOneWidget);
-      expect(find.text('33% · ₺2,000 left'), findsOneWidget);
+      expect(find.text('Group gift · 1 in'), findsOneWidget);
+      expect(find.text('₺1,000 / ₺3,000 · ₺2,000 left'), findsOneWidget);
 
       await tester.tap(find.text('Join'));
       await tester.pumpAndSettle();
@@ -344,8 +344,8 @@ void main() {
 
       expect(claims.calls, ['pledge:c1:500.0']);
       expect(find.text('Your share: ₺500'), findsOneWidget);
-      expect(find.text('Group gift · 2 in · ₺1,500 of ₺3,000'), findsOneWidget);
-      expect(find.text('50% · ₺1,500 left'), findsOneWidget);
+      expect(find.text('Group gift · 2 in'), findsOneWidget);
+      expect(find.text('₺1,500 / ₺3,000 · ₺1,500 left'), findsOneWidget);
     });
 
     testWidgets('a pool that reached its price reads as funded', (
@@ -367,7 +367,7 @@ void main() {
       );
       await pump(tester, claims: claims);
 
-      expect(find.text('Fully funded'), findsOneWidget);
+      expect(find.textContaining('Fully funded'), findsOneWidget);
       expect(find.textContaining('left'), findsNothing);
     });
 
@@ -393,8 +393,8 @@ void main() {
       );
       await pump(tester, claims: claims);
 
-      expect(find.text('107% · ₺39 over the price'), findsOneWidget);
-      expect(find.text('Fully funded'), findsNothing);
+      expect(find.text('₺550 / ₺511 · ₺39 over the price'), findsOneWidget);
+      expect(find.textContaining('Fully funded'), findsNothing);
     });
 
     testWidgets('a full pool asks its organizer to log the gift', (
@@ -413,7 +413,7 @@ void main() {
         ],
       );
       await pump(tester, claims: _FakeClaimsRepository(claims: {'f1': full}));
-      expect(find.text('Fully funded'), findsOneWidget);
+      expect(find.textContaining('Fully funded'), findsOneWidget);
 
       await tester.tap(find.text('Log the gift'));
       await tester.pumpAndSettle();
@@ -531,7 +531,7 @@ void main() {
 
       expect(claims.calls.first, 'claim:f1:shared:1100.0');
       expect(claims.calls.last, 'pledge:c-f1:300.0');
-      expect(find.text('27% · ₺800 left'), findsOneWidget);
+      expect(find.text('₺300 / ₺1,100 · ₺800 left'), findsOneWidget);
     });
 
     testWidgets('a pledge must be a positive amount', (tester) async {

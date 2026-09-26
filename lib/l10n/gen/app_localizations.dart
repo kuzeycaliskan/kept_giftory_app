@@ -2048,16 +2048,10 @@ abstract class AppLocalizations {
   /// **'Release'**
   String get claimRelease;
 
-  /// No description provided for @claimSharedSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'Group gift · {count, plural, =1{1 in} other{{count} in}} · {total}'**
-  String claimSharedSummary(int count, String total);
-
   /// No description provided for @claimSharedTarget.
   ///
   /// In en, this message translates to:
-  /// **'{total} of {target}'**
+  /// **'{total} / {target}'**
   String claimSharedTarget(String total, String target);
 
   /// No description provided for @claimJoin.
@@ -2185,12 +2179,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fully funded'**
   String get claimFunded;
-
-  /// No description provided for @claimProgressPercent.
-  ///
-  /// In en, this message translates to:
-  /// **'{percent}%'**
-  String claimProgressPercent(int percent);
 
   /// No description provided for @claimJoinHint.
   ///
@@ -2413,6 +2401,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Event day + 1'**
   String get logGiftEventRevealRule;
+
+  /// No description provided for @claimSharedHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Group gift · {count, plural, =1{1 in} other{{count} in}}'**
+  String claimSharedHeader(int count);
+
+  /// No description provided for @claimSharedGathered.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} gathered'**
+  String claimSharedGathered(String total);
 }
 
 class _AppLocalizationsDelegate

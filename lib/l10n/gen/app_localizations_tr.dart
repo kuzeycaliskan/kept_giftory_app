@@ -1070,17 +1070,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get claimRelease => 'Bırak';
 
   @override
-  String claimSharedSummary(int count, String total) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count kişi',
-      one: '1 kişi',
-    );
-    return 'Ortak hediye · $_temp0 · $total';
-  }
-
-  @override
   String claimSharedTarget(String total, String target) {
     return '$total / $target';
   }
@@ -1153,11 +1142,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get claimFunded => 'Tamamlandı';
-
-  @override
-  String claimProgressPercent(int percent) {
-    return '%$percent';
-  }
 
   @override
   String claimJoinHint(String remaining, int count) {
@@ -1292,4 +1276,20 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get logGiftEventRevealRule => 'Event günü + 1';
+
+  @override
+  String claimSharedHeader(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi',
+      one: '1 kişi',
+    );
+    return 'Ortak hediye · $_temp0';
+  }
+
+  @override
+  String claimSharedGathered(String total) {
+    return '$total toplandı';
+  }
 }
