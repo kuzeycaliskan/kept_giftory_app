@@ -134,11 +134,14 @@ class _WishlistTab extends ConsumerWidget {
               children: [
                 if (claims != null && claims.hasError)
                   ClaimsErrorRow(ownerId: profile.id),
-                for (final item in list) ...[
-                  WishlistItemTile(item: item),
+                for (final item in list)
                   if (claims != null && !claims.hasError)
-                    ClaimBar(item: item, claim: claims.valueOrNull?[item.id]),
-                ],
+                    ClaimableItemRow(
+                      item: item,
+                      claim: claims.valueOrNull?[item.id],
+                    )
+                  else
+                    WishlistItemTile(item: item),
               ],
             ),
     );

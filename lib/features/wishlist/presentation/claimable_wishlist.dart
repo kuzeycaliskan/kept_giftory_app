@@ -5,6 +5,8 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/wishlist/application/claims_providers.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
+import 'package:kept/features/wishlist/domain/wishlist_claim.dart';
+import 'package:kept/features/wishlist/domain/wishlist_item.dart';
 import 'package:kept/features/wishlist/presentation/claim_bar.dart';
 import 'package:kept/features/wishlist/presentation/wishlist_item_tile.dart';
 
@@ -59,15 +61,15 @@ class ClaimableWishlist extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (claims.hasError) ClaimsErrorRow(ownerId: ownerId),
-            for (final item in list) ...[
-              WishlistItemTile(item: item),
-              if (!claims.hasError)
-                ClaimBar(
+            for (final item in list)
+              if (claims.hasError)
+                WishlistItemTile(item: item)
+              else
+                ClaimableItemRow(
                   item: item,
                   claim: claims.valueOrNull?[item.id],
                   eventId: eventId,
                 ),
-            ],
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
@@ -81,6 +83,50 @@ class ClaimableWishlist extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// One wishlist entry with its reservation strip, framed together so the
+/// strip's buttons visibly belong to that product and not the next one.
+class ClaimableItemRow extends StatelessWidget {
+  const ClaimableItemRow({
+    required this.item,
+    required this.claim,
+    this.eventId,
+    super.key,
+  });
+
+  final WishlistItem item;
+  final WishlistClaim? claim;
+  final String? eventId;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: KeptSpacing.xs),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: KeptRadius.cardAll,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            KeptSpacing.sm,
+            KeptSpacing.sm,
+            KeptSpacing.sm,
+            KeptSpacing.xs,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              WishlistItemTile(item: item),
+              ClaimBar(item: item, claim: claim, eventId: eventId),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

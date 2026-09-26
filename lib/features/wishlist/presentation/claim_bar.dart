@@ -61,10 +61,10 @@ class ClaimBar extends ConsumerWidget {
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        KeptSpacing.lg,
-        0,
-        KeptSpacing.lg,
         KeptSpacing.sm,
+        KeptSpacing.xs,
+        KeptSpacing.sm,
+        KeptSpacing.xs,
       ),
       child: child,
     );

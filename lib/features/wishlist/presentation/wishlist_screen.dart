@@ -121,18 +121,22 @@ class WishlistScreen extends ConsumerWidget {
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: _isMine
+                  ? const EdgeInsets.symmetric(vertical: 8)
+                  : const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               children: [
                 if (claims != null && claims.hasError)
                   ClaimsErrorRow(ownerId: ownerId!),
                 for (final item in list)
                   if (_isMine)
                     _DismissibleItemTile(item: item)
-                  else ...[
+                  else if (claims != null && !claims.hasError)
+                    ClaimableItemRow(
+                      item: item,
+                      claim: claims.valueOrNull?[item.id],
+                    )
+                  else
                     WishlistItemTile(item: item),
-                    if (claims != null && !claims.hasError)
-                      ClaimBar(item: item, claim: claims.valueOrNull?[item.id]),
-                  ],
               ],
             ),
           );
