@@ -280,3 +280,16 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   is already visible to the recipient, otherwise the AFTER-delete trigger
   removes the gift record (cascade of the FK set-null would collide with a
   BEFORE delete). pgTAP 167-174.
+
+## Event deletion (26 Sep 2026)
+
+- The organizer deletes an **open** event (`gift_events_delete` policy);
+  revealed events are the honoree's memory and cannot be deleted. Members,
+  invitations and notes cascade; `gifts.event_id` is set null; reservations
+  are untouched. The one-per-birthday rule is a partial unique index that
+  ignores `cancelled` rows (the old soft-cancel no longer blocks a new event).
+- `event_delete_cleanup` (BEFORE delete, definer) removes group-gift records
+  logged before their pool reached its price (unrevealed only; the pool's
+  `gift_id` clears and it reopens), captures the joined members' ids and
+  pings `notify-event-deleted`, which pushes them via the service-only
+  `push_targets_for_users`. pgTAP 176-182.
