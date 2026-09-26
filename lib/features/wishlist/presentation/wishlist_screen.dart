@@ -5,7 +5,6 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/wishlist/application/claims_providers.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
-import 'package:kept/features/wishlist/presentation/claim_bar.dart';
 import 'package:kept/features/wishlist/presentation/claimable_wishlist.dart';
 import 'package:kept/features/wishlist/presentation/wishlist_item_tile.dart';
 

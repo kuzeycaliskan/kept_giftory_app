@@ -7,7 +7,6 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile.dart';
 import 'package:kept/features/wishlist/application/claims_providers.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
-import 'package:kept/features/wishlist/presentation/claim_bar.dart';
 import 'package:kept/features/wishlist/presentation/claimable_wishlist.dart';
 import 'package:kept/features/wishlist/presentation/wishlist_item_tile.dart';
 import 'package:kept/shared/widgets/avatar_preview.dart';
