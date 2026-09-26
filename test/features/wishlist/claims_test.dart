@@ -583,6 +583,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(claims.calls, ['release:c1']);
+      // The sheet leaves with the pool; the item is free again behind it.
+      expect(find.text("Who's in"), findsNothing);
       expect(find.text("I'll get this"), findsOneWidget);
     });
 

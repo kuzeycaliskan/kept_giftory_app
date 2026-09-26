@@ -770,8 +770,8 @@ Future<void> showParticipantsSheet(
 
 /// Releasing a reservation that already has a gift record deletes that
 /// record (while unrevealed) — say so first; a gift already given cannot
-/// be released at all, and the server says no.
-Future<void> releaseClaim(
+/// be released at all, and the server says no. Returns true once released.
+Future<bool> releaseClaim(
   BuildContext context,
   WidgetRef ref,
   WishlistItem item,
@@ -796,19 +796,20 @@ Future<void> releaseClaim(
         ],
       ),
     );
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true || !context.mounted) return false;
   }
   final failure = await ref
       .read(claimsControllerProvider.notifier)
       .release(item.ownerId, claim.id);
-  if (!context.mounted) return;
+  if (!context.mounted) return false;
   if (failure is ConflictFailure) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(l10n.claimReleaseRefused)));
-    return;
+    return false;
   }
   _report(context, failure);
+  return failure == null;
 }
 
 class _ParticipantsSheet extends ConsumerWidget {
@@ -829,7 +830,13 @@ class _ParticipantsSheet extends ConsumerWidget {
         .valueOrNull?[item.id];
     final controller = ref.read(claimsControllerProvider.notifier);
     if (claim == null || !claim.isShared) {
-      // Cancelled underneath us — nothing to manage.
+      // Cancelled underneath us (or from here): nothing left to manage,
+      // so the sheet leaves instead of lingering empty.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted && Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+      });
       return const SizedBox(height: KeptSpacing.xxl);
     }
     final organizer = claim.isMine(myId);
@@ -935,14 +942,13 @@ class _ParticipantsSheet extends ConsumerWidget {
                     ? null
                     : () async {
                         final navigator = Navigator.of(context);
-                        await releaseClaim(context, ref, item, claim);
-                        if (!context.mounted) return;
-                        final gone =
-                            ref
-                                .read(wishlistClaimsProvider(item.ownerId))
-                                .valueOrNull?[item.id] ==
-                            null;
-                        if (gone && navigator.canPop()) navigator.pop();
+                        final released = await releaseClaim(
+                          context,
+                          ref,
+                          item,
+                          claim,
+                        );
+                        if (released && navigator.canPop()) navigator.pop();
                       },
                 icon: const Icon(Icons.delete_outline),
                 label: Text(l10n.claimCancelShared),
