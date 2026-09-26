@@ -2273,7 +2273,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventsLogGift.
   ///
   /// In en, this message translates to:
-  /// **'Log the gift'**
+  /// **'Log a gift not on the list'**
   String get eventsLogGift;
 
   /// No description provided for @eventsThanksTitle.
@@ -2323,6 +2323,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get eventsThanksEdit;
+
+  /// No description provided for @claimSoloConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you getting this?'**
+  String get claimSoloConfirmTitle;
+
+  /// No description provided for @claimSoloConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s reserved for you and the gift record opens pre-filled. You can release it later.'**
+  String get claimSoloConfirmBody;
+
+  /// No description provided for @claimSoloConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I\'m getting it'**
+  String get claimSoloConfirm;
+
+  /// No description provided for @claimLogGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Log the gift'**
+  String get claimLogGift;
+
+  /// No description provided for @claimOpenGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the gift'**
+  String get claimOpenGift;
+
+  /// No description provided for @claimMineLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re getting this · gift logged'**
+  String get claimMineLogged;
+
+  /// No description provided for @claimSharedLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Group gift · logged'**
+  String get claimSharedLogged;
+
+  /// No description provided for @claimReleaseGiftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Release and delete the gift record?'**
+  String get claimReleaseGiftTitle;
+
+  /// No description provided for @claimReleaseGiftBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The gift hasn\'t been revealed yet, so its record goes with the reservation.'**
+  String get claimReleaseGiftBody;
+
+  /// No description provided for @claimReleaseRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The gift was already given — it can\'t be released.'**
+  String get claimReleaseRefused;
+
+  /// No description provided for @logGiftEventSurpriseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Event gift: a surprise that opens with the event'**
+  String get logGiftEventSurpriseNote;
+
+  /// No description provided for @giftGiverWithFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} and {count, plural, =1{1 friend} other{{count} friends}}'**
+  String giftGiverWithFriends(String name, int count);
+
+  /// No description provided for @giftContributorsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Chipped in'**
+  String get giftContributorsSection;
+
+  /// No description provided for @giftContributorFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'A friend'**
+  String get giftContributorFriend;
 }
 
 class _AppLocalizationsDelegate

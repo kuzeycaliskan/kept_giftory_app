@@ -598,12 +598,12 @@ void main() {
     await pump(tester, repo: repo, initial: '/events/e9');
 
     await tester.scrollUntilVisible(
-      find.text('Log the gift'),
+      find.text('Log a gift not on the list'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Log the gift'));
+    await tester.tap(find.text('Log a gift not on the list'));
     await tester.pumpAndSettle();
 
     expect(lastLogGiftUri?.queryParameters, {

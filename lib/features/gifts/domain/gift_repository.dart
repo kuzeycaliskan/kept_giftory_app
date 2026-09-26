@@ -17,7 +17,9 @@ abstract interface class GiftRepository {
   Future<Result<List<GiftEntry>>> fetchFor(String profileId);
 
   /// Log a gift I bought. [revealAt] required when [isSurprise]. [eventId]
-  /// links it to a gift event I have joined (recipient = honoree).
+  /// links it to a gift event I have joined (recipient = honoree). [claimId]
+  /// turns a reservation / group-gift pool into this gift (G-309): pledgers
+  /// become contributors and the gift hooks onto the honoree's event.
   Future<Result<GiftEntry>> log({
     required String recipientId,
     required String item,
@@ -27,6 +29,7 @@ abstract interface class GiftRepository {
     DateTime? revealAt,
     String? linkPreviewId,
     String? eventId,
+    String? claimId,
   });
 
   /// Records a gift received from a non-member (G-212): the giver is a

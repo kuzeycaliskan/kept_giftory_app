@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
+import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/gifts/application/gift_photo_controller.dart';
@@ -19,7 +20,14 @@ import 'package:kept/shared/widgets/link_preview_field.dart';
 /// optional note, surprise flag + reveal date (default: recipient's next
 /// birthday + 1 day; computed server-agnostically from local data).
 class LogGiftScreen extends ConsumerStatefulWidget {
-  const LogGiftScreen({this.initialRecipientId, this.eventId, super.key});
+  const LogGiftScreen({
+    this.initialRecipientId,
+    this.eventId,
+    this.claimId,
+    this.initialItem,
+    this.initialUrl,
+    super.key,
+  });
 
   /// Pre-selected friend (e.g. a gift event's honoree).
   final String? initialRecipientId;
@@ -27,13 +35,22 @@ class LogGiftScreen extends ConsumerStatefulWidget {
   /// Logging from a gift event: the gift is linked to it and opens with it.
   final String? eventId;
 
+  /// A reservation turning into this gift (G-309): recipient fixed, item
+  /// and link pre-filled, the record linked back to the claim.
+  final String? claimId;
+  final String? initialItem;
+  final String? initialUrl;
+
   @override
   ConsumerState<LogGiftScreen> createState() => _LogGiftScreenState();
 }
 
 class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
-  final _itemController = TextEditingController();
-  final _linkController = TextEditingController();
+  late final _itemController = TextEditingController(text: widget.initialItem);
+  late final _linkController = TextEditingController(text: widget.initialUrl);
+
+  /// Event gifts never open before the event: default and floor.
+  DateTime? _eventRevealAt;
   final _noteController = TextEditingController();
   LinkPreview? _preview;
 
@@ -90,8 +107,11 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
       context,
       // Suggest the G-51 default (recipient's next birthday + 1 day), but
       // the user must confirm a date — nothing is submitted silently.
-      initialDate: _revealAt ?? defaultRevealAt(_recipientBirthday, now),
-      firstDate: now,
+      initialDate:
+          _revealAt ??
+          _eventRevealAt ??
+          defaultRevealAt(_recipientBirthday, now),
+      firstDate: _eventRevealAt ?? now,
       lastDate: DateTime(now.year + 2),
     );
     if (picked != null) {
@@ -191,6 +211,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           revealAt: _isSurprise ? _revealAt : null,
           linkPreviewId: _preview?.id,
           eventId: widget.eventId,
+          claimId: widget.claimId,
         );
     if (gift == null || !mounted) return;
     final messenger = ScaffoldMessenger.of(context);
@@ -224,6 +245,18 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
         ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
       }
     });
+    final eventId = widget.eventId;
+    if (eventId != null) {
+      ref.listen(eventDetailProvider(eventId), (_, next) {
+        next.whenData((event) {
+          if (event == null || _eventRevealAt != null) return;
+          setState(() {
+            _eventRevealAt = event.revealAt;
+            _revealAt ??= event.revealAt;
+          });
+        });
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.logGiftTitle)),
@@ -249,8 +282,10 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   }
 
   Widget _form(AppLocalizations l10n, List<FriendEntry> friends, bool busy) {
-    // From an event the recipient is the honoree — fixed, not a choice.
+    // From an event the recipient is the honoree, from a reservation the
+    // list's owner — fixed, not a choice.
     final fromEvent = widget.eventId != null;
+    final recipientLocked = fromEvent || widget.claimId != null;
     _recipientBirthday ??= friends
         .where((f) => f.profileId == _recipientId)
         .firstOrNull
@@ -272,7 +307,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
               for (final f in friends)
                 DropdownMenuItem(value: f.profileId, child: Text(f.label)),
             ],
-            onChanged: fromEvent
+            onChanged: recipientLocked
                 ? null
                 : (value) => setState(() {
                     _recipientId = value;
@@ -319,12 +354,21 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          SwitchListTile(
-            value: _isSurprise,
-            title: Text(l10n.logGiftSurprise),
-            subtitle: Text(l10n.logGiftSurpriseHint),
-            onChanged: busy ? null : _onSurpriseChanged,
-          ),
+          if (fromEvent)
+            // Event gifts are surprises by rule (server-enforced too).
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.lock_outline),
+              title: Text(l10n.logGiftSurprise),
+              subtitle: Text(l10n.logGiftEventSurpriseNote),
+            )
+          else
+            SwitchListTile(
+              value: _isSurprise,
+              title: Text(l10n.logGiftSurprise),
+              subtitle: Text(l10n.logGiftSurpriseHint),
+              onChanged: busy ? null : _onSurpriseChanged,
+            ),
           if (_isSurprise) ...[
             OutlinedButton.icon(
               onPressed: busy ? null : _pickRevealDate,

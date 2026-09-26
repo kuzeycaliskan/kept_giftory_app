@@ -339,7 +339,11 @@ class _Body extends ConsumerWidget {
           // hasn't committed to keeping the secret yet.
           const SizedBox(height: KeptSpacing.xl),
           KeptSectionHeader(l10n.claimsIdeasSection),
-          ClaimableWishlist(ownerId: event.honoreeId, ownerLabel: label),
+          ClaimableWishlist(
+            ownerId: event.honoreeId,
+            ownerLabel: label,
+            eventId: event.id,
+          ),
           const SizedBox(height: KeptSpacing.xl),
           KeptSectionHeader(l10n.eventsBoardSection),
           CommentPill(

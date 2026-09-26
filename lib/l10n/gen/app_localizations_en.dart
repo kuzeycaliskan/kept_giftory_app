@@ -1230,7 +1230,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsGiftsEmpty => 'No gift logged here yet';
 
   @override
-  String get eventsLogGift => 'Log the gift';
+  String get eventsLogGift => 'Log a gift not on the list';
 
   @override
   String get eventsThanksTitle => 'Say thanks';
@@ -1257,4 +1257,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventsThanksEdit => 'Edit';
+
+  @override
+  String get claimSoloConfirmTitle => 'Are you getting this?';
+
+  @override
+  String get claimSoloConfirmBody =>
+      'It\'s reserved for you and the gift record opens pre-filled. You can release it later.';
+
+  @override
+  String get claimSoloConfirm => 'Yes, I\'m getting it';
+
+  @override
+  String get claimLogGift => 'Log the gift';
+
+  @override
+  String get claimOpenGift => 'Open the gift';
+
+  @override
+  String get claimMineLogged => 'You\'re getting this · gift logged';
+
+  @override
+  String get claimSharedLogged => 'Group gift · logged';
+
+  @override
+  String get claimReleaseGiftTitle => 'Release and delete the gift record?';
+
+  @override
+  String get claimReleaseGiftBody =>
+      'The gift hasn\'t been revealed yet, so its record goes with the reservation.';
+
+  @override
+  String get claimReleaseRefused =>
+      'The gift was already given — it can\'t be released.';
+
+  @override
+  String get logGiftEventSurpriseNote =>
+      'Event gift: a surprise that opens with the event';
+
+  @override
+  String giftGiverWithFriends(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count friends',
+      one: '1 friend',
+    );
+    return '$name and $_temp0';
+  }
+
+  @override
+  String get giftContributorsSection => 'Chipped in';
+
+  @override
+  String get giftContributorFriend => 'A friend';
 }

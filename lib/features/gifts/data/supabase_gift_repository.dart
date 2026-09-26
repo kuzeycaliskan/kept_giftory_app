@@ -34,10 +34,20 @@ class SupabaseGiftRepository implements GiftRepository {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
     try {
+      // Given = logged by me, plus group gifts I chipped into.
+      final contributed = await _client
+          .from('gift_contributors')
+          .select('gift_id')
+          .eq('user_id', userId);
+      final ids = [for (final r in contributed) r['gift_id'] as String];
       final rows = await _client
           .from('gifts')
           .select(_recipientSelect)
-          .eq('giver_id', userId)
+          .or(
+            ids.isEmpty
+                ? 'giver_id.eq.$userId'
+                : 'giver_id.eq.$userId,id.in.(${ids.join(',')})',
+          )
           .order('gift_date', ascending: false);
       return Success(
         await resolveReactionCards(_client, [
@@ -92,6 +102,7 @@ class SupabaseGiftRepository implements GiftRepository {
     DateTime? revealAt,
     String? linkPreviewId,
     String? eventId,
+    String? claimId,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
@@ -118,7 +129,22 @@ class SupabaseGiftRepository implements GiftRepository {
           })
           .select(_recipientSelect)
           .single();
-      return Success(giftEntryFromRow(row, counterpartKey: 'recipient'));
+      final gift = giftEntryFromRow(row, counterpartKey: 'recipient');
+      if (claimId == null) return Success(gift);
+      // Reservation → gift: link, snapshot pledgers, hook the event. If the
+      // link is refused the gift must not linger as an orphan.
+      try {
+        await _client.rpc<void>(
+          'attach_claim_gift',
+          params: {'p_claim': claimId, 'p_gift': gift.id},
+        );
+      } on PostgrestException catch (e) {
+        await _client.from('gifts').delete().eq('id', gift.id);
+        if (e.code == '42501') return const ResultFailure(PermissionFailure());
+        if (e.code == '23514') return const ResultFailure(ConflictFailure());
+        return ResultFailure(NetworkFailure(e.message));
+      }
+      return Success(gift);
     } on PostgrestException catch (e) {
       if (e.code == '23514') {
         return const ResultFailure(ValidationFailure('Invalid gift'));

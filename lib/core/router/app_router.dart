@@ -216,6 +216,9 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => LogGiftScreen(
           initialRecipientId: state.uri.queryParameters['recipient'],
           eventId: state.uri.queryParameters['event'],
+          claimId: state.uri.queryParameters['claim'],
+          initialItem: state.uri.queryParameters['item'],
+          initialUrl: state.uri.queryParameters['url'],
         ),
       ),
       GoRoute(

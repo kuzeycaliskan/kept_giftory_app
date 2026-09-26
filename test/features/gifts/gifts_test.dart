@@ -41,6 +41,7 @@ class _FakeGiftRepository implements GiftRepository {
 
   String? lastLinkPreviewId;
   String? lastEventId;
+  String? lastClaimId;
 
   final List<GiftEntry> given;
   final List<GiftEntry> received;
@@ -87,9 +88,11 @@ class _FakeGiftRepository implements GiftRepository {
     DateTime? revealAt,
     String? linkPreviewId,
     String? eventId,
+    String? claimId,
   }) async {
     lastLinkPreviewId = linkPreviewId;
     lastEventId = eventId;
+    lastClaimId = claimId;
     final entry = GiftEntry(
       id: 'new-${given.length}',
       item: item,
@@ -330,6 +333,9 @@ void main() {
           builder: (_, state) => LogGiftScreen(
             initialRecipientId: state.uri.queryParameters['recipient'],
             eventId: state.uri.queryParameters['event'],
+            claimId: state.uri.queryParameters['claim'],
+            initialItem: state.uri.queryParameters['item'],
+            initialUrl: state.uri.queryParameters['url'],
           ),
         ),
         GoRoute(
@@ -477,6 +483,37 @@ void main() {
 
     expect(repo.given, hasLength(1));
     expect(repo.lastEventId, 'e1');
+  });
+
+  testWidgets('a reservation pre-fills the gift and links the record', (
+    tester,
+  ) async {
+    final repo = _FakeGiftRepository();
+    await pump(tester, gifts: repo);
+    unawaited(
+      GoRouter.of(
+        tester.element(find.byType(GiftsScreen)),
+      ).push('/gifts/log?recipient=ali&claim=c1&item=Coffee%20grinder'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ali'), findsWidgets);
+    expect(
+      tester
+          .widget<TextField>(find.widgetWithText(TextField, 'Gift'))
+          .controller!
+          .text,
+      'Coffee grinder',
+    );
+    await tester.tap(find.text('Reveal date'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await scrollToAndTap(tester, find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(repo.given, hasLength(1));
+    expect(repo.lastClaimId, 'c1');
   });
 
   testWidgets('turning surprise off asks for confirmation', (tester) async {

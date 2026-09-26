@@ -1215,7 +1215,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get eventsGiftsEmpty => 'Henüz burada kaydedilmiş hediye yok';
 
   @override
-  String get eventsLogGift => 'Hediyeyi kaydet';
+  String get eventsLogGift => 'Listede olmayan bir hediye kaydet';
 
   @override
   String get eventsThanksTitle => 'Teşekkür et';
@@ -1242,4 +1242,51 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get eventsThanksEdit => 'Düzenle';
+
+  @override
+  String get claimSoloConfirmTitle => 'Bunu sen mi alıyorsun?';
+
+  @override
+  String get claimSoloConfirmBody =>
+      'Senin adına ayrılır ve hediye kaydı ön dolu açılır. Sonra bırakabilirsin.';
+
+  @override
+  String get claimSoloConfirm => 'Evet, ben alıyorum';
+
+  @override
+  String get claimLogGift => 'Hediyeyi kaydet';
+
+  @override
+  String get claimOpenGift => 'Hediyeye git';
+
+  @override
+  String get claimMineLogged => 'Bunu sen alıyorsun · hediye kaydedildi';
+
+  @override
+  String get claimSharedLogged => 'Ortak hediye · hediye kaydedildi';
+
+  @override
+  String get claimReleaseGiftTitle => 'Bırakıp hediye kaydını silelim mi?';
+
+  @override
+  String get claimReleaseGiftBody =>
+      'Hediye henüz açıklanmadı; kaydı rezervasyonla birlikte silinir.';
+
+  @override
+  String get claimReleaseRefused => 'Hediye verilmiş; artık bırakılamaz.';
+
+  @override
+  String get logGiftEventSurpriseNote =>
+      'Event hediyesi: sürprizdir, event açıklanınca görünür';
+
+  @override
+  String giftGiverWithFriends(String name, int count) {
+    return '$name ve $count arkadaşı';
+  }
+
+  @override
+  String get giftContributorsSection => 'Ortak verenler';
+
+  @override
+  String get giftContributorFriend => 'Bir arkadaş';
 }

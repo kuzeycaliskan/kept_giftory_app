@@ -31,7 +31,14 @@ class WishlistClaim {
     this.targetAmount,
     this.pledges = const [],
     this.claimer,
+    this.giftId,
   });
+
+  /// The gift record this reservation turned into (G-309); null until the
+  /// claimer logs it. A pool with a gift is closed.
+  final String? giftId;
+
+  bool get hasGift => giftId != null;
 
   final String id;
   final String itemId;

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/format/money.dart';
 import 'package:kept/core/l10n/l10n.dart';
@@ -17,10 +20,19 @@ import 'package:kept/shared/widgets/kept_list_group.dart';
 /// progress + join. The owner never renders this (their claims are
 /// RLS-hidden, so the map is empty and the screen is theirs anyway).
 class ClaimBar extends ConsumerWidget {
-  const ClaimBar({required this.item, required this.claim, super.key});
+  const ClaimBar({
+    required this.item,
+    required this.claim,
+    this.eventId,
+    super.key,
+  });
 
   final WishlistItem item;
   final WishlistClaim? claim;
+
+  /// Set when the strip lives on an event page: the gift record then links
+  /// to the event too (otherwise the server hooks it up on its own).
+  final String? eventId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,11 +41,23 @@ class ClaimBar extends ConsumerWidget {
     final claim = this.claim;
     final Widget child;
     if (claim == null) {
-      child = _FreeActions(item: item, busy: busy);
+      child = _FreeActions(item: item, busy: busy, eventId: eventId);
     } else if (!claim.isShared) {
-      child = _SoloState(item: item, claim: claim, myId: myId, busy: busy);
+      child = _SoloState(
+        item: item,
+        claim: claim,
+        myId: myId,
+        busy: busy,
+        eventId: eventId,
+      );
     } else {
-      child = _SharedState(item: item, claim: claim, myId: myId, busy: busy);
+      child = _SharedState(
+        item: item,
+        claim: claim,
+        myId: myId,
+        busy: busy,
+        eventId: eventId,
+      );
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -52,6 +76,24 @@ class ClaimBar extends ConsumerWidget {
 double? _priceOf(WishlistItem item) {
   final price = item.preview?.price;
   return price == null ? null : parseAmount(price);
+}
+
+/// The gift form, pre-filled from the item and linked back to the claim.
+String logGiftRouteFor(
+  WishlistItem item,
+  WishlistClaim claim,
+  String? eventId,
+) {
+  final title = item.preview?.title ?? item.title;
+  final url = item.preview?.url ?? item.url;
+  final query = <String, String>{
+    'recipient': item.ownerId,
+    'claim': claim.id,
+    'item': title,
+    if (url != null) 'url': url,
+    if (eventId != null) 'event': eventId,
+  };
+  return Uri(path: '/gifts/log', queryParameters: query).toString();
 }
 
 /// Shows the outcome of a claim action; a lost race gets its own words.
@@ -76,16 +118,48 @@ final _compact = ButtonStyle(
 );
 
 class _FreeActions extends ConsumerWidget {
-  const _FreeActions({required this.item, required this.busy});
+  const _FreeActions({
+    required this.item,
+    required this.busy,
+    required this.eventId,
+  });
 
   final WishlistItem item;
   final bool busy;
+  final String? eventId;
 
+  /// "I'm getting this" is a commitment: confirm, reserve, then straight
+  /// into the gift record so the wishlist and the gift never diverge.
   Future<void> _solo(BuildContext context, WidgetRef ref) async {
-    final failure = await ref
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.claimSoloConfirmTitle),
+        content: Text(l10n.claimSoloConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.claimSoloConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final claim = await ref
         .read(claimsControllerProvider.notifier)
-        .claim(item.ownerId, item.id, kind: ClaimKind.solo);
-    if (context.mounted) _report(context, failure);
+        .claimForGift(item.ownerId, item.id);
+    if (!context.mounted) return;
+    if (claim == null) {
+      final failure = ref.read(claimsControllerProvider).error;
+      _report(context, failure is Failure ? failure : const UnknownFailure());
+      return;
+    }
+    unawaited(context.push(logGiftRouteFor(item, claim, eventId)));
   }
 
   Future<void> _shared(BuildContext context, WidgetRef ref) async {
@@ -149,12 +223,14 @@ class _SoloState extends ConsumerWidget {
     required this.claim,
     required this.myId,
     required this.busy,
+    required this.eventId,
   });
 
   final WishlistItem item;
   final WishlistClaim claim;
   final String? myId;
   final bool busy;
+  final String? eventId;
 
   Future<void> _more(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
@@ -162,46 +238,56 @@ class _SoloState extends ConsumerWidget {
     await showKeptActionSheet(
       context,
       actions: [
-        KeptSheetAction(
-          icon: Icons.group_outlined,
-          label: l10n.claimMakeShared,
-          onTap: () async {
-            final input = await showAmountSheet(
-              context,
-              title: l10n.claimSharedTitle,
-              body: l10n.claimSharedBody,
-              askTarget: true,
-              initialTarget: _priceOf(item),
-            );
-            if (input == null || !context.mounted) return;
-            final failure = await controller.makeShared(
-              item.ownerId,
-              claim.id,
-              targetAmount: input.target,
-            );
-            if (!context.mounted) return;
-            if (failure != null) {
-              _report(context, failure);
-              return;
-            }
-            if (input.amount != null) {
-              final pledged = await controller.pledge(
+        if (claim.hasGift)
+          KeptSheetAction(
+            icon: Icons.redeem_outlined,
+            label: l10n.claimOpenGift,
+            onTap: () => context.push('/gifts/${claim.giftId}?side=recipient'),
+          )
+        else
+          KeptSheetAction(
+            icon: Icons.redeem_outlined,
+            label: l10n.claimLogGift,
+            onTap: () => context.push(logGiftRouteFor(item, claim, eventId)),
+          ),
+        if (!claim.hasGift)
+          KeptSheetAction(
+            icon: Icons.group_outlined,
+            label: l10n.claimMakeShared,
+            onTap: () async {
+              final input = await showAmountSheet(
+                context,
+                title: l10n.claimSharedTitle,
+                body: l10n.claimSharedBody,
+                askTarget: true,
+                initialTarget: _priceOf(item),
+              );
+              if (input == null || !context.mounted) return;
+              final failure = await controller.makeShared(
                 item.ownerId,
                 claim.id,
-                input.amount!,
+                targetAmount: input.target,
               );
-              if (context.mounted) _report(context, pledged);
-            }
-          },
-        ),
+              if (!context.mounted) return;
+              if (failure != null) {
+                _report(context, failure);
+                return;
+              }
+              if (input.amount != null) {
+                final pledged = await controller.pledge(
+                  item.ownerId,
+                  claim.id,
+                  input.amount!,
+                );
+                if (context.mounted) _report(context, pledged);
+              }
+            },
+          ),
         KeptSheetAction(
           icon: Icons.undo,
           label: l10n.claimRelease,
           destructive: true,
-          onTap: () async {
-            final failure = await controller.release(item.ownerId, claim.id);
-            if (context.mounted) _report(context, failure);
-          },
+          onTap: () => releaseClaim(context, ref, item, claim),
         ),
       ],
     );
@@ -213,7 +299,7 @@ class _SoloState extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final mine = claim.isMine(myId);
     final label = mine
-        ? l10n.claimMine
+        ? (claim.hasGift ? l10n.claimMineLogged : l10n.claimMine)
         : claim.claimer == null
         ? l10n.claimByFriend
         : l10n.claimByOther(claim.claimerLabelOr(''));
@@ -252,12 +338,14 @@ class _SharedState extends ConsumerWidget {
     required this.claim,
     required this.myId,
     required this.busy,
+    required this.eventId,
   });
 
   final WishlistItem item;
   final WishlistClaim claim;
   final String? myId;
   final bool busy;
+  final String? eventId;
 
   Future<void> _pledge(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
@@ -322,11 +410,14 @@ class _SharedState extends ConsumerWidget {
         Expanded(
           child: InkWell(
             borderRadius: BorderRadius.circular(KeptRadius.control),
-            onTap: () => showParticipantsSheet(context, item: item),
+            onTap: () =>
+                showParticipantsSheet(context, item: item, eventId: eventId),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: KeptSpacing.xs),
               child: Text(
-                l10n.claimSharedSummary(claim.pledges.length, amountText),
+                claim.hasGift
+                    ? l10n.claimSharedLogged
+                    : l10n.claimSharedSummary(claim.pledges.length, amountText),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(
@@ -337,7 +428,14 @@ class _SharedState extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: KeptSpacing.sm),
-        if (mine == null && _full)
+        if (claim.hasGift)
+          IconButton(
+            tooltip: l10n.claimOpenGift,
+            icon: const Icon(Icons.redeem_outlined),
+            onPressed: () =>
+                context.push('/gifts/${claim.giftId}?side=recipient'),
+          )
+        else if (mine == null && _full)
           Text(
             l10n.claimPoolFull,
             style: Theme.of(
@@ -642,18 +740,63 @@ class _Caption extends StatelessWidget {
 Future<void> showParticipantsSheet(
   BuildContext context, {
   required WishlistItem item,
+  String? eventId,
 }) {
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    builder: (_) => _ParticipantsSheet(item: item),
+    builder: (_) => _ParticipantsSheet(item: item, eventId: eventId),
   );
 }
 
+/// Releasing a reservation that already has a gift record deletes that
+/// record (while unrevealed) — say so first; a gift already given cannot
+/// be released at all, and the server says no.
+Future<void> releaseClaim(
+  BuildContext context,
+  WidgetRef ref,
+  WishlistItem item,
+  WishlistClaim claim,
+) async {
+  final l10n = context.l10n;
+  if (claim.hasGift) {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.claimReleaseGiftTitle),
+        content: Text(l10n.claimReleaseGiftBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.claimRelease),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+  }
+  final failure = await ref
+      .read(claimsControllerProvider.notifier)
+      .release(item.ownerId, claim.id);
+  if (!context.mounted) return;
+  if (failure is ConflictFailure) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.claimReleaseRefused)));
+    return;
+  }
+  _report(context, failure);
+}
+
 class _ParticipantsSheet extends ConsumerWidget {
-  const _ParticipantsSheet({required this.item});
+  const _ParticipantsSheet({required this.item, this.eventId});
 
   final WishlistItem item;
+  final String? eventId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -748,6 +891,21 @@ class _ParticipantsSheet extends ConsumerWidget {
                   ),
                 ),
               ),
+            if (organizer && !claim.hasGift && claim.pledges.isNotEmpty) ...[
+              const SizedBox(height: KeptSpacing.md),
+              FilledButton.icon(
+                onPressed: busy
+                    ? null
+                    : () {
+                        Navigator.of(context).pop();
+                        unawaited(
+                          context.push(logGiftRouteFor(item, claim, eventId)),
+                        );
+                      },
+                icon: const Icon(Icons.redeem_outlined),
+                label: Text(l10n.claimLogGift),
+              ),
+            ],
             if (organizer) ...[
               const SizedBox(height: KeptSpacing.md),
               TextButton.icon(
@@ -758,15 +916,14 @@ class _ParticipantsSheet extends ConsumerWidget {
                     ? null
                     : () async {
                         final navigator = Navigator.of(context);
-                        final failure = await controller.release(
-                          item.ownerId,
-                          claim.id,
-                        );
+                        await releaseClaim(context, ref, item, claim);
                         if (!context.mounted) return;
-                        _report(context, failure);
-                        if (failure == null && navigator.canPop()) {
-                          navigator.pop();
-                        }
+                        final gone =
+                            ref
+                                .read(wishlistClaimsProvider(item.ownerId))
+                                .valueOrNull?[item.id] ==
+                            null;
+                        if (gone && navigator.canPop()) navigator.pop();
                       },
                 icon: const Icon(Icons.delete_outline),
                 label: Text(l10n.claimCancelShared),

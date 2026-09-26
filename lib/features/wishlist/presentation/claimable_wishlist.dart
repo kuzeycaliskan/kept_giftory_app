@@ -15,11 +15,15 @@ class ClaimableWishlist extends ConsumerWidget {
   const ClaimableWishlist({
     required this.ownerId,
     required this.ownerLabel,
+    this.eventId,
     super.key,
   });
 
   final String ownerId;
   final String ownerLabel;
+
+  /// The event this list is shown in; gift records link to it.
+  final String? eventId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +62,11 @@ class ClaimableWishlist extends ConsumerWidget {
             for (final item in list) ...[
               WishlistItemTile(item: item),
               if (!claims.hasError)
-                ClaimBar(item: item, claim: claims.valueOrNull?[item.id]),
+                ClaimBar(
+                  item: item,
+                  claim: claims.valueOrNull?[item.id],
+                  eventId: eventId,
+                ),
             ],
             Align(
               alignment: Alignment.centerLeft,

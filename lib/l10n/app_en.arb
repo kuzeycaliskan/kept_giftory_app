@@ -653,7 +653,7 @@
   },
   "eventsGiftsSection": "Gifts",
   "eventsGiftsEmpty": "No gift logged here yet",
-  "eventsLogGift": "Log the gift",
+  "eventsLogGift": "Log a gift not on the list",
   "eventsThanksTitle": "Say thanks",
   "eventsThanksHint": "A few words for everyone who was in…",
   "eventsThanksSend": "Send",
@@ -668,5 +668,29 @@
   },
   "homeRevealCardTitle": "Your friends came together for you",
   "homeRevealCardBody": "See who was in and say thanks",
-  "eventsThanksEdit": "Edit"
+  "eventsThanksEdit": "Edit",
+  "claimSoloConfirmTitle": "Are you getting this?",
+  "claimSoloConfirmBody": "It's reserved for you and the gift record opens pre-filled. You can release it later.",
+  "claimSoloConfirm": "Yes, I'm getting it",
+  "claimLogGift": "Log the gift",
+  "claimOpenGift": "Open the gift",
+  "claimMineLogged": "You're getting this · gift logged",
+  "claimSharedLogged": "Group gift · logged",
+  "claimReleaseGiftTitle": "Release and delete the gift record?",
+  "claimReleaseGiftBody": "The gift hasn't been revealed yet, so its record goes with the reservation.",
+  "claimReleaseRefused": "The gift was already given — it can't be released.",
+  "logGiftEventSurpriseNote": "Event gift: a surprise that opens with the event",
+  "giftGiverWithFriends": "{name} and {count, plural, =1{1 friend} other{{count} friends}}",
+  "@giftGiverWithFriends": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "giftContributorsSection": "Chipped in",
+  "giftContributorFriend": "A friend"
 }

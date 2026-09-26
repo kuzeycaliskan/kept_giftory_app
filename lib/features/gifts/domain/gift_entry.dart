@@ -40,6 +40,18 @@ class GiftPhoto {
   final DateTime createdAt;
 }
 
+/// Someone who chipped into a group gift (G-309): snapshot of the pool's
+/// pledgers when the organizer logged it. The label resolves through the
+/// profiles embed (null for a private profile → "a friend").
+@immutable
+class GiftContributor {
+  const GiftContributor({required this.userId, this.amount, this.label});
+
+  final String userId;
+  final double? amount;
+  final String? label;
+}
+
 /// A gift row shaped for the UI: the counterpart is already resolved
 /// (recipient when listing given gifts, giver when listing received/history).
 /// A null [counterpartLabel] means the giver deleted their account (G-71
@@ -62,7 +74,11 @@ class GiftEntry {
     this.recipientId,
     this.reactions = const [],
     this.commentCount = 0,
+    this.contributors = const [],
   });
+
+  /// Group gift: the friends behind [giverId] (never includes the giver).
+  final List<GiftContributor> contributors;
 
   final String id;
   final String item;
@@ -128,6 +144,7 @@ class GiftEntry {
     recipientId: recipientId,
     reactions: reactions ?? this.reactions,
     commentCount: commentCount ?? this.commentCount,
+    contributors: contributors,
   );
 
   /// Still hidden from the recipient (giver-side badge).

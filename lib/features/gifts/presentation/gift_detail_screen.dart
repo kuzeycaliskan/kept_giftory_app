@@ -331,9 +331,12 @@ class _Heading extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
+    final giver = gift.counterpartLabel ?? l10n.giftAnonymousGiver;
     final counterpart = gift.giverRelation != null
         ? l10n.giftFromRelation(giftRelationLabel(context, gift.giverRelation!))
-        : (gift.counterpartLabel ?? l10n.giftAnonymousGiver);
+        : gift.contributors.isEmpty
+        ? giver
+        : l10n.giftGiverWithFriends(giver, gift.contributors.length);
     final date = DateFormat.yMMMd(locale).format(gift.giftDate);
 
     return Padding(
@@ -372,6 +375,21 @@ class _Heading extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
             ),
+          if (gift.contributors.isNotEmpty) ...[
+            const SizedBox(height: KeptSpacing.sm),
+            Text(
+              [
+                '${l10n.giftContributorsSection}:',
+                for (final c in gift.contributors)
+                  c.label ?? l10n.giftContributorFriend,
+              ].join(' '),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );

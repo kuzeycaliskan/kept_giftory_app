@@ -11,6 +11,8 @@ const String giftEmbeds =
     'price_checked_at), '
     'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at), '
     'reactions:gift_reactions(user_id, kind), '
+    'contributors:gift_contributors(user_id, amount, '
+    'user:profiles(id, username, display_name)), '
     'comments:gift_comments(count)';
 
 /// Maps a `gifts` row (with embeds) to the UI entry. Shared by the gifts
@@ -44,6 +46,24 @@ GiftEntry giftEntryFromRow(
     giverId: row['giver_id'] as String?,
     recipientId: row['recipient_id'] as String?,
     commentCount: embeddedCount(row['comments']),
+    contributors: [
+      for (final c
+          in (row['contributors'] as List<dynamic>? ?? const [])
+              .cast<Map<String, dynamic>>())
+        GiftContributor(
+          userId: c['user_id']! as String,
+          amount: switch (c['amount']) {
+            final num n => n.toDouble(),
+            final String s => double.tryParse(s),
+            _ => null,
+          },
+          label: switch (c['user']) {
+            final Map<String, dynamic> u =>
+              (u['display_name'] as String?) ?? (u['username'] as String?),
+            _ => null,
+          },
+        ),
+    ],
     reactions: [
       for (final r
           in (row['reactions'] as List<dynamic>? ?? const [])

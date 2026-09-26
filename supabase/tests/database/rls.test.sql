@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(166);
+select plan(174);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1861,6 +1861,100 @@ select throws_ok(
   '23514',
   null,
   '166: an event gift must go to the honoree, whoever the client names'
+);
+reset role;
+
+-- ── 167-174: reservation → gift (G-309) ─────────────────────────────────────
+-- e11: q2's pool on q1's item (q3 pledged 120). q2 logs the gift and attaches.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values ('00000000-0000-0000-0000-000000000a51', '00000000-0000-0000-0000-000000000b32',
+        '00000000-0000-0000-0000-000000000b31', 'Espresso machine', true, now() + interval '20 days');
+select lives_ok(
+  $$ select public.attach_claim_gift('00000000-0000-0000-0000-000000000e11',
+                                     '00000000-0000-0000-0000-000000000a51') $$,
+  '167: the organizer attaches the logged gift to the pool'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a51'),
+  1::bigint,
+  '168: a pledger became a contributor and sees the gift'
+);
+select throws_ok(
+  $$ update public.claim_pledges set amount = 10
+     where claim_id = '00000000-0000-0000-0000-000000000e11'
+       and user_id = '00000000-0000-0000-0000-000000000b33' $$,
+  '23514',
+  null,
+  '169: the pool is closed once its gift is logged'
+);
+select throws_ok(
+  $$ select public.attach_claim_gift('00000000-0000-0000-0000-000000000e11',
+                                     '00000000-0000-0000-0000-000000000a51') $$,
+  '42501',
+  null,
+  '170: only the claimer attaches'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+delete from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e11';
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a51'),
+  0::bigint,
+  '171: releasing before the reveal removes the gift record'
+);
+
+-- A revealed gift blocks the release: fresh solo claim on the same item.
+insert into public.wishlist_claims (id, item_id, claimer_id)
+values ('00000000-0000-0000-0000-000000000e12', '00000000-0000-0000-0000-000000000e01',
+        '00000000-0000-0000-0000-000000000b32');
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values ('00000000-0000-0000-0000-000000000a52', '00000000-0000-0000-0000-000000000b32',
+        '00000000-0000-0000-0000-000000000b31', 'Grinder', true, now() - interval '1 hour');
+select public.attach_claim_gift('00000000-0000-0000-0000-000000000e12',
+                                '00000000-0000-0000-0000-000000000a52');
+select throws_ok(
+  $$ delete from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e12' $$,
+  '23514',
+  null,
+  '172: a claim whose gift is already visible cannot be released'
+);
+
+-- Event gifts: never before the event, always a surprise. f41 is already
+-- revealed, so a fresh OPEN event (f42, r3 organizer) for the lift rule.
+reset role;
+insert into public.gift_events (id, honoree_id, creator_id, event_date, reveal_at)
+values ('00000000-0000-0000-0000-000000000f42', '00000000-0000-0000-0000-000000000b41',
+        '00000000-0000-0000-0000-000000000b43', current_date + 400, now() + interval '401 days');
+insert into public.gift_event_members (event_id, user_id, role, status)
+values ('00000000-0000-0000-0000-000000000f42', '00000000-0000-0000-0000-000000000b43', 'organizer', 'joined');
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b43","role":"authenticated"}';
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at, event_id)
+values ('00000000-0000-0000-0000-000000000a53', '00000000-0000-0000-0000-000000000b43',
+        '00000000-0000-0000-0000-000000000b41', 'Early', true, now() + interval '2 days',
+        '00000000-0000-0000-0000-000000000f42');
+select is(
+  (select g.reveal_at >= e.reveal_at from public.gifts g
+     join public.gift_events e on e.id = g.event_id
+    where g.id = '00000000-0000-0000-0000-000000000a53'),
+  true,
+  '173: an event gift dated earlier is lifted to the event reveal'
+);
+select throws_ok(
+  $$ insert into public.gifts (giver_id, recipient_id, item, is_surprise, event_id)
+     values ('00000000-0000-0000-0000-000000000b43', '00000000-0000-0000-0000-000000000b41',
+             'Open gift', false, '00000000-0000-0000-0000-000000000f42') $$,
+  '23514',
+  null,
+  '174: an event gift cannot be a non-surprise'
 );
 reset role;
 

@@ -264,3 +264,19 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   the definer RPCs; clients can never set `revealed`.
 - Deploy both functions with `--no-verify-jwt` (cron/trigger auth is the
   X-Cron-Secret header). pgTAP 151-163.
+
+## Reservation → gift (G-309)
+
+- `wishlist_claims.gift_id` links a claim to the gift record its claimer
+  logged; `attach_claim_gift(claim, gift)` (definer) sets it, snapshots a
+  pool's pledgers into `gift_contributors`, and hooks the gift onto the
+  honoree's event when the claimer is a joined member.
+- `gift_contributors` rows are readable wherever the gift is (policy defers
+  to gifts); `gifts_select` admits contributors via the definer helper
+  `is_gift_contributor` (no policy recursion).
+- Rules in triggers: event gifts are surprises and, while the event is open,
+  never open before it (`guard_gift_event_link` lifts the date); a pool with
+  a gift is closed to pledge changes; releasing a claim refuses when its gift
+  is already visible to the recipient, otherwise the AFTER-delete trigger
+  removes the gift record (cascade of the FK set-null would collide with a
+  BEFORE delete). pgTAP 167-174.

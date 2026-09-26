@@ -59,6 +59,18 @@ class _LinkPreviewFieldState extends ConsumerState<LinkPreviewField> {
   String? _failedForUrl;
 
   @override
+  void initState() {
+    super.initState();
+    // A pre-filled link (a reservation turning into a gift) is fetched like
+    // a paste; the cached preview comes straight back.
+    if (widget.controller.text.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onChanged(widget.controller.text);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
     super.dispose();

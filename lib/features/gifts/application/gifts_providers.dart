@@ -113,6 +113,7 @@ class GiftsController extends _$GiftsController {
     DateTime? revealAt,
     String? linkPreviewId,
     String? eventId,
+    String? claimId,
   }) async {
     state = const AsyncLoading();
     final result = await ref
@@ -123,6 +124,7 @@ class GiftsController extends _$GiftsController {
           giftDate: giftDate,
           linkPreviewId: linkPreviewId,
           eventId: eventId,
+          claimId: claimId,
           isSurprise: isSurprise,
           note: note,
           revealAt: revealAt,

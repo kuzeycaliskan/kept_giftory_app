@@ -128,6 +128,8 @@ class _FakeClaimsRepository implements ClaimsRepository {
   }
 }
 
+Uri? lastLogGiftUri;
+
 void main() {
   const grinder = WishlistItem(
     id: 'f1',
@@ -155,6 +157,14 @@ void main() {
             ownerId: state.pathParameters['uid'],
             ownerLabel: state.uri.queryParameters['name'],
           ),
+        ),
+        // Where "I'm getting this" continues: captured, not rendered.
+        GoRoute(
+          path: '/gifts/log',
+          builder: (_, state) {
+            lastLogGiftUri = state.uri;
+            return const Scaffold(body: Text('log gift stub'));
+          },
         ),
       ],
     );
@@ -219,12 +229,56 @@ void main() {
       expect(find.text("I'll get this"), findsOneWidget);
       expect(find.text('Chip in together'), findsOneWidget);
 
+      // A commitment: confirm first, then the gift record opens pre-filled.
       await tester.tap(find.text("I'll get this"));
+      await tester.pumpAndSettle();
+      expect(find.text('Are you getting this?'), findsOneWidget);
+      await tester.tap(find.text("Yes, I'm getting it"));
       await tester.pumpAndSettle();
 
       expect(claims.calls, ['claim:f1:solo:null']);
+      expect(lastLogGiftUri?.path, '/gifts/log');
+      expect(lastLogGiftUri?.queryParameters, {
+        'recipient': 'ali',
+        'claim': 'c-f1',
+        'item': 'Coffee grinder',
+      });
+
+      GoRouter.of(tester.element(find.text('log gift stub'))).pop();
+      await tester.pumpAndSettle();
       expect(find.text("You're getting this"), findsOneWidget);
       expect(find.text("I'll get this"), findsNothing);
+    });
+
+    testWidgets('a reservation with its gift logged reads so; release warns', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository(
+        claims: const {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'dev-me',
+            kind: ClaimKind.solo,
+            giftId: 'g1',
+          ),
+        },
+      );
+      await pump(tester, claims: claims);
+      expect(find.text("You're getting this · gift logged"), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.more_horiz));
+      await tester.pumpAndSettle();
+      expect(find.text('Open the gift'), findsOneWidget);
+      expect(find.text('Turn into a group gift'), findsNothing);
+      await tester.tap(find.text('Release'));
+      await tester.pumpAndSettle();
+      expect(find.text('Release and delete the gift record?'), findsOneWidget);
+      await tester.tap(find.text('Release').last);
+      await tester.pumpAndSettle();
+
+      expect(claims.calls, ['release:c1']);
     });
 
     testWidgets('losing the race is explained, not retried', (tester) async {
@@ -232,6 +286,8 @@ void main() {
       await pump(tester, claims: claims);
 
       await tester.tap(find.text("I'll get this"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Yes, I'm getting it"));
       await tester.pumpAndSettle();
 
       expect(find.text('Someone already reserved this'), findsOneWidget);
@@ -513,6 +569,14 @@ void main() {
       addTearDown(tester.view.reset);
       final claims = _FakeClaimsRepository(
         claims: const {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'dev-me',
+            kind: ClaimKind.solo,
+            giftId: 'g1',
+          ),
           'f2': WishlistClaim(
             id: 'c2',
             itemId: 'f2',
@@ -536,7 +600,7 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
-      expect(find.text("I'll get this"), findsOneWidget);
+      expect(find.text("You're getting this · gift logged"), findsOneWidget);
       expect(find.text('Join'), findsOneWidget);
     });
   });

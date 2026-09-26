@@ -53,6 +53,27 @@ class ClaimsController extends _$ClaimsController {
         .claim(itemId, kind: kind, targetAmount: targetAmount),
   );
 
+  /// Solo reservation that continues into the gift form: the claim row is
+  /// needed for the form, so this returns it (null on failure; the state
+  /// carries the failure).
+  Future<WishlistClaim?> claimForGift(String ownerId, String itemId) async {
+    state = const AsyncLoading();
+    final result = await ref
+        .read(claimsRepositoryProvider)
+        .claim(itemId, kind: ClaimKind.solo);
+    ref.invalidate(wishlistClaimsProvider(ownerId));
+    return result.when(
+      success: (claim) {
+        state = const AsyncData(null);
+        return claim;
+      },
+      failure: (failure) {
+        state = AsyncError(failure, StackTrace.current);
+        return null;
+      },
+    );
+  }
+
   Future<Failure?> release(String ownerId, String claimId) =>
       _run(ownerId, () => ref.read(claimsRepositoryProvider).release(claimId));
 
