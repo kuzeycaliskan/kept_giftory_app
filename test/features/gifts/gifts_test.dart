@@ -557,7 +557,7 @@ void main() {
         .first;
     await tester.fling(formList, const Offset(0, -1200), 3000);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Save'), warnIfMissed: true);
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(repo.given.single.revealAt, DateTime(2026, 10, 5));
