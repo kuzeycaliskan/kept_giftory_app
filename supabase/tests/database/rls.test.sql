@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(179);
+select plan(183);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2006,6 +2006,66 @@ select is(
   true,
   '178b: ... gift kept, event link cleared'
 );
+
+-- ── 179-181: deleting an event drops under-funded group-gift records ────────
+reset role;
+insert into public.gift_events (id, honoree_id, creator_id, event_date, reveal_at)
+values ('00000000-0000-0000-0000-000000000f43', '00000000-0000-0000-0000-000000000b31',
+        '00000000-0000-0000-0000-000000000b33', current_date + 500, now() + interval '501 days');
+insert into public.gift_event_members (event_id, user_id, role, status)
+values
+  ('00000000-0000-0000-0000-000000000f43', '00000000-0000-0000-0000-000000000b33', 'organizer', 'joined'),
+  ('00000000-0000-0000-0000-000000000f43', '00000000-0000-0000-0000-000000000b32', 'member', 'joined');
+-- q2's pool on a second item of q1 (target 1000, only 200 pledged) + its gift.
+insert into public.wishlist_items (id, owner_id, title)
+values ('00000000-0000-0000-0000-000000000e02', '00000000-0000-0000-0000-000000000b31', 'Turntable');
+insert into public.wishlist_claims (id, item_id, owner_id, claimer_id, kind, target_amount)
+values ('00000000-0000-0000-0000-000000000e13', '00000000-0000-0000-0000-000000000e02',
+        '00000000-0000-0000-0000-000000000b31', '00000000-0000-0000-0000-000000000b32', 'shared', 1000);
+insert into public.claim_pledges (claim_id, user_id, amount)
+values ('00000000-0000-0000-0000-000000000e13', '00000000-0000-0000-0000-000000000b33', 200);
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at, event_id)
+values ('00000000-0000-0000-0000-000000000a55', '00000000-0000-0000-0000-000000000b32',
+        '00000000-0000-0000-0000-000000000b31', 'Turntable', true, now() + interval '501 days',
+        '00000000-0000-0000-0000-000000000f43');
+update public.wishlist_claims set gift_id = '00000000-0000-0000-0000-000000000a55'
+  where id = '00000000-0000-0000-0000-000000000e13';
+-- A solo gift in the same event stays.
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at, event_id)
+values ('00000000-0000-0000-0000-000000000a56', '00000000-0000-0000-0000-000000000b33',
+        '00000000-0000-0000-0000-000000000b31', 'Headphones', true, now() + interval '501 days',
+        '00000000-0000-0000-0000-000000000f43');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+delete from public.gift_events where id = '00000000-0000-0000-0000-000000000f43';
+reset role;
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a55'),
+  0::bigint,
+  '179: an under-funded group-gift record goes with the event'
+);
+select is(
+  (select gift_id is null from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e13'),
+  true,
+  '180: ... its pool stays, open again for a record later'
+);
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a56' and event_id is null),
+  1::bigint,
+  '181: a solo gift in the event stays, unlinked'
+);
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b33","role":"authenticated"}';
+select throws_ok(
+  $$ select * from public.push_targets_for_users(array['00000000-0000-0000-0000-000000000b32']::uuid[]) $$,
+  '42501',
+  null,
+  '182: token lookup is service-only'
+);
+reset role;
 
 select * from finish();
 rollback;

@@ -2,6 +2,7 @@
 import { assertEquals } from "jsr:@std/assert";
 import {
   commentPush,
+  eventDeletedPush,
   eventRevealPush,
   eventThanksPush,
   giftLoggedPush,
@@ -63,4 +64,16 @@ Deno.test("event thanks: honoree in the title, note clipped", () => {
   const m = eventThanksPush("Kuzey", "x".repeat(200));
   assertEquals(m.title, "Kuzey teşekkür etti 💐");
   assertEquals(m.body.length <= 91, true);
+});
+
+Deno.test("event deleted: names the honoree, mentions removed group gifts", () => {
+  assertEquals(
+    eventDeletedPush("Kuzey", 1).title,
+    "Kuzey için açılan event silindi",
+  );
+  assertEquals(eventDeletedPush(null, 0).title, "Hediye event'i silindi");
+  assertEquals(
+    eventDeletedPush("Kuzey", 0).body.startsWith("Kaydedilen hediyeler"),
+    true,
+  );
 });

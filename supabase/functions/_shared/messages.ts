@@ -76,3 +76,18 @@ export function eventThanksPush(
     body: clip(note, 90),
   };
 }
+
+/// The organizer deleted an open event; under-funded group-gift records
+/// went with it.
+export function eventDeletedPush(
+  honoree: string | null,
+  removedGifts: number,
+): { title: string; body: string } {
+  const who = honoree ? `${honoree} için açılan event` : "Hediye event'i";
+  return {
+    title: `${who} silindi`,
+    body: removedGifts > 0
+      ? "Tamamlanmamış ortak hediye kaydı da kaldırıldı; rezervasyonlar duruyor."
+      : "Kaydedilen hediyeler ve rezervasyonlar duruyor.",
+  };
+}
