@@ -9,6 +9,8 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
+import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -323,6 +325,7 @@ void main() {
     String initial = '/gifts',
     _FakeLinkPreviewRepository? linkPreviews,
     FakeImagePicker? picker,
+    List<Override> overrides = const [],
   }) async {
     final router = GoRouter(
       initialLocation: initial,
@@ -355,6 +358,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ...overrides,
           giftRepositoryProvider.overrideWithValue(gifts),
           // Signed-in identity for "may I add photos" (dev-me).
           profileRepositoryProvider.overrideWithValue(
@@ -514,6 +518,50 @@ void main() {
 
     expect(repo.given, hasLength(1));
     expect(repo.lastClaimId, 'c1');
+  });
+
+  testWidgets('an event gift takes the event reveal as its date', (
+    tester,
+  ) async {
+    final repo = _FakeGiftRepository();
+    final event = GiftEvent(
+      id: 'e1',
+      honoreeId: 'ali',
+      eventDate: DateTime(2026, 10, 4),
+      revealAt: DateTime(2026, 10, 5),
+      status: EventStatus.open,
+      members: const [],
+    );
+    await pump(
+      tester,
+      gifts: repo,
+      overrides: [eventDetailProvider('e1').overrideWith((ref) async => event)],
+    );
+    unawaited(
+      GoRouter.of(
+        tester.element(find.byType(GiftsScreen)),
+      ).push('/gifts/log?recipient=ali&event=e1'),
+    );
+    await tester.pumpAndSettle();
+
+    // No picker: the date is the event's, shown read-only.
+    expect(find.textContaining('Reveal date: Oct 5, 2026'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Kindle');
+    // The pushed form sits over the gifts list: fling the form's own list
+    // to its end so Save is fully on screen once the scroll settles.
+    final formList = find
+        .descendant(
+          of: find.byType(LogGiftScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.fling(formList, const Offset(0, -1200), 3000);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'), warnIfMissed: true);
+    await tester.pumpAndSettle();
+
+    expect(repo.given.single.revealAt, DateTime(2026, 10, 5));
+    expect(repo.lastEventId, 'e1');
   });
 
   testWidgets('turning surprise off asks for confirmation', (tester) async {

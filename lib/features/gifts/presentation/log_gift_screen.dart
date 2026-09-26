@@ -196,7 +196,8 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
       _itemMissing = item.isEmpty;
       _recipientMissing = _recipientId == null;
       // Reveal date is a conscious choice, never silently defaulted.
-      _revealMissing = _isSurprise && _revealAt == null;
+      _revealMissing =
+          _isSurprise && _revealAt == null && _eventRevealAt == null;
     });
     if (_itemMissing || _recipientMissing || _revealMissing) return;
 
@@ -208,7 +209,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
           giftDate: _giftDate,
           isSurprise: _isSurprise,
           note: _noteController.text,
-          revealAt: _isSurprise ? _revealAt : null,
+          revealAt: _isSurprise ? (_revealAt ?? _eventRevealAt) : null,
           linkPreviewId: _preview?.id,
           eventId: widget.eventId,
           claimId: widget.claimId,
@@ -247,15 +248,13 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
     });
     final eventId = widget.eventId;
     if (eventId != null) {
-      ref.listen(eventDetailProvider(eventId), (_, next) {
-        next.whenData((event) {
-          if (event == null || _eventRevealAt != null) return;
-          setState(() {
-            _eventRevealAt = event.revealAt;
-            _revealAt ??= event.revealAt;
-          });
-        });
-      });
+      // Derived on every build (the event page usually loaded it already,
+      // so a change listener would never fire): the event's reveal is the
+      // gift's reveal.
+      _eventRevealAt = ref
+          .watch(eventDetailProvider(eventId))
+          .valueOrNull
+          ?.revealAt;
     }
 
     return Scaffold(
@@ -369,7 +368,17 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
               subtitle: Text(l10n.logGiftSurpriseHint),
               onChanged: busy ? null : _onSurpriseChanged,
             ),
-          if (_isSurprise) ...[
+          if (fromEvent && _eventRevealAt != null)
+            // Opens with the event — no date to pick.
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.visibility_outlined),
+              title: Text(
+                '${l10n.logGiftRevealDateLabel}: '
+                '${_formatDate(_eventRevealAt!)}',
+              ),
+            )
+          else if (_isSurprise) ...[
             OutlinedButton.icon(
               onPressed: busy ? null : _pickRevealDate,
               // Missing-and-required mirrors the text-field error look:
