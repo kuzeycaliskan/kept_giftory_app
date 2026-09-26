@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(165);
+select plan(166);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1849,6 +1849,18 @@ select is(
   (select thanks_note from public.gift_events where id = '00000000-0000-0000-0000-000000000f41'),
   'Düzeltilmiş teşekkür',
   '165: ... but not withdraw it'
+);
+
+-- A tampered client cannot aim an event gift at someone else.
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b43","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.gifts (giver_id, recipient_id, item, event_id)
+     values ('00000000-0000-0000-0000-000000000b43', '00000000-0000-0000-0000-000000000b44',
+             'Yanlış kişi', '00000000-0000-0000-0000-000000000f41') $$,
+  '23514',
+  null,
+  '166: an event gift must go to the honoree, whoever the client names'
 );
 reset role;
 
