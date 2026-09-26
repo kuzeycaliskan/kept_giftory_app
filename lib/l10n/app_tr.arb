@@ -384,5 +384,6 @@
   "logGiftEventSurpriseNote": "Event hediyesi: sürprizdir, event açıklanınca görünür",
   "giftGiverWithFriends": "{name} ve {count} arkadaşı",
   "giftContributorsSection": "Ortak verenler",
-  "giftContributorFriend": "Bir arkadaş"
+  "giftContributorFriend": "Bir arkadaş",
+  "logGiftEventRevealRule": "doğum günü + 1 gün"
 }

@@ -545,7 +545,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // No picker: the date is the event's, shown read-only.
-    expect(find.textContaining('Reveal date: Oct 5, 2026'), findsOneWidget);
+    expect(
+      find.textContaining('Reveal date: Oct 5, 2026 (birthday + 1 day)'),
+      findsOneWidget,
+    );
     await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Kindle');
     // The pushed form sits over the gifts list: fling the form's own list
     // to its end so Save is fully on screen once the scroll settles.

@@ -2407,6 +2407,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A friend'**
   String get giftContributorFriend;
+
+  /// No description provided for @logGiftEventRevealRule.
+  ///
+  /// In en, this message translates to:
+  /// **'birthday + 1 day'**
+  String get logGiftEventRevealRule;
 }
 
 class _AppLocalizationsDelegate

@@ -1311,4 +1311,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get giftContributorFriend => 'A friend';
+
+  @override
+  String get logGiftEventRevealRule => 'birthday + 1 day';
 }
