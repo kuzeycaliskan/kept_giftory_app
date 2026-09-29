@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(185);
+select plan(188);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2090,6 +2090,48 @@ select is(
       and user_id = '00000000-0000-0000-0000-000000000b43'),
   'joined',
   '184: ... and membership status is frozen too'
+);
+reset role;
+
+-- ── 185-187: review hardening ────────────────────────────────────────────────
+-- e12 (q2's solo claim, gift a52 already visible): the OWNER deletes the
+-- item — a cascade, not a release: allowed, and the gift record survives.
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b31","role":"authenticated"}';
+select lives_ok(
+  $$ delete from public.wishlist_items where id = '00000000-0000-0000-0000-000000000e01' $$,
+  '185: the owner can drop a wishlist item even when a linked gift was given'
+);
+reset role;
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a52'),
+  1::bigint,
+  '186: ... and the friend keeps their gift record'
+);
+
+-- A member who left before the reveal must not break it: the reveal
+-- updates every linked gift.
+insert into public.gift_events (id, honoree_id, creator_id, event_date, reveal_at)
+values ('00000000-0000-0000-0000-000000000f44', '00000000-0000-0000-0000-000000000b41',
+        '00000000-0000-0000-0000-000000000b42', current_date + 600, now() + interval '601 days');
+insert into public.gift_event_members (event_id, user_id, role, status)
+values
+  ('00000000-0000-0000-0000-000000000f44', '00000000-0000-0000-0000-000000000b42', 'organizer', 'joined'),
+  ('00000000-0000-0000-0000-000000000f44', '00000000-0000-0000-0000-000000000b43', 'member', 'joined');
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at, event_id)
+values ('00000000-0000-0000-0000-000000000a57', '00000000-0000-0000-0000-000000000b43',
+        '00000000-0000-0000-0000-000000000b41', 'Left behind', true, now() + interval '601 days',
+        '00000000-0000-0000-0000-000000000f44');
+delete from public.gift_event_members
+  where event_id = '00000000-0000-0000-0000-000000000f44'
+    and user_id = '00000000-0000-0000-0000-000000000b43';
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b42","role":"authenticated"}';
+select lives_ok(
+  $$ select public.reveal_gift_event('00000000-0000-0000-0000-000000000f44') $$,
+  '187: the reveal survives a gift whose giver left the event'
 );
 reset role;
 
