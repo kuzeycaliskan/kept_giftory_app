@@ -385,5 +385,6 @@
   "claimSharedGathered": "{total} toplandı",
   "eventsDelete": "Event'i sil",
   "eventsDeleteConfirmTitle": "Bu event silinsin mi?",
-  "eventsDeleteConfirmBody": "Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır."
+  "eventsDeleteConfirmBody": "Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır.",
+  "eventsPastSection": "Geçmiş event'ler"
 }

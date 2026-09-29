@@ -30,9 +30,13 @@ class EventsPage extends ConsumerWidget {
       data: (list) {
         final invites = list.where((e) => e.isInvited(myId)).toList();
         final forYou = list.where((e) => e.isHonoree(myId)).toList();
-        final mine = list
-            .where((e) => !e.isInvited(myId) && !e.isHonoree(myId))
-            .toList();
+        final others = list.where(
+          (e) => !e.isInvited(myId) && !e.isHonoree(myId),
+        );
+        final mine = others.where((e) => e.isOpen).toList();
+        // Revealed events are an archive: still readable, no longer joined
+        // or left.
+        final past = others.where((e) => e.isRevealed).toList();
         Future<void> refresh() async {
           ref.invalidate(myEventsProvider);
           await ref.read(myEventsProvider.future);
@@ -83,6 +87,15 @@ class EventsPage extends ConsumerWidget {
                 KeptListGroup(
                   children: [
                     for (final e in mine) _EventRow(event: e, myId: myId),
+                  ],
+                ),
+              ],
+              if (past.isNotEmpty) ...[
+                if (mine.isNotEmpty) const SizedBox(height: KeptSpacing.xl),
+                KeptSectionHeader(l10n.eventsPastSection),
+                KeptListGroup(
+                  children: [
+                    for (final e in past) _EventRow(event: e, myId: myId),
                   ],
                 ),
               ],

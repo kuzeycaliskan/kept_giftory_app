@@ -586,9 +586,25 @@ void main() {
 
     expect(find.text('Ali says thanks'), findsOneWidget);
     expect(find.text('Harikasınız'), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.more_horiz));
-    await tester.pumpAndSettle();
-    expect(find.text('Reveal now'), findsNothing);
+    // Revealed = archive: a member has nothing left to do here (no leave,
+    // no invite), so there is no menu at all.
+    expect(find.byIcon(Icons.more_horiz), findsNothing);
+  });
+
+  testWidgets('revealed events sit under Past in the hub', (tester) async {
+    final repo = _FakeEventsRepository(
+      events: [
+        event(id: 'e10', myStatus: EventMemberStatus.joined),
+        event(
+          id: 'e11',
+          myStatus: EventMemberStatus.joined,
+          status: EventStatus.revealed,
+        ),
+      ],
+    );
+    await pump(tester, repo: repo);
+    expect(find.text('Your events'), findsOneWidget);
+    expect(find.text('Past events'), findsOneWidget);
   });
 
   testWidgets('logging a gift from the event pre-links it', (tester) async {

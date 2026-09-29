@@ -1314,4 +1314,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get eventsDeleteConfirmBody =>
       'Members, invitations and notes go with it. Logged gifts and reservations stay.';
+
+  @override
+  String get eventsPastSection => 'Past events';
 }

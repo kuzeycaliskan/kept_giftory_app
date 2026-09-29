@@ -690,5 +690,6 @@
   },
   "eventsDelete": "Delete event",
   "eventsDeleteConfirmTitle": "Delete this event?",
-  "eventsDeleteConfirmBody": "Members, invitations and notes go with it. Logged gifts and reservations stay."
+  "eventsDeleteConfirmBody": "Members, invitations and notes go with it. Logged gifts and reservations stay.",
+  "eventsPastSection": "Past events"
 }

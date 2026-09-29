@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(183);
+select plan(185);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2064,6 +2064,32 @@ select throws_ok(
   '42501',
   null,
   '182: token lookup is service-only'
+);
+reset role;
+
+-- ── 183-184: a revealed event is an archive — membership is frozen ──────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b43","role":"authenticated"}';
+delete from public.gift_event_members
+  where event_id = '00000000-0000-0000-0000-000000000f41'
+    and user_id = '00000000-0000-0000-0000-000000000b43';
+select is(
+  (select count(*) from public.gift_event_members
+    where event_id = '00000000-0000-0000-0000-000000000f41'
+      and user_id = '00000000-0000-0000-0000-000000000b43'),
+  1::bigint,
+  '183: nobody leaves a revealed event'
+);
+update public.gift_event_members set status = 'declined'
+  where event_id = '00000000-0000-0000-0000-000000000f41'
+    and user_id = '00000000-0000-0000-0000-000000000b43';
+select is(
+  (select status::text from public.gift_event_members
+    where event_id = '00000000-0000-0000-0000-000000000f41'
+      and user_id = '00000000-0000-0000-0000-000000000b43'),
+  'joined',
+  '184: ... and membership status is frozen too'
 );
 reset role;
 

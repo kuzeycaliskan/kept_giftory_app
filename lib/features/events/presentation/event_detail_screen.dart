@@ -47,7 +47,8 @@ class EventDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.eventsDetailTitle),
         actions: [
-          if (event.valueOrNull case final e? when e.me(myId) != null)
+          if (event.valueOrNull case final e?
+              when e.me(myId) != null && (e.isOpen || e.isOrganizer(myId)))
             IconButton(
               tooltip: l10n.storyMoreActions,
               icon: const Icon(Icons.more_horiz),
@@ -128,7 +129,8 @@ class EventDetailScreen extends ConsumerWidget {
               popAfter: true,
             ),
           )
-        else
+        else if (event.isOpen)
+          // Revealed = archive: who was in stays as it was.
           KeptSheetAction(
             icon: Icons.logout,
             label: l10n.eventsLeave,

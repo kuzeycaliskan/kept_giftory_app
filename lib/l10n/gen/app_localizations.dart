@@ -2413,6 +2413,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Members, invitations and notes go with it. Logged gifts and reservations stay.'**
   String get eventsDeleteConfirmBody;
+
+  /// No description provided for @eventsPastSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Past events'**
+  String get eventsPastSection;
 }
 
 class _AppLocalizationsDelegate

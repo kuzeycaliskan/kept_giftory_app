@@ -1292,4 +1292,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get eventsDeleteConfirmBody =>
       'Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır.';
+
+  @override
+  String get eventsPastSection => 'Geçmiş event\'ler';
 }
