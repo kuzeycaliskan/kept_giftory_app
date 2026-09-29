@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(188);
+select plan(193);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2134,6 +2134,77 @@ select lives_ok(
   '187: the reveal survives a gift whose giver left the event'
 );
 reset role;
+
+-- ── 188-191: round-2 hardening ───────────────────────────────────────────────
+reset role;
+-- (a) a deleted gift photo row queues its object for the purge job
+insert into public.gift_photos (id, gift_id, uploader_id, media_path)
+values ('00000000-0000-0000-0000-000000000d61', '00000000-0000-0000-0000-000000000a52',
+        '00000000-0000-0000-0000-000000000b32',
+        '00000000-0000-0000-0000-000000000b32/photo-1.jpg');
+delete from public.gift_photos where id = '00000000-0000-0000-0000-000000000d61';
+select is(
+  (select count(*) from public.storage_purge_queue
+    where bucket = 'gift-media' and path = '00000000-0000-0000-0000-000000000b32/photo-1.jpg'),
+  1::bigint,
+  '188: a removed gift photo is queued for storage purge'
+);
+
+-- (b) the organizer of an open event cannot leave it (f44 was revealed; make one)
+insert into public.gift_events (id, honoree_id, creator_id, event_date, reveal_at)
+values ('00000000-0000-0000-0000-000000000f45', '00000000-0000-0000-0000-000000000b41',
+        '00000000-0000-0000-0000-000000000b42', current_date + 700, now() + interval '701 days');
+insert into public.gift_event_members (event_id, user_id, role, status)
+values ('00000000-0000-0000-0000-000000000f45', '00000000-0000-0000-0000-000000000b42', 'organizer', 'joined');
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b42","role":"authenticated"}';
+delete from public.gift_event_members
+  where event_id = '00000000-0000-0000-0000-000000000f45'
+    and user_id = '00000000-0000-0000-0000-000000000b42';
+reset role;
+select is(
+  (select count(*) from public.gift_event_members
+    where event_id = '00000000-0000-0000-0000-000000000f45'),
+  1::bigint,
+  '189: the organizer cannot leave an open event'
+);
+
+-- (c) account deletion of a claimer with a GIVEN gift: cascades, gift kept
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000b36', 'q6@test.dev');
+insert into public.profiles (id, username) values ('00000000-0000-0000-0000-000000000b36', 'claim_leaver');
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-000000000b31', '00000000-0000-0000-0000-000000000b36', 'accepted');
+insert into public.wishlist_items (id, owner_id, title)
+values ('00000000-0000-0000-0000-000000000e03', '00000000-0000-0000-0000-000000000b31', 'Kettle');
+insert into public.wishlist_claims (id, item_id, owner_id, claimer_id)
+values ('00000000-0000-0000-0000-000000000e14', '00000000-0000-0000-0000-000000000e03',
+        '00000000-0000-0000-0000-000000000b31', '00000000-0000-0000-0000-000000000b36');
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values ('00000000-0000-0000-0000-000000000a58', '00000000-0000-0000-0000-000000000b36',
+        '00000000-0000-0000-0000-000000000b31', 'Kettle', true, now() - interval '1 day');
+update public.wishlist_claims set gift_id = '00000000-0000-0000-0000-000000000a58'
+  where id = '00000000-0000-0000-0000-000000000e14';
+select lives_ok(
+  $$ delete from public.profiles where id = '00000000-0000-0000-0000-000000000b36' $$,
+  '190: a claimer deleting their account is not blocked by a given gift'
+);
+select is(
+  (select count(*) from public.gifts where id = '00000000-0000-0000-0000-000000000a58' and giver_id is null),
+  1::bigint,
+  '190b: ... the recipient keeps the (anonymised) gift'
+);
+
+-- (d) a pledger deleting their account after the pool's gift was logged
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values ('00000000-0000-0000-0000-000000000a59', '00000000-0000-0000-0000-000000000b32',
+        '00000000-0000-0000-0000-000000000b31', 'Turntable', true, now() + interval '10 days');
+update public.wishlist_claims set gift_id = '00000000-0000-0000-0000-000000000a59'
+  where id = '00000000-0000-0000-0000-000000000e13';
+select lives_ok(
+  $$ delete from public.profiles where id = '00000000-0000-0000-0000-000000000b33' $$,
+  '191: a pledger deleting their account is not blocked by a logged pool'
+);
 
 select * from finish();
 rollback;

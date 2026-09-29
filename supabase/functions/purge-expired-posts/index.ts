@@ -7,9 +7,12 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import {
+  drainPurgeQueue,
   type ExpiredPost,
   purgeExpiredPosts,
   type PurgeStore,
+  type QueuedObject,
+  type QueueStore,
 } from "./purge.ts";
 
 const BUCKET = "posts";
@@ -41,6 +44,33 @@ class SupabasePurgeStore implements PurgeStore {
   }
 }
 
+class SupabaseQueueStore implements QueueStore {
+  constructor(private readonly admin: SupabaseClient) {}
+
+  async listQueued(limit: number): Promise<QueuedObject[]> {
+    const { data, error } = await this.admin
+      .from("storage_purge_queue")
+      .select("id, bucket, path")
+      .order("id", { ascending: true })
+      .limit(limit);
+    if (error) throw new Error(`list queue: ${error.message}`);
+    return data ?? [];
+  }
+
+  async removeFromBucket(bucket: string, paths: string[]): Promise<void> {
+    const { error } = await this.admin.storage.from(bucket).remove(paths);
+    if (error) throw new Error(`remove ${bucket}: ${error.message}`);
+  }
+
+  async deleteQueued(ids: number[]): Promise<void> {
+    const { error } = await this.admin
+      .from("storage_purge_queue")
+      .delete()
+      .in("id", ids);
+    if (error) throw new Error(`delete queue rows: ${error.message}`);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.headers.get("x-cron-secret") !== Deno.env.get("CRON_SECRET")) {
     return new Response("forbidden", { status: 403 });
@@ -63,7 +93,11 @@ Deno.serve(async (req) => {
   try {
     const result = await purgeExpiredPosts(store);
     console.log("purge-expired-posts", JSON.stringify(result));
-    return Response.json(result);
+    // Same tick also drains the storage purge queue (gift photos whose
+    // rows went with a gift, a claim release or an event deletion).
+    const queue = await drainPurgeQueue(new SupabaseQueueStore(admin));
+    console.log("storage-purge-queue", JSON.stringify(queue));
+    return Response.json({ posts: result, queue });
   } catch (e) {
     // Rows stay put on failure; the next tick retries the same batch.
     console.error("purge-expired-posts failed", e);

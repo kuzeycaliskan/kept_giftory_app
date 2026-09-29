@@ -1,9 +1,13 @@
 // deno test purge_test.ts — ordering + failure semantics of the purge (G-203).
 import { assertEquals, assertRejects } from "jsr:@std/assert";
 import {
+  drainPurgeQueue,
   type ExpiredPost,
+  groupByBucket,
   purgeExpiredPosts,
   type PurgeStore,
+  type QueuedObject,
+  type QueueStore,
 } from "./purge.ts";
 
 function post(n: number): ExpiredPost {
@@ -78,4 +82,47 @@ Deno.test("a storage failure aborts before any row is deleted", async () => {
   const store = new FakeStore([1, 2].map(post), true);
   await assertRejects(() => purgeExpiredPosts(store), Error, "storage down");
   assertEquals(store.calls, ["list:200", "remove:2"]);
+});
+
+class FakeQueueStore implements QueueStore {
+  removed: Array<[string, string[]]> = [];
+  deleted: number[] = [];
+  constructor(public rows: QueuedObject[]) {}
+  listQueued(limit: number): Promise<QueuedObject[]> {
+    return Promise.resolve(this.rows.slice(0, limit));
+  }
+  removeFromBucket(bucket: string, paths: string[]): Promise<void> {
+    this.removed.push([bucket, paths]);
+    return Promise.resolve();
+  }
+  deleteQueued(ids: number[]): Promise<void> {
+    this.deleted.push(...ids);
+    this.rows = this.rows.filter((r) => !ids.includes(r.id));
+    return Promise.resolve();
+  }
+}
+
+Deno.test("queue: one storage call per bucket, duplicates collapsed", () => {
+  const groups = groupByBucket([
+    { id: 1, bucket: "gift-media", path: "a/1.jpg" },
+    { id: 2, bucket: "gift-media", path: "a/1.jpg" },
+    { id: 3, bucket: "posts", path: "b/2.jpg" },
+  ]);
+  assertEquals([...groups.entries()], [
+    ["gift-media", ["a/1.jpg"]],
+    ["posts", ["b/2.jpg"]],
+  ]);
+});
+
+Deno.test("queue: objects removed before rows, rows gone after", async () => {
+  const store = new FakeQueueStore([
+    { id: 1, bucket: "gift-media", path: "a/1.jpg" },
+    { id: 2, bucket: "gift-media", path: "a/2.jpg" },
+  ]);
+  const result = await drainPurgeQueue(store);
+  assertEquals(store.removed, [["gift-media", ["a/1.jpg", "a/2.jpg"]]]);
+  assertEquals(store.deleted, [1, 2]);
+  assertEquals(result.objectsRemoved, 2);
+  assertEquals(result.rowsDeleted, 2);
+  assertEquals(store.rows.length, 0);
 });

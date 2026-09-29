@@ -65,3 +65,61 @@ export async function purgeExpiredPosts(
   result.exhausted = false;
   return result;
 }
+
+// ── Storage purge queue ──────────────────────────────────────────────────────
+// Rows that lost their object owner (a gift photo row deleted by cascade,
+// a released claim's gift, a deleted event's group gift) are queued by a DB
+// trigger; this drains the queue bucket by bucket. Removing an object that
+// is already gone is a no-op for the Storage API, so the client's
+// best-effort deletes and the queue converge.
+
+export interface QueuedObject {
+  id: number;
+  bucket: string;
+  path: string;
+}
+
+export interface QueueStore {
+  /** Oldest first, at most `limit` rows. */
+  listQueued(limit: number): Promise<QueuedObject[]>;
+  /** Removes objects from one bucket; must throw on failure. */
+  removeFromBucket(bucket: string, paths: string[]): Promise<void>;
+  /** Deletes the given queue rows; must throw on failure. */
+  deleteQueued(ids: number[]): Promise<void>;
+}
+
+/** One storage call per bucket, paths de-duplicated. */
+export function groupByBucket(rows: QueuedObject[]): Map<string, string[]> {
+  const groups = new Map<string, Set<string>>();
+  for (const r of rows) {
+    if (!groups.has(r.bucket)) groups.set(r.bucket, new Set());
+    groups.get(r.bucket)!.add(r.path);
+  }
+  return new Map([...groups].map(([b, s]) => [b, [...s]]));
+}
+
+export async function drainPurgeQueue(
+  store: QueueStore,
+  { batchSize = 200, maxBatches = 5 }: PurgeOptions = {},
+): Promise<PurgeResult> {
+  const result: PurgeResult = {
+    objectsRemoved: 0,
+    rowsDeleted: 0,
+    batches: 0,
+    exhausted: true,
+  };
+  while (result.batches < maxBatches) {
+    const queued = await store.listQueued(batchSize);
+    if (queued.length === 0) return result;
+    result.batches += 1;
+    for (const [bucket, paths] of groupByBucket(queued)) {
+      await store.removeFromBucket(bucket, paths);
+      result.objectsRemoved += paths.length;
+    }
+    await store.deleteQueued(queued.map((q) => q.id));
+    result.rowsDeleted += queued.length;
+    if (queued.length < batchSize) return result;
+  }
+  result.exhausted = false;
+  return result;
+}
