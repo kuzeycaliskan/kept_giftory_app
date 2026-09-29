@@ -4,6 +4,8 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
+import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/wishlist/data/supabase_claims_repository.dart';
 import 'package:kept/features/wishlist/domain/claims_repository.dart';
 import 'package:kept/features/wishlist/domain/wishlist_claim.dart';
@@ -109,7 +111,11 @@ class ClaimsController extends _$ClaimsController {
   ) async {
     state = const AsyncLoading();
     final result = await action();
-    ref.invalidate(wishlistClaimsProvider(ownerId));
+    ref
+      ..invalidate(wishlistClaimsProvider(ownerId))
+      // A release may have taken a gift record with it.
+      ..invalidate(givenGiftsProvider)
+      ..invalidate(eventGiftsProvider);
     return result.when(
       success: (_) {
         state = const AsyncData(null);

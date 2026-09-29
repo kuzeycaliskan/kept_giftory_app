@@ -6,8 +6,10 @@ import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/gifts/data/dev_gift_repository.dart';
 import 'package:kept/features/gifts/data/supabase_gift_repository.dart';
+import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
+import 'package:kept/features/wishlist/application/claims_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'gifts_providers.g.dart';
@@ -132,7 +134,11 @@ class GiftsController extends _$GiftsController {
     return result.when(
       success: (gift) {
         state = const AsyncData(null);
-        ref.invalidate(givenGiftsProvider);
+        ref
+          ..invalidate(givenGiftsProvider)
+          // A gift may have come from a reservation or live on an event.
+          ..invalidate(wishlistClaimsProvider)
+          ..invalidate(eventGiftsProvider);
         return gift;
       },
       failure: (Failure failure) {
@@ -148,7 +154,11 @@ class GiftsController extends _$GiftsController {
     result.when(
       success: (_) {
         state = const AsyncData(null);
-        ref.invalidate(givenGiftsProvider);
+        ref
+          ..invalidate(givenGiftsProvider)
+          // A gift may have come from a reservation or live on an event.
+          ..invalidate(wishlistClaimsProvider)
+          ..invalidate(eventGiftsProvider);
       },
       failure: (Failure failure) {
         state = AsyncError(failure, StackTrace.current);
