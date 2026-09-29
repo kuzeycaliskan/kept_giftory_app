@@ -200,11 +200,15 @@ class SupabaseEventsRepository implements EventsRepository {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
     try {
-      await _client
+      final rows = await _client
           .from('gift_event_members')
           .update({'status': join ? 'joined' : 'declined'})
           .eq('event_id', eventId)
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .select('event_id');
+      // No row touched = the event is revealed (archive) or the invite
+      // is gone; say so instead of pretending.
+      if (rows.isEmpty) return const ResultFailure(ConflictFailure());
       return const Success(null);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));

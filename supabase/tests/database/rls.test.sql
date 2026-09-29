@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(193);
+select plan(196);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2205,6 +2205,47 @@ select lives_ok(
   $$ delete from public.profiles where id = '00000000-0000-0000-0000-000000000b33' $$,
   '191: a pledger deleting their account is not blocked by a logged pool'
 );
+
+-- ── 192-193: round-3 hardening ───────────────────────────────────────────────
+reset role;
+-- (a) the organizer's account goes away: the earliest joined member takes over
+insert into public.gift_event_members (event_id, user_id, role, status)
+values ('00000000-0000-0000-0000-000000000f45', '00000000-0000-0000-0000-000000000b44', 'member', 'joined');
+delete from public.profiles where id = '00000000-0000-0000-0000-000000000b42';
+select is(
+  (select role::text from public.gift_event_members
+    where event_id = '00000000-0000-0000-0000-000000000f45'
+      and user_id = '00000000-0000-0000-0000-000000000b44'),
+  'organizer',
+  '192: when the organizer''s account is deleted, a joined member becomes organizer'
+);
+select is(
+  (select creator_id is null from public.gift_events where id = '00000000-0000-0000-0000-000000000f45'),
+  true,
+  '192b: ... and the event survives with its creator cleared'
+);
+
+-- (b) a revealed event for the honoree's next birthday takes no newcomers
+update public.profiles
+   set birthday = (current_date + 10) - interval '30 years'
+ where id = '00000000-0000-0000-0000-000000000b41';
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000b37', 'q7@test.dev');
+insert into public.profiles (id, username) values ('00000000-0000-0000-0000-000000000b37', 'late_friend');
+insert into public.friendships (requester_id, addressee_id, status)
+values ('00000000-0000-0000-0000-000000000b41', '00000000-0000-0000-0000-000000000b37', 'accepted');
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b44","role":"authenticated"}';
+select public.reveal_gift_event(public.create_gift_event('00000000-0000-0000-0000-000000000b41'));
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b37","role":"authenticated"}';
+select throws_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b41') $$,
+  '23514',
+  null,
+  '193: nobody joins an already revealed event through "open an event"'
+);
+reset role;
 
 select * from finish();
 rollback;
