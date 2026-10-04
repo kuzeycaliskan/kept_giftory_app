@@ -9,13 +9,14 @@ import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { commentPush } from "../_shared/messages.ts";
 
 interface Target {
-  token: string;
-  platform: string;
+  token: string | null;
+  platform: string | null;
   notified_user: string;
   commenter_label: string;
   item_label: string;
   snippet: string;
   route: string;
+  enabled: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -43,10 +44,11 @@ Deno.serve(async (req) => {
       p_comment_id: comment_id,
     });
   if (error) return new Response(error.message, { status: 500 });
-  const targets = (data ?? []) as Target[];
-  if (targets.length === 0) return Response.json({ sent: 0 });
+  const all = (data ?? []) as Target[];
+  if (all.length === 0) return Response.json({ sent: 0 });
 
-  const notices: Notice[] = targets.map((t) => {
+  // Inbox for everyone the rules allow; push only to opted-in devices.
+  const notices: Notice[] = all.map((t) => {
     const copy = commentPush(t.commenter_label, t.item_label, t.snippet, kind);
     return {
       user_id: t.notified_user,
@@ -57,6 +59,10 @@ Deno.serve(async (req) => {
     };
   });
   await recordNotices(supabase, notices);
+  const targets = all.filter(
+    (t): t is Target & { token: string } => t.enabled && t.token !== null,
+  );
+  if (targets.length === 0) return Response.json({ sent: 0 });
   const { accessToken, projectId } = await fcmSender();
   let sent = 0;
   for (const t of targets) {
@@ -70,5 +76,5 @@ Deno.serve(async (req) => {
     if (result === "sent") sent++;
     if (result === "stale") await deleteStaleToken(supabase, t.token);
   }
-  return Response.json({ sent, targets: targets.length });
+  return Response.json({ sent, targets: all.length });
 });

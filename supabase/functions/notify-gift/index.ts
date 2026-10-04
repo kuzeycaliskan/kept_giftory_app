@@ -8,11 +8,12 @@ import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { giftLoggedPush } from "../_shared/messages.ts";
 
 interface Target {
-  token: string;
-  platform: string;
+  token: string | null;
+  platform: string | null;
   recipient_id: string;
   giver_label: string;
   item_label: string;
+  enabled: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -32,12 +33,13 @@ Deno.serve(async (req) => {
     p_gift_id: gift_id,
   });
   if (error) return new Response(error.message, { status: 500 });
-  const targets = (data ?? []) as Target[];
-  if (targets.length === 0) return Response.json({ sent: 0 });
+  const all = (data ?? []) as Target[];
+  if (all.length === 0) return Response.json({ sent: 0 });
 
+  // Inbox for everyone the rules allow; push only to opted-in devices.
   await recordNotices(
     supabase,
-    targets.map((t): Notice => {
+    all.map((t): Notice => {
       const copy = giftLoggedPush(t.giver_label, t.item_label);
       return {
         user_id: t.recipient_id,
@@ -48,6 +50,10 @@ Deno.serve(async (req) => {
       };
     }),
   );
+  const targets = all.filter(
+    (t): t is Target & { token: string } => t.enabled && t.token !== null,
+  );
+  if (targets.length === 0) return Response.json({ sent: 0 });
   const { accessToken, projectId } = await fcmSender();
   let sent = 0;
   for (const t of targets) {

@@ -9,7 +9,7 @@ import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { eventThanksPush } from "../_shared/messages.ts";
 
 interface Target {
-  token: string;
+  token: string | null;
   platform: string | null;
   member_id: string;
   honoree_label: string;
@@ -48,7 +48,9 @@ Deno.serve(async (req) => {
       };
     }),
   );
-  const targets = all.filter((t) => t.enabled);
+  const targets = all.filter(
+    (t): t is Target & { token: string } => t.enabled && t.token !== null,
+  );
   if (targets.length === 0) return Response.json({ sent: 0 });
 
   const { accessToken, projectId } = await fcmSender();

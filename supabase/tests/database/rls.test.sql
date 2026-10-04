@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(211);
+select plan(213);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -1280,13 +1280,30 @@ select is(
 update public.profiles set social_notifications_enabled = false
  where id = '00000000-0000-0000-0000-00000000000a';
 select is(
-  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e09')
+  (select bool_and(not enabled) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e09')
     where notified_user = '00000000-0000-0000-0000-00000000000a'),
-  0::bigint,
-  '112: opting out removes the recipient from comment targets'
+  true,
+  '112: opting out keeps the recipient listed (inbox) but flags the push off'
 );
 update public.profiles set social_notifications_enabled = true
  where id = '00000000-0000-0000-0000-00000000000a';
+
+-- No device at all: still one row (token null) so the inbox gets its line.
+delete from public.device_tokens where user_id = '00000000-0000-0000-0000-00000000000a';
+select is(
+  (select count(*) from public.comment_push_targets('gift', '00000000-0000-0000-0000-000000000e09')
+    where notified_user = '00000000-0000-0000-0000-00000000000a' and token is null),
+  1::bigint,
+  '112b: a recipient without a device is still a comment target, token-less'
+);
+select is(
+  (select count(*) from public.gift_push_targets('00000000-0000-0000-0000-000000000c01')
+    where recipient_id = '00000000-0000-0000-0000-00000000000a' and token is null),
+  1::bigint,
+  '112c: a recipient without a device is still a gift target, token-less'
+);
+insert into public.device_tokens (token, user_id, platform)
+values ('tok-alice-1', '00000000-0000-0000-0000-00000000000a', 'android');
 
 -- G2 (pending surprise) is not due; once its reveal time passes it is.
 select is(
