@@ -219,7 +219,6 @@
   "composeShare": "Paylaş",
   "composeShared": "Paylaşıldı. 24 saat sonra kaybolur.",
   "composeFailed": "Paylaşılamadı. Tekrar dene.",
-  "giftShareUnboxingHint": "Bir fotoğraf çek ve not ekle; bu hediyede kalır, istersen 24 saatlik hikaye olarak da paylaşırsın.",
   "giftShareUnboxing": "Açılışı paylaş",
   "storyUnboxing": "Hediye açılışı",
   "storyUnboxingFrom": "Hediye açılışı · veren: {name}",

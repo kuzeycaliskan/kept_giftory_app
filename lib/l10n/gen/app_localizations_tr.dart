@@ -709,10 +709,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get composeFailed => 'Paylaşılamadı. Tekrar dene.';
 
   @override
-  String get giftShareUnboxingHint =>
-      'Bir fotoğraf çek ve not ekle; bu hediyede kalır, istersen 24 saatlik hikaye olarak da paylaşırsın.';
-
-  @override
   String get giftShareUnboxing => 'Açılışı paylaş';
 
   @override

@@ -174,13 +174,6 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
               // only while the memory strip has room for the photo.
               if (canUnbox && canAdd) ...[
                 const SizedBox(height: KeptSpacing.md),
-                Text(
-                  l10n.giftShareUnboxingHint,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: KeptSpacing.sm),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: FilledButton.tonalIcon(
@@ -260,34 +253,18 @@ class _PhotoCards extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    // Notes stay out of the strip: a photo's note shows in the gallery
+    // once it is opened (Kuzey, 6 Oct).
     final slots = <Widget>[
       for (var i = 0; i < photos.length; i++)
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _PhotoCard(
-              onTap: () => onOpen(i),
-              child: PrivateMediaImage(
-                bucket: giftMediaBucket,
-                path: photos[i].mediaPath,
-                fit: BoxFit.cover,
-                compact: true,
-              ),
-            ),
-            // The uploader's note, only when there is one.
-            if (photos[i].caption case final note?)
-              Padding(
-                padding: const EdgeInsets.only(top: KeptSpacing.xs),
-                child: Text(
-                  note,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-          ],
+        _PhotoCard(
+          onTap: () => onOpen(i),
+          child: PrivateMediaImage(
+            bucket: giftMediaBucket,
+            path: photos[i].mediaPath,
+            fit: BoxFit.cover,
+            compact: true,
+          ),
         ),
       if (showAddSlot && photos.length < giftPhotoCap)
         _PhotoCard(
@@ -340,7 +317,6 @@ class _PhotoCards extends StatelessWidget {
     // Unused slots stay invisible (spacers keep every card at 1/3 width);
     // empty boxes read as missing content, which they are not.
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < giftPhotoCap; i++) ...[
           if (i > 0) const SizedBox(width: KeptSpacing.sm),

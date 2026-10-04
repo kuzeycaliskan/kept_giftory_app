@@ -711,10 +711,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get composeFailed => 'Couldn\'t share. Try again.';
 
   @override
-  String get giftShareUnboxingHint =>
-      'Take a photo and add a note; it stays with this gift, and you can share it as a 24-hour story too.';
-
-  @override
   String get giftShareUnboxing => 'Share the unboxing';
 
   @override

@@ -1412,12 +1412,6 @@ abstract class AppLocalizations {
   /// **'Couldn\'t share. Try again.'**
   String get composeFailed;
 
-  /// No description provided for @giftShareUnboxingHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Take a photo and add a note; it stays with this gift, and you can share it as a 24-hour story too.'**
-  String get giftShareUnboxingHint;
-
   /// No description provided for @giftShareUnboxing.
   ///
   /// In en, this message translates to:

@@ -877,7 +877,6 @@ void main() {
           picker: FakeImagePicker(tinyPng),
           initial: '/gifts/g9?side=giver',
         );
-        expect(find.textContaining('24-hour story'), findsOneWidget);
 
         await tester.tap(
           find.widgetWithText(FilledButton, 'Share the unboxing'),
@@ -902,9 +901,10 @@ void main() {
           find.text("Story shared. The photo is in the gift's memories."),
           findsOneWidget,
         );
-        // Back on the detail: the photo and its note.
+        // Back on the detail: the photo is in the strip, its note waits in
+        // the gallery.
         expect(find.byType(PrivateMediaImage), findsOneWidget);
-        expect(find.text('Açtım!'), findsOneWidget);
+        expect(find.text('Açtım!'), findsNothing);
       },
     );
 
@@ -1118,9 +1118,12 @@ void main() {
       expect(repo.attachedTo, ['g4']);
       expect(repo.captions, ['Paketlerken']);
       expect(find.byType(PrivateMediaImage), findsOneWidget);
-      // The note shows under its photo on the gift.
-      expect(find.text('Paketlerken'), findsOneWidget);
       expect(find.text("Photo added to the gift's memories."), findsOneWidget);
+      // The strip stays clean; the note appears once the photo is opened.
+      expect(find.text('Paketlerken'), findsNothing);
+      await tester.tap(find.byType(PrivateMediaImage));
+      await tester.pumpAndSettle();
+      expect(find.text('Paketlerken'), findsOneWidget);
     });
 
     testWidgets('uploader removes their own photo from the detail', (
