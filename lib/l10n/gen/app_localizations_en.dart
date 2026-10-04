@@ -711,6 +711,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get composeFailed => 'Couldn\'t share. Try again.';
 
   @override
+  String composeUnboxingOf(String item) {
+    return 'Unboxing: $item';
+  }
+
+  @override
+  String get composeUnboxingKept =>
+      'The photo also stays with the gift\'s memories.';
+
+  @override
+  String get giftShareUnboxing => 'Share the unboxing';
+
+  @override
+  String get storyUnboxing => 'Unboxing';
+
+  @override
+  String storyUnboxingFrom(String name) {
+    return 'Unboxing · from $name';
+  }
+
+  @override
   String get cameraUnavailable => 'Couldn\'t open the camera';
 
   @override

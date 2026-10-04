@@ -19,6 +19,13 @@ abstract class Post with _$Post {
     String? caption,
     @Default([]) List<Reaction> reactions,
     @Default(0) int commentCount,
+
+    /// G-308: the received gift this moment unboxes, if any.
+    @JsonKey(name: 'gift_id') String? giftId,
+
+    /// The gift as the viewer may see it — null when RLS hides it even
+    /// though [giftId] is set (then the tag says "unboxing", nothing more).
+    UnboxedGift? gift,
   }) = _Post;
 
   const Post._();
@@ -35,6 +42,20 @@ abstract class Post with _$Post {
       if (reactions.any((r) => r.kind == kind))
         kind: reactions.where((r) => r.kind == kind).length,
   };
+}
+
+/// What an unboxing moment shows about its gift (G-308): the item and who
+/// gave it. Follows gifts RLS, so a hidden gift simply never arrives here.
+@freezed
+abstract class UnboxedGift with _$UnboxedGift {
+  const factory UnboxedGift({
+    required String id,
+    required String item,
+    ProfileCard? giver,
+  }) = _UnboxedGift;
+
+  factory UnboxedGift.fromJson(Map<String, dynamic> json) =>
+      _$UnboxedGiftFromJson(json);
 }
 
 /// Storage bucket that holds post photos (private; read via a live post row).

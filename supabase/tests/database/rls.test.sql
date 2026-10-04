@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(213);
+select plan(218);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2401,6 +2401,55 @@ select is(
     where claim_id = '00000000-0000-0000-0000-000000000e18'),
   0::bigint,
   '206c: ... once'
+);
+
+-- ── 207-211: unboxing moments (G-308) ───────────────────────────────────────
+-- G1 (c01) erin→alice is open; a fresh surprise erin→alice is still pending.
+reset role;
+insert into public.gifts (id, giver_id, recipient_id, item, is_surprise, reveal_at)
+values ('00000000-0000-0000-0000-000000000c99', '00000000-0000-0000-0000-00000000000e',
+        '00000000-0000-0000-0000-00000000000a', 'Gizli kutu', true, now() + interval '1 day');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.posts (id, author_id, media_path, caption, gift_id)
+     values ('00000000-0000-0000-0000-000000000d99', '00000000-0000-0000-0000-00000000000a',
+             '00000000-0000-0000-0000-00000000000a/unbox.jpg', 'Açtım!', '00000000-0000-0000-0000-000000000c01') $$,
+  '207: the recipient links a moment to an open gift they received'
+);
+select throws_ok(
+  $$ insert into public.posts (author_id, media_path, gift_id)
+     values ('00000000-0000-0000-0000-00000000000a',
+             '00000000-0000-0000-0000-00000000000a/unbox2.jpg', '00000000-0000-0000-0000-000000000c99') $$,
+  '42501',
+  null,
+  '208: a pending surprise cannot be unboxed'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.posts (author_id, media_path, gift_id)
+     values ('00000000-0000-0000-0000-00000000000e',
+             '00000000-0000-0000-0000-00000000000e/unbox.jpg', '00000000-0000-0000-0000-000000000c01') $$,
+  '42501',
+  null,
+  '209: the giver cannot link a gift they gave'
+);
+select throws_ok(
+  $$ select * from public.unboxing_targets('00000000-0000-0000-0000-000000000d99') $$,
+  '42501',
+  null,
+  '210: unboxing targets are service-only'
+);
+
+reset role;
+select is(
+  (select array_agg(user_id order by user_id) from public.unboxing_targets('00000000-0000-0000-0000-000000000d99')),
+  array['00000000-0000-0000-0000-00000000000e']::uuid[],
+  '211: the giver hears about the unboxing, the author never does'
 );
 
 select * from finish();

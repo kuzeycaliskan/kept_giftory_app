@@ -56,7 +56,7 @@ final class PostComposerProvider
   }
 }
 
-String _$postComposerHash() => r'499de18d5ba222444ae71d8ccefe6dcc4fdd54cc';
+String _$postComposerHash() => r'33186c1401f42c744a6e8bd13cdf9bb5d20c167a';
 
 /// Capture → share pipeline for a moment (G-201). Two steps so the compose
 /// screen sits between them: [capture] opens the device camera (never the

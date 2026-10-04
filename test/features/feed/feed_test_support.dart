@@ -26,10 +26,14 @@ Post samplePost({
   String? caption,
   DateTime? createdAt,
   List<Reaction> reactions = const [],
+  String? giftId,
+  UnboxedGift? gift,
 }) {
   final created = createdAt ?? DateTime.now();
   return Post(
     reactions: reactions,
+    giftId: giftId,
+    gift: gift,
     id: id,
     authorId: authorId,
     mediaPath: '$authorId/post-$id.jpg',
@@ -56,7 +60,7 @@ class FakeFeedRepository implements FeedRepository {
   final String? viewerId;
   bool failCreate;
   bool failFetch;
-  final created = <({Uint8List bytes, String? caption})>[];
+  final created = <({Uint8List bytes, String? caption, String? giftId})>[];
   final deleted = <String>[];
 
   @override
@@ -68,9 +72,10 @@ class FakeFeedRepository implements FeedRepository {
   Future<Result<void>> createPost({
     required Uint8List jpegBytes,
     String? caption,
+    String? giftId,
   }) async {
     if (failCreate) return const ResultFailure(NetworkFailure('upload'));
-    created.add((bytes: jpegBytes, caption: caption));
+    created.add((bytes: jpegBytes, caption: caption, giftId: giftId));
     final id = 'new-${created.length}';
     posts.add(
       samplePost(

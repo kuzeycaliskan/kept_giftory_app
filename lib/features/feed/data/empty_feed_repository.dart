@@ -21,6 +21,7 @@ class EmptyFeedRepository implements FeedRepository {
   Future<Result<void>> createPost({
     required Uint8List jpegBytes,
     String? caption,
+    String? giftId,
   }) async => const ResultFailure(NetworkFailure('No backend configured'));
 
   @override

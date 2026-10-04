@@ -6,6 +6,7 @@ import {
   eventRevealPush,
   eventThanksPush,
   giftLoggedPush,
+  giftUnboxedPush,
   poolExpiredPush,
   poolLoggedPush,
   poolReleasedPush,
@@ -118,5 +119,12 @@ Deno.test("share removed copy", () => {
   assertEquals(
     poolShareRemovedPush("Kamil", "Tent").body,
     "Kamil Tent havuzundan katkını kaldırdı.",
+  );
+});
+
+Deno.test("unboxing copy names recipient and item", () => {
+  assertEquals(
+    giftUnboxedPush("Kuzey", "Kahve makinesi").body,
+    "Kuzey Kahve makinesi açılışını paylaştı.",
   );
 });

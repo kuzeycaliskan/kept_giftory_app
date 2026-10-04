@@ -33,7 +33,11 @@ class SupabaseFeedRepository implements FeedRepository {
       // bare `profiles` embed is ambiguous (PGRST201) since G-206.
       'author:profiles!posts_author_id_fkey'
       '(id, username, display_name, avatar_url), '
-      'comments:post_comments(count)';
+      'comments:post_comments(count), '
+      // G-308: the unboxed gift, as far as gifts RLS lets this viewer see.
+      'gift_id, gift:gifts!posts_gift_id_fkey(id, item, '
+      'giver:profiles!gifts_giver_id_fkey(id, username, display_name, '
+      'avatar_url))';
 
   @override
   Future<Result<FeedSnapshot>> fetchActive() async {
@@ -98,6 +102,7 @@ class SupabaseFeedRepository implements FeedRepository {
   Future<Result<void>> createPost({
     required Uint8List jpegBytes,
     String? caption,
+    String? giftId,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
@@ -120,6 +125,7 @@ class SupabaseFeedRepository implements FeedRepository {
         'author_id': userId,
         'media_path': path,
         if (caption != null && caption.isNotEmpty) 'caption': caption,
+        'gift_id': ?giftId,
       });
       return const Success(null);
     } on PostgrestException catch (e) {

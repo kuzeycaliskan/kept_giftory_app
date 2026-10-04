@@ -20,6 +20,10 @@ _Post _$PostFromJson(Map<String, dynamic> json) => _Post(
           .toList() ??
       const [],
   commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
+  giftId: json['gift_id'] as String?,
+  gift: json['gift'] == null
+      ? null
+      : UnboxedGift.fromJson(json['gift'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$PostToJson(_Post instance) => <String, dynamic>{
@@ -32,4 +36,21 @@ Map<String, dynamic> _$PostToJson(_Post instance) => <String, dynamic>{
   'caption': instance.caption,
   'reactions': instance.reactions,
   'commentCount': instance.commentCount,
+  'gift_id': instance.giftId,
+  'gift': instance.gift,
 };
+
+_UnboxedGift _$UnboxedGiftFromJson(Map<String, dynamic> json) => _UnboxedGift(
+  id: json['id'] as String,
+  item: json['item'] as String,
+  giver: json['giver'] == null
+      ? null
+      : ProfileCard.fromJson(json['giver'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$UnboxedGiftToJson(_UnboxedGift instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'item': instance.item,
+      'giver': instance.giver,
+    };

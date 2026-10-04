@@ -185,8 +185,16 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: composePostRoute,
         name: 'compose-post',
-        builder: (context, state) =>
-            ComposePostScreen(imageBytes: state.extra! as Uint8List),
+        builder: (context, state) {
+          final giftId = state.uri.queryParameters['gift'];
+          final item = state.uri.queryParameters['item'];
+          return ComposePostScreen(
+            imageBytes: state.extra! as Uint8List,
+            unboxing: giftId == null || item == null
+                ? null
+                : UnboxingTarget(giftId: giftId, item: item),
+          );
+        },
       ),
       GoRoute(
         path: '/events/for/:honoreeId',

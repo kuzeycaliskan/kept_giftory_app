@@ -125,6 +125,42 @@ void main() {
       expect(find.text('Upcoming'), findsOneWidget);
     });
 
+    testWidgets('an unboxing moment wears its gift tag', (tester) async {
+      const leyla = ProfileCard(
+        id: 'leyla',
+        username: 'leyla',
+        displayName: 'Leyla',
+      );
+      final feed = FakeFeedRepository(
+        posts: [
+          samplePost(
+            id: 'z1',
+            authorId: 'zeynep',
+            username: 'zeynep',
+            displayName: 'Zeynep',
+            caption: 'Açtım!',
+            giftId: 'g1',
+            gift: const UnboxedGift(id: 'g1', item: 'Kupa', giver: leyla),
+          ),
+          // The gift is hidden from this viewer (RLS): the tag stays bare.
+          samplePost(id: 'a1', authorId: 'ali', username: 'ali', giftId: 'g2'),
+        ],
+      );
+      await pumpApp(tester, feed: feed);
+
+      await tester.tap(find.text('Zeynep'));
+      await pumpViewer(tester);
+      expect(find.text('Unboxing · from Leyla'), findsOneWidget);
+      expect(find.text('Açtım!'), findsOneWidget);
+      await tester.tap(find.byType(CloseButton));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('ali'));
+      await pumpViewer(tester);
+      expect(find.text('Unboxing'), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_right), findsNothing);
+    });
+
     testWidgets('pulling the story down closes it', (tester) async {
       await pumpApp(tester, feed: FakeFeedRepository(posts: friendsPosts()));
       await tester.tap(find.text('Zeynep'));

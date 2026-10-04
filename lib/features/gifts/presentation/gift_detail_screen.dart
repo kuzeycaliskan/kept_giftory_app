@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
+import 'package:kept/features/feed/presentation/moment_capture.dart';
 import 'package:kept/features/gifts/application/gift_photo_controller.dart';
 import 'package:kept/features/gifts/application/gift_reaction_controller.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
@@ -162,6 +163,27 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
             padding: const EdgeInsets.all(KeptSpacing.lg),
             children: [
               _Heading(gift: gift),
+              // G-308: only the recipient, only once the gift is open.
+              if (gift.recipientId == myId && !gift.isPendingSurprise) ...[
+                const SizedBox(height: KeptSpacing.md),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.tonalIcon(
+                    onPressed: busy
+                        ? null
+                        : () => captureMoment(
+                            context,
+                            ref,
+                            unboxing: UnboxingTarget(
+                              giftId: gift.id,
+                              item: gift.item,
+                            ),
+                          ),
+                    icon: const Icon(Icons.photo_camera_outlined),
+                    label: Text(l10n.giftShareUnboxing),
+                  ),
+                ),
+              ],
               const SizedBox(height: KeptSpacing.xl),
               KeptSectionHeader(l10n.giftDetailPhotosSection),
               _PhotoCards(

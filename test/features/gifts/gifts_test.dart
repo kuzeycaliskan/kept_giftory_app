@@ -12,6 +12,9 @@ import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/feed/application/feed_providers.dart';
+import 'package:kept/features/feed/presentation/compose_post_screen.dart';
+import 'package:kept/features/feed/presentation/moment_capture.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -327,11 +330,26 @@ void main() {
     _FakeLinkPreviewRepository? linkPreviews,
     FakeImagePicker? picker,
     List<Override> overrides = const [],
+    FakeFeedRepository? feed,
   }) async {
     final router = GoRouter(
       initialLocation: initial,
       routes: [
         GoRoute(path: '/gifts', builder: (_, _) => const GiftsScreen()),
+        // Where "Share the unboxing" lands (G-308), as the app router wires it.
+        GoRoute(
+          path: composePostRoute,
+          builder: (_, state) {
+            final giftId = state.uri.queryParameters['gift'];
+            final item = state.uri.queryParameters['item'];
+            return ComposePostScreen(
+              imageBytes: state.extra! as Uint8List,
+              unboxing: giftId == null || item == null
+                  ? null
+                  : UnboxingTarget(giftId: giftId, item: item),
+            );
+          },
+        ),
         GoRoute(
           path: '/gifts/log',
           builder: (_, state) => LogGiftScreen(
@@ -361,6 +379,9 @@ void main() {
         overrides: [
           ...overrides,
           giftRepositoryProvider.overrideWithValue(gifts),
+          feedRepositoryProvider.overrideWithValue(
+            feed ?? FakeFeedRepository(viewerId: 'dev-me'),
+          ),
           // Signed-in identity for "may I add photos" (dev-me).
           profileRepositoryProvider.overrideWithValue(
             const DevProfileRepository(),
@@ -825,6 +846,84 @@ void main() {
 
     expect(find.text("Pick who it's from"), findsOneWidget);
     expect(repo.lastExternalRelation, isNull);
+  });
+
+  group('unboxing (G-308)', () {
+    GiftEntry received({
+      required String id,
+      bool isSurprise = false,
+      DateTime? revealAt,
+    }) => GiftEntry(
+      id: id,
+      item: 'Kupa',
+      giftDate: DateTime(2026, 9),
+      isSurprise: isSurprise,
+      revealAt: revealAt,
+      counterpartId: 'ali',
+      counterpartLabel: 'Ali',
+      giverId: 'ali',
+      recipientId: 'dev-me',
+    );
+
+    testWidgets('the recipient shares an unboxing; the photo stays with it', (
+      tester,
+    ) async {
+      final feed = FakeFeedRepository(viewerId: 'dev-me');
+      final gifts = _FakeGiftRepository(received: [received(id: 'g9')]);
+      await pump(
+        tester,
+        gifts: gifts,
+        feed: feed,
+        picker: FakeImagePicker(tinyPng),
+        initial: '/gifts/g9?side=giver',
+      );
+
+      await tester.tap(find.text('Share the unboxing'));
+      await tester.pumpAndSettle();
+      expect(find.text('Unboxing: Kupa'), findsOneWidget);
+      expect(
+        find.text("The photo also stays with the gift's memories."),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Share'));
+      await tester.pumpAndSettle();
+
+      expect(feed.created.single.giftId, 'g9');
+      expect(gifts.attachedTo, ['g9']);
+      // Back on the detail, with the memory strip now holding the photo.
+      expect(find.text('Gift'), findsOneWidget);
+      expect(find.byType(PrivateMediaImage), findsOneWidget);
+    });
+
+    testWidgets('no unboxing for the giver or before a surprise opens', (
+      tester,
+    ) async {
+      final gifts = _FakeGiftRepository(
+        given: [
+          GiftEntry(
+            id: 'g1',
+            item: 'Kupa',
+            giftDate: DateTime(2026, 9),
+            isSurprise: false,
+            giverId: 'dev-me',
+            recipientId: 'ali',
+          ),
+        ],
+        received: [
+          received(
+            id: 'g2',
+            isSurprise: true,
+            revealAt: DateTime.now().add(const Duration(days: 3)),
+          ),
+        ],
+      );
+      await pump(tester, gifts: gifts, initial: '/gifts/g1');
+      expect(find.text('Share the unboxing'), findsNothing);
+
+      await pump(tester, gifts: gifts, initial: '/gifts/g2?side=giver');
+      expect(find.text('Share the unboxing'), findsNothing);
+    });
   });
 
   group('gift photos (G-204)', () {

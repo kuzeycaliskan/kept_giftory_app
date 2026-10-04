@@ -1412,6 +1412,36 @@ abstract class AppLocalizations {
   /// **'Couldn\'t share. Try again.'**
   String get composeFailed;
 
+  /// No description provided for @composeUnboxingOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Unboxing: {item}'**
+  String composeUnboxingOf(String item);
+
+  /// No description provided for @composeUnboxingKept.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo also stays with the gift\'s memories.'**
+  String get composeUnboxingKept;
+
+  /// No description provided for @giftShareUnboxing.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the unboxing'**
+  String get giftShareUnboxing;
+
+  /// No description provided for @storyUnboxing.
+  ///
+  /// In en, this message translates to:
+  /// **'Unboxing'**
+  String get storyUnboxing;
+
+  /// No description provided for @storyUnboxingFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Unboxing · from {name}'**
+  String storyUnboxingFrom(String name);
+
   /// No description provided for @cameraUnavailable.
   ///
   /// In en, this message translates to:

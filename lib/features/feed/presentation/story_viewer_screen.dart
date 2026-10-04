@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
@@ -413,6 +414,14 @@ class _StoryPageState extends ConsumerState<_StoryPage>
             alignment: Alignment.bottomCenter,
             child: _BottomPanel(
               caption: post.caption,
+              unboxing: post.giftId == null
+                  ? null
+                  : _UnboxingTag(
+                      gift: post.gift,
+                      onTap: post.gift == null
+                          ? null
+                          : () => context.push('/gifts/${post.gift!.id}'),
+                    ),
               child: GestureDetector(
                 onTap: () {},
                 onLongPress: () {},
@@ -548,10 +557,17 @@ class _SegmentBar extends StatelessWidget {
 }
 
 class _BottomPanel extends StatelessWidget {
-  const _BottomPanel({required this.caption, required this.child});
+  const _BottomPanel({
+    required this.caption,
+    required this.child,
+    this.unboxing,
+  });
 
   final String? caption;
   final Widget child;
+
+  /// G-308 tag, above the caption, when the moment unboxes a gift.
+  final Widget? unboxing;
 
   @override
   Widget build(BuildContext context) {
@@ -576,6 +592,10 @@ class _BottomPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (unboxing case final tag?) ...[
+              tag,
+              const SizedBox(height: KeptSpacing.sm),
+            ],
             if (caption case final text?) ...[
               Text(
                 text,
@@ -589,6 +609,62 @@ class _BottomPanel extends StatelessWidget {
             ],
             child,
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Unboxing · from Leyla": what the viewer may know about the gift. With
+/// the gift hidden by RLS the tag stays, the giver and the link do not.
+class _UnboxingTag extends StatelessWidget {
+  const _UnboxingTag({required this.gift, required this.onTap});
+
+  final UnboxedGift? gift;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final giver = gift?.giver;
+    final label = giver == null
+        ? l10n.storyUnboxing
+        : l10n.storyUnboxingFrom(giver.displayName ?? giver.username);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: onTap,
+        onLongPress: () {},
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: KeptSpacing.md,
+            vertical: KeptSpacing.xs,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white24,
+            borderRadius: BorderRadius.circular(KeptRadius.pill),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.redeem_outlined, size: 16, color: Colors.white),
+              const SizedBox(width: KeptSpacing.xs),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: KeptSpacing.xs),
+                const Icon(Icons.chevron_right, size: 16, color: Colors.white),
+              ],
+            ],
+          ),
         ),
       ),
     );

@@ -305,3 +305,14 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   `expire-pools`) deletes overdue pools with their pledges and returns the
   organizer + pledgers for a push. Claims are tied to the item, never to an
   event: deleting an event leaves them in place. pgTAP 194-200.
+
+## Unboxing moments (G-308)
+
+`posts.gift_id` links a moment to a gift the author received. `guard_post_gift_link`
+(BEFORE INSERT, definer) accepts it only from the gift's recipient and only once the
+gift is open to them (never a pending surprise); posts are immutable, so the link cannot
+move. Feed reads embed `gift:gifts!posts_gift_id_fkey(...)`, which follows `gifts` RLS:
+a viewer who may not see the gift gets a bare "unboxing" tag. `posts_notify_unboxing`
+(AFTER INSERT) pings `notify-unboxing` via pg_net; `unboxing_targets(post)` (service-only)
+returns the giver and every `gift_contributors` row except the author, LEFT JOINed with
+devices so the inbox row is written for everyone and pushes go to opted-in tokens.

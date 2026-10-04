@@ -709,6 +709,25 @@ class AppLocalizationsTr extends AppLocalizations {
   String get composeFailed => 'Paylaşılamadı. Tekrar dene.';
 
   @override
+  String composeUnboxingOf(String item) {
+    return 'Hediye açılışı: $item';
+  }
+
+  @override
+  String get composeUnboxingKept => 'Fotoğraf hediyenin anılarında da kalır.';
+
+  @override
+  String get giftShareUnboxing => 'Açılışı paylaş';
+
+  @override
+  String get storyUnboxing => 'Hediye açılışı';
+
+  @override
+  String storyUnboxingFrom(String name) {
+    return 'Hediye açılışı · veren: $name';
+  }
+
+  @override
   String get cameraUnavailable => 'Kamera açılamadı';
 
   @override

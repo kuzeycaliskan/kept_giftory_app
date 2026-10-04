@@ -14,9 +14,12 @@ abstract interface class FeedRepository {
 
   /// Stores an already-encoded JPEG and creates its post row. Storage and row
   /// are one logical write: a failed row insert removes the uploaded object.
+  /// [giftId] links an unboxing moment to a received gift (G-308); the
+  /// server refuses it for anyone but the recipient of an open gift.
   Future<Result<void>> createPost({
     required Uint8List jpegBytes,
     String? caption,
+    String? giftId,
   });
 
   /// Removes the author's own post (photo first, then the row).

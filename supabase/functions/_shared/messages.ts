@@ -178,3 +178,15 @@ export function poolShareRemovedPush(
     } katkını kaldırdı.`,
   };
 }
+
+/// G-308 — the recipient shared the unboxing of a gift you gave (or chipped
+/// in on).
+export function giftUnboxedPush(
+  recipient: string,
+  itemLabel: string,
+): { title: string; body: string } {
+  return {
+    title: "Hediyen açıldı 🎁",
+    body: `${recipient} ${clip(itemLabel, 50)} açılışını paylaştı.`,
+  };
+}
