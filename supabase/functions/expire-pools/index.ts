@@ -5,6 +5,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { poolExpiredPush, poolReminderPush } from "../_shared/messages.ts";
 
 interface Expired {
@@ -67,6 +68,34 @@ Deno.serve(async (req) => {
       ...reminders.map((r) => r.organizer_id),
     ]),
   ];
+  const notices: Notice[] = [];
+  for (const e of expired) {
+    const copy = poolExpiredPush(e.item_title, 1);
+    for (const u of e.user_ids) {
+      notices.push({
+        user_id: u,
+        kind: "pool:expired",
+        title: copy.title,
+        body: copy.body,
+        route: "/gifts",
+      });
+    }
+  }
+  for (const r of reminders) {
+    const copy = poolReminderPush(
+      r.item_title,
+      Number(r.total),
+      Number(r.target),
+    );
+    notices.push({
+      user_id: r.organizer_id,
+      kind: "pool:reminder",
+      title: copy.title,
+      body: copy.body,
+      route: "/gifts",
+    });
+  }
+  await recordNotices(supabase, notices);
   const { data: targetsData, error: targetsError } = await supabase.rpc(
     "push_targets_for_users",
     { p_ids: ids },

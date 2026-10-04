@@ -7,6 +7,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { eventDeletedPush } from "../_shared/messages.ts";
 
 interface Target {
@@ -34,6 +35,17 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
+  const copy = eventDeletedPush(honoree, removed);
+  await recordNotices(
+    supabase,
+    memberIds.map((id): Notice => ({
+      user_id: id,
+      kind: "event:deleted",
+      title: copy.title,
+      body: copy.body,
+      route: "/gifts",
+    })),
+  );
   const { data, error } = await supabase.rpc("push_targets_for_users", {
     p_ids: memberIds,
   });
@@ -42,7 +54,6 @@ Deno.serve(async (req) => {
   if (targets.length === 0) return Response.json({ sent: 0 });
 
   const { accessToken, projectId } = await fcmSender();
-  const copy = eventDeletedPush(honoree, removed);
   let sent = 0;
   for (const t of targets) {
     const result = await sendPush(accessToken, projectId, {

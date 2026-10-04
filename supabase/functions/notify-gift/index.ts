@@ -4,6 +4,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { giftLoggedPush } from "../_shared/messages.ts";
 
 interface Target {
@@ -34,6 +35,19 @@ Deno.serve(async (req) => {
   const targets = (data ?? []) as Target[];
   if (targets.length === 0) return Response.json({ sent: 0 });
 
+  await recordNotices(
+    supabase,
+    targets.map((t): Notice => {
+      const copy = giftLoggedPush(t.giver_label, t.item_label);
+      return {
+        user_id: t.recipient_id,
+        kind: "gift",
+        title: copy.title,
+        body: copy.body,
+        route: `/gifts/${gift_id}?side=giver`,
+      };
+    }),
+  );
   const { accessToken, projectId } = await fcmSender();
   let sent = 0;
   for (const t of targets) {

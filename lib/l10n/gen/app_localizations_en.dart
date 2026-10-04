@@ -1347,4 +1347,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String claimPoolCountdown(String time) {
     return '$time left to reach the price';
   }
+
+  @override
+  String get activityNotificationsSection => 'Notifications';
+
+  @override
+  String get activityMarkAllRead => 'Mark all as read';
 }

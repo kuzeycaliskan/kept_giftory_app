@@ -17,6 +17,9 @@ import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/home_repository.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/notifications/application/notifications_providers.dart';
+import 'package:kept/features/notifications/domain/app_notification.dart';
+import 'package:kept/features/notifications/domain/notifications_repository.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/profile/data/dev_profile_repository.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
@@ -186,6 +189,45 @@ GiftEvent _invite(String id) => GiftEvent(
   ],
 );
 
+class _FakeNotificationsRepository implements NotificationsRepository {
+  _FakeNotificationsRepository([List<AppNotification> rows = const []])
+    : rows = [...rows];
+
+  List<AppNotification> rows;
+  final calls = <String>[];
+
+  @override
+  Future<Result<List<AppNotification>>> fetchRecent({int limit = 50}) async =>
+      Success(rows);
+
+  @override
+  Future<Result<void>> markRead(String id) async {
+    calls.add('read:$id');
+    rows = [
+      for (final n in rows)
+        if (n.id == id)
+          AppNotification(
+            id: n.id,
+            kind: n.kind,
+            title: n.title,
+            body: n.body,
+            route: n.route,
+            createdAt: n.createdAt,
+            readAt: DateTime(2026, 10, 5),
+          )
+        else
+          n,
+    ];
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> markAllRead() async {
+    calls.add('read-all');
+    return const Success(null);
+  }
+}
+
 void main() {
   String? pushedLocation;
 
@@ -195,6 +237,7 @@ void main() {
     List<FriendEntry> requests = const [],
     List<UpcomingBirthday> birthdays = const [],
     _FakeFriendshipRepository? friendships,
+    _FakeNotificationsRepository? inbox,
   }) async {
     pushedLocation = null;
     final router = GoRouter(
@@ -206,6 +249,13 @@ void main() {
           builder: (_, state) {
             pushedLocation = state.uri.toString();
             return const Scaffold(body: Text('profile screen'));
+          },
+        ),
+        GoRoute(
+          path: '/events/:id',
+          builder: (_, state) {
+            pushedLocation = state.uri.toString();
+            return const Scaffold(body: Text('event screen'));
           },
         ),
       ],
@@ -224,6 +274,9 @@ void main() {
           ),
           homeRepositoryProvider.overrideWithValue(
             _FakeHomeRepository(birthdays),
+          ),
+          notificationsRepositoryProvider.overrideWithValue(
+            inbox ?? _FakeNotificationsRepository(),
           ),
         ],
         child: MaterialApp.router(
@@ -271,37 +324,45 @@ void main() {
     expect(pushedLocation, '/users/selin-id?name=Selin');
   });
 
-  testWidgets('event invitations show like requests and can be accepted', (
-    tester,
-  ) async {
-    final fake = _FakeEventsRepository([_invite('e1')]);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          eventsRepositoryProvider.overrideWithValue(fake),
-          profileRepositoryProvider.overrideWithValue(
-            const DevProfileRepository(),
-          ),
-          friendshipRepositoryProvider.overrideWithValue(
-            _FakeFriendshipRepository(const []),
-          ),
-          homeRepositoryProvider.overrideWithValue(_FakeHomeRepository([])),
-        ],
-        child: const MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: ActivityScreen(),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Invitations'), findsOneWidget);
-    expect(find.text('Join the gift event for Ali?'), findsOneWidget);
-
+  testWidgets('accepting an invitation lands in the event', (tester) async {
+    await pump(tester, invites: [_invite('e9')]);
     await tester.tap(find.byTooltip('Join'));
     await tester.pumpAndSettle();
-    expect(fake.calls, ['respond:e1:true']);
-    expect(find.text('Nothing here yet'), findsOneWidget);
+    expect(pushedLocation, '/events/e9');
+  });
+
+  testWidgets('the inbox lists notices; a tap marks read and follows', (
+    tester,
+  ) async {
+    final inbox = _FakeNotificationsRepository([
+      AppNotification(
+        id: 'n1',
+        kind: 'pool:logged',
+        title: 'Ortak hediye kaydedildi',
+        body: 'Kamil Tent kaydetti; sen de verenler arasındasın.',
+        route: '/events/e5',
+        createdAt: DateTime(2026, 10, 5, 9, 30),
+      ),
+      AppNotification(
+        id: 'n2',
+        kind: 'event:thanks',
+        title: 'Kuzey teşekkür etti',
+        body: 'Sağ olun',
+        createdAt: DateTime(2026, 10, 4, 18),
+        readAt: DateTime(2026, 10, 4, 19),
+      ),
+    ]);
+    await pump(tester, inbox: inbox);
+
+    expect(find.text('Notifications'), findsOneWidget);
+    expect(find.text('Ortak hediye kaydedildi'), findsOneWidget);
+    // One unread dot, one read row; the header offers mark-all.
+    expect(find.byIcon(Icons.circle), findsOneWidget);
+    expect(find.byTooltip('Mark all as read'), findsOneWidget);
+
+    await tester.tap(find.text('Ortak hediye kaydedildi'));
+    await tester.pumpAndSettle();
+    expect(inbox.calls, ['read:n1']);
+    expect(pushedLocation, '/events/e5');
   });
 }

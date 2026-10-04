@@ -9,6 +9,9 @@ import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/notifications/application/notifications_providers.dart';
+import 'package:kept/features/notifications/domain/app_notification.dart';
+import 'package:kept/features/notifications/presentation/notification_row.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 
@@ -25,6 +28,7 @@ class ActivityScreen extends ConsumerWidget {
     final entries = ref.watch(friendEntriesProvider);
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     final events = ref.watch(myEventsProvider);
+    final inbox = ref.watch(notificationsProvider);
     final myId = ref.watch(myProfileProvider).valueOrNull?.id;
 
     ref.listen(friendsControllerProvider, (_, next) {
@@ -48,21 +52,39 @@ class ActivityScreen extends ConsumerWidget {
     final invites =
         events.valueOrNull?.where((e) => e.isInvited(myId)).toList() ??
         const <GiftEvent>[];
+    final notices = inbox.valueOrNull ?? const <AppNotification>[];
+    final hasUnread = notices.any((n) => n.isUnread);
     final loading = entries.isLoading || upcoming.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.activityTitle)),
+      appBar: AppBar(
+        title: Text(l10n.activityTitle),
+        actions: [
+          if (hasUnread)
+            IconButton(
+              tooltip: l10n.activityMarkAllRead,
+              icon: const Icon(Icons.done_all),
+              onPressed: () => ref
+                  .read(notificationsControllerProvider.notifier)
+                  .markAllRead(),
+            ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref
             ..invalidate(friendEntriesProvider)
             ..invalidate(upcomingBirthdaysProvider)
-            ..invalidate(myEventsProvider);
+            ..invalidate(myEventsProvider)
+            ..invalidate(notificationsProvider);
           await ref.read(friendEntriesProvider.future);
         },
         child: loading
             ? const Center(child: CircularProgressIndicator())
-            : (requests.isEmpty && invites.isEmpty && birthdays.isEmpty)
+            : (requests.isEmpty &&
+                  invites.isEmpty &&
+                  birthdays.isEmpty &&
+                  notices.isEmpty)
             ? _EmptyState(l10n: l10n)
             : ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -79,6 +101,10 @@ class ActivityScreen extends ConsumerWidget {
                   if (birthdays.isNotEmpty) ...[
                     _SectionLabel(l10n.homeUpcomingSection),
                     for (final b in birthdays) _BirthdayRow(birthday: b),
+                  ],
+                  if (notices.isNotEmpty) ...[
+                    _SectionLabel(l10n.activityNotificationsSection),
+                    for (final n in notices) NotificationRow(notification: n),
                   ],
                 ],
               ),

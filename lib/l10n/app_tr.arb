@@ -395,5 +395,7 @@
   "claimEditPriceTitle": "Ürün fiyatı",
   "claimPoolGone": "Havuz kapandı",
   "claimGone": "Bu rezervasyon artık yok; havuz kapanmış olabilir",
-  "claimPoolCountdown": "Fiyata ulaşmak için {time} kaldı"
+  "claimPoolCountdown": "Fiyata ulaşmak için {time} kaldı",
+  "activityNotificationsSection": "Bildirimler",
+  "activityMarkAllRead": "Tümünü okundu say"
 }

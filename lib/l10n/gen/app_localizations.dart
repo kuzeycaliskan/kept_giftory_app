@@ -2473,6 +2473,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{time} left to reach the price'**
   String claimPoolCountdown(String time);
+
+  /// No description provided for @activityNotificationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get activityNotificationsSection;
+
+  /// No description provided for @activityMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get activityMarkAllRead;
 }
 
 class _AppLocalizationsDelegate

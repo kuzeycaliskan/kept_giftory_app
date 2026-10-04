@@ -1325,4 +1325,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String claimPoolCountdown(String time) {
     return 'Fiyata ulaşmak için $time kaldı';
   }
+
+  @override
+  String get activityNotificationsSection => 'Bildirimler';
+
+  @override
+  String get activityMarkAllRead => 'Tümünü okundu say';
 }

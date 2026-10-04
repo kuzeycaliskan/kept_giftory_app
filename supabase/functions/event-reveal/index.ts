@@ -9,6 +9,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { eventRevealPush } from "../_shared/messages.ts";
 
 interface Target {
@@ -36,6 +37,19 @@ Deno.serve(async (req) => {
   if (dry) return Response.json({ dry: true, due: eventIds.length, targets });
   if (eventIds.length === 0) return Response.json({ sent: 0, due: 0 });
 
+  await recordNotices(
+    supabase,
+    targets.map((t): Notice => {
+      const copy = eventRevealPush(t.member_count);
+      return {
+        user_id: t.honoree_id,
+        kind: "event:reveal",
+        title: copy.title,
+        body: copy.body,
+        route: `/events/${t.event_id}`,
+      };
+    }),
+  );
   let sent = 0;
   const sendable = targets.filter((t) => t.enabled && t.token);
   if (sendable.length > 0) {

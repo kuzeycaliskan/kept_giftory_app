@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -237,7 +239,13 @@ class EventInviteRow extends ConsumerWidget {
             icon: const Icon(Icons.check),
             onPressed: busy
                 ? null
-                : () => controller.respond(event.id, join: true),
+                : () async {
+                    // Accepting lands you in the event — no second tap.
+                    final ok = await controller.respond(event.id, join: true);
+                    if (ok && context.mounted) {
+                      unawaited(context.push('/events/${event.id}'));
+                    }
+                  },
           ),
         ],
       ),

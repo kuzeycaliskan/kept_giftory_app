@@ -6,6 +6,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import {
   poolLoggedPush,
   poolReleasedPush,
@@ -36,6 +37,21 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
+  const copy = kind === "logged"
+    ? poolLoggedPush(actor, title)
+    : kind === "released"
+    ? poolReleasedPush(actor, title)
+    : poolRemovedPush(title);
+  await recordNotices(
+    supabase,
+    ids.map((id): Notice => ({
+      user_id: id,
+      kind: `pool:${kind}`,
+      title: copy.title,
+      body: copy.body,
+      route: "/gifts",
+    })),
+  );
   const { data, error } = await supabase.rpc("push_targets_for_users", {
     p_ids: ids,
   });
@@ -44,11 +60,6 @@ Deno.serve(async (req) => {
   if (targets.length === 0) return Response.json({ sent: 0 });
 
   const { accessToken, projectId } = await fcmSender();
-  const copy = kind === "logged"
-    ? poolLoggedPush(actor, title)
-    : kind === "released"
-    ? poolReleasedPush(actor, title)
-    : poolRemovedPush(title);
   let sent = 0;
   for (const t of targets) {
     const result = await sendPush(accessToken, projectId, {

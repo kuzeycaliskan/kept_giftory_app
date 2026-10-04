@@ -707,5 +707,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "activityNotificationsSection": "Notifications",
+  "activityMarkAllRead": "Mark all as read"
 }

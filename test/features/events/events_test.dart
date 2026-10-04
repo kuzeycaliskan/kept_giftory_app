@@ -327,7 +327,8 @@ void main() {
     await tester.tap(find.byTooltip('Join'));
     await tester.pumpAndSettle();
     expect(repo.calls, ['respond:e1:true']);
-    expect(find.text('Invitations'), findsNothing);
+    // Accepting lands in the event itself.
+    expect(find.text("Ali's birthday"), findsOneWidget);
   });
 
   testWidgets('detail shows members, secrecy note and invites a friend', (

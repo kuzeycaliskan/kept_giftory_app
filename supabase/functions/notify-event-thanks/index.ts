@@ -5,6 +5,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { eventThanksPush } from "../_shared/messages.ts";
 
 interface Target {
@@ -33,7 +34,21 @@ Deno.serve(async (req) => {
     p_event: eventId,
   });
   if (error) return new Response(error.message, { status: 500 });
-  const targets = ((data ?? []) as Target[]).filter((t) => t.enabled);
+  const all = (data ?? []) as Target[];
+  await recordNotices(
+    supabase,
+    all.map((t): Notice => {
+      const copy = eventThanksPush(t.honoree_label, t.note);
+      return {
+        user_id: t.member_id,
+        kind: "event:thanks",
+        title: copy.title,
+        body: copy.body,
+        route: `/events/${eventId}`,
+      };
+    }),
+  );
+  const targets = all.filter((t) => t.enabled);
   if (targets.length === 0) return Response.json({ sent: 0 });
 
   const { accessToken, projectId } = await fcmSender();

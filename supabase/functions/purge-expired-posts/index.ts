@@ -97,6 +97,13 @@ Deno.serve(async (req) => {
     // rows went with a gift, a claim release or an event deletion).
     const queue = await drainPurgeQueue(new SupabaseQueueStore(admin));
     console.log("storage-purge-queue", JSON.stringify(queue));
+    // The in-app inbox keeps 60 days.
+    const cutoff = new Date(Date.now() - 60 * 24 * 3600_000).toISOString();
+    const { error: inboxError } = await admin
+      .from("notifications")
+      .delete()
+      .lt("created_at", cutoff);
+    if (inboxError) console.error("inbox purge", inboxError.message);
     return Response.json({ posts: result, queue });
   } catch (e) {
     // Rows stay put on failure; the next tick retries the same batch.

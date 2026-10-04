@@ -18,6 +18,7 @@ import 'package:kept/features/gifts/presentation/widgets/gift_reaction_row.dart'
 import 'package:kept/features/home/application/home_providers.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
 import 'package:kept/features/home/domain/upcoming_birthday.dart';
+import 'package:kept/features/notifications/application/notifications_providers.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/features/push/application/push_providers.dart';
 import 'package:kept/features/wishlist/application/wishlist_providers.dart';
@@ -67,6 +68,8 @@ class HomeScreen extends ConsumerWidget {
                 .length ??
             0) +
         pendingInvites;
+    final unread = ref.watch(unreadNotificationCountProvider);
+    final bellCount = pendingRequests + unread;
     // Cold start: no accepted friends → one focused invite card instead of
     // three empty sections all begging separately (G-36).
     final hasFriends =
@@ -102,8 +105,8 @@ class HomeScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: Badge(
-              isLabelVisible: pendingRequests > 0,
-              label: Text('$pendingRequests'),
+              isLabelVisible: bellCount > 0,
+              label: Text('$bellCount'),
               child: const Icon(Icons.notifications_outlined),
             ),
             tooltip: l10n.activityTooltip,
@@ -116,6 +119,7 @@ class HomeScreen extends ConsumerWidget {
           ref
             ..invalidate(storyGroupsProvider)
             ..invalidate(myEventsProvider)
+            ..invalidate(notificationsProvider)
             ..invalidate(surpriseTeaserProvider)
             ..invalidate(upcomingBirthdaysProvider)
             ..invalidate(homeEventsProvider)

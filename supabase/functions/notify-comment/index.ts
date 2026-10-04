@@ -5,6 +5,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
+import { type Notice, recordNotices } from "../_shared/inbox.ts";
 import { commentPush } from "../_shared/messages.ts";
 
 interface Target {
@@ -45,6 +46,17 @@ Deno.serve(async (req) => {
   const targets = (data ?? []) as Target[];
   if (targets.length === 0) return Response.json({ sent: 0 });
 
+  const notices: Notice[] = targets.map((t) => {
+    const copy = commentPush(t.commenter_label, t.item_label, t.snippet, kind);
+    return {
+      user_id: t.notified_user,
+      kind: `comment:${kind}`,
+      title: copy.title,
+      body: copy.body,
+      route: t.route,
+    };
+  });
+  await recordNotices(supabase, notices);
   const { accessToken, projectId } = await fcmSender();
   let sent = 0;
   for (const t of targets) {
