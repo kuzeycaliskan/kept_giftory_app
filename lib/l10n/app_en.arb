@@ -702,5 +702,7 @@
   },
   "claimPoolDeadlineSoon": "Less than an hour left to reach the price",
   "claimPoolExpired": "Time is up — the pool is closing",
-  "claimTargetRequired": "Enter the product price"
+  "claimTargetRequired": "Enter the product price",
+  "claimPoolDeadlineWhyTitle": "Why 24 hours?",
+  "claimPoolDeadlineWhy": "So that other friends who want to get this gift aren't held up, a group gift needs to reach the price within 24 hours. If it doesn't, the pool closes and pledges are dropped — anyone can start again."
 }

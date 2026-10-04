@@ -390,5 +390,7 @@
   "claimPoolDeadline": "Fiyata ulaşmak için {hours, plural, =1{1 saat} other{{hours} saat}} kaldı",
   "claimPoolDeadlineSoon": "Fiyata ulaşmak için bir saatten az kaldı",
   "claimPoolExpired": "Süre doldu; havuz kapanıyor",
-  "claimTargetRequired": "Ürün fiyatını gir"
+  "claimTargetRequired": "Ürün fiyatını gir",
+  "claimPoolDeadlineWhyTitle": "Neden 24 saat?",
+  "claimPoolDeadlineWhy": "Bu hediyeyi almak isteyen diğer sevenleri bekletmemek için ortak alımın 24 saat içinde fiyata ulaşması gerekir. Ulaşmazsa havuz kapanır ve katkılar düşer; isteyen yeniden başlatabilir."
 }

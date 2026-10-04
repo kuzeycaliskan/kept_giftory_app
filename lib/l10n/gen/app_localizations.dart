@@ -2443,6 +2443,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the product price'**
   String get claimTargetRequired;
+
+  /// No description provided for @claimPoolDeadlineWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why 24 hours?'**
+  String get claimPoolDeadlineWhyTitle;
+
+  /// No description provided for @claimPoolDeadlineWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'So that other friends who want to get this gift aren\'t held up, a group gift needs to reach the price within 24 hours. If it doesn\'t, the pool closes and pledges are dropped — anyone can start again.'**
+  String get claimPoolDeadlineWhy;
 }
 
 class _AppLocalizationsDelegate

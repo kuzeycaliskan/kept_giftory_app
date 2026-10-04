@@ -1338,4 +1338,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get claimTargetRequired => 'Enter the product price';
+
+  @override
+  String get claimPoolDeadlineWhyTitle => 'Why 24 hours?';
+
+  @override
+  String get claimPoolDeadlineWhy =>
+      'So that other friends who want to get this gift aren\'t held up, a group gift needs to reach the price within 24 hours. If it doesn\'t, the pool closes and pledges are dropped — anyone can start again.';
 }

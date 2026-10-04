@@ -497,13 +497,48 @@ class _SharedState extends ConsumerWidget {
         if (claim.expiresAt != null && !claim.hasGift && !_full)
           Padding(
             padding: const EdgeInsets.only(top: KeptSpacing.xs),
-            child: Text(
-              _deadlineLabel(l10n, claim.expiresAt!),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.tertiary,
-              ),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    _deadlineLabel(l10n, claim.expiresAt!),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: scheme.tertiary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                // Why the clock exists — one tap, plain words.
+                IconButton(
+                  tooltip: l10n.claimPoolDeadlineWhyTitle,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  icon: Icon(
+                    Icons.info_outline,
+                    size: 18,
+                    color: scheme.tertiary,
+                  ),
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(l10n.claimPoolDeadlineWhyTitle),
+                      content: Text(l10n.claimPoolDeadlineWhy),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(l10n.commonDone),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         Padding(

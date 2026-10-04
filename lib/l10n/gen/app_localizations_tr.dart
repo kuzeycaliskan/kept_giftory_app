@@ -1316,4 +1316,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get claimTargetRequired => 'Ürün fiyatını gir';
+
+  @override
+  String get claimPoolDeadlineWhyTitle => 'Neden 24 saat?';
+
+  @override
+  String get claimPoolDeadlineWhy =>
+      'Bu hediyeyi almak isteyen diğer sevenleri bekletmemek için ortak alımın 24 saat içinde fiyata ulaşması gerekir. Ulaşmazsa havuz kapanır ve katkılar düşer; isteyen yeniden başlatabilir.';
 }

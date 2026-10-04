@@ -421,6 +421,11 @@ void main() {
         );
         await pump(tester, claims: claims);
         expect(find.text('5 hours left to reach the price'), findsOneWidget);
+
+        await tester.tap(find.byIcon(Icons.info_outline));
+        await tester.pumpAndSettle();
+        expect(find.text('Why 24 hours?'), findsOneWidget);
+        expect(find.textContaining("aren't held up"), findsOneWidget);
       },
     );
 
