@@ -47,14 +47,25 @@ part 'app_router.g.dart';
 ///    myProfileProvider);
 ///  * signed-in with a profile → /sign-in and /onboarding bounce to '/'.
 /// Backend-less runs (no --dart-define config) skip auth entirely.
-const _profileGateTimeout = Duration(seconds: 8);
+const _profileGateTimeout = Duration(seconds: 5);
+
+/// Only a change of *who* is signed in re-runs the redirect rules. A stream
+/// error or a reload with the same user keeps the previous identity
+/// (Riverpod keeps `value` across error/loading), so it is not a tick.
+@visibleForTesting
+bool authIdentityChanged(
+  AsyncValue<String?>? previous,
+  AsyncValue<String?> next,
+) => previous == null || previous.value != next.value;
 
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
   final refresh = ValueNotifier(0);
   ref
     ..onDispose(refresh.dispose)
-    ..listen(authStateProvider, (_, _) => refresh.value++)
+    ..listen(authStateProvider, (previous, next) {
+      if (authIdentityChanged(previous, next)) refresh.value++;
+    })
     ..listen(devSessionProvider, (_, _) => refresh.value++);
 
   return GoRouter(
@@ -77,12 +88,16 @@ GoRouter appRouter(Ref ref) {
       }
 
       try {
-        // Hard cap: while an async redirect is pending go_router paints
-        // nothing, so a hung session refresh / request would mean a black
-        // screen forever. Past the cap we let the user through.
-        final profile = await ref
-            .read(myProfileProvider.future)
-            .timeout(_profileGateTimeout);
+        // A profile already loaded answers synchronously: no pending
+        // redirect, no blank frame. Only a first load waits — with a hard
+        // cap, since while an async redirect is pending go_router paints
+        // nothing, and a slow session refresh would mean a blank screen.
+        final known = ref.read(myProfileProvider);
+        final profile = known.hasValue
+            ? known.value
+            : await ref
+                  .read(myProfileProvider.future)
+                  .timeout(_profileGateTimeout);
         if (profile == null) return onOnboarding ? null : '/onboarding';
       } catch (e) {
         // Profile check failed (offline, expired session, timeout): don't

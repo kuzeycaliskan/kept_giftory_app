@@ -5,9 +5,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:kept/app.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/firebase/firebase_options.dart';
+import 'package:kept/core/supabase/bounded_http_client.dart';
 import 'package:kept/core/theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -56,6 +58,8 @@ class _BootstrapGateState extends State<_BootstrapGate> {
         // the newer alias. Keep anonKey until we migrate the naming.
         // ignore: deprecated_member_use
         anonKey: Env.supabaseAnonKey,
+        // Every backend request is time-capped (see BoundedHttpClient).
+        httpClient: BoundedHttpClient(http.Client()),
       ).timeout(const Duration(seconds: 10));
       debugPrint('bootstrap: supabase done');
     } catch (e) {

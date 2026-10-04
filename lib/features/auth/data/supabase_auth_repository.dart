@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
@@ -26,8 +27,16 @@ class SupabaseAuthRepository implements AuthRepository {
   String? get currentUserId => _client.auth.currentUser?.id;
 
   @override
-  Stream<String?> authStateChanges() =>
-      _client.auth.onAuthStateChange.map((event) => event.session?.user.id);
+  Stream<String?> authStateChanges() => _client.auth.onAuthStateChange
+      .map((event) => event.session?.user.id)
+      // A failed token refresh (offline, server hiccup) is not a change of
+      // who is signed in: gotrue keeps retrying on its own and emits a real
+      // signedOut once the refresh token is rejected. Passing the error on
+      // would make the router re-run its profile gate on every retry.
+      .handleError(
+        (Object error) => debugPrint('auth: retryable refresh failure $error'),
+        test: (error) => error is AuthRetryableFetchException,
+      );
 
   @override
   Future<Result<String>> signInWithApple() async {
