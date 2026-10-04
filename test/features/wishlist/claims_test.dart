@@ -659,6 +659,94 @@ void main() {
       expect(find.text("I'll get this"), findsOneWidget);
     });
 
+    testWidgets('the organiser removes a participant from the row menu', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository(
+        claims: const {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'dev-me',
+            kind: ClaimKind.shared,
+            targetAmount: 1000,
+            pledges: [
+              Pledge(userId: 'dev-me', amount: 300),
+              Pledge(userId: 'zeynep', amount: 250, user: zeynep),
+            ],
+          ),
+        },
+      );
+      await pump(tester, claims: claims);
+      await tester.tap(find.textContaining('Group gift'));
+      await tester.pumpAndSettle();
+
+      // The sheet says what it is about before who is in.
+      expect(find.text('Coffee grinder'), findsWidgets);
+      expect(find.text('₺550 / ₺1,000 · ₺450 left'), findsWidgets);
+      expect(find.text('Organizer'), findsOneWidget);
+
+      // Zeynep's row: the organiser's menu offers removal only.
+      await tester.tap(find.byIcon(Icons.more_horiz).last);
+      await tester.pumpAndSettle();
+      expect(find.text('Change my share'), findsNothing);
+      await tester.tap(find.text('Remove from the pool'));
+      await tester.pumpAndSettle();
+      expect(claims.calls, ['withdraw:c1:zeynep']);
+    });
+
+    testWidgets('the participants sheet never overflows at 360dp and 2x', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 780);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final claims = _FakeClaimsRepository(
+        claims: {
+          'f1': WishlistClaim(
+            id: 'c1',
+            itemId: 'f1',
+            ownerId: 'ali',
+            claimerId: 'dev-me',
+            kind: ClaimKind.shared,
+            targetAmount: 123456.78,
+            pledges: const [
+              Pledge(userId: 'dev-me', amount: 12345.67),
+              Pledge(userId: 'zeynep', amount: 23456.78, user: zeynep),
+              Pledge(userId: 'anon', amount: 34567.89),
+            ],
+            expiresAt: DateTime.now().add(const Duration(hours: 23)),
+          ),
+        },
+      );
+      await pump(
+        tester,
+        claims: claims,
+        items: const [
+          WishlistItem(
+            id: 'f1',
+            ownerId: 'ali',
+            title:
+                'Moliendo House Blend Filtre Kahve (Öğütülmüş Filtre Kahve) '
+                '250 g - Fiyatı, Yorumları ve Özellikleri',
+          ),
+        ],
+        textScale: 2,
+        settle: false,
+      );
+      await tester.ensureVisible(find.textContaining('Group gift'));
+      await tester.pump();
+      await tester.tap(find.textContaining('Group gift'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(find.text("Who's in"), findsOneWidget);
+      expect(find.text('Log the gift'), findsOneWidget);
+      expect(find.text('Cancel the group gift'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('narrow screen at 2x text scale never overflows', (
       tester,
     ) async {

@@ -13,7 +13,7 @@ import 'package:kept/features/wishlist/domain/wishlist_claim.dart';
 import 'package:kept/features/wishlist/domain/wishlist_item.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
-import 'package:kept/shared/widgets/kept_list_group.dart';
+import 'package:kept/shared/widgets/kept_section_header.dart';
 
 /// The reservation strip under a friend's wishlist item (G-303/G-304):
 /// free → "I'll get this" / "Chip in together"; taken → who; pool →
@@ -332,6 +332,109 @@ class _SoloState extends ConsumerWidget {
   }
 }
 
+/// Reached its price: closed to newcomers (server-enforced too).
+bool _isFull(WishlistClaim claim) =>
+    claim.targetAmount != null && claim.pledgedTotal >= claim.targetAmount!;
+
+/// The clock only matters while the pool is still collecting.
+bool _showsClock(WishlistClaim claim) =>
+    claim.expiresAt != null && !claim.hasGift && !_isFull(claim);
+
+/// Joining the pool or changing one's share: the amount sheet, then the
+/// pledge, with the two ways a pool can refuse (full, gone) explained.
+Future<void> pledgeFlow(
+  BuildContext context,
+  WidgetRef ref, {
+  required WishlistItem item,
+  required WishlistClaim claim,
+  required String? myId,
+}) async {
+  final l10n = context.l10n;
+  final locale = Localizations.localeOf(context).toString();
+  final target = claim.targetAmount;
+  final mine = claim.pledgeOf(myId)?.amount;
+  final remaining = target == null
+      ? null
+      : (target - claim.pledgedTotal).clamp(0, target).toDouble();
+  final input = await showAmountSheet(
+    context,
+    title: l10n.claimPledgeTitle,
+    body: target == null
+        ? null
+        : l10n.claimJoinHint(
+            formatTry(locale, remaining!),
+            claim.pledges.length,
+          ),
+    // A newcomer is offered what is still missing (editable); someone
+    // changing their share sees it as it is.
+    initialAmount:
+        mine ?? (remaining != null && remaining > 0 ? remaining : null),
+    // The pool stays flexible (street price may differ) — going past the
+    // price only earns a heads-up, never a block.
+    overflowAt: remaining == null ? null : remaining + (mine ?? 0),
+  );
+  if (input?.amount == null || !context.mounted) return;
+  final failure = await ref
+      .read(claimsControllerProvider.notifier)
+      .pledge(item.ownerId, claim.id, input!.amount!);
+  if (!context.mounted) return;
+  if (failure is ConflictFailure) {
+    // The pool filled up — or expired — while the sheet was open: the
+    // refreshed list says which.
+    final fresh = await ref.read(wishlistClaimsProvider(item.ownerId).future);
+    if (!context.mounted) return;
+    final stillThere = fresh[item.id]?.id == claim.id;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(stillThere ? l10n.claimPoolFull : l10n.claimPoolGone),
+      ),
+    );
+    return;
+  }
+  _report(context, failure);
+}
+
+/// The ticking deadline with its "why" next to it — one tap, plain words.
+class _PoolClock extends StatelessWidget {
+  const _PoolClock({required this.expiresAt, required this.ownerId});
+
+  final DateTime expiresAt;
+  final String ownerId;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Flexible(
+          child: _PoolCountdown(expiresAt: expiresAt, ownerId: ownerId),
+        ),
+        IconButton(
+          tooltip: l10n.claimPoolDeadlineWhyTitle,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          icon: Icon(Icons.info_outline, size: 18, color: scheme.tertiary),
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(l10n.claimPoolDeadlineWhyTitle),
+              content: Text(l10n.claimPoolDeadlineWhy),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l10n.commonDone),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _SharedState extends ConsumerWidget {
   const _SharedState({
     required this.item,
@@ -347,56 +450,7 @@ class _SharedState extends ConsumerWidget {
   final bool busy;
   final String? eventId;
 
-  Future<void> _pledge(BuildContext context, WidgetRef ref) async {
-    final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
-    final target = claim.targetAmount;
-    final mine = claim.pledgeOf(myId)?.amount;
-    final remaining = target == null ? null : _remaining(target);
-    final input = await showAmountSheet(
-      context,
-      title: l10n.claimPledgeTitle,
-      body: target == null
-          ? null
-          : l10n.claimJoinHint(
-              formatTry(locale, remaining!),
-              claim.pledges.length,
-            ),
-      // A newcomer is offered what is still missing (editable); someone
-      // changing their share sees it as it is.
-      initialAmount:
-          mine ?? (remaining != null && remaining > 0 ? remaining : null),
-      // The pool stays flexible (street price may differ) — going past the
-      // price only earns a heads-up, never a block.
-      overflowAt: remaining == null ? null : remaining + (mine ?? 0),
-    );
-    if (input?.amount == null || !context.mounted) return;
-    final failure = await ref
-        .read(claimsControllerProvider.notifier)
-        .pledge(item.ownerId, claim.id, input!.amount!);
-    if (!context.mounted) return;
-    if (failure is ConflictFailure) {
-      // The pool filled up — or expired — while the sheet was open: the
-      // refreshed list says which.
-      final fresh = await ref.read(wishlistClaimsProvider(item.ownerId).future);
-      if (!context.mounted) return;
-      final stillThere = fresh[item.id]?.id == claim.id;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(stillThere ? l10n.claimPoolFull : l10n.claimPoolGone),
-        ),
-      );
-      return;
-    }
-    _report(context, failure);
-  }
-
-  /// Reached its price: closed to newcomers (server-enforced too).
-  bool get _full =>
-      claim.targetAmount != null && claim.pledgedTotal >= claim.targetAmount!;
-
-  double _remaining(double target) =>
-      (target - claim.pledgedTotal).clamp(0, target).toDouble();
+  bool get _full => _isFull(claim);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -438,13 +492,29 @@ class _SharedState extends ConsumerWidget {
     } else if (mine == null) {
       action = FilledButton.tonal(
         style: _compact,
-        onPressed: busy ? null : () => _pledge(context, ref),
+        onPressed: busy
+            ? null
+            : () => pledgeFlow(
+                context,
+                ref,
+                item: item,
+                claim: claim,
+                myId: myId,
+              ),
         child: Text(l10n.claimJoin),
       );
     } else {
       action = TextButton(
         style: _compact,
-        onPressed: busy ? null : () => _pledge(context, ref),
+        onPressed: busy
+            ? null
+            : () => pledgeFlow(
+                context,
+                ref,
+                item: item,
+                claim: claim,
+                myId: myId,
+              ),
         child: Text(
           l10n.claimMyPledge(formatTry(locale, mine.amount)),
           maxLines: 1,
@@ -500,46 +570,12 @@ class _SharedState extends ConsumerWidget {
               color: scheme.onSurfaceVariant,
             ),
           ),
-        if (claim.expiresAt != null && !claim.hasGift && !_full)
+        if (_showsClock(claim))
           Padding(
             padding: const EdgeInsets.only(top: KeptSpacing.xs),
-            child: Row(
-              children: [
-                Flexible(
-                  child: _PoolCountdown(
-                    expiresAt: claim.expiresAt!,
-                    ownerId: item.ownerId,
-                  ),
-                ),
-                // Why the clock exists — one tap, plain words.
-                IconButton(
-                  tooltip: l10n.claimPoolDeadlineWhyTitle,
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
-                  icon: Icon(
-                    Icons.info_outline,
-                    size: 18,
-                    color: scheme.tertiary,
-                  ),
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text(l10n.claimPoolDeadlineWhyTitle),
-                      content: Text(l10n.claimPoolDeadlineWhy),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(l10n.commonDone),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+            child: _PoolClock(
+              expiresAt: claim.expiresAt!,
+              ownerId: item.ownerId,
             ),
           ),
         Padding(
@@ -902,6 +938,8 @@ class _Caption extends StatelessWidget {
   }
 }
 
+const _sheetMaxHeightRatio = 0.85;
+
 /// Who pledged what. Participants can withdraw; the organiser can remove
 /// anyone or cancel the pool. Reads the live claim so rows update in place.
 Future<void> showParticipantsSheet(
@@ -912,7 +950,19 @@ Future<void> showParticipantsSheet(
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    builder: (_) => _ParticipantsSheet(item: item, eventId: eventId),
+    useSafeArea: true,
+    // Grows with its rows up to most of the screen, then scrolls. The cap
+    // comes from layout constraints (what the route hands the sheet), not
+    // MediaQuery — host widgets may not supply a size.
+    isScrollControlled: true,
+    builder: (_) => LayoutBuilder(
+      builder: (context, constraints) => ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: constraints.maxHeight * _sheetMaxHeightRatio,
+        ),
+        child: _ParticipantsSheet(item: item, eventId: eventId),
+      ),
+    ),
   );
 }
 
@@ -971,6 +1021,7 @@ class _ParticipantsSheet extends ConsumerWidget {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final myId = ref.watch(myProfileProvider).valueOrNull?.id;
     final busy = ref.watch(claimsControllerProvider).isLoading;
     final claim = ref
@@ -988,147 +1039,353 @@ class _ParticipantsSheet extends ConsumerWidget {
       return const SizedBox(height: KeptSpacing.xxl);
     }
     final organizer = claim.isMine(myId);
+    final target = claim.targetAmount;
+
+    // Reads top to bottom like the strip it opened from: what this is,
+    // where the money stands, who is in, and what to do about it. One
+    // scroll for the whole sheet — it is short, and a header pinned over
+    // a two-row list would only look fussy.
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          KeptSpacing.lg,
-          0,
-          KeptSpacing.lg,
-          KeptSpacing.lg,
-        ),
+      child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.claimParticipants, style: theme.textTheme.titleMedium),
-            const SizedBox(height: KeptSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: KeptSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: KeptSpacing.xs),
+                  Text(
+                    claim.hasGift
+                        ? l10n.claimSharedLogged
+                        : l10n.claimSharedHeader(claim.pledges.length),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: KeptSpacing.md),
+                  if (target != null)
+                    _PoolProgress(total: claim.pledgedTotal, target: target)
+                  else
+                    Text(
+                      l10n.claimSharedGathered(
+                        formatTry(locale, claim.pledgedTotal),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  if (_showsClock(claim))
+                    Padding(
+                      padding: const EdgeInsets.only(top: KeptSpacing.xs),
+                      child: _PoolClock(
+                        expiresAt: claim.expiresAt!,
+                        ownerId: item.ownerId,
+                      ),
+                    ),
+                  const SizedBox(height: KeptSpacing.lg),
+                  KeptSectionHeader(l10n.claimParticipants),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
             if (claim.pledges.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: KeptSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: KeptSpacing.lg,
+                  vertical: KeptSpacing.md,
+                ),
                 child: Text(
                   l10n.claimNoPledges,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
               )
             else
-              Flexible(
-                child: SingleChildScrollView(
-                  child: KeptListGroup(
-                    children: [
-                      for (final p in claim.pledges)
-                        ListTile(
-                          leading: KeptAvatar(
-                            label: p.labelOr(l10n.giftAnonymousGiver),
-                            avatarValue: p.user?.avatarUrl,
-                          ),
-                          title: Text(
-                            p.labelOr(l10n.giftAnonymousGiver),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: p.userId == claim.claimerId
-                              ? Text(l10n.claimOrganizer)
-                              : null,
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                formatTry(locale, p.amount),
-                                style: theme.textTheme.titleSmall,
-                              ),
-                              if (organizer || p.userId == myId)
-                                IconButton(
-                                  tooltip: p.userId == myId
-                                      ? l10n.claimWithdraw
-                                      : l10n.claimRemovePledge,
-                                  icon: const Icon(Icons.close),
-                                  onPressed: busy
-                                      ? null
-                                      : () async {
-                                          final failure = await controller
-                                              .withdrawPledge(
-                                                item.ownerId,
-                                                claim.id,
-                                                p.userId,
-                                              );
-                                          if (context.mounted) {
-                                            _report(context, failure);
-                                          }
-                                        },
-                                ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
+              for (var i = 0; i < claim.pledges.length; i++) ...[
+                if (i > 0) const Divider(height: 1),
+                _PledgeRow(
+                  pledge: claim.pledges[i],
+                  isOrganizer: claim.pledges[i].userId == claim.claimerId,
+                  canAct: organizer || claim.pledges[i].userId == myId,
+                  busy: busy,
+                  onMenu: () =>
+                      _rowMenu(context, ref, claim.pledges[i], myId, claim),
                 ),
+              ],
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                KeptSpacing.lg,
+                KeptSpacing.md,
+                KeptSpacing.lg,
+                KeptSpacing.lg,
               ),
-            if (organizer && !claim.hasGift) ...[
-              const SizedBox(height: KeptSpacing.sm),
-              TextButton.icon(
-                onPressed: busy
-                    ? null
-                    : () async {
-                        final input = await showAmountSheet(
-                          context,
-                          title: l10n.claimEditPriceTitle,
-                          targetOnly: true,
-                          initialTarget: claim.targetAmount,
-                        );
-                        if (input?.target == null || !context.mounted) return;
-                        final failure = await controller.setTarget(
-                          item.ownerId,
-                          claim.id,
-                          input!.target!,
-                        );
-                        if (context.mounted) _report(context, failure);
-                      },
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                label: Text(l10n.claimEditPrice),
+              child: _SheetActions(
+                claim: claim,
+                organizer: organizer,
+                busy: busy,
+                onLogGift: () {
+                  Navigator.of(context).pop();
+                  unawaited(
+                    context.push(logGiftRouteFor(item, claim, eventId)),
+                  );
+                },
+                onOpenGift: () {
+                  Navigator.of(context).pop();
+                  unawaited(
+                    context.push('/gifts/${claim.giftId}?side=recipient'),
+                  );
+                },
+                onEditPrice: () async {
+                  final input = await showAmountSheet(
+                    context,
+                    title: l10n.claimEditPriceTitle,
+                    targetOnly: true,
+                    initialTarget: claim.targetAmount,
+                  );
+                  if (input?.target == null || !context.mounted) return;
+                  final failure = await controller.setTarget(
+                    item.ownerId,
+                    claim.id,
+                    input!.target!,
+                  );
+                  if (context.mounted) _report(context, failure);
+                },
+                onCancel: () async {
+                  final navigator = Navigator.of(context);
+                  final released = await releaseClaim(
+                    context,
+                    ref,
+                    item,
+                    claim,
+                  );
+                  if (released && navigator.canPop()) navigator.pop();
+                },
               ),
-            ],
-            if (organizer && !claim.hasGift && claim.pledges.isNotEmpty) ...[
-              const SizedBox(height: KeptSpacing.md),
-              FilledButton.icon(
-                onPressed: busy
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                        unawaited(
-                          context.push(logGiftRouteFor(item, claim, eventId)),
-                        );
-                      },
-                icon: const Icon(Icons.redeem_outlined),
-                label: Text(l10n.claimLogGift),
-              ),
-            ],
-            if (organizer) ...[
-              const SizedBox(height: KeptSpacing.md),
-              TextButton.icon(
-                style: TextButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
-                ),
-                onPressed: busy
-                    ? null
-                    : () async {
-                        final navigator = Navigator.of(context);
-                        final released = await releaseClaim(
-                          context,
-                          ref,
-                          item,
-                          claim,
-                        );
-                        if (released && navigator.canPop()) navigator.pop();
-                      },
-                icon: const Icon(Icons.delete_outline),
-                label: Text(l10n.claimCancelShared),
-              ),
-            ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  /// A row's context menu (design.md §4): my own row lets me change or
+  /// withdraw my share; the organizer can take anyone out of the pool.
+  Future<void> _rowMenu(
+    BuildContext context,
+    WidgetRef ref,
+    Pledge p,
+    String? myId,
+    WishlistClaim claim,
+  ) {
+    final l10n = context.l10n;
+    final controller = ref.read(claimsControllerProvider.notifier);
+    Future<void> withdraw() async {
+      final failure = await controller.withdrawPledge(
+        item.ownerId,
+        claim.id,
+        p.userId,
+      );
+      if (context.mounted) _report(context, failure);
+    }
+
+    final mine = p.userId == myId;
+    return showKeptActionSheet(
+      context,
+      actions: [
+        if (mine && !claim.hasGift)
+          KeptSheetAction(
+            icon: Icons.edit_outlined,
+            label: l10n.claimChangeShare,
+            onTap: () => unawaited(
+              pledgeFlow(context, ref, item: item, claim: claim, myId: myId),
+            ),
+          ),
+        KeptSheetAction(
+          icon: mine ? Icons.logout : Icons.person_remove_outlined,
+          label: mine ? l10n.claimWithdraw : l10n.claimRemovePledge,
+          destructive: true,
+          onTap: () => unawaited(withdraw()),
+        ),
+      ],
+    );
+  }
+}
+
+/// One participant: who, their role, their share — and a menu when the
+/// viewer may do something about it.
+class _PledgeRow extends StatelessWidget {
+  const _PledgeRow({
+    required this.pledge,
+    required this.isOrganizer,
+    required this.canAct,
+    required this.busy,
+    required this.onMenu,
+  });
+
+  final Pledge pledge;
+  final bool isOrganizer;
+  final bool canAct;
+  final bool busy;
+  final VoidCallback onMenu;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final theme = Theme.of(context);
+    final label = pledge.labelOr(l10n.giftAnonymousGiver);
+    // Not a ListTile: its trailing slot is capped, and a large share at 2x
+    // text would overflow it. Here the name column gives way first, and the
+    // amount — never truncated — scales down only past its width budget.
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: KeptSpacing.lg,
+        vertical: KeptSpacing.sm,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            KeptAvatar(label: label, avatarValue: pledge.user?.avatarUrl),
+            const SizedBox(width: KeptSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  if (isOrganizer)
+                    Text(
+                      l10n.claimOrganizer,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: KeptSpacing.sm),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: constraints.maxWidth * _amountWidthShare,
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  formatTry(locale, pledge.amount),
+                  maxLines: 1,
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+            ),
+            if (canAct)
+              IconButton(
+                tooltip: l10n.commonMore,
+                icon: const Icon(Icons.more_horiz),
+                onPressed: busy ? null : onMenu,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// How much of the row an amount may take before it scales down.
+  static const _amountWidthShare = 0.45;
+}
+
+/// The sheet's footer: one primary step, then the organizer's secondary
+/// pair (design.md §4 hierarchy — a single FilledButton on screen).
+class _SheetActions extends StatelessWidget {
+  const _SheetActions({
+    required this.claim,
+    required this.organizer,
+    required this.busy,
+    required this.onLogGift,
+    required this.onOpenGift,
+    required this.onEditPrice,
+    required this.onCancel,
+  });
+
+  final WishlistClaim claim;
+  final bool organizer;
+  final bool busy;
+  final VoidCallback onLogGift;
+  final VoidCallback onOpenGift;
+  final VoidCallback onEditPrice;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final children = <Widget>[
+      if (claim.hasGift)
+        FilledButton.tonalIcon(
+          onPressed: onOpenGift,
+          icon: const Icon(Icons.redeem_outlined),
+          label: Text(l10n.claimOpenGift),
+        )
+      else if (organizer && claim.pledges.isNotEmpty)
+        FilledButton.icon(
+          onPressed: busy ? null : onLogGift,
+          icon: const Icon(Icons.redeem_outlined),
+          label: Text(l10n.claimLogGift),
+        ),
+      if (organizer)
+        Row(
+          children: [
+            if (!claim.hasGift) ...[
+              Expanded(
+                child: FilledButton.tonal(
+                  onPressed: busy ? null : onEditPrice,
+                  child: Text(l10n.claimEditPrice, textAlign: TextAlign.center),
+                ),
+              ),
+              const SizedBox(width: KeptSpacing.sm),
+            ],
+            Expanded(
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
+                onPressed: busy ? null : onCancel,
+                child: Text(
+                  l10n.claimCancelShared,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+    ];
+    if (children.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) const SizedBox(height: KeptSpacing.sm),
+          children[i],
+        ],
+      ],
     );
   }
 }
