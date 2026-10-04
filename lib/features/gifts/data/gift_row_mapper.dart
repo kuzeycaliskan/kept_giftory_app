@@ -9,7 +9,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 const String giftEmbeds =
     ' preview:link_previews(id, url, title, image_path, price, site, '
     'price_checked_at), '
-    'photos:gift_photos(id, gift_id, uploader_id, media_path, created_at), '
+    'photos:gift_photos(id, gift_id, uploader_id, media_path, caption, '
+    'created_at), '
     'reactions:gift_reactions(user_id, kind), '
     'contributors:gift_contributors(user_id, amount, '
     'user:profiles(id, username, display_name)), '
@@ -114,6 +115,7 @@ List<GiftPhoto> giftPhotosFromRows(Object? raw) {
         uploaderId: r['uploader_id']! as String,
         mediaPath: r['media_path']! as String,
         createdAt: DateTime.parse(r['created_at']! as String),
+        caption: r['caption'] as String?,
       ),
   ]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 }

@@ -14,6 +14,7 @@ import 'package:kept/features/friends/presentation/friend_search_screen.dart';
 import 'package:kept/features/friends/presentation/friends_screen.dart';
 import 'package:kept/features/gifts/presentation/friend_gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/gift_detail_screen.dart';
+import 'package:kept/features/gifts/presentation/gift_photo_compose_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
@@ -200,16 +201,8 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: composePostRoute,
         name: 'compose-post',
-        builder: (context, state) {
-          final giftId = state.uri.queryParameters['gift'];
-          final item = state.uri.queryParameters['item'];
-          return ComposePostScreen(
-            imageBytes: state.extra! as Uint8List,
-            unboxing: giftId == null || item == null
-                ? null
-                : UnboxingTarget(giftId: giftId, item: item),
-          );
-        },
+        builder: (context, state) =>
+            ComposePostScreen(imageBytes: state.extra! as Uint8List),
       ),
       GoRoute(
         path: '/events/for/:honoreeId',
@@ -240,6 +233,16 @@ GoRouter appRouter(Ref ref) {
           claimId: state.uri.queryParameters['claim'],
           initialItem: state.uri.queryParameters['item'],
           initialUrl: state.uri.queryParameters['url'],
+        ),
+      ),
+      GoRoute(
+        path: '/gifts/:id/photo',
+        name: 'gift-photo',
+        builder: (context, state) => GiftPhotoComposeScreen(
+          giftId: state.pathParameters['id']!,
+          item: state.uri.queryParameters['item'] ?? '',
+          imageBytes: state.extra! as Uint8List,
+          storyOffered: state.uri.queryParameters['story'] == '1',
         ),
       ),
       GoRoute(

@@ -31,6 +31,7 @@ class GiftPhoto {
     required this.uploaderId,
     required this.mediaPath,
     required this.createdAt,
+    this.caption,
   });
 
   final String id;
@@ -38,7 +39,13 @@ class GiftPhoto {
   final String uploaderId;
   final String mediaPath;
   final DateTime createdAt;
+
+  /// The uploader's note for this photo, shown under it when present.
+  final String? caption;
 }
+
+/// Note cap per gift photo — mirrors the `gift_photos_caption_len` CHECK.
+const int giftPhotoCaptionMaxLength = 140;
 
 /// Someone who chipped into a group gift (G-309): snapshot of the pool's
 /// pledgers when the organizer logged it. The label resolves through the

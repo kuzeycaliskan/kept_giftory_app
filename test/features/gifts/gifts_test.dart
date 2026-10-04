@@ -13,8 +13,6 @@ import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
-import 'package:kept/features/feed/presentation/compose_post_screen.dart';
-import 'package:kept/features/feed/presentation/moment_capture.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -23,6 +21,7 @@ import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/gifts/domain/gift_repository.dart';
 import 'package:kept/features/gifts/domain/reveal_math.dart';
 import 'package:kept/features/gifts/presentation/gift_detail_screen.dart';
+import 'package:kept/features/gifts/presentation/gift_photo_compose_screen.dart';
 import 'package:kept/features/gifts/presentation/gifts_screen.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart';
 import 'package:kept/features/gifts/presentation/log_gift_screen.dart';
@@ -119,6 +118,7 @@ class _FakeGiftRepository implements GiftRepository {
   }
 
   final attachedTo = <String>[];
+  final captions = <String?>[];
   final removed = <String>[];
 
   @override
@@ -132,14 +132,17 @@ class _FakeGiftRepository implements GiftRepository {
   Future<Result<GiftPhoto>> addPhoto({
     required String giftId,
     required Uint8List jpegBytes,
+    String? caption,
   }) async {
     attachedTo.add(giftId);
+    captions.add(caption);
     final photo = GiftPhoto(
       id: 'photo-${attachedTo.length}',
       giftId: giftId,
       uploaderId: 'dev-me',
       mediaPath: 'dev-me/$giftId-${attachedTo.length}.jpg',
       createdAt: DateTime(2026, 9, 16),
+      caption: caption,
     );
     for (final list in [given, received]) {
       final i = list.indexWhere((g) => g.id == giftId);
@@ -336,19 +339,16 @@ void main() {
       initialLocation: initial,
       routes: [
         GoRoute(path: '/gifts', builder: (_, _) => const GiftsScreen()),
-        // Where "Share the unboxing" lands (G-308), as the app router wires it.
+        // Where a captured gift photo lands (note + optional story, G-308),
+        // as the app router wires it.
         GoRoute(
-          path: composePostRoute,
-          builder: (_, state) {
-            final giftId = state.uri.queryParameters['gift'];
-            final item = state.uri.queryParameters['item'];
-            return ComposePostScreen(
-              imageBytes: state.extra! as Uint8List,
-              unboxing: giftId == null || item == null
-                  ? null
-                  : UnboxingTarget(giftId: giftId, item: item),
-            );
-          },
+          path: '/gifts/:id/photo',
+          builder: (_, state) => GiftPhotoComposeScreen(
+            giftId: state.pathParameters['id']!,
+            item: state.uri.queryParameters['item'] ?? '',
+            imageBytes: state.extra! as Uint8List,
+            storyOffered: state.uri.queryParameters['story'] == '1',
+          ),
         ),
         GoRoute(
           path: '/gifts/log',
@@ -865,7 +865,50 @@ void main() {
       recipientId: 'dev-me',
     );
 
-    testWidgets('the recipient shares an unboxing; the photo stays with it', (
+    testWidgets(
+      'the recipient shares an unboxing: note on the gift, story on',
+      (tester) async {
+        final feed = FakeFeedRepository(viewerId: 'dev-me');
+        final gifts = _FakeGiftRepository(received: [received(id: 'g9')]);
+        await pump(
+          tester,
+          gifts: gifts,
+          feed: feed,
+          picker: FakeImagePicker(tinyPng),
+          initial: '/gifts/g9?side=giver',
+        );
+        expect(find.textContaining('24-hour story'), findsOneWidget);
+
+        await tester.tap(
+          find.widgetWithText(FilledButton, 'Share the unboxing'),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Share the unboxing'), findsOneWidget);
+        expect(find.text('Kupa'), findsOneWidget);
+        // Story is on by default and the button says so.
+        final box = tester.widget<CheckboxListTile>(
+          find.byType(CheckboxListTile),
+        );
+        expect(box.value, isTrue);
+        await tester.enterText(find.byType(TextField), 'Açtım!');
+        await tester.tap(find.widgetWithText(FilledButton, 'Share'));
+        await tester.pumpAndSettle();
+
+        expect(gifts.attachedTo, ['g9']);
+        expect(gifts.captions, ['Açtım!']);
+        expect(feed.created.single.giftId, 'g9');
+        expect(feed.created.single.caption, 'Açtım!');
+        expect(
+          find.text("Story shared. The photo is in the gift's memories."),
+          findsOneWidget,
+        );
+        // Back on the detail: the photo and its note.
+        expect(find.byType(PrivateMediaImage), findsOneWidget);
+        expect(find.text('Açtım!'), findsOneWidget);
+      },
+    );
+
+    testWidgets('story off keeps the photo and note on the gift only', (
       tester,
     ) async {
       final feed = FakeFeedRepository(viewerId: 'dev-me');
@@ -877,32 +920,18 @@ void main() {
         picker: FakeImagePicker(tinyPng),
         initial: '/gifts/g9?side=giver',
       );
-
-      // The detail says what will happen before the camera opens.
-      expect(
-        find.textContaining('goes out as a 24-hour story'),
-        findsOneWidget,
-      );
       await tester.tap(find.widgetWithText(FilledButton, 'Share the unboxing'));
       await tester.pumpAndSettle();
-      // The compose screen is titled for it and says where it goes.
-      expect(find.text('Share the unboxing'), findsOneWidget);
-      expect(find.text('Unboxing: Kupa'), findsOneWidget);
-      expect(find.textContaining('24-hour story'), findsWidgets);
-      expect(find.text('A note for the story (optional)'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Share as a story'));
+      await tester.tap(find.text('Also share as a story'));
       await tester.pumpAndSettle();
-      expect(
-        find.text("Story shared. The photo is in the gift's memories."),
-        findsOneWidget,
-      );
+      expect(find.widgetWithText(FilledButton, 'Share'), findsNothing);
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
 
-      expect(feed.created.single.giftId, 'g9');
       expect(gifts.attachedTo, ['g9']);
-      // Back on the detail, with the memory strip now holding the photo.
-      expect(find.text('Gift'), findsOneWidget);
-      expect(find.byType(PrivateMediaImage), findsOneWidget);
+      expect(feed.created, isEmpty);
+      expect(find.text("Photo added to the gift's memories."), findsOneWidget);
     });
 
     testWidgets('no unboxing for the giver or before a surprise opens', (
@@ -1080,9 +1109,18 @@ void main() {
 
       await tester.tap(find.text('Take a photo'));
       await tester.pumpAndSettle();
+      // The giver gets note + save, never a story (that is the recipient's).
+      expect(find.text('Also share as a story'), findsNothing);
+      await tester.enterText(find.byType(TextField), 'Paketlerken');
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
 
       expect(repo.attachedTo, ['g4']);
+      expect(repo.captions, ['Paketlerken']);
       expect(find.byType(PrivateMediaImage), findsOneWidget);
+      // The note shows under its photo on the gift.
+      expect(find.text('Paketlerken'), findsOneWidget);
+      expect(find.text("Photo added to the gift's memories."), findsOneWidget);
     });
 
     testWidgets('uploader removes their own photo from the detail', (

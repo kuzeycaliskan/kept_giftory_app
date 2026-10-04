@@ -709,31 +709,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get composeFailed => 'Paylaşılamadı. Tekrar dene.';
 
   @override
-  String composeUnboxingOf(String item) {
-    return 'Hediye açılışı: $item';
-  }
-
-  @override
-  String get composeUnboxingKept =>
-      'Arkadaşlarına 24 saatlik hikaye olarak gider; fotoğraf ayrıca burada, hediyenin anılarında kalır.';
-
-  @override
-  String get composeUnboxingTitle => 'Açılışı paylaş';
-
-  @override
-  String get composeUnboxingCaptionHint =>
-      'Hikayede görünecek not (isteğe bağlı)';
-
-  @override
-  String get composeUnboxingShare => 'Hikaye olarak paylaş';
-
-  @override
-  String get composeUnboxingShared =>
-      'Hikaye paylaşıldı. Fotoğraf hediyenin anılarına eklendi.';
-
-  @override
   String get giftShareUnboxingHint =>
-      'Bir fotoğraf çek: 24 saatlik hikaye olarak paylaşılır ve bu hediyenin anılarına eklenir.';
+      'Bir fotoğraf çek ve not ekle; bu hediyede kalır, istersen 24 saatlik hikaye olarak da paylaşırsın.';
 
   @override
   String get giftShareUnboxing => 'Açılışı paylaş';
@@ -818,6 +795,33 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get giftPhotoAttachPartial =>
       'Kaydedildi ama bazı fotoğraflar eklenemedi.';
+
+  @override
+  String get giftPhotoNoteHint => 'Bu fotoğraf için not (isteğe bağlı)';
+
+  @override
+  String get giftPhotoShareStory => 'Hikayede de paylaş';
+
+  @override
+  String get giftPhotoShareStoryHint =>
+      'Arkadaşların 24 saat görür; fotoğraf ve not her durumda hediyede kalır.';
+
+  @override
+  String get giftPhotoShare => 'Paylaş';
+
+  @override
+  String get giftPhotoSave => 'Kaydet';
+
+  @override
+  String get giftPhotoSaved => 'Fotoğraf hediyenin anılarına eklendi.';
+
+  @override
+  String get giftPhotoSharedStory =>
+      'Hikaye paylaşıldı. Fotoğraf hediyenin anılarına eklendi.';
+
+  @override
+  String get giftPhotoStoryFailed =>
+      'Fotoğraf kaydedildi ama hikaye paylaşılamadı.';
 
   @override
   String get giftDetailPhotosSection => 'Anılar';

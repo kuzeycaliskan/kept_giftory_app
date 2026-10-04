@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
-import 'package:kept/features/feed/presentation/moment_capture.dart';
 import 'package:kept/features/gifts/application/gift_photo_controller.dart';
 import 'package:kept/features/gifts/application/gift_reaction_controller.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
+import 'package:kept/features/gifts/presentation/gift_photo_compose_screen.dart';
 import 'package:kept/features/gifts/presentation/log_external_gift_screen.dart'
     show giftRelationLabel;
 import 'package:kept/features/gifts/presentation/widgets/gift_reaction_row.dart';
@@ -43,19 +44,23 @@ class GiftDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
-  Future<void> _addPhoto(GiftEntry gift) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    final controller = ref.read(giftPhotoControllerProvider.notifier);
-    final bytes = await controller.capture();
+  /// Camera, then the compose screen (note + optional story). The story
+  /// is offered only to the recipient of an open gift — the one person
+  /// who can unbox it (G-308); the server refuses anyone else anyway.
+  Future<void> _addPhoto(GiftEntry gift, {required bool storyOffered}) async {
+    final router = GoRouter.of(context);
+    final bytes = await ref
+        .read(giftPhotoControllerProvider.notifier)
+        .capture();
     if (bytes == null) return;
-    final attached = await controller.attach(
-      giftId: gift.id,
-      captures: [bytes],
+    await router.push(
+      GiftPhotoComposeScreen.route(
+        giftId: gift.id,
+        item: gift.item,
+        storyOffered: storyOffered,
+      ),
+      extra: bytes,
     );
-    if (attached == 0) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.giftPhotoAddFailed)));
-    }
   }
 
   Future<void> _removePhoto(GiftPhoto photo) async {
@@ -94,6 +99,7 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
           GalleryItem(
             bucket: giftMediaBucket,
             path: photo.mediaPath,
+            caption: photo.caption,
             onRemove: photo.uploaderId == myId
                 ? () => _removePhoto(photo)
                 : null,
@@ -157,17 +163,17 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
           }
           final canAdd =
               gift.isParty(myId) && gift.photos.length < giftPhotoCap;
+          final canUnbox = gift.recipientId == myId && !gift.isPendingSurprise;
           final note = gift.note;
           final preview = gift.preview;
           return ListView(
             padding: const EdgeInsets.all(KeptSpacing.lg),
             children: [
               _Heading(gift: gift),
-              // G-308: only the recipient, only once the gift is open.
-              if (gift.recipientId == myId && !gift.isPendingSurprise) ...[
+              // G-308: only the recipient, only once the gift is open, and
+              // only while the memory strip has room for the photo.
+              if (canUnbox && canAdd) ...[
                 const SizedBox(height: KeptSpacing.md),
-                // What happens is spelled out before the camera opens: a
-                // story for friends plus a photo kept here.
                 Text(
                   l10n.giftShareUnboxingHint,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -180,14 +186,7 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
                   child: FilledButton.tonalIcon(
                     onPressed: busy
                         ? null
-                        : () => captureMoment(
-                            context,
-                            ref,
-                            unboxing: UnboxingTarget(
-                              giftId: gift.id,
-                              item: gift.item,
-                            ),
-                          ),
+                        : () => _addPhoto(gift, storyOffered: true),
                     icon: const Icon(Icons.photo_camera_outlined),
                     label: Text(l10n.giftShareUnboxing),
                   ),
@@ -198,7 +197,9 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
               _PhotoCards(
                 photos: gift.photos,
                 onOpen: (i) => _openGallery(gift, i, myId),
-                onAdd: canAdd && !busy ? () => _addPhoto(gift) : null,
+                onAdd: canAdd && !busy
+                    ? () => _addPhoto(gift, storyOffered: canUnbox)
+                    : null,
                 showAddSlot: canAdd,
               ),
               const SizedBox(height: KeptSpacing.xl),
@@ -261,14 +262,32 @@ class _PhotoCards extends StatelessWidget {
     final l10n = context.l10n;
     final slots = <Widget>[
       for (var i = 0; i < photos.length; i++)
-        _PhotoCard(
-          onTap: () => onOpen(i),
-          child: PrivateMediaImage(
-            bucket: giftMediaBucket,
-            path: photos[i].mediaPath,
-            fit: BoxFit.cover,
-            compact: true,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _PhotoCard(
+              onTap: () => onOpen(i),
+              child: PrivateMediaImage(
+                bucket: giftMediaBucket,
+                path: photos[i].mediaPath,
+                fit: BoxFit.cover,
+                compact: true,
+              ),
+            ),
+            // The uploader's note, only when there is one.
+            if (photos[i].caption case final note?)
+              Padding(
+                padding: const EdgeInsets.only(top: KeptSpacing.xs),
+                child: Text(
+                  note,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+          ],
         ),
       if (showAddSlot && photos.length < giftPhotoCap)
         _PhotoCard(
@@ -321,6 +340,7 @@ class _PhotoCards extends StatelessWidget {
     // Unused slots stay invisible (spacers keep every card at 1/3 width);
     // empty boxes read as missing content, which they are not.
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < giftPhotoCap; i++) ...[
           if (i > 0) const SizedBox(width: KeptSpacing.sm),

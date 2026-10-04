@@ -6,17 +6,13 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/feed/application/post_composer.dart';
 import 'package:kept/features/feed/domain/post.dart';
-import 'package:kept/features/feed/presentation/moment_capture.dart';
 
 /// Preview + optional caption + Share (G-201). The photo is already taken;
 /// this screen never offers a gallery or a retake into the gallery.
 class ComposePostScreen extends ConsumerStatefulWidget {
-  const ComposePostScreen({required this.imageBytes, this.unboxing, super.key});
+  const ComposePostScreen({required this.imageBytes, super.key});
 
   final Uint8List imageBytes;
-
-  /// Set when this moment unboxes a received gift (G-308).
-  final UnboxingTarget? unboxing;
 
   @override
   ConsumerState<ComposePostScreen> createState() => _ComposePostScreenState();
@@ -37,23 +33,11 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
     final navigator = Navigator.of(context);
     final ok = await ref
         .read(postComposerProvider.notifier)
-        .publish(
-          bytes: widget.imageBytes,
-          caption: _caption.text,
-          giftId: widget.unboxing?.giftId,
-        );
+        .publish(bytes: widget.imageBytes, caption: _caption.text);
     if (!mounted) return;
     if (ok) {
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.unboxing == null
-                ? l10n.composeShared
-                : l10n.composeUnboxingShared,
-          ),
-        ),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.composeShared)));
     } else {
       messenger.showSnackBar(SnackBar(content: Text(l10n.composeFailed)));
     }
@@ -63,13 +47,8 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(postComposerProvider).isLoading;
-    final unboxing = widget.unboxing;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          unboxing == null ? l10n.composeTitle : l10n.composeUnboxingTitle,
-        ),
-      ),
+      appBar: AppBar(title: Text(l10n.composeTitle)),
       body: SafeArea(
         child: Column(
           children: [
@@ -98,10 +77,6 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (unboxing != null) ...[
-                    _UnboxingContext(item: unboxing.item),
-                    const SizedBox(height: KeptSpacing.sm),
-                  ],
                   TextField(
                     controller: _caption,
                     enabled: !busy,
@@ -109,9 +84,7 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
                     maxLines: 2,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: unboxing == null
-                          ? l10n.composeCaptionHint
-                          : l10n.composeUnboxingCaptionHint,
+                      hintText: l10n.composeCaptionHint,
                     ),
                   ),
                   const SizedBox(height: KeptSpacing.sm),
@@ -122,11 +95,7 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
                             dimension: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(
-                            unboxing == null
-                                ? l10n.composeShare
-                                : l10n.composeUnboxingShare,
-                          ),
+                        : Text(l10n.composeShare),
                   ),
                 ],
               ),
@@ -134,51 +103,6 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Says which gift this is about and exactly where it goes: a 24-hour story
-/// for friends, and the photo into the gift's memories for good.
-class _UnboxingContext extends StatelessWidget {
-  const _UnboxingContext({required this.item});
-
-  final String item;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return Row(
-      children: [
-        Icon(Icons.redeem_outlined, size: 20, color: scheme.primary),
-        const SizedBox(width: KeptSpacing.sm),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.composeUnboxingOf(item),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: scheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                l10n.composeUnboxingKept,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

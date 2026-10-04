@@ -8,7 +8,15 @@ import 'package:kept/shared/widgets/private_media_image.dart';
 
 /// One item of a [showMediaGallery] session.
 class GalleryItem {
-  const GalleryItem({required this.bucket, required this.path, this.onRemove});
+  const GalleryItem({
+    required this.bucket,
+    required this.path,
+    this.caption,
+    this.onRemove,
+  });
+
+  /// Shown under the photo when present.
+  final String? caption;
 
   final String bucket;
   final String path;
@@ -250,6 +258,25 @@ class _GalleryPageState extends State<_GalleryPage>
                         ),
                       ),
                     ),
+                    if (current.caption case final caption?)
+                      Opacity(
+                        opacity: chromeOpacity,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            KeptSpacing.lg,
+                            KeptSpacing.md,
+                            KeptSpacing.lg,
+                            0,
+                          ),
+                          child: Text(
+                            caption,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
                     if (items.length > 1)
                       Opacity(
                         opacity: chromeOpacity,

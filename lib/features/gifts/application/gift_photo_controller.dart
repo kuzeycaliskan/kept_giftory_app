@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
+import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -74,6 +75,56 @@ class GiftPhotoController extends _$GiftPhotoController {
     return attached;
   }
 
+  /// One photo with its note, kept with the gift — and, when the
+  /// recipient asks, also out as a 24h unboxing story (G-308). The photo
+  /// lands first (it is the permanent part); a story failure after that is
+  /// reported as [GiftPhotoOutcome.storyFailed], not as a lost photo.
+  Future<GiftPhotoOutcome> share({
+    required String giftId,
+    required Uint8List bytes,
+    String? note,
+    bool asStory = false,
+  }) async {
+    state = const AsyncLoading();
+    final trimmed = note?.trim();
+    final caption = (trimmed == null || trimmed.isEmpty) ? null : trimmed;
+    try {
+      final jpeg = await ref.read(uploadEncoderProvider)(bytes);
+      final added = await ref
+          .read(giftRepositoryProvider)
+          .addPhoto(giftId: giftId, jpegBytes: jpeg, caption: caption);
+      added.when(success: (_) => null, failure: (Failure f) => throw f);
+      _refreshGiftSurfaces();
+      if (!asStory) {
+        state = const AsyncData(null);
+        return GiftPhotoOutcome.saved;
+      }
+      final posted = await ref
+          .read(feedRepositoryProvider)
+          .createPost(jpegBytes: jpeg, caption: caption, giftId: giftId);
+      final storyFailure = posted.when<Failure?>(
+        success: (_) => null,
+        failure: (f) => f,
+      );
+      if (storyFailure != null) {
+        debugPrint('unboxing story failed: $storyFailure');
+        state = AsyncError(storyFailure, StackTrace.current);
+        return GiftPhotoOutcome.storyFailed;
+      }
+      ref.invalidate(storyGroupsProvider);
+      state = const AsyncData(null);
+      return GiftPhotoOutcome.shared;
+    } on Failure catch (failure, stack) {
+      debugPrint('gift photo share failed: $failure');
+      state = AsyncError(failure, stack);
+      return GiftPhotoOutcome.failed;
+    } catch (e, stack) {
+      debugPrint('gift photo share failed: $e');
+      state = AsyncError(UnknownFailure(e.toString()), stack);
+      return GiftPhotoOutcome.failed;
+    }
+  }
+
   Future<bool> remove(GiftPhoto photo) async {
     state = const AsyncLoading();
     final result = await ref.read(giftRepositoryProvider).removePhoto(photo);
@@ -100,4 +151,19 @@ class GiftPhotoController extends _$GiftPhotoController {
       ..invalidate(friendGiftHistoryProvider)
       ..invalidate(giftDetailProvider);
   }
+}
+
+/// What came of [GiftPhotoController.share].
+enum GiftPhotoOutcome {
+  /// Photo kept with the gift; no story was asked for.
+  saved,
+
+  /// Photo kept and the unboxing story is live.
+  shared,
+
+  /// Photo kept, but the story did not go out.
+  storyFailed,
+
+  /// Nothing landed.
+  failed,
 }

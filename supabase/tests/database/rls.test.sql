@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(218);
+select plan(220);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2451,6 +2451,27 @@ select is(
   array['00000000-0000-0000-0000-00000000000e']::uuid[],
   '211: the giver hears about the unboxing, the author never does'
 );
+
+
+-- ── 212-213: a gift photo's note (G-308 follow-up) ──────────────────────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path, caption)
+     values ('00000000-0000-0000-0000-000000000c99', '00000000-0000-0000-0000-00000000000e',
+             '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c99-1.jpg', 'Paketlerken') $$,
+  '212: a photo carries its own short note'
+);
+select throws_ok(
+  $$ insert into public.gift_photos (gift_id, uploader_id, media_path, caption)
+     values ('00000000-0000-0000-0000-000000000c99', '00000000-0000-0000-0000-00000000000e',
+             '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c99-2.jpg', repeat('x', 141)) $$,
+  '23514',
+  null,
+  '213: a note past 140 characters is refused'
+);
+reset role;
 
 select * from finish();
 rollback;

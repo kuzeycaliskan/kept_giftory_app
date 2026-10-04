@@ -4,7 +4,6 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
-import 'package:kept/features/gifts/application/gift_photo_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'post_composer.g.dart';
@@ -45,15 +44,9 @@ class PostComposer extends _$PostComposer {
     return picked.readAsBytes();
   }
 
-  /// Encodes and shares. Returns true when the moment is live. An unboxing
-  /// ([giftId]) also keeps the photo with the gift's memories — the moment
-  /// is gone in 24h, the gift record is not; a full memory strip (cap 3)
-  /// just skips that part.
-  Future<bool> publish({
-    required Uint8List bytes,
-    String? caption,
-    String? giftId,
-  }) async {
+  /// Encodes and shares. Returns true when the moment is live. (An
+  /// unboxing story is posted by the gift photo pipeline instead — G-308.)
+  Future<bool> publish({required Uint8List bytes, String? caption}) async {
     state = const AsyncLoading();
     try {
       final jpeg = await ref.read(uploadEncoderProvider)(bytes);
@@ -63,17 +56,9 @@ class PostComposer extends _$PostComposer {
           .createPost(
             jpegBytes: jpeg,
             caption: (trimmed == null || trimmed.isEmpty) ? null : trimmed,
-            giftId: giftId,
           );
       result.when(success: (_) => null, failure: (Failure f) => throw f);
       ref.invalidate(storyGroupsProvider);
-      if (giftId != null) {
-        // Best effort by design: the controller reports its own failure
-        // (cap reached, offline) and refreshes the gift surfaces either way.
-        await ref
-            .read(giftPhotoControllerProvider.notifier)
-            .attach(giftId: giftId, captures: [bytes]);
-      }
       state = const AsyncData(null);
       return true;
     } on Failure catch (failure, stack) {

@@ -57,6 +57,7 @@ abstract interface class GiftRepository {
   Future<Result<GiftPhoto>> addPhoto({
     required String giftId,
     required Uint8List jpegBytes,
+    String? caption,
   });
 
   /// Removes one of the caller's own photos (object first, then row).

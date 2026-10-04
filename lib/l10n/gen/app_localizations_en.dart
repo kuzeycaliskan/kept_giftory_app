@@ -711,30 +711,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get composeFailed => 'Couldn\'t share. Try again.';
 
   @override
-  String composeUnboxingOf(String item) {
-    return 'Unboxing: $item';
-  }
-
-  @override
-  String get composeUnboxingKept =>
-      'Shared as a 24-hour story for your friends; the photo also stays here with the gift\'s memories.';
-
-  @override
-  String get composeUnboxingTitle => 'Share the unboxing';
-
-  @override
-  String get composeUnboxingCaptionHint => 'A note for the story (optional)';
-
-  @override
-  String get composeUnboxingShare => 'Share as a story';
-
-  @override
-  String get composeUnboxingShared =>
-      'Story shared. The photo is in the gift\'s memories.';
-
-  @override
   String get giftShareUnboxingHint =>
-      'Take a photo: it goes out as a 24-hour story and is added to this gift\'s memories.';
+      'Take a photo and add a note; it stays with this gift, and you can share it as a 24-hour story too.';
 
   @override
   String get giftShareUnboxing => 'Share the unboxing';
@@ -819,6 +797,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get giftPhotoAttachPartial =>
       'Saved, but some photos couldn\'t be added.';
+
+  @override
+  String get giftPhotoNoteHint => 'A note for this photo (optional)';
+
+  @override
+  String get giftPhotoShareStory => 'Also share as a story';
+
+  @override
+  String get giftPhotoShareStoryHint =>
+      'Friends see it for 24 hours; the photo and note stay with the gift either way.';
+
+  @override
+  String get giftPhotoShare => 'Share';
+
+  @override
+  String get giftPhotoSave => 'Save';
+
+  @override
+  String get giftPhotoSaved => 'Photo added to the gift\'s memories.';
+
+  @override
+  String get giftPhotoSharedStory =>
+      'Story shared. The photo is in the gift\'s memories.';
+
+  @override
+  String get giftPhotoStoryFailed =>
+      'Photo saved, but the story couldn\'t be shared.';
 
   @override
   String get giftDetailPhotosSection => 'Memories';

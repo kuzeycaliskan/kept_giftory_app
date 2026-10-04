@@ -131,6 +131,7 @@ class DevGiftRepository implements GiftRepository {
   Future<Result<GiftPhoto>> addPhoto({
     required String giftId,
     required Uint8List jpegBytes,
+    String? caption,
   }) async => const ResultFailure(NetworkFailure('Dev mode: no storage'));
 
   @override
@@ -222,6 +223,7 @@ class EmptyGiftRepository implements GiftRepository {
   Future<Result<GiftPhoto>> addPhoto({
     required String giftId,
     required Uint8List jpegBytes,
+    String? caption,
   }) async => const ResultFailure(NetworkFailure('No backend configured'));
 
   @override

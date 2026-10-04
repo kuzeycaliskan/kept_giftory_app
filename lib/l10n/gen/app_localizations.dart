@@ -1412,46 +1412,10 @@ abstract class AppLocalizations {
   /// **'Couldn\'t share. Try again.'**
   String get composeFailed;
 
-  /// No description provided for @composeUnboxingOf.
-  ///
-  /// In en, this message translates to:
-  /// **'Unboxing: {item}'**
-  String composeUnboxingOf(String item);
-
-  /// No description provided for @composeUnboxingKept.
-  ///
-  /// In en, this message translates to:
-  /// **'Shared as a 24-hour story for your friends; the photo also stays here with the gift\'s memories.'**
-  String get composeUnboxingKept;
-
-  /// No description provided for @composeUnboxingTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Share the unboxing'**
-  String get composeUnboxingTitle;
-
-  /// No description provided for @composeUnboxingCaptionHint.
-  ///
-  /// In en, this message translates to:
-  /// **'A note for the story (optional)'**
-  String get composeUnboxingCaptionHint;
-
-  /// No description provided for @composeUnboxingShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Share as a story'**
-  String get composeUnboxingShare;
-
-  /// No description provided for @composeUnboxingShared.
-  ///
-  /// In en, this message translates to:
-  /// **'Story shared. The photo is in the gift\'s memories.'**
-  String get composeUnboxingShared;
-
   /// No description provided for @giftShareUnboxingHint.
   ///
   /// In en, this message translates to:
-  /// **'Take a photo: it goes out as a 24-hour story and is added to this gift\'s memories.'**
+  /// **'Take a photo and add a note; it stays with this gift, and you can share it as a 24-hour story too.'**
   String get giftShareUnboxingHint;
 
   /// No description provided for @giftShareUnboxing.
@@ -1603,6 +1567,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved, but some photos couldn\'t be added.'**
   String get giftPhotoAttachPartial;
+
+  /// No description provided for @giftPhotoNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for this photo (optional)'**
+  String get giftPhotoNoteHint;
+
+  /// No description provided for @giftPhotoShareStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Also share as a story'**
+  String get giftPhotoShareStory;
+
+  /// No description provided for @giftPhotoShareStoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends see it for 24 hours; the photo and note stay with the gift either way.'**
+  String get giftPhotoShareStoryHint;
+
+  /// No description provided for @giftPhotoShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get giftPhotoShare;
+
+  /// No description provided for @giftPhotoSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get giftPhotoSave;
+
+  /// No description provided for @giftPhotoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added to the gift\'s memories.'**
+  String get giftPhotoSaved;
+
+  /// No description provided for @giftPhotoSharedStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story shared. The photo is in the gift\'s memories.'**
+  String get giftPhotoSharedStory;
+
+  /// No description provided for @giftPhotoStoryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo saved, but the story couldn\'t be shared.'**
+  String get giftPhotoStoryFailed;
 
   /// No description provided for @giftDetailPhotosSection.
   ///

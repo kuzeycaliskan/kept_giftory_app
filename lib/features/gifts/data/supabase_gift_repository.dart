@@ -235,6 +235,7 @@ class SupabaseGiftRepository implements GiftRepository {
   Future<Result<GiftPhoto>> addPhoto({
     required String giftId,
     required Uint8List jpegBytes,
+    String? caption,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return const ResultFailure(AuthFailure('Signed out'));
@@ -259,8 +260,9 @@ class SupabaseGiftRepository implements GiftRepository {
             'gift_id': giftId,
             'uploader_id': userId,
             'media_path': path,
+            'caption': ?caption,
           })
-          .select('id, gift_id, uploader_id, media_path, created_at')
+          .select('id, gift_id, uploader_id, media_path, caption, created_at')
           .single();
       return Success(giftPhotosFromRows([row]).single);
     } on PostgrestException catch (e) {
