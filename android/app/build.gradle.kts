@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // Kotlin comes from AGP's built-in support as in the Flutter template;
@@ -7,6 +9,16 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
+
+// Release signing (Play upload key) comes from android/key.properties —
+// gitignored, created once per machine per docs.flutter.dev/deployment/android.
+// Without it, release builds fall back to the debug key so `flutter run
+// --release` keeps working on any checkout; those builds are not uploadable.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val hasUploadKey = keystoreProperties.containsKey("storeFile")
 
 android {
     namespace = "com.kept.kept"
@@ -32,11 +44,22 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasUploadKey) {
+            create("upload") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(
+                if (hasUploadKey) "upload" else "debug",
+            )
         }
     }
 }

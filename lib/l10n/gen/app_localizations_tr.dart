@@ -392,6 +392,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get legalTermsOfUse => 'Kullanım Şartları';
 
   @override
+  String get signInLegalNotice =>
+      'Devam ederek Kullanım Şartları\'nı ve Gizlilik Politikası\'nı kabul etmiş olursun.';
+
+  @override
   String get legalOpenError => 'Sayfa açılamadı.';
 
   @override

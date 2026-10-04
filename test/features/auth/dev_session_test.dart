@@ -37,6 +37,16 @@ void main() {
 
     expect(container.read(devSessionProvider), isFalse);
 
+    // Store requirement: the legal documents are one tap away at sign-in.
+    expect(
+      find.text(
+        'By continuing you agree to our Terms of Use and Privacy Policy.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Terms of Use'), findsOneWidget);
+    expect(find.text('Privacy Policy'), findsOneWidget);
+
     // Tests run in debug mode (and default to en), so the button is present.
     final devButton = find.text('Continue in dev mode (debug only)');
     expect(devButton, findsOneWidget);

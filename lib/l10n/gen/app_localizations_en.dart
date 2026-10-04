@@ -394,6 +394,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legalTermsOfUse => 'Terms of Use';
 
   @override
+  String get signInLegalNotice =>
+      'By continuing you agree to our Terms of Use and Privacy Policy.';
+
+  @override
   String get legalOpenError => 'Couldn\'t open the page.';
 
   @override

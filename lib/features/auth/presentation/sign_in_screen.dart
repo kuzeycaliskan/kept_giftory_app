@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/application/sign_in_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Sign-in (G-11): Apple + Google only. Flows fail gracefully while provider
 /// config is absent.
@@ -103,6 +106,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 icon: const Icon(Icons.g_mobiledata),
                 label: Text(l10n.signInWithGoogle),
               ),
+              const SizedBox(height: KeptSpacing.md),
+              const _LegalFooter(),
               if (busy) ...[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
@@ -125,6 +130,56 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Store-facing requirement and plain courtesy: what the user agrees to by
+/// signing in, with the two documents one tap away (also in Settings).
+class _LegalFooter extends StatelessWidget {
+  const _LegalFooter();
+
+  Future<void> _open(BuildContext context, String url) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final ok = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.legalOpenError)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Text(
+          l10n.signInLegalNotice,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () => _open(context, Env.termsOfUseUrl),
+              child: Text(l10n.legalTermsOfUse),
+            ),
+            Text('·', style: theme.textTheme.bodySmall),
+            TextButton(
+              onPressed: () => _open(context, Env.privacyPolicyUrl),
+              child: Text(l10n.legalPrivacyPolicy),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

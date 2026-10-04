@@ -119,6 +119,7 @@
   "settingsLegalSection": "Yasal",
   "legalPrivacyPolicy": "Gizlilik Politikası",
   "legalTermsOfUse": "Kullanım Şartları",
+  "signInLegalNotice": "Devam ederek Kullanım Şartları'nı ve Gizlilik Politikası'nı kabul etmiş olursun.",
   "legalOpenError": "Sayfa açılamadı.",
   "errorSessionInvalid": "Oturumun artık geçerli değil — lütfen tekrar giriş yap.",
   "friendsTitle": "Arkadaşlar",

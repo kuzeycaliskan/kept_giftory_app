@@ -812,6 +812,12 @@ abstract class AppLocalizations {
   /// **'Terms of Use'**
   String get legalTermsOfUse;
 
+  /// No description provided for @signInLegalNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing you agree to our Terms of Use and Privacy Policy.'**
+  String get signInLegalNotice;
+
   /// No description provided for @legalOpenError.
   ///
   /// In en, this message translates to:

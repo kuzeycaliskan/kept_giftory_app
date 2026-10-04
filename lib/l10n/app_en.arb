@@ -182,6 +182,7 @@
   "settingsLegalSection": "Legal",
   "legalPrivacyPolicy": "Privacy Policy",
   "legalTermsOfUse": "Terms of Use",
+  "signInLegalNotice": "By continuing you agree to our Terms of Use and Privacy Policy.",
   "legalOpenError": "Couldn't open the page.",
   "errorSessionInvalid": "Your session is no longer valid — please sign in again.",
   "friendsTitle": "Friends",
