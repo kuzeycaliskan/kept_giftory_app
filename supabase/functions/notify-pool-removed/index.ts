@@ -11,6 +11,7 @@ import {
   poolLoggedPush,
   poolReleasedPush,
   poolRemovedPush,
+  poolShareRemovedPush,
 } from "../_shared/messages.ts";
 
 interface Target {
@@ -41,6 +42,8 @@ Deno.serve(async (req) => {
     ? poolLoggedPush(actor, title)
     : kind === "released"
     ? poolReleasedPush(actor, title)
+    : kind === "share_removed"
+    ? poolShareRemovedPush(actor, title)
     : poolRemovedPush(title);
   await recordNotices(
     supabase,

@@ -11,6 +11,7 @@ import {
   poolReleasedPush,
   poolReminderPush,
   poolRemovedPush,
+  poolShareRemovedPush,
   surprisePush,
 } from "./messages.ts";
 
@@ -110,5 +111,12 @@ Deno.test("pool released / logged copy names the organizer", () => {
   assertEquals(
     poolLoggedPush("Kamil", "Tent").body,
     "Kamil Tent kaydetti; sen de verenler arasındasın.",
+  );
+});
+
+Deno.test("share removed copy", () => {
+  assertEquals(
+    poolShareRemovedPush("Kamil", "Tent").body,
+    "Kamil Tent havuzundan katkını kaldırdı.",
   );
 });

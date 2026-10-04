@@ -165,3 +165,16 @@ export function poolLoggedPush(
     } kaydetti; sen de verenler arasındasın.`,
   };
 }
+
+/// The organizer took someone's share out of the pool.
+export function poolShareRemovedPush(
+  actor: string | null,
+  itemTitle: string | null,
+): { title: string; body: string } {
+  return {
+    title: "Ortak hediyeden çıkarıldın",
+    body: `${actor ?? "Organizatör"} ${
+      itemTitle ? clip(itemTitle, 40) + " havuzundan" : "havuzdan"
+    } katkını kaldırdı.`,
+  };
+}
