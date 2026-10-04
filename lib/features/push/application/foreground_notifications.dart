@@ -28,7 +28,7 @@ class ForegroundNotifications {
   }) async {
     final plugin = FlutterLocalNotificationsPlugin();
     await plugin.initialize(
-      const InitializationSettings(
+      settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(),
       ),
@@ -56,10 +56,10 @@ class ForegroundNotifications {
     if (notification == null) return;
     unawaited(
       _plugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
+        id: notification.hashCode,
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             _channel.id,
             _channel.name,
