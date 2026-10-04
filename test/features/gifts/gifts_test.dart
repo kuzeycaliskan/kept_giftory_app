@@ -1149,6 +1149,41 @@ void main() {
       expect(find.text('Take a photo'), findsOneWidget);
     });
 
+    testWidgets("the recipient removes the giver's photo; the giver cannot", (
+      tester,
+    ) async {
+      // dev-me received g6; ali (giver) uploaded its photo.
+      final repo = _FakeGiftRepository(
+        received: [
+          giftWithPhotos(
+            id: 'g6',
+            count: 1,
+            uploader: 'ali',
+            giverId: 'ali',
+            recipientId: 'dev-me',
+          ),
+        ],
+      );
+      await pump(tester, gifts: repo, initial: '/gifts/g6?side=giver');
+      await tester.tap(find.byType(PrivateMediaImage).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.more_horiz));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove photo'));
+      await tester.pumpAndSettle();
+      expect(repo.removed, ['p0']);
+
+      // dev-me gave g7; ali (recipient) uploaded its photo: no remove.
+      final giver = _FakeGiftRepository(
+        given: [giftWithPhotos(id: 'g7', count: 1, uploader: 'ali')],
+      );
+      await pump(tester, gifts: giver, initial: '/gifts/g7?side=recipient');
+      await tester.tap(find.byType(PrivateMediaImage).first);
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 1'), findsOneWidget);
+      expect(find.byIcon(Icons.more_horiz), findsNothing);
+    });
+
     testWidgets('reacting from the detail sets, changes and clears', (
       tester,
     ) async {

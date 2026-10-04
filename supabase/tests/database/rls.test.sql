@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(220);
+select plan(222);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -903,14 +903,18 @@ select throws_ok(
   '73: recipient cannot attach photos to an unrevealed surprise'
 );
 
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
 delete from public.gift_photos
- where gift_id = '00000000-0000-0000-0000-000000000c01' and uploader_id = '00000000-0000-0000-0000-00000000000e';
+ where gift_id = '00000000-0000-0000-0000-000000000c01' and uploader_id = '00000000-0000-0000-0000-00000000000a';
 select is(
   (select count(*) from public.gift_photos
-    where gift_id = '00000000-0000-0000-0000-000000000c01' and uploader_id = '00000000-0000-0000-0000-00000000000e'),
-  1::bigint,
-  '74: a party cannot delete the other party''s photo'
+    where gift_id = '00000000-0000-0000-0000-000000000c01' and uploader_id = '00000000-0000-0000-0000-00000000000a'),
+  2::bigint,
+  '74: the giver cannot delete the recipient''s photos (both stay)'
 );
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
 
 -- Storage objects follow the row.
 reset role;
@@ -2470,6 +2474,36 @@ select throws_ok(
   '23514',
   null,
   '213: a note past 140 characters is refused'
+);
+reset role;
+
+
+-- ── 214-215: the recipient curates their gift's photos ─────────────────────
+reset role;
+delete from public.gift_photos where gift_id = '00000000-0000-0000-0000-000000000c01';
+insert into public.gift_photos (id, gift_id, uploader_id, media_path) values
+  ('00000000-0000-0000-0000-000000000d71', '00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000e',
+   '00000000-0000-0000-0000-00000000000e/00000000-0000-0000-0000-000000000c01-9.jpg'),
+  ('00000000-0000-0000-0000-000000000d72', '00000000-0000-0000-0000-000000000c01', '00000000-0000-0000-0000-00000000000a',
+   '00000000-0000-0000-0000-00000000000a/00000000-0000-0000-0000-000000000c01-9.jpg');
+
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+delete from public.gift_photos where id = '00000000-0000-0000-0000-000000000d71';
+select is(
+  (select count(*) from public.gift_photos where id = '00000000-0000-0000-0000-000000000d71'),
+  0::bigint,
+  '214: the recipient can remove the giver''s photo from their gift'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}';
+delete from public.gift_photos where id = '00000000-0000-0000-0000-000000000d72';
+select is(
+  (select count(*) from public.gift_photos where id = '00000000-0000-0000-0000-000000000d72'),
+  1::bigint,
+  '215: the giver still cannot remove the recipient''s'
 );
 reset role;
 

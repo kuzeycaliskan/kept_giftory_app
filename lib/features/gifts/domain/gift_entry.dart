@@ -155,6 +155,11 @@ class GiftEntry {
   );
 
   /// Still hidden from the recipient (giver-side badge).
+  /// Who may take a photo down: its uploader, and the recipient for any
+  /// photo on their gift (mirrors the `gift_photos_delete` policy).
+  bool canRemovePhoto(GiftPhoto photo, String? userId) =>
+      userId != null && (photo.uploaderId == userId || recipientId == userId);
+
   bool get isPendingSurprise =>
       isSurprise && revealAt != null && DateTime.now().isBefore(revealAt!);
 }

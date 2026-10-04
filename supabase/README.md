@@ -316,6 +316,9 @@ a viewer who may not see the gift gets a bare "unboxing" tag. `posts_notify_unbo
 (AFTER INSERT) pings `notify-unboxing` via pg_net; `unboxing_targets(post)` (service-only)
 returns the giver and every `gift_contributors` row except the author, LEFT JOINed with
 devices so the inbox row is written for everyone and pushes go to opted-in tokens.
+Removing a gift photo: its uploader, or the gift's recipient for any photo on their gift
+(`gift_photos_delete`); the giver cannot remove the recipient's. The client deletes the row
+(authorization) and the purge queue drops the object, so no cross-folder storage rights exist.
 `gift_photos.caption` (≤140) is the photo's own note; an unboxing posts the photo
 (with that note) to the gift first, then the story, so a story failure never loses the
 photo.

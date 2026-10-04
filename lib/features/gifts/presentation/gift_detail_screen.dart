@@ -100,7 +100,7 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
             bucket: giftMediaBucket,
             path: photo.mediaPath,
             caption: photo.caption,
-            onRemove: photo.uploaderId == myId
+            onRemove: gift.canRemovePhoto(photo, myId)
                 ? () => _removePhoto(photo)
                 : null,
           ),

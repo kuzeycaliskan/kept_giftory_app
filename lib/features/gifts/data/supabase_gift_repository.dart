@@ -280,15 +280,24 @@ class SupabaseGiftRepository implements GiftRepository {
 
   @override
   Future<Result<void>> removePhoto(GiftPhoto photo) async {
+    // The row carries the authorization (uploader or recipient) and its
+    // delete queues the object for the server purge. Removing the object
+    // here as well is an optimisation that only works for the caller's
+    // own folder; the recipient taking down the giver's photo relies on
+    // the queue, so a storage refusal is logged, never a failure.
     try {
-      await _media.delete(bucket: giftMediaBucket, path: photo.mediaPath);
       await _client.from('gift_photos').delete().eq('id', photo.id);
-      return const Success(null);
     } on PostgrestException catch (e) {
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
       return ResultFailure(UnknownFailure(e.toString()));
     }
+    try {
+      await _media.delete(bucket: giftMediaBucket, path: photo.mediaPath);
+    } catch (e) {
+      debugPrint('gift photo object left to the purge queue: $e');
+    }
+    return const Success(null);
   }
 
   @override
