@@ -45,10 +45,10 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     final events = ref.watch(homeEventsProvider);
-    final teaser = ref.watch(surpriseTeaserProvider).valueOrNull;
+    final teaser = ref.watch(surpriseTeaserProvider).value;
     final friendEntries = ref.watch(friendEntriesProvider);
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
-    final myEvents = ref.watch(myEventsProvider).valueOrNull;
+    final myId = ref.watch(myProfileProvider).value?.id;
+    final myEvents = ref.watch(myEventsProvider).value;
     final pendingInvites =
         myEvents?.where((e) => e.isInvited(myId)).length ?? 0;
     // G-307: a revealed event for me that I have not thanked yet.
@@ -59,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
     // The bell counts everything waiting for an answer: friend requests
     // and gift event invitations.
     final pendingRequests =
-        (friendEntries.valueOrNull
+        (friendEntries.value
                 ?.where(
                   (e) =>
                       e.status == FriendshipStatus.pending &&
@@ -73,7 +73,7 @@ class HomeScreen extends ConsumerWidget {
     // Cold start: no accepted friends → one focused invite card instead of
     // three empty sections all begging separately (G-36).
     final hasFriends =
-        friendEntries.valueOrNull?.any(
+        friendEntries.value?.any(
           (e) => e.status == FriendshipStatus.accepted,
         ) ??
         true;
@@ -170,7 +170,7 @@ class _PushPrimingCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final show = ref.watch(shouldShowPushPrimingProvider);
-    if (show.valueOrNull != true) return const SizedBox.shrink();
+    if (show.value != true) return const SizedBox.shrink();
 
     final setup = ref.read(pushSetupProvider.notifier);
     return Card(
@@ -443,7 +443,7 @@ class _EventButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final lookup = ref.watch(eventForHonoreeProvider(friendId)).valueOrNull;
+    final lookup = ref.watch(eventForHonoreeProvider(friendId)).value;
     final joined =
         lookup != null &&
         (lookup.myStatus == EventMemberStatus.joined ||
@@ -699,7 +699,7 @@ class _GiftPostCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gift = event.gift!;
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     // The feed sorts by logging time, so the card says when it was logged;
@@ -818,7 +818,7 @@ class _PhotoRow extends StatelessWidget {
   }
 }
 
-/// "A surprise is on its way — opens on <date>": the only thing the
+/// "A surprise is on its way — opens on `<date>`": the only thing the
 /// recipient learns about pending surprises. Soft shimmer = anticipation.
 /// The honoree's reveal moment on Home (G-307): opens the event page.
 class _RevealCard extends StatelessWidget {

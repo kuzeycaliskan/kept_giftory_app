@@ -6,15 +6,14 @@ part of 'profile_card.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ProfileCardImpl _$$ProfileCardImplFromJson(Map<String, dynamic> json) =>
-    _$ProfileCardImpl(
-      id: json['id'] as String,
-      username: json['username'] as String,
-      displayName: json['display_name'] as String?,
-      avatarUrl: json['avatar_url'] as String?,
-    );
+_ProfileCard _$ProfileCardFromJson(Map<String, dynamic> json) => _ProfileCard(
+  id: json['id'] as String,
+  username: json['username'] as String,
+  displayName: json['display_name'] as String?,
+  avatarUrl: json['avatar_url'] as String?,
+);
 
-Map<String, dynamic> _$$ProfileCardImplToJson(_$ProfileCardImpl instance) =>
+Map<String, dynamic> _$ProfileCardToJson(_ProfileCard instance) =>
     <String, dynamic>{
       'id': instance.id,
       'username': instance.username,

@@ -13,7 +13,7 @@ enum ReactionKind { heart, congrats, like, ok, wow }
 /// through a definer RPC, so the reactor is named even with a hidden
 /// profile (product rule); null is a defensive fallback only.
 @freezed
-class Reaction with _$Reaction {
+abstract class Reaction with _$Reaction {
   const factory Reaction({
     @JsonKey(name: 'user_id') required String userId,
     required ReactionKind kind,

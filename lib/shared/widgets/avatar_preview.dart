@@ -12,7 +12,7 @@ Future<void> showAvatarPreview(
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).closeButtonLabel,
     barrierColor: Colors.black87,
-    pageBuilder: (context, _, __) => _AvatarPreview(url: url, label: label),
+    pageBuilder: (context, _, _) => _AvatarPreview(url: url, label: label),
     transitionDuration: const Duration(milliseconds: 150),
     transitionBuilder: (context, animation, _, child) =>
         FadeTransition(opacity: animation, child: child),

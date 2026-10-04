@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/media/media_providers.dart';
@@ -69,7 +68,9 @@ Future<GiftEntry?> giftDetail(
   );
 }
 
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class GiftsController extends _$GiftsController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

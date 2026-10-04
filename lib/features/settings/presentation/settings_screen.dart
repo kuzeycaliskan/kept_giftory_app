@@ -173,8 +173,8 @@ class _BirthdayRemindersSwitch extends ConsumerWidget {
     });
 
     // Backend-less / not onboarded: show the row disabled at its default.
-    final enabled = profile.valueOrNull?.birthdayRemindersEnabled ?? true;
-    final interactive = !saving && profile.valueOrNull != null;
+    final enabled = profile.value?.birthdayRemindersEnabled ?? true;
+    final interactive = !saving && profile.value != null;
 
     return SwitchListTile(
       secondary: const Icon(Icons.cake_outlined),
@@ -213,8 +213,8 @@ class _SocialNotificationsSwitch extends ConsumerWidget {
     final l10n = context.l10n;
     final profile = ref.watch(myProfileProvider);
     final saving = ref.watch(notificationPrefsControllerProvider).isLoading;
-    final enabled = profile.valueOrNull?.socialNotificationsEnabled ?? true;
-    final interactive = !saving && profile.valueOrNull != null;
+    final enabled = profile.value?.socialNotificationsEnabled ?? true;
+    final interactive = !saving && profile.value != null;
 
     return SwitchListTile(
       secondary: const Icon(Icons.mode_comment_outlined),

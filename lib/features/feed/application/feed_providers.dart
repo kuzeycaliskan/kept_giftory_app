@@ -1,4 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
+
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
@@ -42,7 +43,7 @@ Future<List<StoryGroup>> storyGroups(Ref ref) async {
 class SeenPosts extends _$SeenPosts {
   @override
   Set<String> build() {
-    final prefs = ref.watch(sharedPreferencesProvider).valueOrNull;
+    final prefs = ref.watch(sharedPreferencesProvider).value;
     return {...?prefs?.getStringList(PrefKeys.seenPostIds)};
   }
 
@@ -61,7 +62,7 @@ class SeenPosts extends _$SeenPosts {
   }
 
   void _persist() {
-    final prefs = ref.read(sharedPreferencesProvider).valueOrNull;
-    prefs?.setStringList(PrefKeys.seenPostIds, state.toList());
+    final prefs = ref.read(sharedPreferencesProvider).value;
+    unawaited(prefs?.setStringList(PrefKeys.seenPostIds, state.toList()));
   }
 }

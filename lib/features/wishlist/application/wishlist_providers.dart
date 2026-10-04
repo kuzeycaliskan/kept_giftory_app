@@ -46,7 +46,9 @@ Future<List<WishlistItem>> friendWishlist(Ref ref, String profileId) async {
   );
 }
 
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class WishlistController extends _$WishlistController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

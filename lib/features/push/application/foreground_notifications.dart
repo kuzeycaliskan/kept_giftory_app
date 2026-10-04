@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -52,23 +54,25 @@ class ForegroundNotifications {
   void _show(RemoteMessage message) {
     final notification = message.notification;
     if (notification == null) return;
-    _plugin.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channel.id,
-          _channel.name,
-          channelDescription: _channel.description,
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+    unawaited(
+      _plugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channel.id,
+            _channel.name,
+            channelDescription: _channel.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+          iOS: const DarwinNotificationDetails(),
         ),
-        iOS: const DarwinNotificationDetails(),
+        // Carry the route so a tap navigates like a background tap does.
+        payload: message.data['route'] as String?,
       ),
-      // Carry the route so a tap navigates like a background tap does.
-      payload: message.data['route'] as String?,
     );
   }
 }

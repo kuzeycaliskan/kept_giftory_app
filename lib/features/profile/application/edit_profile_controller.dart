@@ -7,7 +7,9 @@ part 'edit_profile_controller.g.dart';
 
 /// Saves profile edits (G-23). Success refreshes [myProfileProvider] so the
 /// Me screen and every other consumer re-render at once.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class EditProfileController extends _$EditProfileController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
@@ -81,7 +80,9 @@ Future<void> pushTokenSync(Ref ref) async {
 
 /// Push setup actions driven by the priming card (G-61): soft-ask happened in
 /// UI, this triggers the OS prompt and registers the token on success.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class PushSetup extends _$PushSetup {
   @override
   AsyncValue<void> build() => const AsyncData(null);

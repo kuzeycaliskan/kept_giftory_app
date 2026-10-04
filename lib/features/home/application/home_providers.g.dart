@@ -6,82 +6,180 @@ part of 'home_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(homeRepository)
+final homeRepositoryProvider = HomeRepositoryProvider._();
+
+final class HomeRepositoryProvider
+    extends $FunctionalProvider<HomeRepository, HomeRepository, HomeRepository>
+    with $Provider<HomeRepository> {
+  HomeRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'homeRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$homeRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<HomeRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  HomeRepository create(Ref ref) {
+    return homeRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(HomeRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<HomeRepository>(value),
+    );
+  }
+}
+
 String _$homeRepositoryHash() => r'300d208acc23eb2765c246b38d652ad2223e6799';
 
-/// See also [homeRepository].
-@ProviderFor(homeRepository)
-final homeRepositoryProvider = Provider<HomeRepository>.internal(
-  homeRepository,
-  name: r'homeRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$homeRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// Upper Home section: friends' upcoming birthdays (real data).
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef HomeRepositoryRef = ProviderRef<HomeRepository>;
-String _$upcomingBirthdaysHash() => r'72324555c1198bb8abc2c1b7669851ad045ca9f5';
+@ProviderFor(upcomingBirthdays)
+final upcomingBirthdaysProvider = UpcomingBirthdaysProvider._();
 
 /// Upper Home section: friends' upcoming birthdays (real data).
-///
-/// Copied from [upcomingBirthdays].
-@ProviderFor(upcomingBirthdays)
-final upcomingBirthdaysProvider =
-    AutoDisposeFutureProvider<List<UpcomingBirthday>>.internal(
-      upcomingBirthdays,
-      name: r'upcomingBirthdaysProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$upcomingBirthdaysHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef UpcomingBirthdaysRef =
-    AutoDisposeFutureProviderRef<List<UpcomingBirthday>>;
-String _$homeEventsHash() => r'ef45afa89004c535236329e73c562b984eddbe7f';
+final class UpcomingBirthdaysProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<UpcomingBirthday>>,
+          List<UpcomingBirthday>,
+          FutureOr<List<UpcomingBirthday>>
+        >
+    with
+        $FutureModifier<List<UpcomingBirthday>>,
+        $FutureProvider<List<UpcomingBirthday>> {
+  /// Upper Home section: friends' upcoming birthdays (real data).
+  UpcomingBirthdaysProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'upcomingBirthdaysProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$upcomingBirthdaysHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<UpcomingBirthday>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<UpcomingBirthday>> create(Ref ref) {
+    return upcomingBirthdays(ref);
+  }
+}
+
+String _$upcomingBirthdaysHash() => r'72324555c1198bb8abc2c1b7669851ad045ca9f5';
 
 /// Lower Home section: my real social events (G-82; feed proper is V2/G-210).
-///
-/// Copied from [homeEvents].
-@ProviderFor(homeEvents)
-final homeEventsProvider = AutoDisposeFutureProvider<List<HomeEvent>>.internal(
-  homeEvents,
-  name: r'homeEventsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$homeEventsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef HomeEventsRef = AutoDisposeFutureProviderRef<List<HomeEvent>>;
-String _$surpriseTeaserHash() => r'04ef9a766485062d6e6e6f983b720dd864199418';
+@ProviderFor(homeEvents)
+final homeEventsProvider = HomeEventsProvider._();
+
+/// Lower Home section: my real social events (G-82; feed proper is V2/G-210).
+
+final class HomeEventsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<HomeEvent>>,
+          List<HomeEvent>,
+          FutureOr<List<HomeEvent>>
+        >
+    with $FutureModifier<List<HomeEvent>>, $FutureProvider<List<HomeEvent>> {
+  /// Lower Home section: my real social events (G-82; feed proper is V2/G-210).
+  HomeEventsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'homeEventsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$homeEventsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<HomeEvent>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<HomeEvent>> create(Ref ref) {
+    return homeEvents(ref);
+  }
+}
+
+String _$homeEventsHash() => r'ef45afa89004c535236329e73c562b984eddbe7f';
 
 /// "A surprise is coming" card data (G-210); null = nothing pending.
-///
-/// Copied from [surpriseTeaser].
-@ProviderFor(surpriseTeaser)
-final surpriseTeaserProvider =
-    AutoDisposeFutureProvider<SurpriseTeaser?>.internal(
-      surpriseTeaser,
-      name: r'surpriseTeaserProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$surpriseTeaserHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SurpriseTeaserRef = AutoDisposeFutureProviderRef<SurpriseTeaser?>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(surpriseTeaser)
+final surpriseTeaserProvider = SurpriseTeaserProvider._();
+
+/// "A surprise is coming" card data (G-210); null = nothing pending.
+
+final class SurpriseTeaserProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SurpriseTeaser?>,
+          SurpriseTeaser?,
+          FutureOr<SurpriseTeaser?>
+        >
+    with $FutureModifier<SurpriseTeaser?>, $FutureProvider<SurpriseTeaser?> {
+  /// "A surprise is coming" card data (G-210); null = nothing pending.
+  SurpriseTeaserProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'surpriseTeaserProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$surpriseTeaserHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<SurpriseTeaser?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SurpriseTeaser?> create(Ref ref) {
+    return surpriseTeaser(ref);
+  }
+}
+
+String _$surpriseTeaserHash() => r'04ef9a766485062d6e6e6f983b720dd864199418';

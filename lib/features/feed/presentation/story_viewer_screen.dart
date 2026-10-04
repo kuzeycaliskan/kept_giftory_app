@@ -63,12 +63,11 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       _close();
       return;
     }
-    unawaited(
-      _pull.animateTo(
-        0,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-      ),
+    // Animation futures need no awaiting: the controller owns their life.
+    _pull.animateTo(
+      0,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
     );
   }
 
@@ -263,7 +262,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
         ownerId: post.authorId,
       ),
     );
-    if (mounted) unawaited(_progress.forward());
+    if (mounted) _progress.forward();
   }
 
   /// The story pauses while the comments sheet is open.
@@ -289,7 +288,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
         ),
       ),
     );
-    if (mounted) unawaited(_progress.forward());
+    if (mounted) _progress.forward();
   }
 
   Future<void> _react(Post post, ReactionKind kind, String? myId) async {
@@ -331,7 +330,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
     );
     if (!mounted) return;
     if (confirmed != true) {
-      unawaited(_progress.forward());
+      _progress.forward();
       return;
     }
 
@@ -339,7 +338,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
     if (!mounted) return;
     if (!ok) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.storyDeleteFailed)));
-      unawaited(_progress.forward());
+      _progress.forward();
       return;
     }
     messenger.showSnackBar(SnackBar(content: Text(l10n.storyDeleted)));
@@ -376,7 +375,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
       ],
     );
     // Dismissed without choosing: resume. (Delete manages its own resume.)
-    if (!picked && mounted) unawaited(_progress.forward());
+    if (!picked && mounted) _progress.forward();
   }
 
   @override
@@ -384,7 +383,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
     final l10n = context.l10n;
     final group = widget.group;
     final post = group.posts[_index];
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     final isMine = myId == post.authorId;
     final label = group.author.displayName ?? group.author.username;
 
@@ -425,7 +424,7 @@ class _StoryPageState extends ConsumerState<_StoryPage>
                           post: post,
                           onSheetOpened: _progress.stop,
                           onSheetClosed: () {
-                            if (mounted) unawaited(_progress.forward());
+                            if (mounted) _progress.forward();
                           },
                         ),
                       )

@@ -36,7 +36,7 @@ class ClaimBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     final busy = ref.watch(claimsControllerProvider).isLoading;
     final claim = this.claim;
     final Widget child;
@@ -90,8 +90,8 @@ String logGiftRouteFor(
     'recipient': item.ownerId,
     'claim': claim.id,
     'item': title,
-    if (url != null) 'url': url,
-    if (eventId != null) 'event': eventId,
+    'url': ?url,
+    'event': ?eventId,
   };
   return Uri(path: '/gifts/log', queryParameters: query).toString();
 }
@@ -1022,11 +1022,11 @@ class _ParticipantsSheet extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     final busy = ref.watch(claimsControllerProvider).isLoading;
     final claim = ref
         .watch(wishlistClaimsProvider(item.ownerId))
-        .valueOrNull?[item.id];
+        .value?[item.id];
     final controller = ref.read(claimsControllerProvider.notifier);
     if (claim == null || !claim.isShared) {
       // Cancelled underneath us (or from here): nothing left to manage,

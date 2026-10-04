@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/media/media_store.dart';
 import 'package:kept/core/media/supabase_media_store.dart';

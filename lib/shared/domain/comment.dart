@@ -10,7 +10,7 @@ const int commentMaxLength = 500;
 /// One comment on a gift or a moment. [user] resolves through the
 /// discovery-card RPC so the author is always named.
 @freezed
-class Comment with _$Comment {
+abstract class Comment with _$Comment {
   const factory Comment({
     required String id,
     @JsonKey(name: 'author_id') required String authorId,
@@ -27,7 +27,7 @@ class Comment with _$Comment {
 /// comments on one target, and who may delete which. Implemented by the
 /// gift and moment features over their own repositories.
 abstract interface class CommentTarget {
-  /// Stable key for caching/providers (e.g. 'gift:<id>').
+  /// Stable key for caching/providers (e.g. `gift:<id>`).
   String get key;
 
   /// Can the viewer delete [comment]? (author, or the item's owner)

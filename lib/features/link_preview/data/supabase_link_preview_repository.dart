@@ -23,7 +23,7 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
   /// triggers the WebView path once, not on every keystroke/paste.
   static final Set<String> _enriched = {};
 
-  static const _maxImageBytes = 300 * 1024;
+  static const int _maxImageBytes = 300 * 1024;
 
   @override
   Future<LinkPreview?> fetch(String url, {bool refresh = false}) async {
@@ -61,7 +61,7 @@ class SupabaseLinkPreviewRepository implements LinkPreviewRepository {
     final enriched = await _invoke({
       'url': trimmed,
       if (refresh) 'refresh': true,
-      'meta': {...meta, if (imageB64 != null) 'image_b64': imageB64},
+      'meta': {...meta, 'image_b64': ?imageB64},
     });
     return enriched?.preview ?? server;
   }

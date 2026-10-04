@@ -16,10 +16,10 @@ void main() {
     final router = GoRouter(
       initialLocation: '/sign-in',
       routes: [
-        GoRoute(path: '/sign-in', builder: (_, __) => const SignInScreen()),
+        GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),
         GoRoute(
           path: '/',
-          builder: (_, __) => const Scaffold(body: Text('home')),
+          builder: (_, _) => const Scaffold(body: Text('home')),
         ),
       ],
     );

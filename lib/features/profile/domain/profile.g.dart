@@ -6,9 +6,7 @@ part of 'profile.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ProfileImpl _$$ProfileImplFromJson(
-  Map<String, dynamic> json,
-) => _$ProfileImpl(
+_Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
   id: json['id'] as String,
   username: json['username'] as String,
   displayName: json['display_name'] as String?,
@@ -37,24 +35,23 @@ _$ProfileImpl _$$ProfileImplFromJson(
       json['social_notifications_enabled'] as bool? ?? true,
 );
 
-Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'username': instance.username,
-      'display_name': instance.displayName,
-      'avatar_url': instance.avatarUrl,
-      'birthday': instance.birthday?.toIso8601String(),
-      'gender': instance.gender,
-      'occupation': instance.occupation,
-      'bio': instance.bio,
-      'profile_visibility': _$VisibilityEnumMap[instance.profileVisibility]!,
-      'wishlist_visibility': _$VisibilityEnumMap[instance.wishlistVisibility]!,
-      'gift_history_visibility':
-          _$VisibilityEnumMap[instance.giftHistoryVisibility]!,
-      'invite_code': instance.inviteCode,
-      'birthday_reminders_enabled': instance.birthdayRemindersEnabled,
-      'social_notifications_enabled': instance.socialNotificationsEnabled,
-    };
+Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
+  'id': instance.id,
+  'username': instance.username,
+  'display_name': instance.displayName,
+  'avatar_url': instance.avatarUrl,
+  'birthday': instance.birthday?.toIso8601String(),
+  'gender': instance.gender,
+  'occupation': instance.occupation,
+  'bio': instance.bio,
+  'profile_visibility': _$VisibilityEnumMap[instance.profileVisibility]!,
+  'wishlist_visibility': _$VisibilityEnumMap[instance.wishlistVisibility]!,
+  'gift_history_visibility':
+      _$VisibilityEnumMap[instance.giftHistoryVisibility]!,
+  'invite_code': instance.inviteCode,
+  'birthday_reminders_enabled': instance.birthdayRemindersEnabled,
+  'social_notifications_enabled': instance.socialNotificationsEnabled,
+};
 
 const _$VisibilityEnumMap = {
   Visibility.public: 'public',

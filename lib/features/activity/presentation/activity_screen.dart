@@ -29,7 +29,7 @@ class ActivityScreen extends ConsumerWidget {
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     final events = ref.watch(myEventsProvider);
     final inbox = ref.watch(notificationsProvider);
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
 
     ref.listen(friendsControllerProvider, (_, next) {
       if (next.hasError) {
@@ -40,7 +40,7 @@ class ActivityScreen extends ConsumerWidget {
     });
 
     final requests =
-        entries.valueOrNull
+        entries.value
             ?.where(
               (e) =>
                   e.status == FriendshipStatus.pending &&
@@ -48,11 +48,11 @@ class ActivityScreen extends ConsumerWidget {
             )
             .toList() ??
         const <FriendEntry>[];
-    final birthdays = upcoming.valueOrNull ?? const <UpcomingBirthday>[];
+    final birthdays = upcoming.value ?? const <UpcomingBirthday>[];
     final invites =
-        events.valueOrNull?.where((e) => e.isInvited(myId)).toList() ??
+        events.value?.where((e) => e.isInvited(myId)).toList() ??
         const <GiftEvent>[];
-    final notices = inbox.valueOrNull ?? const <AppNotification>[];
+    final notices = inbox.value ?? const <AppNotification>[];
     final hasUnread = notices.any((n) => n.isUnread);
     final loading = entries.isLoading || upcoming.isLoading;
 

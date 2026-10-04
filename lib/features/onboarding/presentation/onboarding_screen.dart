@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -121,7 +123,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(l10n.errorSessionInvalid)));
-        ref.read(authRepositoryProvider).signOut();
+        unawaited(ref.read(authRepositoryProvider).signOut());
       } else if (next.hasError) {
         ScaffoldMessenger.of(
           context,

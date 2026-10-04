@@ -10,7 +10,9 @@ part 'gift_reaction_controller.g.dart';
 
 /// Reactions on gifts (G-210 slice 2): same rule as moments — tapping the
 /// kind you already chose clears it, any other kind sets it.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class GiftReactionController extends _$GiftReactionController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

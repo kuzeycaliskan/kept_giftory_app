@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Visibility;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/l10n/l10n.dart';
@@ -35,9 +37,11 @@ class PrivacyScreen extends ConsumerWidget {
             return Center(child: Text(l10n.meProfileError));
           }
           void set(PrivacySection section, Visibility value) {
-            ref
-                .read(privacySettingsControllerProvider.notifier)
-                .setVisibility(section, value);
+            unawaited(
+              ref
+                  .read(privacySettingsControllerProvider.notifier)
+                  .setVisibility(section, value),
+            );
           }
 
           // Sections can never be more open than the profile (RLS enforces

@@ -6,60 +6,152 @@ part of 'feed_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(feedRepository)
+final feedRepositoryProvider = FeedRepositoryProvider._();
+
+final class FeedRepositoryProvider
+    extends $FunctionalProvider<FeedRepository, FeedRepository, FeedRepository>
+    with $Provider<FeedRepository> {
+  FeedRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'feedRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<FeedRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  FeedRepository create(Ref ref) {
+    return feedRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FeedRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FeedRepository>(value),
+    );
+  }
+}
+
 String _$feedRepositoryHash() => r'ca7114f71c1036434e7f8136b38925b18731913b';
 
-/// See also [feedRepository].
-@ProviderFor(feedRepository)
-final feedRepositoryProvider = Provider<FeedRepository>.internal(
-  feedRepository,
-  name: r'feedRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$feedRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// The strip's data: live posts grouped per author, viewer first.
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef FeedRepositoryRef = ProviderRef<FeedRepository>;
-String _$storyGroupsHash() => r'0bbf8dda63ddd1abfba0eeaebec22f4142a0a206';
+@ProviderFor(storyGroups)
+final storyGroupsProvider = StoryGroupsProvider._();
 
 /// The strip's data: live posts grouped per author, viewer first.
-///
-/// Copied from [storyGroups].
-@ProviderFor(storyGroups)
-final storyGroupsProvider =
-    AutoDisposeFutureProvider<List<StoryGroup>>.internal(
-      storyGroups,
-      name: r'storyGroupsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$storyGroupsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef StoryGroupsRef = AutoDisposeFutureProviderRef<List<StoryGroup>>;
-String _$seenPostsHash() => r'ccdbcdec8193d5848ffb491a486a9aa855b78df8';
+final class StoryGroupsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<StoryGroup>>,
+          List<StoryGroup>,
+          FutureOr<List<StoryGroup>>
+        >
+    with $FutureModifier<List<StoryGroup>>, $FutureProvider<List<StoryGroup>> {
+  /// The strip's data: live posts grouped per author, viewer first.
+  StoryGroupsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'storyGroupsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$storyGroupsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<StoryGroup>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<StoryGroup>> create(Ref ref) {
+    return storyGroups(ref);
+  }
+}
+
+String _$storyGroupsHash() => r'0bbf8dda63ddd1abfba0eeaebec22f4142a0a206';
 
 /// Device-local "already watched" markers (ring colour in the strip). Purely
 /// a UI nicety, so it lives in preferences, not Postgres.
-///
-/// Copied from [SeenPosts].
-@ProviderFor(SeenPosts)
-final seenPostsProvider = NotifierProvider<SeenPosts, Set<String>>.internal(
-  SeenPosts.new,
-  name: r'seenPostsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$seenPostsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-typedef _$SeenPosts = Notifier<Set<String>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(SeenPosts)
+final seenPostsProvider = SeenPostsProvider._();
+
+/// Device-local "already watched" markers (ring colour in the strip). Purely
+/// a UI nicety, so it lives in preferences, not Postgres.
+final class SeenPostsProvider
+    extends $NotifierProvider<SeenPosts, Set<String>> {
+  /// Device-local "already watched" markers (ring colour in the strip). Purely
+  /// a UI nicety, so it lives in preferences, not Postgres.
+  SeenPostsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'seenPostsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$seenPostsHash();
+
+  @$internal
+  @override
+  SeenPosts create() => SeenPosts();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Set<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Set<String>>(value),
+    );
+  }
+}
+
+String _$seenPostsHash() => r'7e4781699d350106c266db8fdba102c8451c69e4';
+
+/// Device-local "already watched" markers (ring colour in the strip). Purely
+/// a UI nicety, so it lives in preferences, not Postgres.
+
+abstract class _$SeenPosts extends $Notifier<Set<String>> {
+  Set<String> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<Set<String>, Set<String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Set<String>, Set<String>>,
+              Set<String>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

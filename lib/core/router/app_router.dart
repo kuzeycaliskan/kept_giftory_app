@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/features/activity/presentation/activity_screen.dart';
@@ -55,8 +54,8 @@ GoRouter appRouter(Ref ref) {
   final refresh = ValueNotifier(0);
   ref
     ..onDispose(refresh.dispose)
-    ..listen(authStateProvider, (_, __) => refresh.value++)
-    ..listen(devSessionProvider, (_, __) => refresh.value++);
+    ..listen(authStateProvider, (_, _) => refresh.value++)
+    ..listen(devSessionProvider, (_, _) => refresh.value++);
 
   return GoRouter(
     initialLocation: '/',
@@ -65,8 +64,7 @@ GoRouter appRouter(Ref ref) {
       if (!Env.hasSupabaseConfig) return null;
 
       final devSession = ref.read(devSessionProvider);
-      final signedIn =
-          ref.read(authStateProvider).valueOrNull != null || devSession;
+      final signedIn = ref.read(authStateProvider).value != null || devSession;
       final location = state.matchedLocation;
       final onSignIn = location == '/sign-in';
       final onOnboarding = location == '/onboarding';
@@ -74,7 +72,7 @@ GoRouter appRouter(Ref ref) {
       if (!signedIn) return onSignIn ? null : '/sign-in';
 
       // Dev session has no profile machinery — just keep it off /sign-in.
-      if (devSession && ref.read(authStateProvider).valueOrNull == null) {
+      if (devSession && ref.read(authStateProvider).value == null) {
         return onSignIn ? '/' : null;
       }
 

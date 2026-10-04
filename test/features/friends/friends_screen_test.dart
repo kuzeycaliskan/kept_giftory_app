@@ -63,7 +63,7 @@ void main() {
     final router = GoRouter(
       initialLocation: '/friends',
       routes: [
-        GoRoute(path: '/friends', builder: (_, __) => const FriendsScreen()),
+        GoRoute(path: '/friends', builder: (_, _) => const FriendsScreen()),
         GoRoute(
           path: '/users/:uid',
           builder: (_, state) {

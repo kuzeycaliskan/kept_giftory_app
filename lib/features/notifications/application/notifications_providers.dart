@@ -16,24 +16,25 @@ final notificationsRepositoryProvider = Provider<NotificationsRepository>((
 });
 
 /// The inbox, newest first.
-final notificationsProvider = FutureProvider.autoDispose<List<AppNotification>>(
-  (ref) async {
-    final result = await ref
-        .watch(notificationsRepositoryProvider)
-        .fetchRecent();
-    return result.when(success: (l) => l, failure: (f) => throw f);
-  },
-);
+final FutureProvider<List<AppNotification>> notificationsProvider =
+    FutureProvider.autoDispose<List<AppNotification>>((ref) async {
+      final result = await ref
+          .watch(notificationsRepositoryProvider)
+          .fetchRecent();
+      return result.when(success: (l) => l, failure: (f) => throw f);
+    });
 
 /// What the bell counts, besides friend requests and event invitations.
-final unreadNotificationCountProvider = Provider.autoDispose<int>((ref) {
-  return ref
-          .watch(notificationsProvider)
-          .valueOrNull
-          ?.where((n) => n.isUnread)
-          .length ??
-      0;
-});
+final Provider<int> unreadNotificationCountProvider = Provider.autoDispose<int>(
+  (ref) {
+    return ref
+            .watch(notificationsProvider)
+            .value
+            ?.where((n) => n.isUnread)
+            .length ??
+        0;
+  },
+);
 
 class NotificationsController extends Notifier<AsyncValue<void>> {
   @override

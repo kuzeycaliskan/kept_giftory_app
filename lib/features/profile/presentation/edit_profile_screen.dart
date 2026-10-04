@@ -202,7 +202,7 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
                     final label =
                         widget.initial.displayName ?? widget.initial.username;
                     final value =
-                        ref.watch(myProfileProvider).valueOrNull?.avatarUrl ??
+                        ref.watch(myProfileProvider).value?.avatarUrl ??
                         widget.initial.avatarUrl;
                     final url = KeptAvatar.resolveUrl(ref, value);
                     return GestureDetector(

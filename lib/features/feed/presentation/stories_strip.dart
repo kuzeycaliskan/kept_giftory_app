@@ -43,7 +43,7 @@ class _StripContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final me = ref.watch(myProfileProvider).valueOrNull;
+    final me = ref.watch(myProfileProvider).value;
     final seen = ref.watch(seenPostsProvider);
     final own = groups.where((g) => g.author.id == me?.id).firstOrNull;
     final friends = groups.where((g) => g.author.id != me?.id).toList();

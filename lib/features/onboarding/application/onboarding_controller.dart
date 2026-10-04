@@ -6,7 +6,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'onboarding_controller.g.dart';
 
 /// Onboarding submit (G-12/G-13): availability check + profile creation.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class OnboardingController extends _$OnboardingController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

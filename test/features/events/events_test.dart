@@ -264,7 +264,7 @@ void main() {
       routes: [
         GoRoute(
           path: '/events',
-          builder: (_, __) => const Scaffold(body: EventsPage()),
+          builder: (_, _) => const Scaffold(body: EventsPage()),
         ),
         GoRoute(
           path: '/events/:id',

@@ -25,7 +25,7 @@ class EventsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final events = ref.watch(myEventsProvider);
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     return events.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(child: Text(l10n.eventsError)),

@@ -6,25 +6,78 @@ part of 'post_composer.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postComposerHash() => r'be8ce67facaa909407455dc293aa955c89705553';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Capture → share pipeline for a moment (G-201). Two steps so the compose
+/// screen sits between them: [capture] opens the device camera (never the
+/// gallery — a moment is taken now), [publish] shrinks + stores.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+
+@ProviderFor(PostComposer)
+final postComposerProvider = PostComposerProvider._();
 
 /// Capture → share pipeline for a moment (G-201). Two steps so the compose
 /// screen sits between them: [capture] opens the device camera (never the
 /// gallery — a moment is taken now), [publish] shrinks + stores.
-///
-/// Copied from [PostComposer].
-@ProviderFor(PostComposer)
-final postComposerProvider =
-    AutoDisposeNotifierProvider<PostComposer, AsyncValue<void>>.internal(
-      PostComposer.new,
-      name: r'postComposerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$postComposerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+final class PostComposerProvider
+    extends $NotifierProvider<PostComposer, AsyncValue<void>> {
+  /// Capture → share pipeline for a moment (G-201). Two steps so the compose
+  /// screen sits between them: [capture] opens the device camera (never the
+  /// gallery — a moment is taken now), [publish] shrinks + stores.
+  // Action controller: kept alive so a call that outlives its screen can
+  // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+  PostComposerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'postComposerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-typedef _$PostComposer = AutoDisposeNotifier<AsyncValue<void>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+  @override
+  String debugGetCreateSourceHash() => _$postComposerHash();
+
+  @$internal
+  @override
+  PostComposer create() => PostComposer();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$postComposerHash() => r'499de18d5ba222444ae71d8ccefe6dcc4fdd54cc';
+
+/// Capture → share pipeline for a moment (G-201). Two steps so the compose
+/// screen sits between them: [capture] opens the device camera (never the
+/// gallery — a moment is taken now), [publish] shrinks + stores.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+
+abstract class _$PostComposer extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

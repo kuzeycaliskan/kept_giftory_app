@@ -14,7 +14,7 @@ enum Visibility {
 
 /// Domain model for a user profile (maps `public.profiles`).
 @freezed
-class Profile with _$Profile {
+abstract class Profile with _$Profile {
   const factory Profile({
     required String id,
     required String username,

@@ -6,6 +6,9 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "lib/l10n/gen/**"
+    - build/**
+    - android/**
+    - ios/**
   errors:
     todo: ignore
     # Freezed constructor-parameter @JsonKey is the documented pattern.
@@ -21,3 +24,13 @@ linter:
     # Single-method repository interfaces are an intentional architectural
     # seam (CLAUDE.md §3), not accidental abstraction.
     one_member_abstracts: false
+    # Repositories catch everything at the data boundary and map it to a
+    # typed Failure (CLAUDE.md §5); an `on` clause there would only let
+    # unexpected errors escape the Result contract.
+    avoid_catches_without_on_clauses: false
+    # Returning a repository Future straight through an async function is
+    # deliberate (no extra microtask, same error path); `await` adds noise.
+    async_return_with_no_await: false
+    # Typed closure parameters are kept where they document intent
+    # (callbacks on sheets, builders) — readability over brevity.
+    avoid_types_on_closure_parameters: false

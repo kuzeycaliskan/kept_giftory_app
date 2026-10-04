@@ -7,7 +7,7 @@ part 'profile_card.g.dart';
 /// may see about a friends-only account — avatar, username, display name.
 /// Maps the `search_profiles` / `profile_card` RPC rows.
 @freezed
-class ProfileCard with _$ProfileCard {
+abstract class ProfileCard with _$ProfileCard {
   const factory ProfileCard({
     required String id,
     required String username,

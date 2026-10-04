@@ -13,7 +13,9 @@ part 'gift_photo_controller.g.dart';
 /// attach/remove through the repository. Used by both log forms (photos
 /// taken before the gift exists are attached right after it is created)
 /// and the detail screen.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class GiftPhotoController extends _$GiftPhotoController {
   static const _captureDimension = 1600.0;
 

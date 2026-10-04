@@ -6,7 +6,7 @@ part of 'post.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
+_Post _$PostFromJson(Map<String, dynamic> json) => _Post(
   id: json['id'] as String,
   authorId: json['author_id'] as String,
   mediaPath: json['media_path'] as String,
@@ -22,15 +22,14 @@ _$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
   commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
 );
 
-Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'author_id': instance.authorId,
-      'media_path': instance.mediaPath,
-      'created_at': instance.createdAt.toIso8601String(),
-      'expires_at': instance.expiresAt.toIso8601String(),
-      'author': instance.author,
-      'caption': instance.caption,
-      'reactions': instance.reactions,
-      'commentCount': instance.commentCount,
-    };
+Map<String, dynamic> _$PostToJson(_Post instance) => <String, dynamic>{
+  'id': instance.id,
+  'author_id': instance.authorId,
+  'media_path': instance.mediaPath,
+  'created_at': instance.createdAt.toIso8601String(),
+  'expires_at': instance.expiresAt.toIso8601String(),
+  'author': instance.author,
+  'caption': instance.caption,
+  'reactions': instance.reactions,
+  'commentCount': instance.commentCount,
+};

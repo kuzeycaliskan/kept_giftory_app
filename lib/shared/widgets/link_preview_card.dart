@@ -71,7 +71,7 @@ class LinkPreviewCard extends StatelessWidget {
                                           preview.imagePath!,
                                         ),
                                         fit: BoxFit.contain,
-                                        errorBuilder: (_, __, ___) =>
+                                        errorBuilder: (_, _, _) =>
                                             fallbackImage,
                                       ),
                                     ),
@@ -164,7 +164,7 @@ class LinkPreviewThumb extends StatelessWidget {
             : Image.network(
                 Env.linkPreviewImageUrl(preview.imagePath!),
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => fallback,
+                errorBuilder: (_, _, _) => fallback,
               ),
       ),
     );

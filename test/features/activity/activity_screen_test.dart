@@ -248,17 +248,17 @@ void main() {
     final router = GoRouter(
       initialLocation: overShell ? '/' : '/activity',
       routes: [
-        GoRoute(path: '/activity', builder: (_, __) => const ActivityScreen()),
+        GoRoute(path: '/activity', builder: (_, _) => const ActivityScreen()),
         // The app's tab shell, so a notice aimed at a tab root is exercised
         // the way it crashes for real: a push of an already-present page.
         StatefulShellRoute.indexedStack(
-          builder: (_, __, shell) => shell,
+          builder: (_, _, shell) => shell,
           branches: [
             StatefulShellBranch(
               routes: [
                 GoRoute(
                   path: '/',
-                  builder: (_, __) => const Scaffold(body: Text('home tab')),
+                  builder: (_, _) => const Scaffold(body: Text('home tab')),
                 ),
               ],
             ),

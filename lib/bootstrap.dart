@@ -83,7 +83,10 @@ class _BootstrapGateState extends State<_BootstrapGate> {
           return const _LaunchScreen();
         }
         debugPrint('bootstrap: runApp');
-        return const ProviderScope(child: KeptApp());
+        // Riverpod 3 retries failed providers with backoff by default; Kept
+        // shows an explicit error state with the user's own retry instead
+        // (no flicker, no silent background traffic).
+        return ProviderScope(retry: (_, _) => null, child: const KeptApp());
       },
     );
   }
@@ -160,7 +163,6 @@ class _ConfigErrorApp extends StatelessWidget {
 /// (privacy policy notes the processor).
 void _wireCrashlytics() {
   final crashlytics = FirebaseCrashlytics.instance;
-  // ignore: avoid_redundant_argument_values
   unawaited(crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode));
   if (kDebugMode) return;
 

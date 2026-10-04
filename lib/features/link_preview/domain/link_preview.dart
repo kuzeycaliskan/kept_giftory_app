@@ -7,7 +7,7 @@ part 'link_preview.g.dart';
 /// `public.link_previews`). The image lives in the public `link-previews`
 /// storage bucket — clients never touch the original site.
 @freezed
-class LinkPreview with _$LinkPreview {
+abstract class LinkPreview with _$LinkPreview {
   const factory LinkPreview({
     required String id,
     String? url,

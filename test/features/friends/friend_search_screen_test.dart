@@ -97,7 +97,7 @@ void main() {
       routes: [
         GoRoute(
           path: '/friends/search',
-          builder: (_, __) => const FriendSearchScreen(),
+          builder: (_, _) => const FriendSearchScreen(),
         ),
         GoRoute(
           path: '/users/:uid',

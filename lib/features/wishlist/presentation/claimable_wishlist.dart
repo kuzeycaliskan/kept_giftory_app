@@ -67,7 +67,7 @@ class ClaimableWishlist extends ConsumerWidget {
               else
                 ClaimableItemRow(
                   item: item,
-                  claim: claims.valueOrNull?[item.id],
+                  claim: claims.value?[item.id],
                   eventId: eventId,
                 ),
             Align(

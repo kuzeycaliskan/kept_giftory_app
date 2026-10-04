@@ -6,572 +6,489 @@ part of 'events_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(eventsRepository)
+final eventsRepositoryProvider = EventsRepositoryProvider._();
+
+final class EventsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          EventsRepository,
+          EventsRepository,
+          EventsRepository
+        >
+    with $Provider<EventsRepository> {
+  EventsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'eventsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$eventsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<EventsRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  EventsRepository create(Ref ref) {
+    return eventsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EventsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EventsRepository>(value),
+    );
+  }
+}
+
 String _$eventsRepositoryHash() => r'0e8c5aa7c8a50f5244ab4928c4212fcb04f5de31';
 
-/// See also [eventsRepository].
-@ProviderFor(eventsRepository)
-final eventsRepositoryProvider = Provider<EventsRepository>.internal(
-  eventsRepository,
-  name: r'eventsRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$eventsRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// Events I belong to (joined or invited), soonest first.
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef EventsRepositoryRef = ProviderRef<EventsRepository>;
-String _$myEventsHash() => r'83d76dd3d9040ee7aefadd5c2dc512b361d16f6d';
+@ProviderFor(myEvents)
+final myEventsProvider = MyEventsProvider._();
 
 /// Events I belong to (joined or invited), soonest first.
-///
-/// Copied from [myEvents].
-@ProviderFor(myEvents)
-final myEventsProvider = AutoDisposeFutureProvider<List<GiftEvent>>.internal(
-  myEvents,
-  name: r'myEventsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$myEventsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef MyEventsRef = AutoDisposeFutureProviderRef<List<GiftEvent>>;
-String _$eventDetailHash() => r'd4bd2e6b7a60497a3a59340c3cc50637a34b0cb1';
-String _$eventGiftsHash() => r'0000000000000000000000000000000000000000';
+final class MyEventsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GiftEvent>>,
+          List<GiftEvent>,
+          FutureOr<List<GiftEvent>>
+        >
+    with $FutureModifier<List<GiftEvent>>, $FutureProvider<List<GiftEvent>> {
+  /// Events I belong to (joined or invited), soonest first.
+  MyEventsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'myEventsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
+  @override
+  String debugGetCreateSourceHash() => _$myEventsHash();
 
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
+  @$internal
+  @override
+  $FutureProviderElement<List<GiftEvent>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  @override
+  FutureOr<List<GiftEvent>> create(Ref ref) {
+    return myEvents(ref);
   }
 }
 
-/// See also [eventDetail].
+String _$myEventsHash() => r'83d76dd3d9040ee7aefadd5c2dc512b361d16f6d';
+
 @ProviderFor(eventDetail)
-const eventDetailProvider = EventDetailFamily();
+final eventDetailProvider = EventDetailFamily._();
 
-/// See also [eventDetail].
-class EventDetailFamily extends Family<AsyncValue<GiftEvent?>> {
-  /// See also [eventDetail].
-  const EventDetailFamily();
+final class EventDetailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GiftEvent?>,
+          GiftEvent?,
+          FutureOr<GiftEvent?>
+        >
+    with $FutureModifier<GiftEvent?>, $FutureProvider<GiftEvent?> {
+  EventDetailProvider._({
+    required EventDetailFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'eventDetailProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
-  /// See also [eventDetail].
-  EventDetailProvider call(String eventId) {
-    return EventDetailProvider(eventId);
+  @override
+  String debugGetCreateSourceHash() => _$eventDetailHash();
+
+  @override
+  String toString() {
+    return r'eventDetailProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<GiftEvent?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GiftEvent?> create(Ref ref) {
+    final argument = this.argument as String;
+    return eventDetail(ref, argument);
   }
 
   @override
-  EventDetailProvider getProviderOverride(
-    covariant EventDetailProvider provider,
-  ) {
-    return call(provider.eventId);
+  bool operator ==(Object other) {
+    return other is EventDetailProvider && other.argument == argument;
   }
 
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
   @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'eventDetailProvider';
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-/// See also [eventDetail].
-class EventDetailProvider extends AutoDisposeFutureProvider<GiftEvent?> {
-  /// See also [eventDetail].
-  EventDetailProvider(String eventId)
-    : this._internal(
-        (ref) => eventDetail(ref as EventDetailRef, eventId),
-        from: eventDetailProvider,
+String _$eventDetailHash() => r'd4bd2e6b7a60497a3a59340c3cc50637a34b0cb1';
+
+final class EventDetailFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<GiftEvent?>, String> {
+  EventDetailFamily._()
+    : super(
+        retry: null,
         name: r'eventDetailProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$eventDetailHash,
-        dependencies: EventDetailFamily._dependencies,
-        allTransitiveDependencies: EventDetailFamily._allTransitiveDependencies,
-        eventId: eventId,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
       );
 
-  EventDetailProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.eventId,
-  }) : super.internal();
-
-  final String eventId;
+  EventDetailProvider call(String eventId) =>
+      EventDetailProvider._(argument: eventId, from: this);
 
   @override
-  Override overrideWith(
-    FutureOr<GiftEvent?> Function(EventDetailRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: EventDetailProvider._internal(
-        (ref) => create(ref as EventDetailRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        eventId: eventId,
-      ),
-    );
+  String toString() => r'eventDetailProvider';
+}
+
+@ProviderFor(invitableFriends)
+final invitableFriendsProvider = InvitableFriendsFamily._();
+
+final class InvitableFriendsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProfileCard>>,
+          List<ProfileCard>,
+          FutureOr<List<ProfileCard>>
+        >
+    with
+        $FutureModifier<List<ProfileCard>>,
+        $FutureProvider<List<ProfileCard>> {
+  InvitableFriendsProvider._({
+    required InvitableFriendsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'invitableFriendsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$invitableFriendsHash();
+
+  @override
+  String toString() {
+    return r'invitableFriendsProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  AutoDisposeFutureProviderElement<GiftEvent?> createElement() {
-    return _EventDetailProviderElement(this);
+  $FutureProviderElement<List<ProfileCard>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProfileCard>> create(Ref ref) {
+    final argument = this.argument as String;
+    return invitableFriends(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is EventDetailProvider && other.eventId == eventId;
+    return other is InvitableFriendsProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, eventId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin EventDetailRef on AutoDisposeFutureProviderRef<GiftEvent?> {
-  /// The parameter `eventId` of this provider.
-  String get eventId;
-}
-
-class _EventDetailProviderElement
-    extends AutoDisposeFutureProviderElement<GiftEvent?>
-    with EventDetailRef {
-  _EventDetailProviderElement(super.provider);
-
-  @override
-  String get eventId => (origin as EventDetailProvider).eventId;
-}
-
-/// See also [eventGifts].
-@ProviderFor(eventGifts)
-const eventGiftsProvider = EventGiftsFamily();
-
-/// See also [eventGifts].
-class EventGiftsFamily extends Family<AsyncValue<List<GiftEntry>>> {
-  /// See also [eventGifts].
-  const EventGiftsFamily();
-
-  /// See also [eventGifts].
-  EventGiftsProvider call(String eventId) {
-    return EventGiftsProvider(eventId);
-  }
-
-  @override
-  EventGiftsProvider getProviderOverride(
-    covariant EventGiftsProvider provider,
-  ) {
-    return call(provider.eventId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'eventGiftsProvider';
-}
-
-/// See also [eventGifts].
-class EventGiftsProvider extends AutoDisposeFutureProvider<List<GiftEntry>> {
-  /// See also [eventGifts].
-  EventGiftsProvider(String eventId)
-    : this._internal(
-        (ref) => eventGifts(ref as EventGiftsRef, eventId),
-        from: eventGiftsProvider,
-        name: r'eventGiftsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$eventGiftsHash,
-        dependencies: EventGiftsFamily._dependencies,
-        allTransitiveDependencies: EventGiftsFamily._allTransitiveDependencies,
-        eventId: eventId,
-      );
-
-  EventGiftsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.eventId,
-  }) : super.internal();
-
-  final String eventId;
-
-  @override
-  Override overrideWith(
-    FutureOr<List<GiftEntry>> Function(EventGiftsRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: EventGiftsProvider._internal(
-        (ref) => create(ref as EventGiftsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        eventId: eventId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<List<GiftEntry>> createElement() {
-    return _EventGiftsProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is EventGiftsProvider && other.eventId == eventId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, eventId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin EventGiftsRef on AutoDisposeFutureProviderRef<List<GiftEntry>> {
-  /// The parameter `eventId` of this provider.
-  String get eventId;
-}
-
-class _EventGiftsProviderElement
-    extends AutoDisposeFutureProviderElement<List<GiftEntry>>
-    with EventGiftsRef {
-  _EventGiftsProviderElement(super.provider);
-
-  @override
-  String get eventId => (origin as EventGiftsProvider).eventId;
 }
 
 String _$invitableFriendsHash() => r'cf5435266eec153d1ec1a8ee4fc956ed58ca0888';
 
-/// See also [invitableFriends].
-@ProviderFor(invitableFriends)
-const invitableFriendsProvider = InvitableFriendsFamily();
-
-/// See also [invitableFriends].
-class InvitableFriendsFamily extends Family<AsyncValue<List<ProfileCard>>> {
-  /// See also [invitableFriends].
-  const InvitableFriendsFamily();
-
-  /// See also [invitableFriends].
-  InvitableFriendsProvider call(String eventId) {
-    return InvitableFriendsProvider(eventId);
-  }
-
-  @override
-  InvitableFriendsProvider getProviderOverride(
-    covariant InvitableFriendsProvider provider,
-  ) {
-    return call(provider.eventId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'invitableFriendsProvider';
-}
-
-/// See also [invitableFriends].
-class InvitableFriendsProvider
-    extends AutoDisposeFutureProvider<List<ProfileCard>> {
-  /// See also [invitableFriends].
-  InvitableFriendsProvider(String eventId)
-    : this._internal(
-        (ref) => invitableFriends(ref as InvitableFriendsRef, eventId),
-        from: invitableFriendsProvider,
+final class InvitableFriendsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<ProfileCard>>, String> {
+  InvitableFriendsFamily._()
+    : super(
+        retry: null,
         name: r'invitableFriendsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$invitableFriendsHash,
-        dependencies: InvitableFriendsFamily._dependencies,
-        allTransitiveDependencies:
-            InvitableFriendsFamily._allTransitiveDependencies,
-        eventId: eventId,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
       );
 
-  InvitableFriendsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.eventId,
-  }) : super.internal();
-
-  final String eventId;
+  InvitableFriendsProvider call(String eventId) =>
+      InvitableFriendsProvider._(argument: eventId, from: this);
 
   @override
-  Override overrideWith(
-    FutureOr<List<ProfileCard>> Function(InvitableFriendsRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: InvitableFriendsProvider._internal(
-        (ref) => create(ref as InvitableFriendsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        eventId: eventId,
-      ),
-    );
+  String toString() => r'invitableFriendsProvider';
+}
+
+/// Gifts logged against an event (members as they log, honoree once
+/// revealed).
+
+@ProviderFor(eventGifts)
+final eventGiftsProvider = EventGiftsFamily._();
+
+/// Gifts logged against an event (members as they log, honoree once
+/// revealed).
+
+final class EventGiftsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GiftEntry>>,
+          List<GiftEntry>,
+          FutureOr<List<GiftEntry>>
+        >
+    with $FutureModifier<List<GiftEntry>>, $FutureProvider<List<GiftEntry>> {
+  /// Gifts logged against an event (members as they log, honoree once
+  /// revealed).
+  EventGiftsProvider._({
+    required EventGiftsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'eventGiftsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$eventGiftsHash();
+
+  @override
+  String toString() {
+    return r'eventGiftsProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  AutoDisposeFutureProviderElement<List<ProfileCard>> createElement() {
-    return _InvitableFriendsProviderElement(this);
+  $FutureProviderElement<List<GiftEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GiftEntry>> create(Ref ref) {
+    final argument = this.argument as String;
+    return eventGifts(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is InvitableFriendsProvider && other.eventId == eventId;
+    return other is EventGiftsProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, eventId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin InvitableFriendsRef on AutoDisposeFutureProviderRef<List<ProfileCard>> {
-  /// The parameter `eventId` of this provider.
-  String get eventId;
-}
+String _$eventGiftsHash() => r'b6a5f4259cec10979ba59c0c97c4f5cb92747246';
 
-class _InvitableFriendsProviderElement
-    extends AutoDisposeFutureProviderElement<List<ProfileCard>>
-    with InvitableFriendsRef {
-  _InvitableFriendsProviderElement(super.provider);
+/// Gifts logged against an event (members as they log, honoree once
+/// revealed).
+
+final class EventGiftsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<GiftEntry>>, String> {
+  EventGiftsFamily._()
+    : super(
+        retry: null,
+        name: r'eventGiftsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Gifts logged against an event (members as they log, honoree once
+  /// revealed).
+
+  EventGiftsProvider call(String eventId) =>
+      EventGiftsProvider._(argument: eventId, from: this);
 
   @override
-  String get eventId => (origin as InvitableFriendsProvider).eventId;
+  String toString() => r'eventGiftsProvider';
+}
+
+/// Home row: the open event for a friend's next birthday (null = none).
+
+@ProviderFor(eventForHonoree)
+final eventForHonoreeProvider = EventForHonoreeFamily._();
+
+/// Home row: the open event for a friend's next birthday (null = none).
+
+final class EventForHonoreeProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<EventForHonoree?>,
+          EventForHonoree?,
+          FutureOr<EventForHonoree?>
+        >
+    with $FutureModifier<EventForHonoree?>, $FutureProvider<EventForHonoree?> {
+  /// Home row: the open event for a friend's next birthday (null = none).
+  EventForHonoreeProvider._({
+    required EventForHonoreeFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'eventForHonoreeProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$eventForHonoreeHash();
+
+  @override
+  String toString() {
+    return r'eventForHonoreeProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<EventForHonoree?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<EventForHonoree?> create(Ref ref) {
+    final argument = this.argument as String;
+    return eventForHonoree(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EventForHonoreeProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
 String _$eventForHonoreeHash() => r'94d52fd6ee959f09ab47a48bb8c6d041b795fbe0';
 
 /// Home row: the open event for a friend's next birthday (null = none).
-///
-/// Copied from [eventForHonoree].
-@ProviderFor(eventForHonoree)
-const eventForHonoreeProvider = EventForHonoreeFamily();
 
-/// Home row: the open event for a friend's next birthday (null = none).
-///
-/// Copied from [eventForHonoree].
-class EventForHonoreeFamily extends Family<AsyncValue<EventForHonoree?>> {
-  /// Home row: the open event for a friend's next birthday (null = none).
-  ///
-  /// Copied from [eventForHonoree].
-  const EventForHonoreeFamily();
-
-  /// Home row: the open event for a friend's next birthday (null = none).
-  ///
-  /// Copied from [eventForHonoree].
-  EventForHonoreeProvider call(String honoreeId) {
-    return EventForHonoreeProvider(honoreeId);
-  }
-
-  @override
-  EventForHonoreeProvider getProviderOverride(
-    covariant EventForHonoreeProvider provider,
-  ) {
-    return call(provider.honoreeId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'eventForHonoreeProvider';
-}
-
-/// Home row: the open event for a friend's next birthday (null = none).
-///
-/// Copied from [eventForHonoree].
-class EventForHonoreeProvider
-    extends AutoDisposeFutureProvider<EventForHonoree?> {
-  /// Home row: the open event for a friend's next birthday (null = none).
-  ///
-  /// Copied from [eventForHonoree].
-  EventForHonoreeProvider(String honoreeId)
-    : this._internal(
-        (ref) => eventForHonoree(ref as EventForHonoreeRef, honoreeId),
-        from: eventForHonoreeProvider,
+final class EventForHonoreeFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<EventForHonoree?>, String> {
+  EventForHonoreeFamily._()
+    : super(
+        retry: null,
         name: r'eventForHonoreeProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$eventForHonoreeHash,
-        dependencies: EventForHonoreeFamily._dependencies,
-        allTransitiveDependencies:
-            EventForHonoreeFamily._allTransitiveDependencies,
-        honoreeId: honoreeId,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
       );
 
-  EventForHonoreeProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.honoreeId,
-  }) : super.internal();
+  /// Home row: the open event for a friend's next birthday (null = none).
 
-  final String honoreeId;
+  EventForHonoreeProvider call(String honoreeId) =>
+      EventForHonoreeProvider._(argument: honoreeId, from: this);
 
   @override
-  Override overrideWith(
-    FutureOr<EventForHonoree?> Function(EventForHonoreeRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: EventForHonoreeProvider._internal(
-        (ref) => create(ref as EventForHonoreeRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        honoreeId: honoreeId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<EventForHonoree?> createElement() {
-    return _EventForHonoreeProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is EventForHonoreeProvider && other.honoreeId == honoreeId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, honoreeId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
+  String toString() => r'eventForHonoreeProvider';
 }
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin EventForHonoreeRef on AutoDisposeFutureProviderRef<EventForHonoree?> {
-  /// The parameter `honoreeId` of this provider.
-  String get honoreeId;
-}
-
-class _EventForHonoreeProviderElement
-    extends AutoDisposeFutureProviderElement<EventForHonoree?>
-    with EventForHonoreeRef {
-  _EventForHonoreeProviderElement(super.provider);
-
-  @override
-  String get honoreeId => (origin as EventForHonoreeProvider).honoreeId;
-}
-
-String _$eventsControllerHash() => r'ac9ae2369259755695083ea07666333a505ca37c';
 
 /// Every write on events; refreshes the hub, the detail and the Home
 /// lookups afterwards.
-///
-/// Copied from [EventsController].
-@ProviderFor(EventsController)
-final eventsControllerProvider =
-    AutoDisposeNotifierProvider<EventsController, AsyncValue<void>>.internal(
-      EventsController.new,
-      name: r'eventsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$eventsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 
-typedef _$EventsController = AutoDisposeNotifier<AsyncValue<void>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(EventsController)
+final eventsControllerProvider = EventsControllerProvider._();
+
+/// Every write on events; refreshes the hub, the detail and the Home
+/// lookups afterwards.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+final class EventsControllerProvider
+    extends $NotifierProvider<EventsController, AsyncValue<void>> {
+  /// Every write on events; refreshes the hub, the detail and the Home
+  /// lookups afterwards.
+  // Action controller: kept alive so a call that outlives its screen can
+  // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+  EventsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'eventsControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$eventsControllerHash();
+
+  @$internal
+  @override
+  EventsController create() => EventsController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$eventsControllerHash() => r'9be629f2cd131886fc09732a29e4f8ea0ed6bc0c';
+
+/// Every write on events; refreshes the hub, the detail and the Home
+/// lookups afterwards.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+
+abstract class _$EventsController extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

@@ -6,212 +6,233 @@ part of 'wishlist_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(wishlistRepository)
+final wishlistRepositoryProvider = WishlistRepositoryProvider._();
+
+final class WishlistRepositoryProvider
+    extends
+        $FunctionalProvider<
+          WishlistRepository,
+          WishlistRepository,
+          WishlistRepository
+        >
+    with $Provider<WishlistRepository> {
+  WishlistRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wishlistRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wishlistRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<WishlistRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WishlistRepository create(Ref ref) {
+    return wishlistRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WishlistRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WishlistRepository>(value),
+    );
+  }
+}
+
 String _$wishlistRepositoryHash() =>
     r'0a016785f6de27372b9179f02470b89a7c572214';
 
-/// See also [wishlistRepository].
-@ProviderFor(wishlistRepository)
-final wishlistRepositoryProvider = Provider<WishlistRepository>.internal(
-  wishlistRepository,
-  name: r'wishlistRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$wishlistRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef WishlistRepositoryRef = ProviderRef<WishlistRepository>;
-String _$myWishlistHash() => r'dd13f87c90d38ecf1eff009ee56045fb26f55077';
-
-/// See also [myWishlist].
 @ProviderFor(myWishlist)
-final myWishlistProvider =
-    AutoDisposeFutureProvider<List<WishlistItem>>.internal(
-      myWishlist,
-      name: r'myWishlistProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$myWishlistHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final myWishlistProvider = MyWishlistProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef MyWishlistRef = AutoDisposeFutureProviderRef<List<WishlistItem>>;
-String _$friendWishlistHash() => r'5e546c3cae3ae7256f78d999462f2279eca3190b';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-/// A friend's wishlist; RLS decides what the caller may see.
-///
-/// Copied from [friendWishlist].
-@ProviderFor(friendWishlist)
-const friendWishlistProvider = FriendWishlistFamily();
-
-/// A friend's wishlist; RLS decides what the caller may see.
-///
-/// Copied from [friendWishlist].
-class FriendWishlistFamily extends Family<AsyncValue<List<WishlistItem>>> {
-  /// A friend's wishlist; RLS decides what the caller may see.
-  ///
-  /// Copied from [friendWishlist].
-  const FriendWishlistFamily();
-
-  /// A friend's wishlist; RLS decides what the caller may see.
-  ///
-  /// Copied from [friendWishlist].
-  FriendWishlistProvider call(String profileId) {
-    return FriendWishlistProvider(profileId);
-  }
-
-  @override
-  FriendWishlistProvider getProviderOverride(
-    covariant FriendWishlistProvider provider,
-  ) {
-    return call(provider.profileId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'friendWishlistProvider';
-}
-
-/// A friend's wishlist; RLS decides what the caller may see.
-///
-/// Copied from [friendWishlist].
-class FriendWishlistProvider
-    extends AutoDisposeFutureProvider<List<WishlistItem>> {
-  /// A friend's wishlist; RLS decides what the caller may see.
-  ///
-  /// Copied from [friendWishlist].
-  FriendWishlistProvider(String profileId)
-    : this._internal(
-        (ref) => friendWishlist(ref as FriendWishlistRef, profileId),
-        from: friendWishlistProvider,
-        name: r'friendWishlistProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$friendWishlistHash,
-        dependencies: FriendWishlistFamily._dependencies,
-        allTransitiveDependencies:
-            FriendWishlistFamily._allTransitiveDependencies,
-        profileId: profileId,
+final class MyWishlistProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<WishlistItem>>,
+          List<WishlistItem>,
+          FutureOr<List<WishlistItem>>
+        >
+    with
+        $FutureModifier<List<WishlistItem>>,
+        $FutureProvider<List<WishlistItem>> {
+  MyWishlistProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'myWishlistProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  FriendWishlistProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.profileId,
-  }) : super.internal();
+  @override
+  String debugGetCreateSourceHash() => _$myWishlistHash();
 
-  final String profileId;
+  @$internal
+  @override
+  $FutureProviderElement<List<WishlistItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  Override overrideWith(
-    FutureOr<List<WishlistItem>> Function(FriendWishlistRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: FriendWishlistProvider._internal(
-        (ref) => create(ref as FriendWishlistRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        profileId: profileId,
-      ),
-    );
+  FutureOr<List<WishlistItem>> create(Ref ref) {
+    return myWishlist(ref);
+  }
+}
+
+String _$myWishlistHash() => r'dd13f87c90d38ecf1eff009ee56045fb26f55077';
+
+/// A friend's wishlist; RLS decides what the caller may see.
+
+@ProviderFor(friendWishlist)
+final friendWishlistProvider = FriendWishlistFamily._();
+
+/// A friend's wishlist; RLS decides what the caller may see.
+
+final class FriendWishlistProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<WishlistItem>>,
+          List<WishlistItem>,
+          FutureOr<List<WishlistItem>>
+        >
+    with
+        $FutureModifier<List<WishlistItem>>,
+        $FutureProvider<List<WishlistItem>> {
+  /// A friend's wishlist; RLS decides what the caller may see.
+  FriendWishlistProvider._({
+    required FriendWishlistFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'friendWishlistProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$friendWishlistHash();
+
+  @override
+  String toString() {
+    return r'friendWishlistProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  AutoDisposeFutureProviderElement<List<WishlistItem>> createElement() {
-    return _FriendWishlistProviderElement(this);
+  $FutureProviderElement<List<WishlistItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<WishlistItem>> create(Ref ref) {
+    final argument = this.argument as String;
+    return friendWishlist(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FriendWishlistProvider && other.profileId == profileId;
+    return other is FriendWishlistProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, profileId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin FriendWishlistRef on AutoDisposeFutureProviderRef<List<WishlistItem>> {
-  /// The parameter `profileId` of this provider.
-  String get profileId;
-}
+String _$friendWishlistHash() => r'5e546c3cae3ae7256f78d999462f2279eca3190b';
 
-class _FriendWishlistProviderElement
-    extends AutoDisposeFutureProviderElement<List<WishlistItem>>
-    with FriendWishlistRef {
-  _FriendWishlistProviderElement(super.provider);
+/// A friend's wishlist; RLS decides what the caller may see.
+
+final class FriendWishlistFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<WishlistItem>>, String> {
+  FriendWishlistFamily._()
+    : super(
+        retry: null,
+        name: r'friendWishlistProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// A friend's wishlist; RLS decides what the caller may see.
+
+  FriendWishlistProvider call(String profileId) =>
+      FriendWishlistProvider._(argument: profileId, from: this);
 
   @override
-  String get profileId => (origin as FriendWishlistProvider).profileId;
+  String toString() => r'friendWishlistProvider';
+}
+
+@ProviderFor(WishlistController)
+final wishlistControllerProvider = WishlistControllerProvider._();
+
+final class WishlistControllerProvider
+    extends $NotifierProvider<WishlistController, AsyncValue<void>> {
+  WishlistControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wishlistControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wishlistControllerHash();
+
+  @$internal
+  @override
+  WishlistController create() => WishlistController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
 }
 
 String _$wishlistControllerHash() =>
-    r'222e8cbb788c0c167617e03d282f3fe647b746d4';
+    r'121ab77a8950ee80553c6b79225983c5e8f0dd4c';
 
-/// See also [WishlistController].
-@ProviderFor(WishlistController)
-final wishlistControllerProvider =
-    AutoDisposeNotifierProvider<WishlistController, AsyncValue<void>>.internal(
-      WishlistController.new,
-      name: r'wishlistControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$wishlistControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$WishlistController = AutoDisposeNotifier<AsyncValue<void>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$WishlistController extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

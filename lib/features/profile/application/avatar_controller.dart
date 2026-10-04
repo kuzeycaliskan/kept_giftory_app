@@ -13,9 +13,11 @@ part 'avatar_controller.g.dart';
 /// Avatar pipeline (G-23 handover; first MediaStore consumer), split in two
 /// steps so the UI can host the in-app crop screen between them:
 /// [pickImage] → (AvatarCropScreen) → [uploadCropped]. Path layout
-/// '<uid>/avatar-<epoch>.jpg' gives free cache-busting; the previous file
+/// `<uid>/avatar-<epoch>.jpg` gives free cache-busting; the previous file
 /// is best-effort deleted after success.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class AvatarController extends _$AvatarController {
   /// Base picked at higher resolution so cropping doesn't compound loss;
   /// [uploadCropped] shrinks the final square to 512px/82q jpeg.
@@ -66,7 +68,7 @@ class AvatarController extends _$AvatarController {
       if (userId == null) {
         throw const AuthFailure('Signed out');
       }
-      final previousPath = ref.read(myProfileProvider).valueOrNull?.avatarUrl;
+      final previousPath = ref.read(myProfileProvider).value?.avatarUrl;
       final path =
           '$userId/avatar-${DateTime.now().millisecondsSinceEpoch}.jpg';
 

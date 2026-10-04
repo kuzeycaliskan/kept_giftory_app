@@ -34,7 +34,7 @@ Future<void> showMediaGallery(
     context: context,
     barrierLabel: MaterialLocalizations.of(context).closeButtonLabel,
     barrierColor: Colors.transparent,
-    pageBuilder: (context, _, __) => _GalleryPage(
+    pageBuilder: (context, _, _) => _GalleryPage(
       items: items,
       initialIndex: initialIndex,
       removeLabel: removeLabel,

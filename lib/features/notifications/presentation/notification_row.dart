@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -50,9 +52,11 @@ class NotificationRow extends ConsumerWidget {
           : null,
       onTap: () {
         if (unread) {
-          ref
-              .read(notificationsControllerProvider.notifier)
-              .markRead(notification.id);
+          unawaited(
+            ref
+                .read(notificationsControllerProvider.notifier)
+                .markRead(notification.id),
+          );
         }
         final route = notification.route;
         if (route != null) followRoute(GoRouter.of(context), route);

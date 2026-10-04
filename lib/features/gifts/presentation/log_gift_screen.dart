@@ -262,10 +262,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
       // Derived on every build (the event page usually loaded it already,
       // so a change listener would never fire): the event's reveal is the
       // gift's reveal.
-      _eventRevealAt = ref
-          .watch(eventDetailProvider(eventId))
-          .valueOrNull
-          ?.revealAt;
+      _eventRevealAt = ref.watch(eventDetailProvider(eventId)).value?.revealAt;
     }
 
     return Scaffold(

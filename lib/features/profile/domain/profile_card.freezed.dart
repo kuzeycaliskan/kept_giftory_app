@@ -1,6 +1,6 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint
+// coverage:ignore-file
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'profile_card.dart';
@@ -9,241 +9,286 @@ part of 'profile_card.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-ProfileCard _$ProfileCardFromJson(Map<String, dynamic> json) {
-  return _ProfileCard.fromJson(json);
-}
 
 /// @nodoc
 mixin _$ProfileCard {
-  String get id => throw _privateConstructorUsedError;
-  String get username => throw _privateConstructorUsedError;
-  @JsonKey(name: 'display_name')
-  String? get displayName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_url')
-  String? get avatarUrl => throw _privateConstructorUsedError;
+
+ String get id; String get username;@JsonKey(name: 'display_name') String? get displayName;@JsonKey(name: 'avatar_url') String? get avatarUrl;
+/// Create a copy of ProfileCard
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProfileCardCopyWith<ProfileCard> get copyWith => _$ProfileCardCopyWithImpl<ProfileCard>(this as ProfileCard, _$identity);
 
   /// Serializes this ProfileCard to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of ProfileCard
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProfileCardCopyWith<ProfileCard> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ProfileCard;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileCard&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.username, _this.username) || other.username == _this.username)&&(identical(other.displayName, _this.displayName) || other.displayName == _this.displayName)&&(identical(other.avatarUrl, _this.avatarUrl) || other.avatarUrl == _this.avatarUrl));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ProfileCard;
+  return Object.hash(runtimeType,_this.id,_this.username,_this.displayName,_this.avatarUrl);
+}
+
+@override
+String toString() {
+  final _this = this as ProfileCard;
+  return 'ProfileCard(id: ${_this.id}, username: ${_this.username}, displayName: ${_this.displayName}, avatarUrl: ${_this.avatarUrl})';
+}
+
+
 }
 
 /// @nodoc
-abstract class $ProfileCardCopyWith<$Res> {
-  factory $ProfileCardCopyWith(
-    ProfileCard value,
-    $Res Function(ProfileCard) then,
-  ) = _$ProfileCardCopyWithImpl<$Res, ProfileCard>;
-  @useResult
-  $Res call({
-    String id,
-    String username,
-    @JsonKey(name: 'display_name') String? displayName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
-  });
-}
+abstract mixin class $ProfileCardCopyWith<$Res>  {
+  factory $ProfileCardCopyWith(ProfileCard value, $Res Function(ProfileCard) _then) = _$ProfileCardCopyWithImpl;
+@useResult
+$Res call({
+ String id, String username,@JsonKey(name: 'display_name') String? displayName,@JsonKey(name: 'avatar_url') String? avatarUrl
+});
 
+
+
+
+}
 /// @nodoc
-class _$ProfileCardCopyWithImpl<$Res, $Val extends ProfileCard>
+class _$ProfileCardCopyWithImpl<$Res>
     implements $ProfileCardCopyWith<$Res> {
-  _$ProfileCardCopyWithImpl(this._value, this._then);
+  _$ProfileCardCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final ProfileCard _self;
+  final $Res Function(ProfileCard) _then;
 
-  /// Create a copy of ProfileCard
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? username = null,
-    Object? displayName = freezed,
-    Object? avatarUrl = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            username: null == username
-                ? _value.username
-                : username // ignore: cast_nullable_to_non_nullable
-                      as String,
-            displayName: freezed == displayName
-                ? _value.displayName
-                : displayName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            avatarUrl: freezed == avatarUrl
-                ? _value.avatarUrl
-                : avatarUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of ProfileCard
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? displayName = freezed,Object? avatarUrl = freezed,}) {
+  return _then(ProfileCard(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$ProfileCardImplCopyWith<$Res>
-    implements $ProfileCardCopyWith<$Res> {
-  factory _$$ProfileCardImplCopyWith(
-    _$ProfileCardImpl value,
-    $Res Function(_$ProfileCardImpl) then,
-  ) = __$$ProfileCardImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String username,
-    @JsonKey(name: 'display_name') String? displayName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
-  });
 }
 
-/// @nodoc
-class __$$ProfileCardImplCopyWithImpl<$Res>
-    extends _$ProfileCardCopyWithImpl<$Res, _$ProfileCardImpl>
-    implements _$$ProfileCardImplCopyWith<$Res> {
-  __$$ProfileCardImplCopyWithImpl(
-    _$ProfileCardImpl _value,
-    $Res Function(_$ProfileCardImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProfileCard
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? username = null,
-    Object? displayName = freezed,
-    Object? avatarUrl = freezed,
-  }) {
-    return _then(
-      _$ProfileCardImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        username: null == username
-            ? _value.username
-            : username // ignore: cast_nullable_to_non_nullable
-                  as String,
-        displayName: freezed == displayName
-            ? _value.displayName
-            : displayName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        avatarUrl: freezed == avatarUrl
-            ? _value.avatarUrl
-            : avatarUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [ProfileCard].
+extension ProfileCardPatterns on ProfileCard {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProfileCard value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProfileCard() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProfileCard value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProfileCard():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProfileCard value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProfileCard() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String username, @JsonKey(name: 'display_name')  String? displayName, @JsonKey(name: 'avatar_url')  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProfileCard() when $default != null:
+return $default(_that.id,_that.username,_that.displayName,_that.avatarUrl);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String username, @JsonKey(name: 'display_name')  String? displayName, @JsonKey(name: 'avatar_url')  String? avatarUrl)  $default,) {final _that = this;
+switch (_that) {
+case _ProfileCard():
+return $default(_that.id,_that.username,_that.displayName,_that.avatarUrl);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String username, @JsonKey(name: 'display_name')  String? displayName, @JsonKey(name: 'avatar_url')  String? avatarUrl)?  $default,) {final _that = this;
+switch (_that) {
+case _ProfileCard() when $default != null:
+return $default(_that.id,_that.username,_that.displayName,_that.avatarUrl);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$ProfileCardImpl implements _ProfileCard {
-  const _$ProfileCardImpl({
-    required this.id,
-    required this.username,
-    @JsonKey(name: 'display_name') this.displayName,
-    @JsonKey(name: 'avatar_url') this.avatarUrl,
-  });
 
-  factory _$ProfileCardImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ProfileCardImplFromJson(json);
+class _ProfileCard implements ProfileCard {
+  const _ProfileCard({required this.id, required this.username, @JsonKey(name: 'display_name') this.displayName, @JsonKey(name: 'avatar_url') this.avatarUrl});
+  factory _ProfileCard.fromJson(Map<String, dynamic> json) => _$ProfileCardFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String username;
-  @override
-  @JsonKey(name: 'display_name')
-  final String? displayName;
-  @override
-  @JsonKey(name: 'avatar_url')
-  final String? avatarUrl;
+@override final  String id;
+@override final  String username;
+@override@JsonKey(name: 'display_name') final  String? displayName;
+@override@JsonKey(name: 'avatar_url') final  String? avatarUrl;
 
-  @override
-  String toString() {
+/// Create a copy of ProfileCard
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProfileCardCopyWith<_ProfileCard> get copyWith => __$ProfileCardCopyWithImpl<_ProfileCard>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ProfileCardToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileCard&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,username,displayName,avatarUrl);
+}
+
+@override
+String toString() {
     return 'ProfileCard(id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ProfileCardImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.displayName, displayName) ||
-                other.displayName == displayName) &&
-            (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, username, displayName, avatarUrl);
-
-  /// Create a copy of ProfileCard
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ProfileCardImplCopyWith<_$ProfileCardImpl> get copyWith =>
-      __$$ProfileCardImplCopyWithImpl<_$ProfileCardImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$ProfileCardImplToJson(this);
-  }
 }
 
-abstract class _ProfileCard implements ProfileCard {
-  const factory _ProfileCard({
-    required final String id,
-    required final String username,
-    @JsonKey(name: 'display_name') final String? displayName,
-    @JsonKey(name: 'avatar_url') final String? avatarUrl,
-  }) = _$ProfileCardImpl;
 
-  factory _ProfileCard.fromJson(Map<String, dynamic> json) =
-      _$ProfileCardImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get username;
-  @override
-  @JsonKey(name: 'display_name')
-  String? get displayName;
-  @override
-  @JsonKey(name: 'avatar_url')
-  String? get avatarUrl;
-
-  /// Create a copy of ProfileCard
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ProfileCardImplCopyWith<_$ProfileCardImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+abstract mixin class _$ProfileCardCopyWith<$Res> implements $ProfileCardCopyWith<$Res> {
+  factory _$ProfileCardCopyWith(_ProfileCard value, $Res Function(_ProfileCard) _then) = __$ProfileCardCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String username,@JsonKey(name: 'display_name') String? displayName,@JsonKey(name: 'avatar_url') String? avatarUrl
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProfileCardCopyWithImpl<$Res>
+    implements _$ProfileCardCopyWith<$Res> {
+  __$ProfileCardCopyWithImpl(this._self, this._then);
+
+  final _ProfileCard _self;
+  final $Res Function(_ProfileCard) _then;
+
+/// Create a copy of ProfileCard
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? displayName = freezed,Object? avatarUrl = freezed,}) {
+  return _then(_ProfileCard(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+// dart format on

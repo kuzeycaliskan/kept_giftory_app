@@ -50,7 +50,7 @@ class GiftListTile extends StatelessWidget {
             ? Image.network(
                 Env.linkPreviewImageUrl(preview!.imagePath!),
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                     _IconBox(icon: directionIcon, scheme: scheme),
               )
             : _IconBox(

@@ -6,7 +6,7 @@ part 'wishlist_item.g.dart';
 
 /// Domain model for a wishlist entry (maps `public.wishlist_items`).
 @freezed
-class WishlistItem with _$WishlistItem {
+abstract class WishlistItem with _$WishlistItem {
   const factory WishlistItem({
     required String id,
     @JsonKey(name: 'owner_id') required String ownerId,

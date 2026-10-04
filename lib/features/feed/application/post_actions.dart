@@ -10,7 +10,9 @@ part 'post_actions.g.dart';
 /// Actions on a live moment from the viewer: owner delete, viewer
 /// reactions. Kept apart from the composer so the viewer doesn't drag the
 /// capture pipeline in.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class PostActions extends _$PostActions {
   @override
   AsyncValue<void> build() => const AsyncData(null);

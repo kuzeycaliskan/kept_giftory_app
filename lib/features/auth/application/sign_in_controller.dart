@@ -6,7 +6,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'sign_in_controller.g.dart';
 
 /// Drives the sign-in buttons (G-11): idle / loading / error.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class SignInController extends _$SignInController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

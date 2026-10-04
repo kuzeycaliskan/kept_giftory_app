@@ -130,10 +130,7 @@ class WishlistScreen extends ConsumerWidget {
                   if (_isMine)
                     _DismissibleItemTile(item: item)
                   else if (claims != null && !claims.hasError)
-                    ClaimableItemRow(
-                      item: item,
-                      claim: claims.valueOrNull?[item.id],
-                    )
+                    ClaimableItemRow(item: item, claim: claims.value?[item.id])
                   else
                     WishlistItemTile(item: item),
               ],

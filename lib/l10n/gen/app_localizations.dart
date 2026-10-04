@@ -2111,8 +2111,20 @@ abstract class AppLocalizations {
   /// No description provided for @claimRemovePledge.
   ///
   /// In en, this message translates to:
-  /// **'Remove'**
+  /// **'Remove from the pool'**
   String get claimRemovePledge;
+
+  /// No description provided for @claimChangeShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Change my share'**
+  String get claimChangeShare;
+
+  /// No description provided for @commonMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get commonMore;
 
   /// No description provided for @claimNoPledges.
   ///

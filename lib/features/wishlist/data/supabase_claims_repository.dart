@@ -59,7 +59,7 @@ class SupabaseClaimsRepository implements ClaimsRepository {
             'item_id': itemId,
             'claimer_id': _me,
             'kind': kind.name,
-            if (targetAmount != null) 'target_amount': targetAmount,
+            'target_amount': ?targetAmount,
           })
           .select(_select)
           .single();

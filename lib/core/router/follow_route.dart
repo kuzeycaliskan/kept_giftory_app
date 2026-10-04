@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:go_router/go_router.dart';
 
 /// Paths of the bottom-tab shell branches (see the `StatefulShellRoute` in
@@ -16,6 +18,6 @@ void followRoute(GoRouter router, String route) {
   if (isShellRoot(route)) {
     router.go(route);
   } else {
-    router.push(route);
+    unawaited(router.push(route));
   }
 }

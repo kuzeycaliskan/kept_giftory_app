@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
@@ -30,7 +29,9 @@ Future<String> myInviteCode(Ref ref) async {
   );
 }
 
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class InviteController extends _$InviteController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

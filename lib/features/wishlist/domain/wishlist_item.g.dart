@@ -6,8 +6,8 @@ part of 'wishlist_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$WishlistItemImpl _$$WishlistItemImplFromJson(Map<String, dynamic> json) =>
-    _$WishlistItemImpl(
+_WishlistItem _$WishlistItemFromJson(Map<String, dynamic> json) =>
+    _WishlistItem(
       id: json['id'] as String,
       ownerId: json['owner_id'] as String,
       title: json['title'] as String,
@@ -24,7 +24,7 @@ _$WishlistItemImpl _$$WishlistItemImplFromJson(Map<String, dynamic> json) =>
           : LinkPreview.fromJson(json['preview'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$WishlistItemImplToJson(_$WishlistItemImpl instance) =>
+Map<String, dynamic> _$WishlistItemToJson(_WishlistItem instance) =>
     <String, dynamic>{
       'id': instance.id,
       'owner_id': instance.ownerId,

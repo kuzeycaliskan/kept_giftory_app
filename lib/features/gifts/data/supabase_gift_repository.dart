@@ -124,8 +124,8 @@ class SupabaseGiftRepository implements GiftRepository {
             'is_surprise': isSurprise,
             if (isSurprise) 'reveal_at': revealAt!.toUtc().toIso8601String(),
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
-            if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
-            if (eventId != null) 'event_id': eventId,
+            'link_preview_id': ?linkPreviewId,
+            'event_id': ?eventId,
           })
           .select(_recipientSelect)
           .single();
@@ -179,7 +179,7 @@ class SupabaseGiftRepository implements GiftRepository {
             'gift_date': giftDate.toIso8601String().substring(0, 10),
             'is_surprise': false,
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
-            if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
+            'link_preview_id': ?linkPreviewId,
           })
           .select(_giverSelect)
           .single();

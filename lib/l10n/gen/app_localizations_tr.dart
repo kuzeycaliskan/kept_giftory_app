@@ -1104,7 +1104,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get claimParticipants => 'Katılanlar';
 
   @override
-  String get claimRemovePledge => 'Çıkar';
+  String get claimRemovePledge => 'Havuzdan çıkar';
+
+  @override
+  String get claimChangeShare => 'Katkımı değiştir';
+
+  @override
+  String get commonMore => 'Daha fazla';
 
   @override
   String get claimNoPledges => 'Henüz kimse katılmadı';

@@ -8,7 +8,7 @@ part 'post.g.dart';
 /// One ephemeral moment (G-202): a photo in the private `posts` bucket plus
 /// an optional caption, visible until [expiresAt] (server-owned, 24h).
 @freezed
-class Post with _$Post {
+abstract class Post with _$Post {
   const factory Post({
     required String id,
     @JsonKey(name: 'author_id') required String authorId,

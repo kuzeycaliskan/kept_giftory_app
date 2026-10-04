@@ -76,7 +76,7 @@ class SupabaseProfileRepository implements ProfileRepository {
           .insert({
             'id': userId,
             'username': username,
-            if (displayName != null) 'display_name': displayName,
+            'display_name': ?displayName,
             if (birthday != null)
               'birthday': birthday.toIso8601String().substring(0, 10),
           })

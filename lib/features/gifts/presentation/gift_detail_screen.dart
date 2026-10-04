@@ -110,10 +110,10 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
         counterpartIsGiver: widget.counterpartIsGiver,
       ),
     );
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     final busy = ref.watch(giftPhotoControllerProvider).isLoading;
 
-    final loaded = gift.valueOrNull;
+    final loaded = gift.value;
     // Someone else's gift: offer the report flow (G-209). The accountable
     // person is the giver when a member, else the recipient who logged it.
     final reportOwner = loaded == null || loaded.isParty(myId)

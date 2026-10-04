@@ -6,29 +6,81 @@ part of 'notification_prefs_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$notificationPrefsControllerHash() =>
-    r'b8389f6688efbb0a3dfc0eaf3d37af401f73eb5c';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Applies notification-preference changes (G-63). Values are read from
+/// [myProfileProvider]; a successful update refreshes it so every consumer
+/// sees the new setting.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+
+@ProviderFor(NotificationPrefsController)
+final notificationPrefsControllerProvider =
+    NotificationPrefsControllerProvider._();
 
 /// Applies notification-preference changes (G-63). Values are read from
 /// [myProfileProvider]; a successful update refreshes it so every consumer
 /// sees the new setting.
-///
-/// Copied from [NotificationPrefsController].
-@ProviderFor(NotificationPrefsController)
-final notificationPrefsControllerProvider =
-    AutoDisposeNotifierProvider<
-      NotificationPrefsController,
-      AsyncValue<void>
-    >.internal(
-      NotificationPrefsController.new,
-      name: r'notificationPrefsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$notificationPrefsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+final class NotificationPrefsControllerProvider
+    extends $NotifierProvider<NotificationPrefsController, AsyncValue<void>> {
+  /// Applies notification-preference changes (G-63). Values are read from
+  /// [myProfileProvider]; a successful update refreshes it so every consumer
+  /// sees the new setting.
+  // Action controller: kept alive so a call that outlives its screen can
+  // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+  NotificationPrefsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationPrefsControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-typedef _$NotificationPrefsController = AutoDisposeNotifier<AsyncValue<void>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+  @override
+  String debugGetCreateSourceHash() => _$notificationPrefsControllerHash();
+
+  @$internal
+  @override
+  NotificationPrefsController create() => NotificationPrefsController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$notificationPrefsControllerHash() =>
+    r'5c8b096a273ba5472d47d16ca0aa88215d31c463';
+
+/// Applies notification-preference changes (G-63). Values are read from
+/// [myProfileProvider]; a successful update refreshes it so every consumer
+/// sees the new setting.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+
+abstract class _$NotificationPrefsController
+    extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

@@ -6,61 +6,167 @@ part of 'safety_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(safetyRepository)
+final safetyRepositoryProvider = SafetyRepositoryProvider._();
+
+final class SafetyRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SafetyRepository,
+          SafetyRepository,
+          SafetyRepository
+        >
+    with $Provider<SafetyRepository> {
+  SafetyRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'safetyRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$safetyRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SafetyRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SafetyRepository create(Ref ref) {
+    return safetyRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SafetyRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SafetyRepository>(value),
+    );
+  }
+}
+
 String _$safetyRepositoryHash() => r'e749eae55a476d44a8557d263d6515774018ed7a';
 
-/// See also [safetyRepository].
-@ProviderFor(safetyRepository)
-final safetyRepositoryProvider = Provider<SafetyRepository>.internal(
-  safetyRepository,
-  name: r'safetyRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$safetyRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// The caller's block list (Settings → Blocked users).
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SafetyRepositoryRef = ProviderRef<SafetyRepository>;
-String _$blockedUsersHash() => r'da4437d09190b01e4cba96060098ffce4a5cbbd8';
+@ProviderFor(blockedUsers)
+final blockedUsersProvider = BlockedUsersProvider._();
 
 /// The caller's block list (Settings → Blocked users).
-///
-/// Copied from [blockedUsers].
-@ProviderFor(blockedUsers)
-final blockedUsersProvider =
-    AutoDisposeFutureProvider<List<ProfileCard>>.internal(
-      blockedUsers,
-      name: r'blockedUsersProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$blockedUsersHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef BlockedUsersRef = AutoDisposeFutureProviderRef<List<ProfileCard>>;
-String _$safetyControllerHash() => r'6a60a19ffaf1483227ee51293780ea7b2421634e';
+final class BlockedUsersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProfileCard>>,
+          List<ProfileCard>,
+          FutureOr<List<ProfileCard>>
+        >
+    with
+        $FutureModifier<List<ProfileCard>>,
+        $FutureProvider<List<ProfileCard>> {
+  /// The caller's block list (Settings → Blocked users).
+  BlockedUsersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'blockedUsersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$blockedUsersHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ProfileCard>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProfileCard>> create(Ref ref) {
+    return blockedUsers(ref);
+  }
+}
+
+String _$blockedUsersHash() => r'da4437d09190b01e4cba96060098ffce4a5cbbd8';
 
 /// Block / unblock / report actions. Blocking invalidates every provider
 /// that could still be showing the (now invisible) counterpart.
-///
-/// Copied from [SafetyController].
-@ProviderFor(SafetyController)
-final safetyControllerProvider =
-    AutoDisposeNotifierProvider<SafetyController, AsyncValue<void>>.internal(
-      SafetyController.new,
-      name: r'safetyControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$safetyControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 
-typedef _$SafetyController = AutoDisposeNotifier<AsyncValue<void>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(SafetyController)
+final safetyControllerProvider = SafetyControllerProvider._();
+
+/// Block / unblock / report actions. Blocking invalidates every provider
+/// that could still be showing the (now invisible) counterpart.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+final class SafetyControllerProvider
+    extends $NotifierProvider<SafetyController, AsyncValue<void>> {
+  /// Block / unblock / report actions. Blocking invalidates every provider
+  /// that could still be showing the (now invisible) counterpart.
+  // Action controller: kept alive so a call that outlives its screen can
+  // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+  SafetyControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'safetyControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$safetyControllerHash();
+
+  @$internal
+  @override
+  SafetyController create() => SafetyController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$safetyControllerHash() => r'93ddad4f5eca8437a4b9d9200303eccc3afd7de2';
+
+/// Block / unblock / report actions. Blocking invalidates every provider
+/// that could still be showing the (now invisible) counterpart.
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+
+abstract class _$SafetyController extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

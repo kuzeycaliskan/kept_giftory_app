@@ -7,7 +7,9 @@ part 'notification_prefs_controller.g.dart';
 /// Applies notification-preference changes (G-63). Values are read from
 /// [myProfileProvider]; a successful update refreshes it so every consumer
 /// sees the new setting.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class NotificationPrefsController extends _$NotificationPrefsController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

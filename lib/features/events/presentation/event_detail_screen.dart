@@ -32,7 +32,7 @@ class EventDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final event = ref.watch(eventDetailProvider(eventId));
-    final myId = ref.watch(myProfileProvider).valueOrNull?.id;
+    final myId = ref.watch(myProfileProvider).value?.id;
     final busy = ref.watch(eventsControllerProvider).isLoading;
 
     ref.listen(eventsControllerProvider, (_, next) {
@@ -47,7 +47,7 @@ class EventDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.eventsDetailTitle),
         actions: [
-          if (event.valueOrNull case final e?
+          if (event.value case final e?
               when e.me(myId) != null && (e.isOpen || e.isOrganizer(myId)))
             IconButton(
               tooltip: l10n.storyMoreActions,

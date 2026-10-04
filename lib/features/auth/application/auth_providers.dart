@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/auth/data/supabase_auth_repository.dart';
 import 'package:kept/features/auth/domain/auth_repository.dart';

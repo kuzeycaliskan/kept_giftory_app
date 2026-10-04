@@ -6,384 +6,359 @@ part of 'gifts_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$giftRepositoryHash() => r'b42281e23468401c9783cad5f923ea099df64419';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [giftRepository].
 @ProviderFor(giftRepository)
-final giftRepositoryProvider = Provider<GiftRepository>.internal(
-  giftRepository,
-  name: r'giftRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$giftRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final giftRepositoryProvider = GiftRepositoryProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef GiftRepositoryRef = ProviderRef<GiftRepository>;
-String _$givenGiftsHash() => r'8c4b6e9d7c629fe2e1a58cd2971a643e9c76965e';
-
-/// See also [givenGifts].
-@ProviderFor(givenGifts)
-final givenGiftsProvider = AutoDisposeFutureProvider<List<GiftEntry>>.internal(
-  givenGifts,
-  name: r'givenGiftsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$givenGiftsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef GivenGiftsRef = AutoDisposeFutureProviderRef<List<GiftEntry>>;
-String _$receivedGiftsHash() => r'9dbbafe0276b23a7521aa3633b536c4284ee2469';
-
-/// See also [receivedGifts].
-@ProviderFor(receivedGifts)
-final receivedGiftsProvider =
-    AutoDisposeFutureProvider<List<GiftEntry>>.internal(
-      receivedGifts,
-      name: r'receivedGiftsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$receivedGiftsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ReceivedGiftsRef = AutoDisposeFutureProviderRef<List<GiftEntry>>;
-String _$friendGiftHistoryHash() => r'fd3d520d35c063ffe50078179d483671217d60dc';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-/// A friend's gift history (G-52); RLS applies visibility + surprise rules.
-///
-/// Copied from [friendGiftHistory].
-@ProviderFor(friendGiftHistory)
-const friendGiftHistoryProvider = FriendGiftHistoryFamily();
-
-/// A friend's gift history (G-52); RLS applies visibility + surprise rules.
-///
-/// Copied from [friendGiftHistory].
-class FriendGiftHistoryFamily extends Family<AsyncValue<List<GiftEntry>>> {
-  /// A friend's gift history (G-52); RLS applies visibility + surprise rules.
-  ///
-  /// Copied from [friendGiftHistory].
-  const FriendGiftHistoryFamily();
-
-  /// A friend's gift history (G-52); RLS applies visibility + surprise rules.
-  ///
-  /// Copied from [friendGiftHistory].
-  FriendGiftHistoryProvider call(String profileId) {
-    return FriendGiftHistoryProvider(profileId);
-  }
-
-  @override
-  FriendGiftHistoryProvider getProviderOverride(
-    covariant FriendGiftHistoryProvider provider,
-  ) {
-    return call(provider.profileId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'friendGiftHistoryProvider';
-}
-
-/// A friend's gift history (G-52); RLS applies visibility + surprise rules.
-///
-/// Copied from [friendGiftHistory].
-class FriendGiftHistoryProvider
-    extends AutoDisposeFutureProvider<List<GiftEntry>> {
-  /// A friend's gift history (G-52); RLS applies visibility + surprise rules.
-  ///
-  /// Copied from [friendGiftHistory].
-  FriendGiftHistoryProvider(String profileId)
-    : this._internal(
-        (ref) => friendGiftHistory(ref as FriendGiftHistoryRef, profileId),
-        from: friendGiftHistoryProvider,
-        name: r'friendGiftHistoryProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$friendGiftHistoryHash,
-        dependencies: FriendGiftHistoryFamily._dependencies,
-        allTransitiveDependencies:
-            FriendGiftHistoryFamily._allTransitiveDependencies,
-        profileId: profileId,
+final class GiftRepositoryProvider
+    extends $FunctionalProvider<GiftRepository, GiftRepository, GiftRepository>
+    with $Provider<GiftRepository> {
+  GiftRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'giftRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  FriendGiftHistoryProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.profileId,
-  }) : super.internal();
+  @override
+  String debugGetCreateSourceHash() => _$giftRepositoryHash();
 
-  final String profileId;
+  @$internal
+  @override
+  $ProviderElement<GiftRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
 
   @override
-  Override overrideWith(
-    FutureOr<List<GiftEntry>> Function(FriendGiftHistoryRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: FriendGiftHistoryProvider._internal(
-        (ref) => create(ref as FriendGiftHistoryRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        profileId: profileId,
-      ),
-    );
+  GiftRepository create(Ref ref) {
+    return giftRepository(ref);
   }
 
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GiftRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GiftRepository>(value),
+    );
+  }
+}
+
+String _$giftRepositoryHash() => r'b42281e23468401c9783cad5f923ea099df64419';
+
+@ProviderFor(givenGifts)
+final givenGiftsProvider = GivenGiftsProvider._();
+
+final class GivenGiftsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GiftEntry>>,
+          List<GiftEntry>,
+          FutureOr<List<GiftEntry>>
+        >
+    with $FutureModifier<List<GiftEntry>>, $FutureProvider<List<GiftEntry>> {
+  GivenGiftsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'givenGiftsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
   @override
-  AutoDisposeFutureProviderElement<List<GiftEntry>> createElement() {
-    return _FriendGiftHistoryProviderElement(this);
+  String debugGetCreateSourceHash() => _$givenGiftsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GiftEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GiftEntry>> create(Ref ref) {
+    return givenGifts(ref);
+  }
+}
+
+String _$givenGiftsHash() => r'8c4b6e9d7c629fe2e1a58cd2971a643e9c76965e';
+
+@ProviderFor(receivedGifts)
+final receivedGiftsProvider = ReceivedGiftsProvider._();
+
+final class ReceivedGiftsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GiftEntry>>,
+          List<GiftEntry>,
+          FutureOr<List<GiftEntry>>
+        >
+    with $FutureModifier<List<GiftEntry>>, $FutureProvider<List<GiftEntry>> {
+  ReceivedGiftsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'receivedGiftsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$receivedGiftsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GiftEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GiftEntry>> create(Ref ref) {
+    return receivedGifts(ref);
+  }
+}
+
+String _$receivedGiftsHash() => r'9dbbafe0276b23a7521aa3633b536c4284ee2469';
+
+/// A friend's gift history (G-52); RLS applies visibility + surprise rules.
+
+@ProviderFor(friendGiftHistory)
+final friendGiftHistoryProvider = FriendGiftHistoryFamily._();
+
+/// A friend's gift history (G-52); RLS applies visibility + surprise rules.
+
+final class FriendGiftHistoryProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GiftEntry>>,
+          List<GiftEntry>,
+          FutureOr<List<GiftEntry>>
+        >
+    with $FutureModifier<List<GiftEntry>>, $FutureProvider<List<GiftEntry>> {
+  /// A friend's gift history (G-52); RLS applies visibility + surprise rules.
+  FriendGiftHistoryProvider._({
+    required FriendGiftHistoryFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'friendGiftHistoryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$friendGiftHistoryHash();
+
+  @override
+  String toString() {
+    return r'friendGiftHistoryProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GiftEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GiftEntry>> create(Ref ref) {
+    final argument = this.argument as String;
+    return friendGiftHistory(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FriendGiftHistoryProvider && other.profileId == profileId;
+    return other is FriendGiftHistoryProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, profileId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin FriendGiftHistoryRef on AutoDisposeFutureProviderRef<List<GiftEntry>> {
-  /// The parameter `profileId` of this provider.
-  String get profileId;
-}
+String _$friendGiftHistoryHash() => r'fd3d520d35c063ffe50078179d483671217d60dc';
 
-class _FriendGiftHistoryProviderElement
-    extends AutoDisposeFutureProviderElement<List<GiftEntry>>
-    with FriendGiftHistoryRef {
-  _FriendGiftHistoryProviderElement(super.provider);
+/// A friend's gift history (G-52); RLS applies visibility + surprise rules.
+
+final class FriendGiftHistoryFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<GiftEntry>>, String> {
+  FriendGiftHistoryFamily._()
+    : super(
+        retry: null,
+        name: r'friendGiftHistoryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// A friend's gift history (G-52); RLS applies visibility + surprise rules.
+
+  FriendGiftHistoryProvider call(String profileId) =>
+      FriendGiftHistoryProvider._(argument: profileId, from: this);
 
   @override
-  String get profileId => (origin as FriendGiftHistoryProvider).profileId;
+  String toString() => r'friendGiftHistoryProvider';
+}
+
+/// One gift with photos, for the detail screen. Refetched (not read from
+/// the list caches) so photo edits show without juggling three lists.
+
+@ProviderFor(giftDetail)
+final giftDetailProvider = GiftDetailFamily._();
+
+/// One gift with photos, for the detail screen. Refetched (not read from
+/// the list caches) so photo edits show without juggling three lists.
+
+final class GiftDetailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GiftEntry?>,
+          GiftEntry?,
+          FutureOr<GiftEntry?>
+        >
+    with $FutureModifier<GiftEntry?>, $FutureProvider<GiftEntry?> {
+  /// One gift with photos, for the detail screen. Refetched (not read from
+  /// the list caches) so photo edits show without juggling three lists.
+  GiftDetailProvider._({
+    required GiftDetailFamily super.from,
+    required (String, {bool counterpartIsGiver}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'giftDetailProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$giftDetailHash();
+
+  @override
+  String toString() {
+    return r'giftDetailProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<GiftEntry?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GiftEntry?> create(Ref ref) {
+    final argument = this.argument as (String, {bool counterpartIsGiver});
+    return giftDetail(
+      ref,
+      argument.$1,
+      counterpartIsGiver: argument.counterpartIsGiver,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GiftDetailProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
 String _$giftDetailHash() => r'49c48204d973b7ba1cda105a173fe69bb0e33bb2';
 
 /// One gift with photos, for the detail screen. Refetched (not read from
 /// the list caches) so photo edits show without juggling three lists.
-///
-/// Copied from [giftDetail].
-@ProviderFor(giftDetail)
-const giftDetailProvider = GiftDetailFamily();
 
-/// One gift with photos, for the detail screen. Refetched (not read from
-/// the list caches) so photo edits show without juggling three lists.
-///
-/// Copied from [giftDetail].
-class GiftDetailFamily extends Family<AsyncValue<GiftEntry?>> {
-  /// One gift with photos, for the detail screen. Refetched (not read from
-  /// the list caches) so photo edits show without juggling three lists.
-  ///
-  /// Copied from [giftDetail].
-  const GiftDetailFamily();
-
-  /// One gift with photos, for the detail screen. Refetched (not read from
-  /// the list caches) so photo edits show without juggling three lists.
-  ///
-  /// Copied from [giftDetail].
-  GiftDetailProvider call(String giftId, {required bool counterpartIsGiver}) {
-    return GiftDetailProvider(giftId, counterpartIsGiver: counterpartIsGiver);
-  }
-
-  @override
-  GiftDetailProvider getProviderOverride(
-    covariant GiftDetailProvider provider,
-  ) {
-    return call(
-      provider.giftId,
-      counterpartIsGiver: provider.counterpartIsGiver,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'giftDetailProvider';
-}
-
-/// One gift with photos, for the detail screen. Refetched (not read from
-/// the list caches) so photo edits show without juggling three lists.
-///
-/// Copied from [giftDetail].
-class GiftDetailProvider extends AutoDisposeFutureProvider<GiftEntry?> {
-  /// One gift with photos, for the detail screen. Refetched (not read from
-  /// the list caches) so photo edits show without juggling three lists.
-  ///
-  /// Copied from [giftDetail].
-  GiftDetailProvider(String giftId, {required bool counterpartIsGiver})
-    : this._internal(
-        (ref) => giftDetail(
-          ref as GiftDetailRef,
-          giftId,
-          counterpartIsGiver: counterpartIsGiver,
-        ),
-        from: giftDetailProvider,
+final class GiftDetailFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<GiftEntry?>,
+          (String, {bool counterpartIsGiver})
+        > {
+  GiftDetailFamily._()
+    : super(
+        retry: null,
         name: r'giftDetailProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$giftDetailHash,
-        dependencies: GiftDetailFamily._dependencies,
-        allTransitiveDependencies: GiftDetailFamily._allTransitiveDependencies,
-        giftId: giftId,
-        counterpartIsGiver: counterpartIsGiver,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
       );
 
-  GiftDetailProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.giftId,
-    required this.counterpartIsGiver,
-  }) : super.internal();
+  /// One gift with photos, for the detail screen. Refetched (not read from
+  /// the list caches) so photo edits show without juggling three lists.
 
-  final String giftId;
-  final bool counterpartIsGiver;
+  GiftDetailProvider call(String giftId, {required bool counterpartIsGiver}) =>
+      GiftDetailProvider._(
+        argument: (giftId, counterpartIsGiver: counterpartIsGiver),
+        from: this,
+      );
 
   @override
-  Override overrideWith(
-    FutureOr<GiftEntry?> Function(GiftDetailRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: GiftDetailProvider._internal(
-        (ref) => create(ref as GiftDetailRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        giftId: giftId,
-        counterpartIsGiver: counterpartIsGiver,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<GiftEntry?> createElement() {
-    return _GiftDetailProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is GiftDetailProvider &&
-        other.giftId == giftId &&
-        other.counterpartIsGiver == counterpartIsGiver;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, giftId.hashCode);
-    hash = _SystemHash.combine(hash, counterpartIsGiver.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
+  String toString() => r'giftDetailProvider';
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin GiftDetailRef on AutoDisposeFutureProviderRef<GiftEntry?> {
-  /// The parameter `giftId` of this provider.
-  String get giftId;
-
-  /// The parameter `counterpartIsGiver` of this provider.
-  bool get counterpartIsGiver;
-}
-
-class _GiftDetailProviderElement
-    extends AutoDisposeFutureProviderElement<GiftEntry?>
-    with GiftDetailRef {
-  _GiftDetailProviderElement(super.provider);
-
-  @override
-  String get giftId => (origin as GiftDetailProvider).giftId;
-  @override
-  bool get counterpartIsGiver =>
-      (origin as GiftDetailProvider).counterpartIsGiver;
-}
-
-String _$giftsControllerHash() => r'3fc04bfac3f1ec48ad3842ecb9c7a4a863e9cd5e';
-
-/// See also [GiftsController].
 @ProviderFor(GiftsController)
-final giftsControllerProvider =
-    AutoDisposeNotifierProvider<GiftsController, AsyncValue<void>>.internal(
-      GiftsController.new,
-      name: r'giftsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$giftsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final giftsControllerProvider = GiftsControllerProvider._();
 
-typedef _$GiftsController = AutoDisposeNotifier<AsyncValue<void>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class GiftsControllerProvider
+    extends $NotifierProvider<GiftsController, AsyncValue<void>> {
+  GiftsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'giftsControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$giftsControllerHash();
+
+  @$internal
+  @override
+  GiftsController create() => GiftsController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$giftsControllerHash() => r'0582bb4f3fbee7bae2dcc1203fa204b717050712';
+
+abstract class _$GiftsController extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

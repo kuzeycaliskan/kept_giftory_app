@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +25,7 @@ class AppShell extends ConsumerWidget {
 
   void _onDestinationSelected(BuildContext context, WidgetRef ref, int index) {
     if (index == _addDestinationIndex) {
-      captureMoment(context, ref);
+      unawaited(captureMoment(context, ref));
       return;
     }
     final branch = index < _addDestinationIndex ? index : index - 1;

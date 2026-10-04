@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
@@ -61,7 +60,9 @@ Future<EventForHonoree?> eventForHonoree(Ref ref, String honoreeId) async {
 
 /// Every write on events; refreshes the hub, the detail and the Home
 /// lookups afterwards.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class EventsController extends _$EventsController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

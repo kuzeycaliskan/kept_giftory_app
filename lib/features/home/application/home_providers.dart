@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';

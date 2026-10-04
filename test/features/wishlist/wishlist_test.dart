@@ -86,10 +86,10 @@ void main() {
     final router = GoRouter(
       initialLocation: initial,
       routes: [
-        GoRoute(path: '/wishlist', builder: (_, __) => const WishlistScreen()),
+        GoRoute(path: '/wishlist', builder: (_, _) => const WishlistScreen()),
         GoRoute(
           path: '/wishlist/add',
-          builder: (_, __) => const AddWishlistItemScreen(),
+          builder: (_, _) => const AddWishlistItemScreen(),
         ),
         GoRoute(
           path: '/users/:uid/wishlist',

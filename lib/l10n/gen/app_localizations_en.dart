@@ -1119,7 +1119,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimParticipants => 'Who\'s in';
 
   @override
-  String get claimRemovePledge => 'Remove';
+  String get claimRemovePledge => 'Remove from the pool';
+
+  @override
+  String get claimChangeShare => 'Change my share';
+
+  @override
+  String get commonMore => 'More';
 
   @override
   String get claimNoPledges => 'Nobody has joined yet';

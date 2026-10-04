@@ -132,8 +132,15 @@ class _GiftListPage extends ConsumerWidget {
         if (list.isEmpty) return _EmptyState(given: given);
         return RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(provider);
-            await ref.read(provider.future);
+            // Each page refreshes its own provider; the two generated types
+            // share no `.future` supertype, hence the branch.
+            if (given) {
+              ref.invalidate(givenGiftsProvider);
+              await ref.read(givenGiftsProvider.future);
+            } else {
+              ref.invalidate(receivedGiftsProvider);
+              await ref.read(receivedGiftsProvider.future);
+            }
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),

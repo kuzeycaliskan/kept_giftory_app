@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
@@ -38,7 +37,9 @@ Future<Map<String, WishlistClaim>> wishlistClaims(
 /// Mutations on claims and pledges. Each method returns the failure (null
 /// on success) so the row can explain a lost race in place; the list for
 /// that owner is refreshed either way — the server is the truth.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class ClaimsController extends _$ClaimsController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

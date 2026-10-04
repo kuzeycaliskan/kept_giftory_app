@@ -32,7 +32,7 @@ void main() {
     final router = GoRouter(
       initialLocation: '/invite',
       routes: [
-        GoRoute(path: '/invite', builder: (_, __) => const InviteScreen()),
+        GoRoute(path: '/invite', builder: (_, _) => const InviteScreen()),
       ],
     );
     await tester.pumpWidget(

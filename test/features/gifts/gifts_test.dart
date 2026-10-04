@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kept/core/error/result.dart';
@@ -330,7 +331,7 @@ void main() {
     final router = GoRouter(
       initialLocation: initial,
       routes: [
-        GoRoute(path: '/gifts', builder: (_, __) => const GiftsScreen()),
+        GoRoute(path: '/gifts', builder: (_, _) => const GiftsScreen()),
         GoRoute(
           path: '/gifts/log',
           builder: (_, state) => LogGiftScreen(
@@ -343,7 +344,7 @@ void main() {
         ),
         GoRoute(
           path: '/gifts/log-external',
-          builder: (_, __) => const LogExternalGiftScreen(),
+          builder: (_, _) => const LogExternalGiftScreen(),
         ),
         GoRoute(
           path: '/gifts/:id',

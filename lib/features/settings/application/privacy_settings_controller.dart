@@ -11,7 +11,9 @@ enum PrivacySection { profile, wishlist, giftHistory }
 /// Applies section-visibility changes (G-22). The screen reads current values
 /// from [myProfileProvider]; this controller only performs the mutation and
 /// refreshes that provider so every consumer sees the new setting at once.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class PrivacySettingsController extends _$PrivacySettingsController {
   @override
   AsyncValue<void> build() => const AsyncData(null);

@@ -62,7 +62,7 @@ class SupabaseWishlistRepository implements WishlistRepository {
             'title': trimmed,
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
             if (url != null && url.trim().isNotEmpty) 'url': url.trim(),
-            if (linkPreviewId != null) 'link_preview_id': linkPreviewId,
+            'link_preview_id': ?linkPreviewId,
           })
           .select()
           .single();

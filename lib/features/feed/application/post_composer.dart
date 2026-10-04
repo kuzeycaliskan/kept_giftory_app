@@ -11,7 +11,9 @@ part 'post_composer.g.dart';
 /// Capture → share pipeline for a moment (G-201). Two steps so the compose
 /// screen sits between them: [capture] opens the device camera (never the
 /// gallery — a moment is taken now), [publish] shrinks + stores.
-@riverpod
+// Action controller: kept alive so a call that outlives its screen can
+// still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
+@Riverpod(keepAlive: true)
 class PostComposer extends _$PostComposer {
   /// Camera output is requested large enough that the shared downscale
   /// (core/media/image_encoding) never upsamples.

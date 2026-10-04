@@ -6,26 +6,74 @@ part of 'preview_refresher.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$previewRefresherHash() => r'c7e482e560f27b54fcffc2092f17c8f312769b9c';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Periodic price refresh, triggered by lists coming on screen: previews
+/// whose slot looks due are offered to the server (which owns the clock and
+/// claims the slot). One ask per link per app session, a few per load, so a
+/// list never turns into a polling loop.
+
+@ProviderFor(PreviewRefresher)
+final previewRefresherProvider = PreviewRefresherProvider._();
 
 /// Periodic price refresh, triggered by lists coming on screen: previews
 /// whose slot looks due are offered to the server (which owns the clock and
 /// claims the slot). One ask per link per app session, a few per load, so a
 /// list never turns into a polling loop.
-///
-/// Copied from [PreviewRefresher].
-@ProviderFor(PreviewRefresher)
-final previewRefresherProvider =
-    NotifierProvider<PreviewRefresher, void>.internal(
-      PreviewRefresher.new,
-      name: r'previewRefresherProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$previewRefresherHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final class PreviewRefresherProvider
+    extends $NotifierProvider<PreviewRefresher, void> {
+  /// Periodic price refresh, triggered by lists coming on screen: previews
+  /// whose slot looks due are offered to the server (which owns the clock and
+  /// claims the slot). One ask per link per app session, a few per load, so a
+  /// list never turns into a polling loop.
+  PreviewRefresherProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'previewRefresherProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-typedef _$PreviewRefresher = Notifier<void>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+  @override
+  String debugGetCreateSourceHash() => _$previewRefresherHash();
+
+  @$internal
+  @override
+  PreviewRefresher create() => PreviewRefresher();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$previewRefresherHash() => r'ed5131915eb38878a3836642f97c4e0e9867c6c2';
+
+/// Periodic price refresh, triggered by lists coming on screen: previews
+/// whose slot looks due are offered to the server (which owns the clock and
+/// claims the slot). One ask per link per app session, a few per load, so a
+/// list never turns into a polling loop.
+
+abstract class _$PreviewRefresher extends $Notifier<void> {
+  void build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<void, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<void, void>,
+              void,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

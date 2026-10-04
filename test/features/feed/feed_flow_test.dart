@@ -26,6 +26,8 @@ void main() {
   }) async {
     await tester.pumpWidget(
       ProviderScope(
+        // As in bootstrap: a failed load shows its error, no auto-retry.
+        retry: (_, _) => null,
         overrides: [
           feedRepositoryProvider.overrideWithValue(feed),
           mediaStoreProvider.overrideWithValue(const FakeMediaStore()),
