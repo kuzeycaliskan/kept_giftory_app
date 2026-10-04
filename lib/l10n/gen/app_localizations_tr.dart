@@ -1082,14 +1082,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get claimPledgeInvalid => 'Sıfırdan büyük bir tutar gir';
 
   @override
-  String get claimTargetHint => 'Ürün fiyatı (hedef)';
+  String get claimTargetHint => 'Ürün fiyatı';
 
   @override
   String get claimSharedTitle => 'Ortak hediye başlat';
 
   @override
   String get claimSharedBody =>
-      'Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir. Ürün fiyatını girersen herkes ne kadar kaldığını görür.';
+      'Arkadaşlar ne kadar koyacağını yazar. Havuzun fiyata ulaşmak için 24 saati var; ulaşmazsa kapanır ve katkılar düşer. Para Kept dışında el değiştirir.';
 
   @override
   String get claimMakeShared => 'Ortak hediyeye çevir';
@@ -1295,4 +1295,25 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get eventsPastSection => 'Geçmiş event\'ler';
+
+  @override
+  String claimPoolDeadline(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours saat',
+      one: '1 saat',
+    );
+    return 'Fiyata ulaşmak için $_temp0 kaldı';
+  }
+
+  @override
+  String get claimPoolDeadlineSoon =>
+      'Fiyata ulaşmak için bir saatten az kaldı';
+
+  @override
+  String get claimPoolExpired => 'Süre doldu; havuz kapanıyor';
+
+  @override
+  String get claimTargetRequired => 'Ürün fiyatını gir';
 }

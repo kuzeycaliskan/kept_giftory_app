@@ -15,7 +15,7 @@ class SupabaseClaimsRepository implements ClaimsRepository {
   static const _pledges = 'claim_pledges';
   static const _select =
       'id, item_id, owner_id, claimer_id, kind, target_amount, gift_id, '
-      'pledges:claim_pledges(user_id, amount)';
+      'expires_at, pledges:claim_pledges(user_id, amount)';
 
   String get _me => _client.auth.currentUser?.id ?? '';
 
@@ -137,6 +137,10 @@ class SupabaseClaimsRepository implements ClaimsRepository {
       kind: ClaimKind.values.byName(row['kind'] as String),
       targetAmount: _amount(row['target_amount']),
       giftId: row['gift_id'] as String?,
+      expiresAt: switch (row['expires_at']) {
+        final String s => DateTime.parse(s),
+        _ => null,
+      },
       claimer: cards[claimerId],
       pledges: [
         for (final p in pledges)

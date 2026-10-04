@@ -1097,14 +1097,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimPledgeInvalid => 'Enter an amount above zero';
 
   @override
-  String get claimTargetHint => 'Product price (target)';
+  String get claimTargetHint => 'Product price';
 
   @override
   String get claimSharedTitle => 'Start a group gift';
 
   @override
   String get claimSharedBody =>
-      'Friends pledge what they\'ll put in. Money changes hands outside Kept. With the price set, everyone sees how much is left.';
+      'Friends pledge what they\'ll put in. The pool has 24 hours to reach the price, otherwise it closes and pledges are dropped. Money changes hands outside Kept.';
 
   @override
   String get claimMakeShared => 'Turn into a group gift';
@@ -1317,4 +1317,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventsPastSection => 'Past events';
+
+  @override
+  String claimPoolDeadline(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '1 hour',
+    );
+    return '$_temp0 left to reach the price';
+  }
+
+  @override
+  String get claimPoolDeadlineSoon =>
+      'Less than an hour left to reach the price';
+
+  @override
+  String get claimPoolExpired => 'Time is up — the pool is closing';
+
+  @override
+  String get claimTargetRequired => 'Enter the product price';
 }

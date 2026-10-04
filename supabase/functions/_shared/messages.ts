@@ -91,3 +91,18 @@ export function eventDeletedPush(
       : "Kaydedilen hediyeler ve rezervasyonlar duruyor.",
   };
 }
+
+/// A group gift did not reach its price within its day and was removed.
+export function poolExpiredPush(
+  itemTitle: string | null,
+  count: number,
+): { title: string; body: string } {
+  return {
+    title: "Ortak hediye kapandı ⏳",
+    body: count > 1
+      ? `${count} havuz 24 saatte fiyata ulaşmadı; katkılar düştü.`
+      : `${
+        itemTitle ? clip(itemTitle, 40) : "Havuz"
+      } 24 saatte fiyata ulaşmadı; katkılar düştü.`,
+  };
+}

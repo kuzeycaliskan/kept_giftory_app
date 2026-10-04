@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(196);
+select plan(203);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2246,6 +2246,66 @@ select throws_ok(
   '193: nobody joins an already revealed event through "open an event"'
 );
 reset role;
+
+-- ── 194-198: pools live 24 hours ─────────────────────────────────────────────
+reset role;
+insert into public.wishlist_items (id, owner_id, title)
+values ('00000000-0000-0000-0000-000000000e04', '00000000-0000-0000-0000-000000000b31', 'Camera');
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.wishlist_claims (item_id, claimer_id, kind)
+     values ('00000000-0000-0000-0000-000000000e04', '00000000-0000-0000-0000-000000000b32', 'shared') $$,
+  '23514',
+  null,
+  '194: a pool needs the product price'
+);
+insert into public.wishlist_claims (id, item_id, claimer_id, kind, target_amount)
+values ('00000000-0000-0000-0000-000000000e15', '00000000-0000-0000-0000-000000000e04',
+        '00000000-0000-0000-0000-000000000b32', 'shared', 300);
+select is(
+  (select expires_at between now() + interval '23 hours' and now() + interval '25 hours'
+     from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e15'),
+  true,
+  '195: a new pool gets its 24-hour clock'
+);
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b35","role":"authenticated"}';
+insert into public.claim_pledges (claim_id, user_id, amount)
+values ('00000000-0000-0000-0000-000000000e15', '00000000-0000-0000-0000-000000000b35', 300);
+select is(
+  (select expires_at is null from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e15'),
+  true,
+  '196: reaching the price stops the clock'
+);
+update public.claim_pledges set amount = 100
+  where claim_id = '00000000-0000-0000-0000-000000000e15' and user_id = '00000000-0000-0000-0000-000000000b35';
+select is(
+  (select expires_at is not null from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e15'),
+  true,
+  '197: falling under the price starts a fresh day'
+);
+select throws_ok(
+  $$ select * from public.expire_pools() $$,
+  '42501',
+  null,
+  '198: expiry is service-only'
+);
+reset role;
+update public.wishlist_claims set expires_at = now() - interval '1 minute'
+  where id = '00000000-0000-0000-0000-000000000e15';
+select is(
+  (select array_length(user_ids, 1) from public.expire_pools()
+    where claim_id = '00000000-0000-0000-0000-000000000e15'),
+  2,
+  '199: an overdue pool is removed, organizer and pledger returned for the push'
+);
+select is(
+  (select count(*) from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e15'),
+  0::bigint,
+  '200: ... pool and pledges are gone'
+);
 
 select * from finish();
 rollback;

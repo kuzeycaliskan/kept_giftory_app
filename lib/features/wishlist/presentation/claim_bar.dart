@@ -494,12 +494,33 @@ class _SharedState extends ConsumerWidget {
               color: scheme.onSurfaceVariant,
             ),
           ),
+        if (claim.expiresAt != null && !claim.hasGift && !_full)
+          Padding(
+            padding: const EdgeInsets.only(top: KeptSpacing.xs),
+            child: Text(
+              _deadlineLabel(l10n, claim.expiresAt!),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.tertiary,
+              ),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.only(top: KeptSpacing.xs),
           child: Align(alignment: Alignment.centerRight, child: action),
         ),
       ],
     );
+  }
+
+  /// The pool's 24-hour clock, in whole hours; the last hour and overdue
+  /// get their own words.
+  static String _deadlineLabel(AppLocalizations l10n, DateTime expiresAt) {
+    final left = expiresAt.difference(DateTime.now());
+    if (left.isNegative) return l10n.claimPoolExpired;
+    if (left.inHours < 1) return l10n.claimPoolDeadlineSoon;
+    return l10n.claimPoolDeadline(left.inHours);
   }
 }
 
@@ -632,6 +653,7 @@ class _AmountSheetState extends State<_AmountSheet> {
         : plainAmount(widget.initialTarget!),
   );
   String? _amountError;
+  String? _targetError;
 
   String? _overflowHint(AppLocalizations l10n, String locale) {
     final limit = widget.overflowAt;
@@ -661,6 +683,11 @@ class _AmountSheetState extends State<_AmountSheet> {
     }
     final targetText = _target.text.trim();
     final target = targetText.isEmpty ? null : parseAmount(targetText);
+    // A pool measures itself against the price: required.
+    if (widget.askTarget && target == null) {
+      setState(() => _targetError = l10n.claimTargetRequired);
+      return;
+    }
     Navigator.of(context).pop(AmountInput(amount: amount, target: target));
   }
 
@@ -702,7 +729,13 @@ class _AmountSheetState extends State<_AmountSheet> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(prefixText: '₺ '),
+              decoration: InputDecoration(
+                prefixText: '₺ ',
+                errorText: _targetError,
+              ),
+              onChanged: (_) {
+                if (_targetError != null) setState(() => _targetError = null);
+              },
             ),
             const SizedBox(height: KeptSpacing.md),
           ],

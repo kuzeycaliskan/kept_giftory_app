@@ -32,7 +32,12 @@ class WishlistClaim {
     this.pledges = const [],
     this.claimer,
     this.giftId,
+    this.expiresAt,
   });
+
+  /// A pool's 24-hour clock: null once funded or logged. Past this moment
+  /// the server removes the pool on its next hourly tick.
+  final DateTime? expiresAt;
 
   /// The gift record this reservation turned into (G-309); null until the
   /// claimer logs it. A pool with a gift is closed.

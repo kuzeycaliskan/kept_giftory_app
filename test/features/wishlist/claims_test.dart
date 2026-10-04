@@ -397,6 +397,47 @@ void main() {
       expect(find.textContaining('Fully funded'), findsNothing);
     });
 
+    testWidgets(
+      'an open pool shows its clock; a price is required to start one',
+      (tester) async {
+        final claims = _FakeClaimsRepository(
+          claims: {
+            'f1': WishlistClaim(
+              id: 'c1',
+              itemId: 'f1',
+              ownerId: 'ali',
+              claimerId: 'zeynep',
+              kind: ClaimKind.shared,
+              targetAmount: 1000,
+              claimer: zeynep,
+              pledges: const [
+                Pledge(userId: 'zeynep', amount: 400, user: zeynep),
+              ],
+              expiresAt: DateTime.now().add(
+                const Duration(hours: 5, minutes: 30),
+              ),
+            ),
+          },
+        );
+        await pump(tester, claims: claims);
+        expect(find.text('5 hours left to reach the price'), findsOneWidget);
+      },
+    );
+
+    testWidgets('starting a pool without a price is refused in the sheet', (
+      tester,
+    ) async {
+      final claims = _FakeClaimsRepository();
+      await pump(tester, claims: claims);
+      await tester.tap(find.text('Chip in together'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Enter the product price'), findsOneWidget);
+      expect(claims.calls, isEmpty);
+    });
+
     testWidgets('a full pool asks its organizer to log the gift', (
       tester,
     ) async {
@@ -519,7 +560,7 @@ void main() {
 
       await tester.tap(find.text('Chip in together'));
       await tester.pumpAndSettle();
-      expect(find.text('Product price (target)'), findsOneWidget);
+      expect(find.text('Product price'), findsOneWidget);
       expect(find.text('Your share (optional)'), findsOneWidget);
       final priceField = find.byKey(const Key('claim-target'));
       expect(tester.widget<TextField>(priceField).controller!.text, '1299');

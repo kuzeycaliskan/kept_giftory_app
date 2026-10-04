@@ -6,6 +6,7 @@ import {
   eventRevealPush,
   eventThanksPush,
   giftLoggedPush,
+  poolExpiredPush,
   surprisePush,
 } from "./messages.ts";
 
@@ -76,4 +77,12 @@ Deno.test("event deleted: names the honoree, mentions removed group gifts", () =
     eventDeletedPush("Kuzey", 0).body.startsWith("Kaydedilen hediyeler"),
     true,
   );
+});
+
+Deno.test("pool expired: names the item, counts when several", () => {
+  assertEquals(
+    poolExpiredPush("Espresso machine", 1).body,
+    "Espresso machine 24 saatte fiyata ulaşmadı; katkılar düştü.",
+  );
+  assertEquals(poolExpiredPush(null, 2).body.startsWith("2 havuz"), true);
 });

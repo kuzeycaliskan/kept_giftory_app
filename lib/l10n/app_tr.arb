@@ -328,9 +328,9 @@
   "claimPledgeTitle": "Katkın",
   "claimPledgeHint": "Tutar",
   "claimPledgeInvalid": "Sıfırdan büyük bir tutar gir",
-  "claimTargetHint": "Ürün fiyatı (hedef)",
+  "claimTargetHint": "Ürün fiyatı",
   "claimSharedTitle": "Ortak hediye başlat",
-  "claimSharedBody": "Arkadaşlar ne kadar koyacağını yazar. Para Kept dışında el değiştirir. Ürün fiyatını girersen herkes ne kadar kaldığını görür.",
+  "claimSharedBody": "Arkadaşlar ne kadar koyacağını yazar. Havuzun fiyata ulaşmak için 24 saati var; ulaşmazsa kapanır ve katkılar düşer. Para Kept dışında el değiştirir.",
   "claimMakeShared": "Ortak hediyeye çevir",
   "claimWithdraw": "Katkımı geri çek",
   "claimCancelShared": "Ortak hediyeyi iptal et",
@@ -386,5 +386,9 @@
   "eventsDelete": "Event'i sil",
   "eventsDeleteConfirmTitle": "Bu event silinsin mi?",
   "eventsDeleteConfirmBody": "Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır.",
-  "eventsPastSection": "Geçmiş event'ler"
+  "eventsPastSection": "Geçmiş event'ler",
+  "claimPoolDeadline": "Fiyata ulaşmak için {hours, plural, =1{1 saat} other{{hours} saat}} kaldı",
+  "claimPoolDeadlineSoon": "Fiyata ulaşmak için bir saatten az kaldı",
+  "claimPoolExpired": "Süre doldu; havuz kapanıyor",
+  "claimTargetRequired": "Ürün fiyatını gir"
 }

@@ -2069,7 +2069,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimTargetHint.
   ///
   /// In en, this message translates to:
-  /// **'Product price (target)'**
+  /// **'Product price'**
   String get claimTargetHint;
 
   /// No description provided for @claimSharedTitle.
@@ -2081,7 +2081,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimSharedBody.
   ///
   /// In en, this message translates to:
-  /// **'Friends pledge what they\'ll put in. Money changes hands outside Kept. With the price set, everyone sees how much is left.'**
+  /// **'Friends pledge what they\'ll put in. The pool has 24 hours to reach the price, otherwise it closes and pledges are dropped. Money changes hands outside Kept.'**
   String get claimSharedBody;
 
   /// No description provided for @claimMakeShared.
@@ -2419,6 +2419,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Past events'**
   String get eventsPastSection;
+
+  /// No description provided for @claimPoolDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour} other{{hours} hours}} left to reach the price'**
+  String claimPoolDeadline(int hours);
+
+  /// No description provided for @claimPoolDeadlineSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than an hour left to reach the price'**
+  String get claimPoolDeadlineSoon;
+
+  /// No description provided for @claimPoolExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is up — the pool is closing'**
+  String get claimPoolExpired;
+
+  /// No description provided for @claimTargetRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the product price'**
+  String get claimTargetRequired;
 }
 
 class _AppLocalizationsDelegate
