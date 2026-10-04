@@ -238,12 +238,41 @@ void main() {
     List<UpcomingBirthday> birthdays = const [],
     _FakeFriendshipRepository? friendships,
     _FakeNotificationsRepository? inbox,
+    // The real app opens Activity on top of the tab shell; tests that
+    // follow a notice into a tab need that stack, not a bare screen.
+    bool overShell = false,
   }) async {
     pushedLocation = null;
     final router = GoRouter(
-      initialLocation: '/activity',
+      initialLocation: overShell ? '/' : '/activity',
       routes: [
         GoRoute(path: '/activity', builder: (_, __) => const ActivityScreen()),
+        // The app's tab shell, so a notice aimed at a tab root is exercised
+        // the way it crashes for real: a push of an already-present page.
+        StatefulShellRoute.indexedStack(
+          builder: (_, __, shell) => shell,
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/',
+                  builder: (_, __) => const Scaffold(body: Text('home tab')),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/gifts',
+                  builder: (_, state) {
+                    pushedLocation = state.uri.toString();
+                    return const Scaffold(body: Text('gifts tab'));
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
         GoRoute(
           path: '/users/:uid',
           builder: (_, state) {
@@ -287,6 +316,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    if (overShell) {
+      router.push('/activity');
+      await tester.pumpAndSettle();
+    }
   }
 
   testWidgets('empty state renders when nothing is pending', (tester) async {
@@ -364,5 +397,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(inbox.calls, ['read:n1']);
     expect(pushedLocation, '/events/e5');
+  });
+
+  testWidgets('a notice aimed at a tab root switches tabs, no duplicate page', (
+    tester,
+  ) async {
+    final inbox = _FakeNotificationsRepository([
+      AppNotification(
+        id: 'n3',
+        kind: 'pool:share_removed',
+        title: 'Ortak hediyeden çıkarıldın',
+        body: 'Kamil Tent havuzundan katkını kaldırdı.',
+        route: '/gifts',
+        createdAt: DateTime(2026, 10, 5, 9, 30),
+      ),
+    ]);
+    await pump(tester, inbox: inbox, overShell: true);
+
+    await tester.tap(find.text('Ortak hediyeden çıkarıldın'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('gifts tab'), findsOneWidget);
+    expect(pushedLocation, '/gifts');
   });
 }

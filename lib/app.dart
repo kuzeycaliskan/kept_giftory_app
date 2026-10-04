@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kept/core/env/env.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/router/app_router.dart';
+import 'package:kept/core/router/follow_route.dart';
 import 'package:kept/core/theme/app_theme.dart';
 import 'package:kept/features/push/application/foreground_notifications.dart';
 
@@ -30,7 +31,7 @@ class _KeptAppState extends ConsumerState<KeptApp> {
   void _routeFromData(Map<String, dynamic> data) {
     final route = data['route'];
     if (route is String && route.isNotEmpty) {
-      ref.read(appRouterProvider).push(route);
+      followRoute(ref.read(appRouterProvider), route);
     }
   }
 

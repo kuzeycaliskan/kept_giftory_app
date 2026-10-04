@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kept/core/router/follow_route.dart';
 import 'package:kept/features/notifications/application/notifications_providers.dart';
 import 'package:kept/features/notifications/domain/app_notification.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
@@ -54,7 +55,7 @@ class NotificationRow extends ConsumerWidget {
               .markRead(notification.id);
         }
         final route = notification.route;
-        if (route != null) context.push(route);
+        if (route != null) followRoute(GoRouter.of(context), route);
       },
     );
   }
