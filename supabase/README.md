@@ -293,3 +293,15 @@ Create 3 users: **A**, **B** (A↔B accepted friends), **C** (stranger). Then ve
   `gift_id` clears and it reopens), captures the joined members' ids and
   pings `notify-event-deleted`, which pushes them via the service-only
   `push_targets_for_users`. pgTAP 176-182.
+
+## Pool deadline (4 Oct 2026)
+
+- `wishlist_claims.expires_at`: a shared claim gets `now() + 24h` on creation
+  (and on solo→shared); the price is required for pools (`guard_pool_price`).
+  `refresh_pool_deadline` (pledge trigger) clears the clock once pledges
+  reach the price and restarts it when they fall under; a logged gift clears
+  it for good.
+- `expire_pools()` (service-only; cron `expire-pools-hourly` → Edge Function
+  `expire-pools`) deletes overdue pools with their pledges and returns the
+  organizer + pledgers for a push. Claims are tied to the item, never to an
+  event: deleting an event leaves them in place. pgTAP 194-200.
