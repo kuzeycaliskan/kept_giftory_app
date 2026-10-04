@@ -138,3 +138,30 @@ export function poolRemovedPush(
     } istek listesinden kaldırıldı; katkılar düştü.`,
   };
 }
+
+/// The organizer closed the pool without a gift.
+export function poolReleasedPush(
+  actor: string | null,
+  itemTitle: string | null,
+): { title: string; body: string } {
+  return {
+    title: "Ortak hediye kapatıldı",
+    body: `${actor ?? "Organizatör"} ${
+      itemTitle ? clip(itemTitle, 40) + " için" : ""
+    } havuzu dağıttı; katkın düştü.`
+      .replace("  ", " "),
+  };
+}
+
+/// The organizer logged the group gift; the pledgers are co-givers now.
+export function poolLoggedPush(
+  actor: string | null,
+  itemTitle: string | null,
+): { title: string; body: string } {
+  return {
+    title: "Ortak hediye kaydedildi 🎁",
+    body: `${actor ?? "Organizatör"} ${
+      itemTitle ? clip(itemTitle, 40) : "hediyeyi"
+    } kaydetti; sen de verenler arasındasın.`,
+  };
+}

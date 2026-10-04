@@ -7,6 +7,8 @@ import {
   eventThanksPush,
   giftLoggedPush,
   poolExpiredPush,
+  poolLoggedPush,
+  poolReleasedPush,
   poolReminderPush,
   poolRemovedPush,
   surprisePush,
@@ -97,5 +99,16 @@ Deno.test("pool reminder and removal copy", () => {
   assertEquals(
     poolRemovedPush("Tent").body,
     "Tent istek listesinden kaldırıldı; katkılar düştü.",
+  );
+});
+
+Deno.test("pool released / logged copy names the organizer", () => {
+  assertEquals(
+    poolReleasedPush("Kamil", "Tent").body,
+    "Kamil Tent için havuzu dağıttı; katkın düştü.",
+  );
+  assertEquals(
+    poolLoggedPush("Kamil", "Tent").body,
+    "Kamil Tent kaydetti; sen de verenler arasındasın.",
   );
 });
