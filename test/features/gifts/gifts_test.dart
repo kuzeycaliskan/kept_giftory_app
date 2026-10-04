@@ -878,16 +878,25 @@ void main() {
         initial: '/gifts/g9?side=giver',
       );
 
-      await tester.tap(find.text('Share the unboxing'));
-      await tester.pumpAndSettle();
-      expect(find.text('Unboxing: Kupa'), findsOneWidget);
+      // The detail says what will happen before the camera opens.
       expect(
-        find.text("The photo also stays with the gift's memories."),
+        find.textContaining('goes out as a 24-hour story'),
         findsOneWidget,
       );
-
-      await tester.tap(find.widgetWithText(FilledButton, 'Share'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Share the unboxing'));
       await tester.pumpAndSettle();
+      // The compose screen is titled for it and says where it goes.
+      expect(find.text('Share the unboxing'), findsOneWidget);
+      expect(find.text('Unboxing: Kupa'), findsOneWidget);
+      expect(find.textContaining('24-hour story'), findsWidgets);
+      expect(find.text('A note for the story (optional)'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Share as a story'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text("Story shared. The photo is in the gift's memories."),
+        findsOneWidget,
+      );
 
       expect(feed.created.single.giftId, 'g9');
       expect(gifts.attachedTo, ['g9']);

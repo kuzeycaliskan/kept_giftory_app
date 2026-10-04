@@ -45,7 +45,15 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
     if (!mounted) return;
     if (ok) {
       navigator.pop();
-      messenger.showSnackBar(SnackBar(content: Text(l10n.composeShared)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.unboxing == null
+                ? l10n.composeShared
+                : l10n.composeUnboxingShared,
+          ),
+        ),
+      );
     } else {
       messenger.showSnackBar(SnackBar(content: Text(l10n.composeFailed)));
     }
@@ -55,8 +63,13 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(postComposerProvider).isLoading;
+    final unboxing = widget.unboxing;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.composeTitle)),
+      appBar: AppBar(
+        title: Text(
+          unboxing == null ? l10n.composeTitle : l10n.composeUnboxingTitle,
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -85,7 +98,7 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (widget.unboxing case final unboxing?) ...[
+                  if (unboxing != null) ...[
                     _UnboxingContext(item: unboxing.item),
                     const SizedBox(height: KeptSpacing.sm),
                   ],
@@ -96,7 +109,9 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
                     maxLines: 2,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: l10n.composeCaptionHint,
+                      hintText: unboxing == null
+                          ? l10n.composeCaptionHint
+                          : l10n.composeUnboxingCaptionHint,
                     ),
                   ),
                   const SizedBox(height: KeptSpacing.sm),
@@ -107,7 +122,11 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
                             dimension: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(l10n.composeShare),
+                        : Text(
+                            unboxing == null
+                                ? l10n.composeShare
+                                : l10n.composeUnboxingShare,
+                          ),
                   ),
                 ],
               ),
@@ -119,8 +138,8 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
   }
 }
 
-/// Says which gift this moment is about and that the photo also stays with
-/// the gift's memories (the moment itself is gone in 24h).
+/// Says which gift this is about and exactly where it goes: a 24-hour story
+/// for friends, and the photo into the gift's memories for good.
 class _UnboxingContext extends StatelessWidget {
   const _UnboxingContext({required this.item});
 

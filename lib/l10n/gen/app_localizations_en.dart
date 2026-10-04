@@ -717,7 +717,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get composeUnboxingKept =>
-      'The photo also stays with the gift\'s memories.';
+      'Shared as a 24-hour story for your friends; the photo also stays here with the gift\'s memories.';
+
+  @override
+  String get composeUnboxingTitle => 'Share the unboxing';
+
+  @override
+  String get composeUnboxingCaptionHint => 'A note for the story (optional)';
+
+  @override
+  String get composeUnboxingShare => 'Share as a story';
+
+  @override
+  String get composeUnboxingShared =>
+      'Story shared. The photo is in the gift\'s memories.';
+
+  @override
+  String get giftShareUnboxingHint =>
+      'Take a photo: it goes out as a 24-hour story and is added to this gift\'s memories.';
 
   @override
   String get giftShareUnboxing => 'Share the unboxing';

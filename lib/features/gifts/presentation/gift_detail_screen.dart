@@ -166,6 +166,15 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
               // G-308: only the recipient, only once the gift is open.
               if (gift.recipientId == myId && !gift.isPendingSurprise) ...[
                 const SizedBox(height: KeptSpacing.md),
+                // What happens is spelled out before the camera opens: a
+                // story for friends plus a photo kept here.
+                Text(
+                  l10n.giftShareUnboxingHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: KeptSpacing.sm),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: FilledButton.tonalIcon(

@@ -1421,8 +1421,38 @@ abstract class AppLocalizations {
   /// No description provided for @composeUnboxingKept.
   ///
   /// In en, this message translates to:
-  /// **'The photo also stays with the gift\'s memories.'**
+  /// **'Shared as a 24-hour story for your friends; the photo also stays here with the gift\'s memories.'**
   String get composeUnboxingKept;
+
+  /// No description provided for @composeUnboxingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the unboxing'**
+  String get composeUnboxingTitle;
+
+  /// No description provided for @composeUnboxingCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the story (optional)'**
+  String get composeUnboxingCaptionHint;
+
+  /// No description provided for @composeUnboxingShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as a story'**
+  String get composeUnboxingShare;
+
+  /// No description provided for @composeUnboxingShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Story shared. The photo is in the gift\'s memories.'**
+  String get composeUnboxingShared;
+
+  /// No description provided for @giftShareUnboxingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo: it goes out as a 24-hour story and is added to this gift\'s memories.'**
+  String get giftShareUnboxingHint;
 
   /// No description provided for @giftShareUnboxing.
   ///
