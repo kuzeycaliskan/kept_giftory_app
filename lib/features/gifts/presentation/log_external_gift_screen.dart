@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/media/camera/camera_screen.dart';
 import 'package:kept/features/gifts/application/gift_photo_controller.dart';
 import 'package:kept/features/gifts/application/gifts_providers.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
@@ -83,9 +84,7 @@ class _LogExternalGiftScreenState extends ConsumerState<LogExternalGiftScreen> {
   final List<Uint8List> _captures = [];
 
   Future<void> _capturePhoto() async {
-    final bytes = await ref
-        .read(giftPhotoControllerProvider.notifier)
-        .capture();
+    final bytes = await takePhoto(context);
     if (bytes == null || !mounted) return;
     setState(() => _captures.add(bytes));
   }

@@ -1,48 +1,20 @@
 import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/media/image_encoding.dart';
-import 'package:kept/core/media/media_providers.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'post_composer.g.dart';
 
-/// Capture → share pipeline for a moment (G-201). Two steps so the compose
-/// screen sits between them: [capture] opens the device camera (never the
-/// gallery — a moment is taken now), [publish] shrinks + stores.
+/// Share pipeline for a moment (G-201): the shot comes from Kept's camera
+/// (G-407, never the gallery — a moment is taken now); [publish] shrinks +
+/// stores.
 // Action controller: kept alive so a call that outlives its screen can
 // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 @Riverpod(keepAlive: true)
 class PostComposer extends _$PostComposer {
-  /// Camera output is requested large enough that the shared downscale
-  /// (core/media/image_encoding) never upsamples.
-  static const _captureDimension = 1600.0;
-
   @override
   AsyncValue<void> build() => const AsyncData(null);
-
-  /// Opens the camera and returns the raw bytes (null = user backed out).
-  Future<Uint8List?> capture() async {
-    final picker = ref.read(imagePickerProvider);
-    var picked = await picker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: _captureDimension,
-      maxHeight: _captureDimension,
-      requestFullMetadata: false,
-    );
-    // Android may recycle our activity behind the camera; the shot then
-    // surfaces through retrieveLostData on resume.
-    if (picked == null && defaultTargetPlatform == TargetPlatform.android) {
-      final lost = await picker.retrieveLostData();
-      picked = lost.file;
-    }
-    if (picked == null) {
-      debugPrint('moment capture cancelled or lost');
-      return null;
-    }
-    return picked.readAsBytes();
-  }
 
   /// Encodes and shares. Returns true when the moment is live. (An
   /// unboxing story is posted by the gift photo pipeline instead — G-308.)

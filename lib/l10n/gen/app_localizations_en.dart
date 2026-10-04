@@ -729,6 +729,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraUnavailable => 'Couldn\'t open the camera';
 
   @override
+  String get cameraPermissionDenied =>
+      'Kept needs the camera for this. Allow it in your device settings and try again.';
+
+  @override
+  String get cameraRetry => 'Try again';
+
+  @override
+  String get cameraFlashOff => 'Flash off';
+
+  @override
+  String get cameraFlashAuto => 'Flash auto';
+
+  @override
+  String get cameraFlashOn => 'Flash on';
+
+  @override
+  String get cameraFlip => 'Switch camera';
+
+  @override
+  String get cameraShutter => 'Take photo';
+
+  @override
+  String get cameraRetake => 'Retake';
+
+  @override
+  String get cameraEdit => 'Edit';
+
+  @override
+  String get cameraUse => 'Use photo';
+
+  @override
   String get storyMoreActions => 'More';
 
   @override

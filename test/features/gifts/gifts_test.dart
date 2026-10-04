@@ -390,6 +390,7 @@ void main() {
           imagePickerProvider.overrideWithValue(
             picker ?? FakeImagePicker(null),
           ),
+          cameraBackendProvider.overrideWithValue(FakeCameraBackend(tinyPng)),
           uploadEncoderProvider.overrideWithValue((bytes) async => bytes),
           friendshipRepositoryProvider.overrideWithValue(
             _FakeFriendshipRepository(friends),
@@ -874,7 +875,6 @@ void main() {
           tester,
           gifts: gifts,
           feed: feed,
-          picker: FakeImagePicker(tinyPng),
           initial: '/gifts/g9?side=giver',
         );
 
@@ -882,6 +882,7 @@ void main() {
           find.widgetWithText(FilledButton, 'Share the unboxing'),
         );
         await tester.pumpAndSettle();
+        await snap(tester);
         expect(find.text('Share the unboxing'), findsOneWidget);
         expect(find.text('Kupa'), findsOneWidget);
         // Story is on by default and the button says so.
@@ -917,11 +918,11 @@ void main() {
         tester,
         gifts: gifts,
         feed: feed,
-        picker: FakeImagePicker(tinyPng),
         initial: '/gifts/g9?side=giver',
       );
       await tester.tap(find.widgetWithText(FilledButton, 'Share the unboxing'));
       await tester.pumpAndSettle();
+      await snap(tester);
 
       await tester.tap(find.text('Also share as a story'));
       await tester.pumpAndSettle();
@@ -1097,18 +1098,14 @@ void main() {
       final repo = _FakeGiftRepository(
         given: [giftWithPhotos(id: 'g4', count: 0)],
       );
-      await pump(
-        tester,
-        gifts: repo,
-        initial: '/gifts/g4?side=recipient',
-        picker: FakeImagePicker(tinyPng),
-      );
+      await pump(tester, gifts: repo, initial: '/gifts/g4?side=recipient');
       // A party sees the camera card instead of the empty placeholder.
       expect(find.text('No photos yet'), findsNothing);
       expect(find.byType(PrivateMediaImage), findsNothing);
 
       await tester.tap(find.text('Take a photo'));
       await tester.pumpAndSettle();
+      await snap(tester);
       // The giver gets note + save, never a story (that is the recipient's).
       expect(find.text('Also share as a story'), findsNothing);
       await tester.enterText(find.byType(TextField), 'Paketlerken');
@@ -1238,7 +1235,7 @@ void main() {
       tester,
     ) async {
       final repo = _FakeGiftRepository();
-      await pump(tester, gifts: repo, picker: FakeImagePicker(tinyPng));
+      await pump(tester, gifts: repo);
       await tester.tap(find.text('Received'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add a gift you received'));
@@ -1251,7 +1248,9 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Gift'), 'Saat');
 
       await scrollToAndTap(tester, find.text('Take a photo'));
+      await snap(tester);
       await scrollToAndTap(tester, find.text('Take a photo'));
+      await snap(tester);
       expect(find.byIcon(Icons.close), findsNWidgets(2));
 
       await scrollToAndTap(tester, find.text('Save'));

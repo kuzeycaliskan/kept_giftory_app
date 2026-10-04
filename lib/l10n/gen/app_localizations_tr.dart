@@ -727,6 +727,37 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cameraUnavailable => 'Kamera açılamadı';
 
   @override
+  String get cameraPermissionDenied =>
+      'Bunun için Kept\'in kameraya erişmesi gerekiyor. Cihaz ayarlarından izin verip tekrar dene.';
+
+  @override
+  String get cameraRetry => 'Tekrar dene';
+
+  @override
+  String get cameraFlashOff => 'Flaş kapalı';
+
+  @override
+  String get cameraFlashAuto => 'Flaş otomatik';
+
+  @override
+  String get cameraFlashOn => 'Flaş açık';
+
+  @override
+  String get cameraFlip => 'Kamerayı değiştir';
+
+  @override
+  String get cameraShutter => 'Fotoğraf çek';
+
+  @override
+  String get cameraRetake => 'Yeniden çek';
+
+  @override
+  String get cameraEdit => 'Düzenle';
+
+  @override
+  String get cameraUse => 'Kullan';
+
+  @override
   String get storyMoreActions => 'Daha fazla';
 
   @override

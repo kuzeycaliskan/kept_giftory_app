@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/media/camera/camera_screen.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
 import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
@@ -185,9 +186,7 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
   final List<Uint8List> _captures = [];
 
   Future<void> _capturePhoto() async {
-    final bytes = await ref
-        .read(giftPhotoControllerProvider.notifier)
-        .capture();
+    final bytes = await takePhoto(context);
     if (bytes == null || !mounted) return;
     setState(() => _captures.add(bytes));
   }

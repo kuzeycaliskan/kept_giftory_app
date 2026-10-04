@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kept/app.dart';
 import 'package:kept/core/media/image_encoding.dart';
 import 'package:kept/core/media/media_providers.dart';
@@ -22,6 +21,7 @@ void main() {
     WidgetTester tester, {
     required FakeFeedRepository feed,
     FakeImagePicker? picker,
+    FakeCameraBackend? camera,
     bool asDevMe = false,
   }) async {
     await tester.pumpWidget(
@@ -33,6 +33,9 @@ void main() {
           mediaStoreProvider.overrideWithValue(const FakeMediaStore()),
           imagePickerProvider.overrideWithValue(
             picker ?? FakeImagePicker(null),
+          ),
+          cameraBackendProvider.overrideWithValue(
+            camera ?? FakeCameraBackend(tinyPng),
           ),
           // Skip the isolate hop: fake async and compute don't mix.
           uploadEncoderProvider.overrideWithValue((bytes) async => bytes),
@@ -359,24 +362,28 @@ void main() {
     testWidgets('Add tab opens the camera; backing out does nothing', (
       tester,
     ) async {
-      final picker = FakeImagePicker(null);
-      await pumpApp(tester, feed: FakeFeedRepository(), picker: picker);
+      final camera = FakeCameraBackend(tinyPng);
+      await pumpApp(tester, feed: FakeFeedRepository(), camera: camera);
 
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
 
-      expect(picker.calls, 1);
-      expect(picker.lastSource, ImageSource.camera);
+      // Kept's own viewfinder (G-407), not the system camera.
+      expect(camera.opened, 1);
+      expect(find.byKey(const Key('camera-shutter')), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
       expect(find.text('New moment'), findsNothing);
       expect(find.text('Upcoming'), findsOneWidget);
     });
 
     testWidgets('a captured photo is shared with its caption', (tester) async {
       final feed = FakeFeedRepository(viewerId: 'me');
-      await pumpApp(tester, feed: feed, picker: FakeImagePicker(tinyPng));
+      await pumpApp(tester, feed: feed);
 
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
+      await snap(tester);
       expect(find.text('New moment'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField), '  Yeni kupa  ');
@@ -391,10 +398,11 @@ void main() {
 
     testWidgets('the camera ring in the strip also captures', (tester) async {
       final feed = FakeFeedRepository(viewerId: 'me');
-      await pumpApp(tester, feed: feed, picker: FakeImagePicker(tinyPng));
+      await pumpApp(tester, feed: feed);
 
       await tester.tap(find.text('Share a moment'));
       await tester.pumpAndSettle();
+      await snap(tester);
 
       expect(find.text('New moment'), findsOneWidget);
     });
@@ -403,10 +411,11 @@ void main() {
       tester,
     ) async {
       final feed = FakeFeedRepository(viewerId: 'me', failCreate: true);
-      await pumpApp(tester, feed: feed, picker: FakeImagePicker(tinyPng));
+      await pumpApp(tester, feed: feed);
 
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
+      await snap(tester);
       await tester.tap(find.widgetWithText(FilledButton, 'Share'));
       await tester.pumpAndSettle();
 
@@ -415,13 +424,10 @@ void main() {
     });
 
     testWidgets('caption is capped at 140 characters', (tester) async {
-      await pumpApp(
-        tester,
-        feed: FakeFeedRepository(viewerId: 'me'),
-        picker: FakeImagePicker(tinyPng),
-      );
+      await pumpApp(tester, feed: FakeFeedRepository(viewerId: 'me'));
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
+      await snap(tester);
 
       await tester.enterText(find.byType(TextField), 'x' * 200);
       await tester.pump();

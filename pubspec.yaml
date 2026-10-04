@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  camera: ^0.12.1
   crop_your_image: ^2.0.1
   crypto: ^3.0.7
   cupertino_icons: ^2.0.0

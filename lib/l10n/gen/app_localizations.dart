@@ -1442,6 +1442,66 @@ abstract class AppLocalizations {
   /// **'Couldn\'t open the camera'**
   String get cameraUnavailable;
 
+  /// No description provided for @cameraPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept needs the camera for this. Allow it in your device settings and try again.'**
+  String get cameraPermissionDenied;
+
+  /// No description provided for @cameraRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get cameraRetry;
+
+  /// No description provided for @cameraFlashOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash off'**
+  String get cameraFlashOff;
+
+  /// No description provided for @cameraFlashAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash auto'**
+  String get cameraFlashAuto;
+
+  /// No description provided for @cameraFlashOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash on'**
+  String get cameraFlashOn;
+
+  /// No description provided for @cameraFlip.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch camera'**
+  String get cameraFlip;
+
+  /// No description provided for @cameraShutter.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get cameraShutter;
+
+  /// No description provided for @cameraRetake.
+  ///
+  /// In en, this message translates to:
+  /// **'Retake'**
+  String get cameraRetake;
+
+  /// No description provided for @cameraEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get cameraEdit;
+
+  /// No description provided for @cameraUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use photo'**
+  String get cameraUse;
+
   /// No description provided for @storyMoreActions.
   ///
   /// In en, this message translates to:

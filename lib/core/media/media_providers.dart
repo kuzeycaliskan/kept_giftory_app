@@ -1,4 +1,6 @@
 import 'package:image_picker/image_picker.dart';
+import 'package:kept/core/media/camera/camera_backend.dart';
+import 'package:kept/core/media/camera/plugin_camera_backend.dart';
 import 'package:kept/core/media/media_store.dart';
 import 'package:kept/core/media/supabase_media_store.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
@@ -10,10 +12,14 @@ part 'media_providers.g.dart';
 MediaStore mediaStore(Ref ref) =>
     SupabaseMediaStore(ref.watch(supabaseClientProvider));
 
-/// Platform image picker behind a provider so tests can hand screens a
-/// fake camera.
+/// Platform image picker — gallery only since G-407; the camera is Kept's
+/// own ([cameraBackend]).
 @Riverpod(keepAlive: true)
 ImagePicker imagePicker(Ref ref) => ImagePicker();
+
+/// The device camera (G-407); tests override it with a fake backend.
+@Riverpod(keepAlive: true)
+CameraBackend cameraBackend(Ref ref) => const PluginCameraBackend();
 
 /// Resolves a stored avatar value to a displayable URL (G-207 rule: the DB
 /// holds paths; URLs come from one place). Tolerates full URLs for

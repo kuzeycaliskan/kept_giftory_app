@@ -8,25 +8,25 @@ part of 'post_composer.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Capture → share pipeline for a moment (G-201). Two steps so the compose
-/// screen sits between them: [capture] opens the device camera (never the
-/// gallery — a moment is taken now), [publish] shrinks + stores.
+/// Share pipeline for a moment (G-201): the shot comes from Kept's camera
+/// (G-407, never the gallery — a moment is taken now); [publish] shrinks +
+/// stores.
 // Action controller: kept alive so a call that outlives its screen can
 // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 
 @ProviderFor(PostComposer)
 final postComposerProvider = PostComposerProvider._();
 
-/// Capture → share pipeline for a moment (G-201). Two steps so the compose
-/// screen sits between them: [capture] opens the device camera (never the
-/// gallery — a moment is taken now), [publish] shrinks + stores.
+/// Share pipeline for a moment (G-201): the shot comes from Kept's camera
+/// (G-407, never the gallery — a moment is taken now); [publish] shrinks +
+/// stores.
 // Action controller: kept alive so a call that outlives its screen can
 // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 final class PostComposerProvider
     extends $NotifierProvider<PostComposer, AsyncValue<void>> {
-  /// Capture → share pipeline for a moment (G-201). Two steps so the compose
-  /// screen sits between them: [capture] opens the device camera (never the
-  /// gallery — a moment is taken now), [publish] shrinks + stores.
+  /// Share pipeline for a moment (G-201): the shot comes from Kept's camera
+  /// (G-407, never the gallery — a moment is taken now); [publish] shrinks +
+  /// stores.
   // Action controller: kept alive so a call that outlives its screen can
   // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
   PostComposerProvider._()
@@ -56,11 +56,11 @@ final class PostComposerProvider
   }
 }
 
-String _$postComposerHash() => r'33186c1401f42c744a6e8bd13cdf9bb5d20c167a';
+String _$postComposerHash() => r'5cc5b7911d0a9e62e67c6d8dcc1557ddef288b7b';
 
-/// Capture → share pipeline for a moment (G-201). Two steps so the compose
-/// screen sits between them: [capture] opens the device camera (never the
-/// gallery — a moment is taken now), [publish] shrinks + stores.
+/// Share pipeline for a moment (G-201): the shot comes from Kept's camera
+/// (G-407, never the gallery — a moment is taken now); [publish] shrinks +
+/// stores.
 // Action controller: kept alive so a call that outlives its screen can
 // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 

@@ -8,8 +8,8 @@ part of 'gift_photo_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Gift photo pipeline (G-204): camera-only capture, shared JPEG encoding,
-/// attach/remove through the repository. Used by both log forms (photos
+/// Gift photo pipeline (G-204): shots come from Kept's camera (G-407),
+/// shared JPEG encoding, attach/remove through the repository. Used by both log forms (photos
 /// taken before the gift exists are attached right after it is created)
 /// and the detail screen.
 // Action controller: kept alive so a call that outlives its screen can
@@ -18,16 +18,16 @@ part of 'gift_photo_controller.dart';
 @ProviderFor(GiftPhotoController)
 final giftPhotoControllerProvider = GiftPhotoControllerProvider._();
 
-/// Gift photo pipeline (G-204): camera-only capture, shared JPEG encoding,
-/// attach/remove through the repository. Used by both log forms (photos
+/// Gift photo pipeline (G-204): shots come from Kept's camera (G-407),
+/// shared JPEG encoding, attach/remove through the repository. Used by both log forms (photos
 /// taken before the gift exists are attached right after it is created)
 /// and the detail screen.
 // Action controller: kept alive so a call that outlives its screen can
 // still refresh the lists it touched (Riverpod 3 throws on a disposed ref).
 final class GiftPhotoControllerProvider
     extends $NotifierProvider<GiftPhotoController, AsyncValue<void>> {
-  /// Gift photo pipeline (G-204): camera-only capture, shared JPEG encoding,
-  /// attach/remove through the repository. Used by both log forms (photos
+  /// Gift photo pipeline (G-204): shots come from Kept's camera (G-407),
+  /// shared JPEG encoding, attach/remove through the repository. Used by both log forms (photos
   /// taken before the gift exists are attached right after it is created)
   /// and the detail screen.
   // Action controller: kept alive so a call that outlives its screen can
@@ -60,10 +60,10 @@ final class GiftPhotoControllerProvider
 }
 
 String _$giftPhotoControllerHash() =>
-    r'eba3b725ad466e874f167caa154dbf649f2fdc7d';
+    r'3cecf7ac69c55e57de16211fb2a1abd3db10ac32';
 
-/// Gift photo pipeline (G-204): camera-only capture, shared JPEG encoding,
-/// attach/remove through the repository. Used by both log forms (photos
+/// Gift photo pipeline (G-204): shots come from Kept's camera (G-407),
+/// shared JPEG encoding, attach/remove through the repository. Used by both log forms (photos
 /// taken before the gift exists are attached right after it is created)
 /// and the detail screen.
 // Action controller: kept alive so a call that outlives its screen can

@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
+import 'package:kept/core/media/camera/camera_backend.dart';
 import 'package:kept/core/media/media_store.dart';
 import 'package:kept/features/feed/domain/feed_repository.dart';
 import 'package:kept/features/feed/domain/post.dart';
@@ -204,4 +207,68 @@ class FakeMediaStore implements MediaStore {
     required String bucket,
     required String path,
   }) => null;
+}
+
+/// Kept's camera (G-407) with a canned shot: records what the screen asked
+/// for so tests can assert on lens, flash and how often it opened.
+class FakeCameraBackend implements CameraBackend {
+  FakeCameraBackend(
+    this.shot, {
+    List<CameraLens> lenses = const [CameraLens.back, CameraLens.front],
+    this.denied = false,
+  }) : available = lenses;
+
+  final Uint8List? shot;
+  final List<CameraLens> available;
+  final bool denied;
+  int opened = 0;
+  final openedLenses = <CameraLens>[];
+  final flashes = <CameraFlash>[];
+
+  @override
+  Future<List<CameraLens>> lenses() async {
+    if (available.isEmpty) throw const CameraUnavailable('none');
+    return available;
+  }
+
+  @override
+  Future<CameraSession> open(CameraLens lens) async {
+    if (denied) throw const CameraPermissionDenied();
+    opened++;
+    openedLenses.add(lens);
+    return _FakeSession(this, lens);
+  }
+}
+
+class _FakeSession implements CameraSession {
+  _FakeSession(this.backend, this.lens);
+
+  final FakeCameraBackend backend;
+  @override
+  final CameraLens lens;
+
+  @override
+  Widget preview() =>
+      const ColoredBox(key: Key('fake-camera-preview'), color: Colors.black);
+
+  @override
+  Future<void> setFlash(CameraFlash mode) async => backend.flashes.add(mode);
+
+  @override
+  Future<Uint8List> takePhoto() async {
+    final bytes = backend.shot;
+    if (bytes == null) throw StateError('no shot');
+    return bytes;
+  }
+
+  @override
+  Future<void> dispose() async {}
+}
+
+/// Drives Kept's camera screen like a user: shutter, then "Use photo".
+Future<void> snap(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('camera-shutter')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Use photo'));
+  await tester.pumpAndSettle();
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/media/camera/camera_screen.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/gifts/application/gift_photo_controller.dart';
 import 'package:kept/features/gifts/application/gift_reaction_controller.dart';
@@ -49,9 +50,7 @@ class _GiftDetailScreenState extends ConsumerState<GiftDetailScreen> {
   /// who can unbox it (G-308); the server refuses anyone else anyway.
   Future<void> _addPhoto(GiftEntry gift, {required bool storyOffered}) async {
     final router = GoRouter.of(context);
-    final bytes = await ref
-        .read(giftPhotoControllerProvider.notifier)
-        .capture();
+    final bytes = await takePhoto(context);
     if (bytes == null) return;
     await router.push(
       GiftPhotoComposeScreen.route(

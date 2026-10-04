@@ -50,20 +50,20 @@ final class MediaStoreProvider
 
 String _$mediaStoreHash() => r'359aa5e196d10933d703a3977ff02b78b2ef4715';
 
-/// Platform image picker behind a provider so tests can hand screens a
-/// fake camera.
+/// Platform image picker — gallery only since G-407; the camera is Kept's
+/// own ([cameraBackend]).
 
 @ProviderFor(imagePicker)
 final imagePickerProvider = ImagePickerProvider._();
 
-/// Platform image picker behind a provider so tests can hand screens a
-/// fake camera.
+/// Platform image picker — gallery only since G-407; the camera is Kept's
+/// own ([cameraBackend]).
 
 final class ImagePickerProvider
     extends $FunctionalProvider<ImagePicker, ImagePicker, ImagePicker>
     with $Provider<ImagePicker> {
-  /// Platform image picker behind a provider so tests can hand screens a
-  /// fake camera.
+  /// Platform image picker — gallery only since G-407; the camera is Kept's
+  /// own ([cameraBackend]).
   ImagePickerProvider._()
     : super(
         from: null,
@@ -98,3 +98,49 @@ final class ImagePickerProvider
 }
 
 String _$imagePickerHash() => r'be60667b04027cd2a7d2e1b728a5c03b1bda8dc1';
+
+/// The device camera (G-407); tests override it with a fake backend.
+
+@ProviderFor(cameraBackend)
+final cameraBackendProvider = CameraBackendProvider._();
+
+/// The device camera (G-407); tests override it with a fake backend.
+
+final class CameraBackendProvider
+    extends $FunctionalProvider<CameraBackend, CameraBackend, CameraBackend>
+    with $Provider<CameraBackend> {
+  /// The device camera (G-407); tests override it with a fake backend.
+  CameraBackendProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cameraBackendProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cameraBackendHash();
+
+  @$internal
+  @override
+  $ProviderElement<CameraBackend> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CameraBackend create(Ref ref) {
+    return cameraBackend(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CameraBackend value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CameraBackend>(value),
+    );
+  }
+}
+
+String _$cameraBackendHash() => r'f80f0ea33337eba5e54e6a6bfa2f62217dee11da';

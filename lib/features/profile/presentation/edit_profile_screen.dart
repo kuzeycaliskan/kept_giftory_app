@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/media/camera/camera_screen.dart';
 import 'package:kept/features/profile/application/avatar_controller.dart';
 import 'package:kept/features/profile/application/edit_profile_controller.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
@@ -96,7 +97,10 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
     final navigator = Navigator.of(context);
     final controller = ref.read(avatarControllerProvider.notifier);
 
-    final original = await controller.pickImage(source);
+    // Kept's own camera (G-407); the system picker only for the gallery.
+    final original = source == ImageSource.camera
+        ? await takePhoto(context)
+        : await controller.pickImage(source);
     if (original == null || !mounted) return;
 
     final cropped = await navigator.push<Uint8List>(
