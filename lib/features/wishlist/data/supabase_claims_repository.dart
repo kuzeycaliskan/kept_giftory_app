@@ -100,6 +100,14 @@ class SupabaseClaimsRepository implements ClaimsRepository {
   );
 
   @override
+  Future<Result<void>> setTarget(String claimId, double target) => _run(
+    () => _client
+        .from(_claims)
+        .update({'target_amount': target})
+        .eq('id', claimId),
+  );
+
+  @override
   Future<Result<void>> withdrawPledge(String claimId, String userId) => _run(
     () => _client
         .from(_pledges)
@@ -197,5 +205,9 @@ class EmptyClaimsRepository implements ClaimsRepository {
 
   @override
   Future<Result<void>> withdrawPledge(String claimId, String userId) async =>
+      _offline;
+
+  @override
+  Future<Result<void>> setTarget(String claimId, double target) async =>
       _offline;
 }

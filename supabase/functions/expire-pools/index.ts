@@ -5,12 +5,20 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { deleteStaleToken, fcmSender, sendPush } from "../_shared/fcm.ts";
-import { poolExpiredPush } from "../_shared/messages.ts";
+import { poolExpiredPush, poolReminderPush } from "../_shared/messages.ts";
 
 interface Expired {
   claim_id: string;
   item_title: string | null;
   user_ids: string[];
+}
+
+interface Reminder {
+  claim_id: string;
+  item_title: string | null;
+  organizer_id: string;
+  total: number | string;
+  target: number | string;
 }
 
 interface Target {
@@ -42,9 +50,23 @@ Deno.serve(async (req) => {
   const { data, error } = await supabase.rpc("expire_pools");
   if (error) return new Response(error.message, { status: 500 });
   const expired = (data ?? []) as Expired[];
-  if (expired.length === 0) return Response.json({ expired: 0, sent: 0 });
 
-  const ids = [...new Set(expired.flatMap((e) => e.user_ids))];
+  const { data: remData, error: remError } = await supabase.rpc(
+    "pool_reminder_targets",
+  );
+  if (remError) return new Response(remError.message, { status: 500 });
+  const reminders = (remData ?? []) as Reminder[];
+
+  if (expired.length === 0 && reminders.length === 0) {
+    return Response.json({ expired: 0, reminded: 0, sent: 0 });
+  }
+
+  const ids = [
+    ...new Set([
+      ...expired.flatMap((e) => e.user_ids),
+      ...reminders.map((r) => r.organizer_id),
+    ]),
+  ];
   const { data: targetsData, error: targetsError } = await supabase.rpc(
     "push_targets_for_users",
     { p_ids: ids },
@@ -58,16 +80,36 @@ Deno.serve(async (req) => {
     const { accessToken, projectId } = await fcmSender();
     for (const t of targets) {
       const mine = expired.filter((e) => e.user_ids.includes(t.user_id));
-      const copy = poolExpiredPush(mine[0]?.item_title ?? null, mine.length);
-      const result = await sendPush(accessToken, projectId, {
-        token: t.token,
-        title: copy.title,
-        body: copy.body,
-        route: "/gifts",
-      });
-      if (result === "sent") sent++;
-      if (result === "stale") await deleteStaleToken(supabase, t.token);
+      const copies = mine.length > 0
+        ? [poolExpiredPush(mine[0]?.item_title ?? null, mine.length)]
+        : [];
+      for (const r of reminders.filter((r) => r.organizer_id === t.user_id)) {
+        copies.push(
+          poolReminderPush(r.item_title, Number(r.total), Number(r.target)),
+        );
+      }
+      for (const copy of copies) {
+        const result = await sendPush(accessToken, projectId, {
+          token: t.token,
+          title: copy.title,
+          body: copy.body,
+          route: "/gifts",
+        });
+        if (result === "sent") sent++;
+        if (result === "stale") await deleteStaleToken(supabase, t.token);
+      }
     }
   }
-  return Response.json({ expired: expired.length, sent });
+  if (reminders.length > 0) {
+    // Marked whether or not a device took it: one reminder per pool.
+    const { error: markError } = await supabase.rpc("mark_pools_reminded", {
+      p_ids: reminders.map((r) => r.claim_id),
+    });
+    if (markError) return new Response(markError.message, { status: 500 });
+  }
+  return Response.json({
+    expired: expired.length,
+    reminded: reminders.length,
+    sent,
+  });
 });

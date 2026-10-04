@@ -105,6 +105,12 @@ class ClaimsController extends _$ClaimsController {
     () => ref.read(claimsRepositoryProvider).withdrawPledge(claimId, userId),
   );
 
+  Future<Failure?> setTarget(String ownerId, String claimId, double target) =>
+      _run(
+        ownerId,
+        () => ref.read(claimsRepositoryProvider).setTarget(claimId, target),
+      );
+
   Future<Failure?> _run(
     String ownerId,
     Future<Result<Object?>> Function() action,

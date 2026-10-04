@@ -106,3 +106,35 @@ export function poolExpiredPush(
       } 24 saatte fiyata ulaşmadı; katkılar düştü.`,
   };
 }
+
+/// Two hours before a pool's day runs out, to its organizer.
+export function poolReminderPush(
+  itemTitle: string | null,
+  total: number,
+  target: number,
+): { title: string; body: string } {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: "TRY",
+      maximumFractionDigits: 0,
+    }).format(n);
+  return {
+    title: "Ortak hediyede 2 saat kaldı ⏳",
+    body: `${itemTitle ? clip(itemTitle, 40) : "Havuz"}: ${fmt(total)} / ${
+      fmt(target)
+    }. Tamamla ya da hediyeyi kaydet.`,
+  };
+}
+
+/// The wishlist owner removed the item a pool was built on.
+export function poolRemovedPush(
+  itemTitle: string | null,
+): { title: string; body: string } {
+  return {
+    title: "Ortak hediye kapandı",
+    body: `${
+      itemTitle ? clip(itemTitle, 40) : "Ürün"
+    } istek listesinden kaldırıldı; katkılar düştü.`,
+  };
+}

@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(203);
+select plan(211);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2305,6 +2305,85 @@ select is(
   (select count(*) from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e15'),
   0::bigint,
   '200: ... pool and pledges are gone'
+);
+
+-- ── 201-206: pool exactness, price edits, reminders ──────────────────────────
+reset role;
+insert into public.wishlist_items (id, owner_id, title)
+values ('00000000-0000-0000-0000-000000000e05', '00000000-0000-0000-0000-000000000b31', 'Tent');
+insert into public.wishlist_claims (id, item_id, claimer_id, kind, target_amount)
+values ('00000000-0000-0000-0000-000000000e16', '00000000-0000-0000-0000-000000000e05',
+        '00000000-0000-0000-0000-000000000b32', 'shared', 1000);
+update public.wishlist_claims set expires_at = now() - interval '1 second'
+  where id = '00000000-0000-0000-0000-000000000e16';
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b35","role":"authenticated"}';
+select throws_ok(
+  $$ insert into public.claim_pledges (claim_id, user_id, amount)
+     values ('00000000-0000-0000-0000-000000000e16', '00000000-0000-0000-0000-000000000b35', 50) $$,
+  '23514',
+  null,
+  '201: an overdue pool takes no pledge, swept or not'
+);
+select is(
+  (select count(*) from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e16'),
+  0::bigint,
+  '202: ... and readers no longer see it'
+);
+select lives_ok(
+  $$ insert into public.wishlist_claims (id, item_id, claimer_id)
+     values ('00000000-0000-0000-0000-000000000e17', '00000000-0000-0000-0000-000000000e05',
+             '00000000-0000-0000-0000-000000000b35') $$,
+  '203: a new reservation replaces the expired pool on the spot'
+);
+reset role;
+-- price edit: organizer b32 opens a pool, b35 pledges 400, price drops to 400 → clock off
+delete from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e17';
+insert into public.wishlist_claims (id, item_id, claimer_id, kind, target_amount)
+values ('00000000-0000-0000-0000-000000000e18', '00000000-0000-0000-0000-000000000e05',
+        '00000000-0000-0000-0000-000000000b32', 'shared', 1000);
+insert into public.claim_pledges (claim_id, user_id, amount)
+values ('00000000-0000-0000-0000-000000000e18', '00000000-0000-0000-0000-000000000b35', 400);
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+update public.wishlist_claims set target_amount = 400
+  where id = '00000000-0000-0000-0000-000000000e18';
+select is(
+  (select expires_at is null from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e18'),
+  true,
+  '204: lowering the price to what was pledged stops the clock'
+);
+update public.wishlist_claims set target_amount = 900
+  where id = '00000000-0000-0000-0000-000000000e18';
+select is(
+  (select expires_at between now() + interval '23 hours' and now() + interval '25 hours'
+     from public.wishlist_claims where id = '00000000-0000-0000-0000-000000000e18'),
+  true,
+  '205: raising it above the pledges starts a fresh day'
+);
+select throws_ok(
+  $$ select * from public.pool_reminder_targets() $$,
+  '42501',
+  null,
+  '206: reminders are service-only'
+);
+reset role;
+update public.wishlist_claims set expires_at = now() + interval '90 minutes'
+  where id = '00000000-0000-0000-0000-000000000e18';
+select is(
+  (select count(*) from public.pool_reminder_targets()
+    where claim_id = '00000000-0000-0000-0000-000000000e18'),
+  1::bigint,
+  '206b: a pool in its last two hours is due a reminder'
+);
+select public.mark_pools_reminded(array['00000000-0000-0000-0000-000000000e18']::uuid[]);
+select is(
+  (select count(*) from public.pool_reminder_targets()
+    where claim_id = '00000000-0000-0000-0000-000000000e18'),
+  0::bigint,
+  '206c: ... once'
 );
 
 select * from finish();

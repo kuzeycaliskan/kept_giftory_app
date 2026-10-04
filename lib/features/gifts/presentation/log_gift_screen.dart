@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/prefs/prefs_providers.dart';
 import 'package:kept/features/events/application/events_providers.dart';
@@ -243,9 +244,17 @@ class _LogGiftScreenState extends ConsumerState<LogGiftScreen> {
 
     ref.listen(giftsControllerProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+        // From a reservation: a refused link means the claim is gone (the
+        // pool expired or was released) — say that, not "error".
+        final error = next.error;
+        final claimGone =
+            widget.claimId != null &&
+            (error is ConflictFailure || error is PermissionFailure);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(claimGone ? l10n.claimGone : l10n.errorGeneric),
+          ),
+        );
       }
     });
     final eventId = widget.eventId;

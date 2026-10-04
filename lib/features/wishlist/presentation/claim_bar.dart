@@ -376,10 +376,16 @@ class _SharedState extends ConsumerWidget {
         .pledge(item.ownerId, claim.id, input!.amount!);
     if (!context.mounted) return;
     if (failure is ConflictFailure) {
-      // The pool filled up while the sheet was open.
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.claimPoolFull)));
+      // The pool filled up — or expired — while the sheet was open: the
+      // refreshed list says which.
+      final fresh = await ref.read(wishlistClaimsProvider(item.ownerId).future);
+      if (!context.mounted) return;
+      final stillThere = fresh[item.id]?.id == claim.id;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(stillThere ? l10n.claimPoolFull : l10n.claimPoolGone),
+        ),
+      );
       return;
     }
     _report(context, failure);
@@ -500,14 +506,9 @@ class _SharedState extends ConsumerWidget {
             child: Row(
               children: [
                 Flexible(
-                  child: Text(
-                    _deadlineLabel(l10n, claim.expiresAt!),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: scheme.tertiary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: _PoolCountdown(
+                    expiresAt: claim.expiresAt!,
+                    ownerId: item.ownerId,
                   ),
                 ),
                 // Why the clock exists — one tap, plain words.
@@ -548,14 +549,72 @@ class _SharedState extends ConsumerWidget {
       ],
     );
   }
+}
 
-  /// The pool's 24-hour clock, in whole hours; the last hour and overdue
-  /// get their own words.
-  static String _deadlineLabel(AppLocalizations l10n, DateTime expiresAt) {
-    final left = expiresAt.difference(DateTime.now());
-    if (left.isNegative) return l10n.claimPoolExpired;
-    if (left.inHours < 1) return l10n.claimPoolDeadlineSoon;
-    return l10n.claimPoolDeadline(left.inHours);
+/// The pool's clock, ticking every second as HH:MM:SS. When it hits zero
+/// the strip reloads once so the expired pool disappears (the server stops
+/// taking pledges at that very moment, swept or not).
+class _PoolCountdown extends ConsumerStatefulWidget {
+  const _PoolCountdown({required this.expiresAt, required this.ownerId});
+
+  final DateTime expiresAt;
+  final String ownerId;
+
+  @override
+  ConsumerState<_PoolCountdown> createState() => _PoolCountdownState();
+}
+
+class _PoolCountdownState extends ConsumerState<_PoolCountdown> {
+  Timer? _timer;
+  bool _reloaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _tick() {
+    if (!mounted) return;
+    setState(() {});
+    if (!_reloaded && widget.expiresAt.isBefore(DateTime.now())) {
+      _reloaded = true;
+      ref.invalidate(wishlistClaimsProvider(widget.ownerId));
+    }
+  }
+
+  static String format(Duration left) {
+    final d = left.isNegative ? Duration.zero : left;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final h = two(d.inHours);
+    final m = two(d.inMinutes % 60);
+    final s = two(d.inSeconds % 60);
+    return '$h:$m:$s';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final left = widget.expiresAt.difference(DateTime.now());
+    return Text(
+      left.isNegative
+          ? l10n.claimPoolExpired
+          : l10n.claimPoolCountdown(format(left)),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.labelMedium?.copyWith(
+        color: theme.colorScheme.tertiary,
+        fontWeight: FontWeight.w600,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
   }
 }
 
@@ -631,6 +690,7 @@ Future<AmountInput?> showAmountSheet(
   required String title,
   String? body,
   bool askTarget = false,
+  bool targetOnly = false,
   double? initialAmount,
   double? initialTarget,
   double? overflowAt,
@@ -642,7 +702,8 @@ Future<AmountInput?> showAmountSheet(
     builder: (_) => _AmountSheet(
       title: title,
       body: body,
-      askTarget: askTarget,
+      askTarget: askTarget || targetOnly,
+      targetOnly: targetOnly,
       initialAmount: initialAmount,
       initialTarget: initialTarget,
       overflowAt: overflowAt,
@@ -654,6 +715,7 @@ class _AmountSheet extends StatefulWidget {
   const _AmountSheet({
     required this.title,
     required this.askTarget,
+    this.targetOnly = false,
     this.body,
     this.initialAmount,
     this.initialTarget,
@@ -663,6 +725,9 @@ class _AmountSheet extends StatefulWidget {
   final String title;
   final String? body;
   final bool askTarget;
+
+  /// Price correction: the price field alone.
+  final bool targetOnly;
   final double? initialAmount;
 
   /// Pre-filled pool goal (the product card's price); editable.
@@ -711,6 +776,15 @@ class _AmountSheetState extends State<_AmountSheet> {
     final amount = amountText.isEmpty ? null : parseAmount(amountText);
     // A pledge sheet needs a number; the pool sheet allows "no share yet".
     final amountRequired = !widget.askTarget;
+    if (widget.targetOnly) {
+      final target = parseAmount(_target.text.trim());
+      if (target == null) {
+        setState(() => _targetError = l10n.claimTargetRequired);
+        return;
+      }
+      Navigator.of(context).pop(AmountInput(target: target));
+      return;
+    }
     if ((amountRequired && amount == null) ||
         (amountText.isNotEmpty && amount == null)) {
       setState(() => _amountError = l10n.claimPledgeInvalid);
@@ -774,23 +848,29 @@ class _AmountSheetState extends State<_AmountSheet> {
             ),
             const SizedBox(height: KeptSpacing.md),
           ],
-          _Caption(
-            widget.askTarget ? l10n.claimMyShareOptional : l10n.claimPledgeHint,
-          ),
-          TextField(
-            key: const Key('claim-amount'),
-            controller: _amount,
-            autofocus: !widget.askTarget,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              prefixText: '₺ ',
-              errorText: _amountError,
-              helperText: _overflowHint(l10n, locale),
-              helperMaxLines: 2,
+          if (!widget.targetOnly)
+            _Caption(
+              widget.askTarget
+                  ? l10n.claimMyShareOptional
+                  : l10n.claimPledgeHint,
             ),
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (_) => _save(),
-          ),
+          if (!widget.targetOnly)
+            TextField(
+              key: const Key('claim-amount'),
+              controller: _amount,
+              autofocus: !widget.askTarget,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                prefixText: '₺ ',
+                errorText: _amountError,
+                helperText: _overflowHint(l10n, locale),
+                helperMaxLines: 2,
+              ),
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _save(),
+            ),
           const SizedBox(height: KeptSpacing.lg),
           FilledButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
@@ -985,6 +1065,30 @@ class _ParticipantsSheet extends ConsumerWidget {
                   ),
                 ),
               ),
+            if (organizer && !claim.hasGift) ...[
+              const SizedBox(height: KeptSpacing.sm),
+              TextButton.icon(
+                onPressed: busy
+                    ? null
+                    : () async {
+                        final input = await showAmountSheet(
+                          context,
+                          title: l10n.claimEditPriceTitle,
+                          targetOnly: true,
+                          initialTarget: claim.targetAmount,
+                        );
+                        if (input?.target == null || !context.mounted) return;
+                        final failure = await controller.setTarget(
+                          item.ownerId,
+                          claim.id,
+                          input!.target!,
+                        );
+                        if (context.mounted) _report(context, failure);
+                      },
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: Text(l10n.claimEditPrice),
+              ),
+            ],
             if (organizer && !claim.hasGift && claim.pledges.isNotEmpty) ...[
               const SizedBox(height: KeptSpacing.md),
               FilledButton.icon(

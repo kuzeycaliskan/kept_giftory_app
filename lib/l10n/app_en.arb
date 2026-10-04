@@ -692,17 +692,20 @@
   "eventsDeleteConfirmTitle": "Delete this event?",
   "eventsDeleteConfirmBody": "Members, invitations and notes go with it. Logged gifts and reservations stay.",
   "eventsPastSection": "Past events",
-  "claimPoolDeadline": "{hours, plural, =1{1 hour} other{{hours} hours}} left to reach the price",
-  "@claimPoolDeadline": {
-    "placeholders": {
-      "hours": {
-        "type": "int"
-      }
-    }
-  },
-  "claimPoolDeadlineSoon": "Less than an hour left to reach the price",
   "claimPoolExpired": "Time is up — the pool is closing",
   "claimTargetRequired": "Enter the product price",
   "claimPoolDeadlineWhyTitle": "Why 24 hours?",
-  "claimPoolDeadlineWhy": "So that other friends who want to get this gift aren't held up, a group gift needs to reach the price within 24 hours. If it doesn't, the pool closes and pledges are dropped — anyone can start again."
+  "claimPoolDeadlineWhy": "So that other friends who want to get this gift aren't held up, a group gift needs to reach the price within 24 hours. If it doesn't, the pool closes and pledges are dropped — anyone can start again.",
+  "claimEditPrice": "Edit price",
+  "claimEditPriceTitle": "Product price",
+  "claimPoolGone": "The pool is closed",
+  "claimGone": "This reservation is gone — the pool may have closed",
+  "claimPoolCountdown": "{time} left to reach the price",
+  "@claimPoolCountdown": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

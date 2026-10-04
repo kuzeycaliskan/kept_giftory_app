@@ -2420,18 +2420,6 @@ abstract class AppLocalizations {
   /// **'Past events'**
   String get eventsPastSection;
 
-  /// No description provided for @claimPoolDeadline.
-  ///
-  /// In en, this message translates to:
-  /// **'{hours, plural, =1{1 hour} other{{hours} hours}} left to reach the price'**
-  String claimPoolDeadline(int hours);
-
-  /// No description provided for @claimPoolDeadlineSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Less than an hour left to reach the price'**
-  String get claimPoolDeadlineSoon;
-
   /// No description provided for @claimPoolExpired.
   ///
   /// In en, this message translates to:
@@ -2455,6 +2443,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'So that other friends who want to get this gift aren\'t held up, a group gift needs to reach the price within 24 hours. If it doesn\'t, the pool closes and pledges are dropped — anyone can start again.'**
   String get claimPoolDeadlineWhy;
+
+  /// No description provided for @claimEditPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit price'**
+  String get claimEditPrice;
+
+  /// No description provided for @claimEditPriceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product price'**
+  String get claimEditPriceTitle;
+
+  /// No description provided for @claimPoolGone.
+  ///
+  /// In en, this message translates to:
+  /// **'The pool is closed'**
+  String get claimPoolGone;
+
+  /// No description provided for @claimGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This reservation is gone — the pool may have closed'**
+  String get claimGone;
+
+  /// No description provided for @claimPoolCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left to reach the price'**
+  String claimPoolCountdown(String time);
 }
 
 class _AppLocalizationsDelegate

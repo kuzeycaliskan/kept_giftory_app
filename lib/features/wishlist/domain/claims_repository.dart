@@ -27,4 +27,7 @@ abstract interface class ClaimsRepository {
 
   /// Remove a pledge: mine, or anyone's when I organise the pool.
   Future<Result<void>> withdrawPledge(String claimId, String userId);
+
+  /// Organizer corrects the pool's price; the server moves the clock.
+  Future<Result<void>> setTarget(String claimId, double target);
 }

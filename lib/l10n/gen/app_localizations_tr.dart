@@ -1297,21 +1297,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get eventsPastSection => 'Geçmiş event\'ler';
 
   @override
-  String claimPoolDeadline(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: '$hours saat',
-      one: '1 saat',
-    );
-    return 'Fiyata ulaşmak için $_temp0 kaldı';
-  }
-
-  @override
-  String get claimPoolDeadlineSoon =>
-      'Fiyata ulaşmak için bir saatten az kaldı';
-
-  @override
   String get claimPoolExpired => 'Süre doldu; havuz kapanıyor';
 
   @override
@@ -1323,4 +1308,21 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get claimPoolDeadlineWhy =>
       'Bu hediyeyi almak isteyen diğer sevenleri bekletmemek için ortak alımın 24 saat içinde fiyata ulaşması gerekir. Ulaşmazsa havuz kapanır ve katkılar düşer; isteyen yeniden başlatabilir.';
+
+  @override
+  String get claimEditPrice => 'Fiyatı düzenle';
+
+  @override
+  String get claimEditPriceTitle => 'Ürün fiyatı';
+
+  @override
+  String get claimPoolGone => 'Havuz kapandı';
+
+  @override
+  String get claimGone => 'Bu rezervasyon artık yok; havuz kapanmış olabilir';
+
+  @override
+  String claimPoolCountdown(String time) {
+    return 'Fiyata ulaşmak için $time kaldı';
+  }
 }

@@ -1319,21 +1319,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsPastSection => 'Past events';
 
   @override
-  String claimPoolDeadline(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: '$hours hours',
-      one: '1 hour',
-    );
-    return '$_temp0 left to reach the price';
-  }
-
-  @override
-  String get claimPoolDeadlineSoon =>
-      'Less than an hour left to reach the price';
-
-  @override
   String get claimPoolExpired => 'Time is up — the pool is closing';
 
   @override
@@ -1345,4 +1330,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get claimPoolDeadlineWhy =>
       'So that other friends who want to get this gift aren\'t held up, a group gift needs to reach the price within 24 hours. If it doesn\'t, the pool closes and pledges are dropped — anyone can start again.';
+
+  @override
+  String get claimEditPrice => 'Edit price';
+
+  @override
+  String get claimEditPriceTitle => 'Product price';
+
+  @override
+  String get claimPoolGone => 'The pool is closed';
+
+  @override
+  String get claimGone => 'This reservation is gone — the pool may have closed';
+
+  @override
+  String claimPoolCountdown(String time) {
+    return '$time left to reach the price';
+  }
 }

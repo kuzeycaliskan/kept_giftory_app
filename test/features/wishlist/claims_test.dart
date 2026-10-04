@@ -122,6 +122,12 @@ class _FakeClaimsRepository implements ClaimsRepository {
   }
 
   @override
+  Future<Result<void>> setTarget(String claimId, double target) async {
+    calls.add('target:$claimId:$target');
+    return const Success(null);
+  }
+
+  @override
   Future<Result<void>> withdrawPledge(String claimId, String userId) async {
     calls.add('withdraw:$claimId:$userId');
     return const Success(null);
@@ -147,6 +153,7 @@ void main() {
     required _FakeClaimsRepository claims,
     List<WishlistItem> items = const [grinder],
     double textScale = 1,
+    bool settle = true,
   }) async {
     final router = GoRouter(
       initialLocation: '/users/ali/wishlist?name=Ali',
@@ -189,7 +196,13 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      // A ticking countdown never settles: pump a few frames instead.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+    }
   }
 
   group('money', () {
@@ -419,11 +432,14 @@ void main() {
             ),
           },
         );
-        await pump(tester, claims: claims);
-        expect(find.text('5 hours left to reach the price'), findsOneWidget);
+        await pump(tester, claims: claims, settle: false);
+        // A live HH:MM:SS clock (5h30m → "05:29:5x" by the time it renders).
+        expect(find.textContaining('05:29:'), findsOneWidget);
+        expect(find.textContaining('left to reach the price'), findsOneWidget);
 
         await tester.tap(find.byIcon(Icons.info_outline));
-        await tester.pumpAndSettle();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
         expect(find.text('Why 24 hours?'), findsOneWidget);
         expect(find.textContaining("aren't held up"), findsOneWidget);
       },
@@ -624,6 +640,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Zeynep'), findsOneWidget);
       expect(find.text('₺250'), findsOneWidget);
+
+      // The organizer corrects the price from here.
+      await tester.tap(find.text('Edit price'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('claim-target')), '900');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(claims.calls, ['target:c1:900.0']);
+      claims.calls.clear();
 
       await tester.tap(find.text('Cancel the group gift'));
       await tester.pumpAndSettle();

@@ -7,6 +7,8 @@ import {
   eventThanksPush,
   giftLoggedPush,
   poolExpiredPush,
+  poolReminderPush,
+  poolRemovedPush,
   surprisePush,
 } from "./messages.ts";
 
@@ -85,4 +87,15 @@ Deno.test("pool expired: names the item, counts when several", () => {
     "Espresso machine 24 saatte fiyata ulaşmadı; katkılar düştü.",
   );
   assertEquals(poolExpiredPush(null, 2).body.startsWith("2 havuz"), true);
+});
+
+Deno.test("pool reminder and removal copy", () => {
+  assertEquals(
+    poolReminderPush("Tent", 400, 1000).body,
+    "Tent: ₺400 / ₺1.000. Tamamla ya da hediyeyi kaydet.",
+  );
+  assertEquals(
+    poolRemovedPush("Tent").body,
+    "Tent istek listesinden kaldırıldı; katkılar düştü.",
+  );
 });

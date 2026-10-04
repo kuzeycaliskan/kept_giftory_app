@@ -387,10 +387,13 @@
   "eventsDeleteConfirmTitle": "Bu event silinsin mi?",
   "eventsDeleteConfirmBody": "Üyeler, davetler ve notlar silinir. Kaydedilen hediyeler ve rezervasyonlar kalır.",
   "eventsPastSection": "Geçmiş event'ler",
-  "claimPoolDeadline": "Fiyata ulaşmak için {hours, plural, =1{1 saat} other{{hours} saat}} kaldı",
-  "claimPoolDeadlineSoon": "Fiyata ulaşmak için bir saatten az kaldı",
   "claimPoolExpired": "Süre doldu; havuz kapanıyor",
   "claimTargetRequired": "Ürün fiyatını gir",
   "claimPoolDeadlineWhyTitle": "Neden 24 saat?",
-  "claimPoolDeadlineWhy": "Bu hediyeyi almak isteyen diğer sevenleri bekletmemek için ortak alımın 24 saat içinde fiyata ulaşması gerekir. Ulaşmazsa havuz kapanır ve katkılar düşer; isteyen yeniden başlatabilir."
+  "claimPoolDeadlineWhy": "Bu hediyeyi almak isteyen diğer sevenleri bekletmemek için ortak alımın 24 saat içinde fiyata ulaşması gerekir. Ulaşmazsa havuz kapanır ve katkılar düşer; isteyen yeniden başlatabilir.",
+  "claimEditPrice": "Fiyatı düzenle",
+  "claimEditPriceTitle": "Ürün fiyatı",
+  "claimPoolGone": "Havuz kapandı",
+  "claimGone": "Bu rezervasyon artık yok; havuz kapanmış olabilir",
+  "claimPoolCountdown": "Fiyata ulaşmak için {time} kaldı"
 }
