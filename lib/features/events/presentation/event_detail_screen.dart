@@ -7,6 +7,7 @@ import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/events/application/event_comment_target.dart';
 import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/events/presentation/event_kind_labels.dart';
 import 'package:kept/features/gifts/presentation/widgets/gift_list_tile.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
@@ -233,7 +234,7 @@ class _Body extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final label = event.honoreeLabel(l10n.giftAnonymousGiver);
     final date = DateFormat.yMMMMd(locale).format(event.eventDate);
-    final days = daysUntilBirthday(event.eventDate, DateTime.now());
+    final days = daysUntil(event.eventDate, DateTime.now());
     final controller = ref.read(eventsControllerProvider.notifier);
     final chat = event.externalChatUrl;
 
@@ -254,7 +255,7 @@ class _Body extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.eventsRowTitle(label),
+                    event.label(l10n),
                     style: theme.textTheme.titleLarge,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -262,6 +263,8 @@ class _Body extends ConsumerWidget {
                   Text(
                     days == 0
                         ? l10n.homeCountdownToday
+                        : days < 0
+                        ? date
                         : '$date · ${l10n.homeCountdownInDays(days)}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,

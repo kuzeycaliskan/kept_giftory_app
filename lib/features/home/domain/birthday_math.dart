@@ -14,6 +14,13 @@ DateTime nextBirthday(DateTime birthday, DateTime today) {
   return candidate;
 }
 
+/// Whole days from [today] until a fixed [date] (date-only); negative once
+/// it has passed. For events, which happen on one day, unlike birthdays.
+int daysUntil(DateTime date, DateTime today) {
+  final todayDate = DateTime(today.year, today.month, today.day);
+  return DateTime(date.year, date.month, date.day).difference(todayDate).inDays;
+}
+
 /// Whole days from [today] until the next occurrence of [birthday].
 /// 0 means the birthday is today.
 int daysUntilBirthday(DateTime birthday, DateTime today) {

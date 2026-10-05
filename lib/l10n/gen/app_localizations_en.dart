@@ -1003,7 +1003,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventsEmptyHint =>
-      'Team up with friends before a birthday — the birthday person never sees it.';
+      'Team up with friends before a special day — the person it\'s for never sees it.';
 
   @override
   String get eventsCreateCta => 'Open a gift event';
@@ -1051,14 +1051,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsDecline => 'Decline';
 
   @override
-  String get eventsPickFriendTitle => 'Whose birthday?';
+  String get eventsPickFriendTitle => 'Who is it for?';
 
   @override
-  String get eventsPickFriendEmpty =>
-      'No friends with a birthday yet. Ask them to add it to their profile.';
+  String get eventsPickFriendEmpty => 'No friends yet. Invite someone first.';
 
   @override
   String get eventsCreateFailed => 'Couldn\'t open the event';
+
+  @override
+  String eventsPickKindTitle(String name) {
+    return 'What\'s the occasion for $name?';
+  }
+
+  @override
+  String get eventsKindNeedsBirthday => 'No birthday on their profile yet';
+
+  @override
+  String eventsBirthdayInDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+      zero: 'today',
+    );
+    return 'Birthday in $_temp0';
+  }
+
+  @override
+  String get eventsTitleTitle => 'What\'s the occasion called?';
+
+  @override
+  String get eventsTitleHint => 'e.g. Housewarming party';
+
+  @override
+  String eventsRowTitleKind(String name, String kind) {
+    return '$name · $kind';
+  }
+
+  @override
+  String get eventKindBirthday => 'Birthday';
+
+  @override
+  String get eventKindNewBaby => 'New baby';
+
+  @override
+  String get eventKindWedding => 'Wedding';
+
+  @override
+  String get eventKindNewJob => 'New job';
+
+  @override
+  String get eventKindGraduation => 'Graduation';
+
+  @override
+  String get eventKindNewHome => 'New home';
+
+  @override
+  String get eventKindRetirement => 'Retirement';
+
+  @override
+  String get eventKindOther => 'Other';
 
   @override
   String get eventsDetailTitle => 'Gift event';

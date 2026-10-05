@@ -1000,7 +1000,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get eventsEmptyHint =>
-      'Doğum gününden önce arkadaşlarla birleş; doğum günü sahibi hiç görmez.';
+      'Özel günden önce arkadaşlarla birleş; gün sahibi hiç görmez.';
 
   @override
   String get eventsCreateCta => 'Hediye event\'i aç';
@@ -1042,14 +1042,69 @@ class AppLocalizationsTr extends AppLocalizations {
   String get eventsDecline => 'Reddet';
 
   @override
-  String get eventsPickFriendTitle => 'Kimin doğum günü?';
+  String get eventsPickFriendTitle => 'Kimin için?';
 
   @override
   String get eventsPickFriendEmpty =>
-      'Doğum günü tanımlı arkadaşın yok. Profillerine eklemelerini iste.';
+      'Henüz arkadaşın yok. Önce birini davet et.';
 
   @override
   String get eventsCreateFailed => 'Event açılamadı';
+
+  @override
+  String eventsPickKindTitle(String name) {
+    return '$name için ne?';
+  }
+
+  @override
+  String get eventsKindNeedsBirthday => 'Profilinde doğum günü yok';
+
+  @override
+  String eventsBirthdayInDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days gün sonra',
+      one: '1 gün sonra',
+      zero: 'bugün',
+    );
+    return 'Doğum günü $_temp0';
+  }
+
+  @override
+  String get eventsTitleTitle => 'Günün adı ne?';
+
+  @override
+  String get eventsTitleHint => 'ör. Ev partisi';
+
+  @override
+  String eventsRowTitleKind(String name, String kind) {
+    return '$name · $kind';
+  }
+
+  @override
+  String get eventKindBirthday => 'Doğum günü';
+
+  @override
+  String get eventKindNewBaby => 'Yeni bebek';
+
+  @override
+  String get eventKindWedding => 'Düğün';
+
+  @override
+  String get eventKindNewJob => 'Yeni iş';
+
+  @override
+  String get eventKindGraduation => 'Mezuniyet';
+
+  @override
+  String get eventKindNewHome => 'Yeni ev';
+
+  @override
+  String get eventKindRetirement => 'Emeklilik';
+
+  @override
+  String get eventKindOther => 'Diğer';
 
   @override
   String get eventsDetailTitle => 'Hediye event\'i';

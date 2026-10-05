@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
 
 /// Event lifecycle (wire values match `event_status`).
@@ -40,6 +41,8 @@ class GiftEvent {
     required this.revealAt,
     required this.status,
     required this.members,
+    this.kind = EventKind.birthday,
+    this.title,
     this.honoree,
     this.externalChatUrl,
     this.creatorId,
@@ -51,6 +54,10 @@ class GiftEvent {
 
   final String id;
   final String honoreeId;
+
+  /// The occasion (G-410); [title] only for [EventKind.other].
+  final EventKind kind;
+  final String? title;
   final ProfileCard? honoree;
   final DateTime eventDate;
   final DateTime revealAt;
@@ -92,13 +99,15 @@ class GiftEvent {
 
   bool get isRevealed => status == EventStatus.revealed;
 
-  /// The birthday person — sees the event only once revealed (RLS).
+  /// The person it is for — sees the event only once revealed (RLS).
   bool isHonoree(String? userId) => userId != null && honoreeId == userId;
 
   GiftEvent copyWith({List<EventMember>? members, ProfileCard? honoree}) =>
       GiftEvent(
         id: id,
         honoreeId: honoreeId,
+        kind: kind,
+        title: title,
         honoree: honoree ?? this.honoree,
         eventDate: eventDate,
         revealAt: revealAt,

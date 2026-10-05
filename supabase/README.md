@@ -322,3 +322,15 @@ Removing a gift photo: its uploader, or the gift's recipient for any photo on th
 `gift_photos.caption` (≤140) is the photo's own note; an unboxing posts the photo
 (with that note) to the gift first, then the story, so a story failure never loses the
 photo.
+
+## Event kinds (G-410)
+
+`gift_events.kind` (`event_kind`: birthday, new_baby, wedding, new_job, graduation,
+new_home, retirement, other) and `title` (only for `other`, ≤ 60). Uniqueness is
+`(honoree_id, kind, event_date)` among non-cancelled rows, so a birthday and a new baby
+may share a day. `create_gift_event(honoree, kind, date, title)`: birthday derives the
+date from the profile and refuses a hand-picked one; other kinds need a date within
+today … +3 months (Europe/Istanbul); `other` needs a title. The one-argument call still
+works (defaults). `event_label(kind, title, honoree)` is the Turkish push/inbox label,
+suffix-free ("Kuzey · Yeni bebek"); comment targets and the delete-cleanup payload carry
+it. RLS, reveal (+1 day), membership and all notices are unchanged.

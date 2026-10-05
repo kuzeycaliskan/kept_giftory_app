@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(222);
+select plan(229);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2504,6 +2504,53 @@ select is(
   (select count(*) from public.gift_photos where id = '00000000-0000-0000-0000-000000000d72'),
   1::bigint,
   '215: the giver still cannot remove the recipient''s'
+);
+reset role;
+
+-- ── 216-222: events beyond birthdays (G-410) ────────────────────────────────
+-- b32 and b31 are friends (claims fixtures); b31 has no birthday set here.
+reset role;
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+select lives_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b31', 'new_baby', current_date + 10) $$,
+  '216: a friend opens a new-baby event with a date'
+);
+select throws_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b31', 'wedding', current_date - 1) $$,
+  '23514',
+  null,
+  '217: a past date is refused'
+);
+select throws_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b31', 'wedding', current_date + 120) $$,
+  '23514',
+  null,
+  '218: more than three months ahead is refused'
+);
+select throws_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b31', 'other', current_date + 5) $$,
+  '23514',
+  null,
+  '219: an "other" event needs a title'
+);
+select throws_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b31', 'birthday', current_date + 5) $$,
+  '23514',
+  null,
+  '220: a birthday never takes a hand-picked date'
+);
+select lives_ok(
+  $$ select public.create_gift_event('00000000-0000-0000-0000-000000000b31', 'new_home', current_date + 10) $$,
+  '221: a different kind may share the day'
+);
+select is(
+  (select public.event_label(e.kind, e.title, 'Ali')
+     from public.gift_events e
+    where e.honoree_id = '00000000-0000-0000-0000-000000000b31' and e.kind = 'new_baby'),
+  'Ali · Yeni bebek',
+  '222: the push label names the occasion'
 );
 reset role;
 

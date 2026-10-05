@@ -25,7 +25,13 @@ Deno.serve(async (req) => {
   const memberIds = Array.isArray(body?.member_ids)
     ? (body.member_ids as unknown[]).filter((m) => typeof m === "string")
     : [];
-  const honoree = typeof body?.honoree === "string" ? body.honoree : null;
+  // event_label (G-410) names the occasion; older payloads carry only the
+  // honoree's name.
+  const honoree = typeof body?.event_label === "string"
+    ? body.event_label
+    : typeof body?.honoree === "string"
+    ? body.honoree
+    : null;
   const removed = Array.isArray(body?.removed_items)
     ? body.removed_items.length
     : 0;

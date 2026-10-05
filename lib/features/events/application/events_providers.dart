@@ -4,6 +4,7 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/supabase/supabase_providers.dart';
 import 'package:kept/features/events/data/supabase_events_repository.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
@@ -68,11 +69,16 @@ class EventsController extends _$EventsController {
   AsyncValue<void> build() => const AsyncData(null);
 
   /// Returns the event id (created or joined), null on failure.
-  Future<String?> createOrJoin(String honoreeId) async {
+  Future<String?> createOrJoin(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+    String? title,
+  }) async {
     state = const AsyncLoading();
     final result = await ref
         .read(eventsRepositoryProvider)
-        .createOrJoin(honoreeId);
+        .createOrJoin(honoreeId, kind: kind, date: date, title: title);
     return result.when(
       success: (id) {
         _refresh();

@@ -1925,7 +1925,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventsEmptyHint.
   ///
   /// In en, this message translates to:
-  /// **'Team up with friends before a birthday — the birthday person never sees it.'**
+  /// **'Team up with friends before a special day — the person it\'s for never sees it.'**
   String get eventsEmptyHint;
 
   /// No description provided for @eventsCreateCta.
@@ -1997,13 +1997,13 @@ abstract class AppLocalizations {
   /// No description provided for @eventsPickFriendTitle.
   ///
   /// In en, this message translates to:
-  /// **'Whose birthday?'**
+  /// **'Who is it for?'**
   String get eventsPickFriendTitle;
 
   /// No description provided for @eventsPickFriendEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No friends with a birthday yet. Ask them to add it to their profile.'**
+  /// **'No friends yet. Invite someone first.'**
   String get eventsPickFriendEmpty;
 
   /// No description provided for @eventsCreateFailed.
@@ -2011,6 +2011,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the event'**
   String get eventsCreateFailed;
+
+  /// No description provided for @eventsPickKindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the occasion for {name}?'**
+  String eventsPickKindTitle(String name);
+
+  /// No description provided for @eventsKindNeedsBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'No birthday on their profile yet'**
+  String get eventsKindNeedsBirthday;
+
+  /// No description provided for @eventsBirthdayInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday in {days, plural, =0{today} =1{1 day} other{{days} days}}'**
+  String eventsBirthdayInDays(int days);
+
+  /// No description provided for @eventsTitleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the occasion called?'**
+  String get eventsTitleTitle;
+
+  /// No description provided for @eventsTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Housewarming party'**
+  String get eventsTitleHint;
+
+  /// No description provided for @eventsRowTitleKind.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {kind}'**
+  String eventsRowTitleKind(String name, String kind);
+
+  /// No description provided for @eventKindBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get eventKindBirthday;
+
+  /// No description provided for @eventKindNewBaby.
+  ///
+  /// In en, this message translates to:
+  /// **'New baby'**
+  String get eventKindNewBaby;
+
+  /// No description provided for @eventKindWedding.
+  ///
+  /// In en, this message translates to:
+  /// **'Wedding'**
+  String get eventKindWedding;
+
+  /// No description provided for @eventKindNewJob.
+  ///
+  /// In en, this message translates to:
+  /// **'New job'**
+  String get eventKindNewJob;
+
+  /// No description provided for @eventKindGraduation.
+  ///
+  /// In en, this message translates to:
+  /// **'Graduation'**
+  String get eventKindGraduation;
+
+  /// No description provided for @eventKindNewHome.
+  ///
+  /// In en, this message translates to:
+  /// **'New home'**
+  String get eventKindNewHome;
+
+  /// No description provided for @eventKindRetirement.
+  ///
+  /// In en, this message translates to:
+  /// **'Retirement'**
+  String get eventKindRetirement;
+
+  /// No description provided for @eventKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get eventKindOther;
 
   /// No description provided for @eventsDetailTitle.
   ///

@@ -1,4 +1,5 @@
 import 'package:kept/core/error/result.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/gifts/domain/gift_entry.dart';
 import 'package:kept/features/profile/domain/profile_card.dart';
@@ -16,7 +17,15 @@ abstract interface class EventsRepository {
 
   /// Opens the event for a friend's next birthday, or joins the existing
   /// one (server decides). Returns the event id.
-  Future<Result<String>> createOrJoin(String honoreeId);
+  /// Opens the event for [honoreeId]'s occasion, or joins the one a friend
+  /// opened first. Birthday takes its date from the profile; other kinds
+  /// need [date] (today … +3 months), and [EventKind.other] a [title].
+  Future<Result<String>> createOrJoin(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+    String? title,
+  });
 
   /// The open event for a friend's next birthday, from my side.
   Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId);

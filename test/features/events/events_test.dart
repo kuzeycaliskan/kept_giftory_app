@@ -6,6 +6,7 @@ import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/events/presentation/event_detail_screen.dart';
@@ -62,14 +63,25 @@ class _FakeEventsRepository implements EventsRepository {
       Success(events.where((e) => e.id == eventId).firstOrNull);
 
   @override
-  Future<Result<String>> createOrJoin(String honoreeId) async {
-    calls.add('create:$honoreeId');
+  Future<Result<String>> createOrJoin(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+    String? title,
+  }) async {
+    final day = date == null
+        ? ''
+        : '${date.year}-${date.month.toString().padLeft(2, '0')}-'
+              '${date.day.toString().padLeft(2, '0')}';
+    calls.add('create:$honoreeId:${kind.wire}:$day:${title ?? ''}');
     final event = GiftEvent(
       id: 'ev-$honoreeId',
       honoreeId: honoreeId,
+      kind: kind,
+      title: title,
       honoree: ProfileCard(id: honoreeId, username: 'ali', displayName: 'Ali'),
-      eventDate: DateTime(2026, 10, 4),
-      revealAt: DateTime(2026, 10, 5),
+      eventDate: date ?? DateTime(2026, 10, 4),
+      revealAt: (date ?? DateTime(2026, 10, 4)).add(const Duration(days: 1)),
       status: EventStatus.open,
       members: const [
         EventMember(
@@ -321,7 +333,10 @@ void main() {
     await pump(tester, repo: repo);
 
     expect(find.text('Invitations'), findsOneWidget);
-    expect(find.text('Join the gift event for Ali?'), findsOneWidget);
+    expect(
+      find.text("Join the gift event for Ali's birthday?"),
+      findsOneWidget,
+    );
     expect(find.text('Your events'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Join'));
@@ -391,13 +406,93 @@ void main() {
 
     await tester.tap(find.text('Open a gift event'));
     await tester.pumpAndSettle();
-    expect(find.text('Whose birthday?'), findsOneWidget);
+    expect(find.text('Who is it for?'), findsOneWidget);
     await tester.tap(find.text('Ali'));
     await tester.pumpAndSettle();
+    // Second step: the occasion (G-410). Birthday needs no date.
+    expect(find.text("What's the occasion for Ali?"), findsOneWidget);
+    await tester.tap(find.text('Birthday'));
+    await tester.pumpAndSettle();
 
-    expect(repo.calls, ['create:ali']);
+    expect(repo.calls, ['create:ali:birthday::']);
     expect(find.text("Ali's birthday"), findsOneWidget);
     expect(find.text('Organizer'), findsOneWidget);
+  });
+
+  testWidgets('a new-baby event takes a date; "other" also takes a title', (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository();
+    await pump(
+      tester,
+      repo: repo,
+      friends: const [
+        FriendEntry(
+          friendshipId: 'f1',
+          profileId: 'ali',
+          username: 'ali',
+          displayName: 'Ali',
+          status: FriendshipStatus.accepted,
+        ),
+      ],
+    );
+    final today = DateTime.now();
+    final day =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
+
+    await tester.tap(find.text('Open a gift event'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ali'));
+    await tester.pumpAndSettle();
+    // No birthday on the profile: that row is explained and disabled.
+    expect(find.text('No birthday on their profile yet'), findsOneWidget);
+    await tester.tap(find.text('New baby'));
+    await tester.pumpAndSettle();
+    // The date sheet opens on today; Done keeps it.
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    expect(repo.calls, ['create:ali:new_baby:$day:']);
+    expect(find.text('Ali · New baby'), findsOneWidget);
+  });
+
+  testWidgets('an "other" occasion takes a date and its own name', (
+    tester,
+  ) async {
+    final repo = _FakeEventsRepository();
+    await pump(
+      tester,
+      repo: repo,
+      friends: const [
+        FriendEntry(
+          friendshipId: 'f1',
+          profileId: 'ali',
+          username: 'ali',
+          displayName: 'Ali',
+          status: FriendshipStatus.accepted,
+        ),
+      ],
+    );
+    final today = DateTime.now();
+    final day =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
+
+    await tester.tap(find.text('Open a gift event'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ali'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Other'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '  Ev partisi ');
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    expect(repo.calls.last, 'create:ali:other:$day:Ev partisi');
+    expect(find.text('Ev partisi'), findsOneWidget);
   });
 
   testWidgets("gift ideas list the honoree's wishlist with claim strips", (

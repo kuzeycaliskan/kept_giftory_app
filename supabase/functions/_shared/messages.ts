@@ -80,10 +80,12 @@ export function eventThanksPush(
 /// The organizer deleted an open event; under-funded group-gift records
 /// went with it.
 export function eventDeletedPush(
-  honoree: string | null,
+  eventLabel: string | null,
   removedGifts: number,
 ): { title: string; body: string } {
-  const who = honoree ? `${honoree} için açılan event` : "Hediye event'i";
+  // eventLabel comes from SQL event_label(): "Kuzey doğum günü",
+  // "Kuzey · Yeni bebek", or an 'other' event's own title.
+  const who = eventLabel ? `${eventLabel} event'i` : "Hediye event'i";
   return {
     title: `${who} silindi`,
     body: removedGifts > 0

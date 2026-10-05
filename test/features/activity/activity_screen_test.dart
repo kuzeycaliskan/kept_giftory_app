@@ -9,6 +9,7 @@ import 'package:kept/core/error/result.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/activity/presentation/activity_screen.dart';
 import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
@@ -107,8 +108,12 @@ class _FakeEventsRepository implements EventsRepository {
       Success(events.where((e) => e.id == eventId).firstOrNull);
 
   @override
-  Future<Result<String>> createOrJoin(String honoreeId) async =>
-      const ResultFailure(NetworkFailure('fake'));
+  Future<Result<String>> createOrJoin(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+    String? title,
+  }) async => const ResultFailure(NetworkFailure('fake'));
 
   @override
   Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId) async =>

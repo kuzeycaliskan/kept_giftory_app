@@ -1,5 +1,6 @@
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/events_repository.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/gifts/data/gift_row_mapper.dart';
@@ -18,7 +19,7 @@ class SupabaseEventsRepository implements EventsRepository {
   final SupabaseClient _client;
 
   static const _select =
-      'id, honoree_id, creator_id, event_date, reveal_at, status, '
+      'id, honoree_id, creator_id, kind, title, event_date, reveal_at, status, '
       'external_chat_url, revealed_at, thanks_note, thanks_at, '
       'members:gift_event_members(user_id, role, status), '
       'comments:event_comments(count)';
@@ -64,6 +65,8 @@ class SupabaseEventsRepository implements EventsRepository {
     id: row['id']! as String,
     honoreeId: row['honoree_id']! as String,
     creatorId: row['creator_id'] as String?,
+    kind: EventKind.fromWire(row['kind'] as String? ?? 'birthday'),
+    title: row['title'] as String?,
     eventDate: DateTime.parse(row['event_date']! as String),
     revealAt: DateTime.parse(row['reveal_at']! as String),
     status: EventStatus.values.byName(row['status']! as String),
@@ -113,11 +116,25 @@ class SupabaseEventsRepository implements EventsRepository {
   }
 
   @override
-  Future<Result<String>> createOrJoin(String honoreeId) async {
+  Future<Result<String>> createOrJoin(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+    String? title,
+  }) async {
     try {
       final id = await _client.rpc<String>(
         'create_gift_event',
-        params: {'p_honoree': honoreeId},
+        params: {
+          'p_honoree': honoreeId,
+          'p_kind': kind.wire,
+          if (date != null)
+            'p_date':
+                '${date.year.toString().padLeft(4, '0')}-'
+                '${date.month.toString().padLeft(2, '0')}-'
+                '${date.day.toString().padLeft(2, '0')}',
+          'p_title': ?title,
+        },
       );
       return Success(id);
     } on PostgrestException catch (e) {
@@ -125,7 +142,8 @@ class SupabaseEventsRepository implements EventsRepository {
         return const ResultFailure(PermissionFailure('Not a friend'));
       }
       if (e.code == '23514') {
-        return const ResultFailure(ValidationFailure('No birthday'));
+        // No birthday on the profile, a date out of range, a missing title.
+        return ResultFailure(ValidationFailure(e.message));
       }
       return ResultFailure(NetworkFailure(e.message));
     } catch (e) {
@@ -395,7 +413,12 @@ class EmptyEventsRepository implements EventsRepository {
       const Success(null);
 
   @override
-  Future<Result<String>> createOrJoin(String honoreeId) async => _offline;
+  Future<Result<String>> createOrJoin(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+    String? title,
+  }) async => _offline;
 
   @override
   Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId) async =>

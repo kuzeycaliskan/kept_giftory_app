@@ -75,12 +75,14 @@ Deno.test("event thanks: honoree in the title, note clipped", () => {
 
 Deno.test("event deleted: names the honoree, mentions removed group gifts", () => {
   assertEquals(
-    eventDeletedPush("Kuzey", 1).title,
-    "Kuzey için açılan event silindi",
+    eventDeletedPush("Kuzey · Yeni bebek", 1).title,
+    "Kuzey · Yeni bebek event'i silindi",
   );
   assertEquals(eventDeletedPush(null, 0).title, "Hediye event'i silindi");
   assertEquals(
-    eventDeletedPush("Kuzey", 0).body.startsWith("Kaydedilen hediyeler"),
+    eventDeletedPush("Kuzey doğum günü", 0).body.startsWith(
+      "Kaydedilen hediyeler",
+    ),
     true,
   );
 });
