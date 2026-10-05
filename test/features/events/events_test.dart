@@ -96,8 +96,11 @@ class _FakeEventsRepository implements EventsRepository {
   }
 
   @override
-  Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId) async =>
-      const Success(null);
+  Future<Result<EventForHonoree?>> eventForHonoree(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+  }) async => const Success(null);
 
   @override
   Future<Result<List<ProfileCard>>> invitableFriends(String eventId) async =>

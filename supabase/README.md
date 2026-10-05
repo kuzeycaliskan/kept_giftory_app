@@ -334,3 +334,11 @@ today … +3 months (Europe/Istanbul); `other` needs a title. The one-argument c
 works (defaults). `event_label(kind, title, honoree)` is the Turkish push/inbox label,
 suffix-free ("Kuzey · Yeni bebek"); comment targets and the delete-cleanup payload carry
 it. RLS, reveal (+1 day), membership and all notices are unchanged.
+
+## Announced special days (G-410b)
+
+`special_days` (owner writes; friends read through `can_view_profile`; never a birthday;
+`other` needs a title; a past day is refused by `guard_special_day`). Home merges a
+viewer's friends' announced days (today … +3 months) with birthdays. The Home row's
+lookup `gift_event_for_honoree(honoree, kind, date)` finds the open event for that very
+occasion; the one-argument form still means "next birthday".

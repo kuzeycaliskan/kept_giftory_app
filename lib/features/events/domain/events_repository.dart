@@ -28,7 +28,13 @@ abstract interface class EventsRepository {
   });
 
   /// The open event for a friend's next birthday, from my side.
-  Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId);
+  /// The open event for a friend's occasion (G-410): their next birthday,
+  /// or the [kind] on [date].
+  Future<Result<EventForHonoree?>> eventForHonoree(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+  });
 
   /// Honoree's friends who can still be invited.
   Future<Result<List<ProfileCard>>> invitableFriends(String eventId);

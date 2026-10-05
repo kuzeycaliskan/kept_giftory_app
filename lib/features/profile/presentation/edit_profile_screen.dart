@@ -6,15 +6,22 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/media/camera/camera_screen.dart';
+import 'package:kept/core/theme/kept_tokens.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
+import 'package:kept/features/events/presentation/event_kind_labels.dart';
+import 'package:kept/features/events/presentation/occasion_picker.dart';
 import 'package:kept/features/profile/application/avatar_controller.dart';
 import 'package:kept/features/profile/application/edit_profile_controller.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
+import 'package:kept/features/profile/application/special_days_providers.dart';
 import 'package:kept/features/profile/domain/profile.dart';
 import 'package:kept/features/profile/presentation/avatar_crop_screen.dart';
 import 'package:kept/shared/widgets/avatar_preview.dart';
 import 'package:kept/shared/widgets/kept_action_sheet.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
 import 'package:kept/shared/widgets/kept_date_picker.dart';
+import 'package:kept/shared/widgets/kept_list_group.dart';
+import 'package:kept/shared/widgets/kept_section_header.dart';
 
 /// Edit own profile (G-23): display name, birthday, occupation, bio.
 /// Username is shown read-only — it's identity, locked in V1 (support
@@ -306,6 +313,8 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
             ),
           ),
           const SizedBox(height: 16),
+          const _SpecialDaysSection(),
+          const SizedBox(height: 16),
           TextField(
             controller: _bio,
             enabled: !busy,
@@ -319,6 +328,95 @@ class _EditProfileFormState extends ConsumerState<_EditProfileForm> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Days the user announces on their profile (G-410b): friends see them
+/// among upcoming occasions on Home and can open a gift event from there.
+class _SpecialDaysSection extends ConsumerWidget {
+  const _SpecialDaysSection();
+
+  Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final choice = await pickOccasion(
+      context,
+      title: l10n.profileSpecialDayPickTitle,
+      offerBirthday: false,
+    );
+    if (choice == null || choice.day == null) return;
+    final failure = await ref
+        .read(specialDaysControllerProvider.notifier)
+        .add(kind: choice.kind, day: choice.day!, title: choice.title);
+    if (failure != null) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final days = ref.watch(mySpecialDaysProvider);
+    final busy = ref.watch(specialDaysControllerProvider).isLoading;
+    final controller = ref.read(specialDaysControllerProvider.notifier);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        KeptSectionHeader(l10n.profileSpecialDaysSection),
+        Text(
+          l10n.profileSpecialDaysHint,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: KeptSpacing.sm),
+        days.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => Text(
+            l10n.errorGeneric,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+          data: (list) => list.isEmpty
+              ? const SizedBox.shrink()
+              : KeptListGroup(
+                  children: [
+                    for (final d in list)
+                      ListTile(
+                        leading: KeptIconBadge(d.kind.icon),
+                        title: Text(
+                          d.kind == EventKind.other
+                              ? d.title ?? d.kind.label(l10n)
+                              : d.kind.label(l10n),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(DateFormat.yMMMMd(locale).format(d.day)),
+                        trailing: IconButton(
+                          tooltip: l10n.profileSpecialDayRemove,
+                          icon: const Icon(Icons.close),
+                          onPressed: busy
+                              ? null
+                              : () => controller.remove(d.id),
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+        const SizedBox(height: KeptSpacing.sm),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: busy ? null : () => _add(context, ref),
+            icon: const Icon(Icons.add),
+            label: Text(l10n.profileSpecialDayAdd),
+          ),
+        ),
+      ],
     );
   }
 }

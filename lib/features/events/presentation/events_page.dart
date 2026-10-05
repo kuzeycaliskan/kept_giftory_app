@@ -10,12 +10,12 @@ import 'package:kept/features/events/application/events_providers.dart';
 import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
 import 'package:kept/features/events/presentation/event_kind_labels.dart';
+import 'package:kept/features/events/presentation/occasion_picker.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/profile/application/profile_providers.dart';
 import 'package:kept/shared/widgets/kept_avatar.dart';
-import 'package:kept/shared/widgets/kept_date_picker.dart';
 import 'package:kept/shared/widgets/kept_list_group.dart';
 import 'package:kept/shared/widgets/kept_section_header.dart';
 
@@ -369,87 +369,29 @@ class _CreateEventSheet extends ConsumerWidget {
     );
   }
 
-  /// Second step: the occasion. Birthday is offered only when the profile
-  /// has one (the server would refuse anyway).
+  /// Second step: the occasion, then (date, title) — shared with the
+  /// profile's own announcements.
   Future<void> _pickKind(
     BuildContext context,
     WidgetRef ref,
     FriendEntry friend,
   ) async {
     final l10n = context.l10n;
-    final kind = await showModalBottomSheet<EventKind>(
-      context: context,
-      showDragHandle: true,
-      useSafeArea: true,
-      // Eight occasions outgrow a short screen: the list scrolls under a
-      // cap taken from layout, not MediaQuery.
-      isScrollControlled: true,
-      builder: (sheetContext) => LayoutBuilder(
-        builder: (_, constraints) => ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: constraints.maxHeight * 0.85),
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.only(bottom: KeptSpacing.lg),
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  KeptSpacing.lg,
-                  0,
-                  KeptSpacing.lg,
-                  KeptSpacing.sm,
-                ),
-                child: Text(
-                  l10n.eventsPickKindTitle(
-                    friend.displayName ?? friend.username,
-                  ),
-                  style: Theme.of(sheetContext).textTheme.titleMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              for (final k in EventKind.values)
-                ListTile(
-                  leading: KeptIconBadge(k.icon),
-                  title: Text(k.label(l10n)),
-                  subtitle: k.isBirthday && friend.birthday == null
-                      ? Text(l10n.eventsKindNeedsBirthday)
-                      : null,
-                  enabled: !(k.isBirthday && friend.birthday == null),
-                  onTap: () => Navigator.of(sheetContext).pop(k),
-                ),
-            ],
-          ),
-        ),
-      ),
+    final choice = await pickOccasion(
+      context,
+      title: l10n.eventsPickKindTitle(friend.displayName ?? friend.username),
+      birthdayAvailable: friend.birthday != null,
     );
-    if (kind == null || !context.mounted) return;
-
-    DateTime? date;
-    if (!kind.isBirthday) {
-      final today = DateTime.now();
-      final start = DateTime(today.year, today.month, today.day);
-      date = await showKeptDatePicker(
-        context,
-        initialDate: start,
-        firstDate: start,
-        lastDate: start.add(eventMaxLeadTime),
-      );
-      if (date == null || !context.mounted) return;
-    }
-
-    String? title;
-    if (kind.needsTitle) {
-      title = await _askTitle(context);
-      if (title == null || !context.mounted) return;
-    }
-
-    await _create(context, ref, friend.profileId, kind, date, title);
+    if (choice == null || !context.mounted) return;
+    await _create(
+      context,
+      ref,
+      friend.profileId,
+      choice.kind,
+      choice.day,
+      choice.title,
+    );
   }
-
-  Future<String?> _askTitle(BuildContext context) => showDialog<String>(
-    context: context,
-    builder: (_) => const _TitleDialog(),
-  );
 
   Future<void> _create(
     BuildContext context,
@@ -472,53 +414,5 @@ class _CreateEventSheet extends ConsumerWidget {
     }
     if (navigator.canPop()) navigator.pop();
     await router.push('/events/$id');
-  }
-}
-
-/// Names an "other" occasion. Owns its controller so the dialog's exit
-/// animation never touches a disposed one.
-class _TitleDialog extends StatefulWidget {
-  const _TitleDialog();
-
-  @override
-  State<_TitleDialog> createState() => _TitleDialogState();
-}
-
-class _TitleDialogState extends State<_TitleDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return AlertDialog(
-      title: Text(l10n.eventsTitleTitle),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        maxLength: eventTitleMaxLength,
-        textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(hintText: l10n.eventsTitleHint),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.commonCancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            final text = _controller.text.trim();
-            if (text.isEmpty) return;
-            Navigator.of(context).pop(text);
-          },
-          child: Text(l10n.commonDone),
-        ),
-      ],
-    );
   }
 }

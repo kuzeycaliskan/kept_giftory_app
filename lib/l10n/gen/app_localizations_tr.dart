@@ -1107,6 +1107,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get eventKindOther => 'Diğer';
 
   @override
+  String get profileSpecialDaysSection => 'Özel günler';
+
+  @override
+  String get profileSpecialDaysHint =>
+      'Yaklaşan bir günü duyur: bebek, düğün, yeni ev. Arkadaşların Home\'da görür ve hediye için birleşebilir.';
+
+  @override
+  String get profileSpecialDayAdd => 'Gün ekle';
+
+  @override
+  String get profileSpecialDayRemove => 'Kaldır';
+
+  @override
+  String get profileSpecialDayPickTitle => 'Ne yaklaşıyor?';
+
+  @override
   String get eventsDetailTitle => 'Hediye event\'i';
 
   @override

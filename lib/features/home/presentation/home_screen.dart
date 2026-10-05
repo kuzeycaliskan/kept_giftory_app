@@ -5,7 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/core/theme/kept_tokens.dart';
 import 'package:kept/features/events/application/events_providers.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/domain/gift_event.dart';
+import 'package:kept/features/events/presentation/event_for_honoree_screen.dart';
+import 'package:kept/features/events/presentation/event_kind_labels.dart';
 import 'package:kept/features/feed/application/feed_providers.dart';
 import 'package:kept/features/feed/presentation/stories_strip.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
@@ -342,14 +345,19 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
           child: Text(l10n.homeGiftCta),
         ),
         // Within the suggestion window (V3): open the gift event, or go to
-        // the one a friend already opened.
-        if (birthday.daysUntil <= _eventWindowDays)
-          _EventButton(friendId: birthday.friendId, style: compact),
+        // the one a friend already opened. An announced day (G-410b) is
+        // an invitation to organise, so its button is always there.
+        if (!birthday.kind.isBirthday || birthday.daysUntil <= _eventWindowDays)
+          _EventButton(occasion: birthday, style: compact),
       ],
     );
 
     final name = Text(
-      birthday.label,
+      birthday.kind.isBirthday
+          ? birthday.label
+          : birthday.kind == EventKind.other
+          ? l10n.eventsRowTitleKind(birthday.label, birthday.title ?? '')
+          : l10n.eventsRowTitleKind(birthday.label, birthday.kind.label(l10n)),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: theme.textTheme.bodyLarge,
@@ -435,15 +443,24 @@ class _BirthdayRowState extends ConsumerState<_BirthdayRow> {
 /// "Open event" / "Event" on an upcoming-birthday row; state comes from the
 /// honoree lookup (never visible to the honoree themselves).
 class _EventButton extends ConsumerWidget {
-  const _EventButton({required this.friendId, required this.style});
+  const _EventButton({required this.occasion, required this.style});
 
-  final String friendId;
+  final UpcomingBirthday occasion;
   final ButtonStyle style;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final lookup = ref.watch(eventForHonoreeProvider(friendId)).value;
+    final date = occasion.kind.isBirthday ? null : occasion.birthday;
+    final lookup = ref
+        .watch(
+          eventForHonoreeProvider((
+            honoreeId: occasion.friendId,
+            kind: occasion.kind,
+            date: date,
+          )),
+        )
+        .value;
     final joined =
         lookup != null &&
         (lookup.myStatus == EventMemberStatus.joined ||
@@ -451,7 +468,14 @@ class _EventButton extends ConsumerWidget {
     return FilledButton.tonal(
       style: style,
       onPressed: () => context.push(
-        joined ? '/events/${lookup.eventId}' : '/events/for/$friendId',
+        joined
+            ? '/events/${lookup.eventId}'
+            : eventForHonoreeRoute(
+                occasion.friendId,
+                kind: occasion.kind,
+                date: date,
+                title: occasion.title,
+              ),
       ),
       child: Text(lookup == null ? l10n.eventsOpenCta : l10n.eventsGoCta),
     );

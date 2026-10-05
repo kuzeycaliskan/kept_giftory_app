@@ -1115,6 +1115,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventKindOther => 'Other';
 
   @override
+  String get profileSpecialDaysSection => 'Special days';
+
+  @override
+  String get profileSpecialDaysHint =>
+      'Announce an upcoming day — a baby, a wedding, a new home. Friends see it on their Home and can team up for a gift.';
+
+  @override
+  String get profileSpecialDayAdd => 'Add a day';
+
+  @override
+  String get profileSpecialDayRemove => 'Remove';
+
+  @override
+  String get profileSpecialDayPickTitle => 'What\'s coming up?';
+
+  @override
   String get eventsDetailTitle => 'Gift event';
 
   @override

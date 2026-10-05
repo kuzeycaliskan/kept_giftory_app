@@ -5,6 +5,7 @@ import 'package:kept/features/activity/presentation/activity_screen.dart';
 import 'package:kept/features/auth/application/auth_providers.dart';
 import 'package:kept/features/auth/application/dev_session.dart';
 import 'package:kept/features/auth/presentation/sign_in_screen.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/events/presentation/event_detail_screen.dart';
 import 'package:kept/features/events/presentation/event_for_honoree_screen.dart';
 import 'package:kept/features/feed/presentation/compose_post_screen.dart';
@@ -207,9 +208,18 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/events/for/:honoreeId',
         name: 'event-for-honoree',
-        builder: (context, state) => EventForHonoreeScreen(
-          honoreeId: state.pathParameters['honoreeId']!,
-        ),
+        builder: (context, state) {
+          final q = state.uri.queryParameters;
+          final date = q['date'];
+          return EventForHonoreeScreen(
+            honoreeId: state.pathParameters['honoreeId']!,
+            kind: q['kind'] == null
+                ? EventKind.birthday
+                : EventKind.fromWire(q['kind']!),
+            date: date == null ? null : DateTime.tryParse(date),
+            title: q['title'],
+          );
+        },
       ),
       GoRoute(
         path: '/events/:id',

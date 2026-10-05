@@ -2096,6 +2096,36 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get eventKindOther;
 
+  /// No description provided for @profileSpecialDaysSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Special days'**
+  String get profileSpecialDaysSection;
+
+  /// No description provided for @profileSpecialDaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Announce an upcoming day — a baby, a wedding, a new home. Friends see it on their Home and can team up for a gift.'**
+  String get profileSpecialDaysHint;
+
+  /// No description provided for @profileSpecialDayAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a day'**
+  String get profileSpecialDayAdd;
+
+  /// No description provided for @profileSpecialDayRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get profileSpecialDayRemove;
+
+  /// No description provided for @profileSpecialDayPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s coming up?'**
+  String get profileSpecialDayPickTitle;
+
   /// No description provided for @eventsDetailTitle.
   ///
   /// In en, this message translates to:

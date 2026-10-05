@@ -339,12 +339,12 @@ final class EventGiftsFamily extends $Family
   String toString() => r'eventGiftsProvider';
 }
 
-/// Home row: the open event for a friend's next birthday (null = none).
+/// Home row: the open event for a friend's occasion (null = none).
 
 @ProviderFor(eventForHonoree)
 final eventForHonoreeProvider = EventForHonoreeFamily._();
 
-/// Home row: the open event for a friend's next birthday (null = none).
+/// Home row: the open event for a friend's occasion (null = none).
 
 final class EventForHonoreeProvider
     extends
@@ -354,10 +354,10 @@ final class EventForHonoreeProvider
           FutureOr<EventForHonoree?>
         >
     with $FutureModifier<EventForHonoree?>, $FutureProvider<EventForHonoree?> {
-  /// Home row: the open event for a friend's next birthday (null = none).
+  /// Home row: the open event for a friend's occasion (null = none).
   EventForHonoreeProvider._({
     required EventForHonoreeFamily super.from,
-    required String super.argument,
+    required OccasionKey super.argument,
   }) : super(
          retry: null,
          name: r'eventForHonoreeProvider',
@@ -384,7 +384,7 @@ final class EventForHonoreeProvider
 
   @override
   FutureOr<EventForHonoree?> create(Ref ref) {
-    final argument = this.argument as String;
+    final argument = this.argument as OccasionKey;
     return eventForHonoree(ref, argument);
   }
 
@@ -399,12 +399,12 @@ final class EventForHonoreeProvider
   }
 }
 
-String _$eventForHonoreeHash() => r'94d52fd6ee959f09ab47a48bb8c6d041b795fbe0';
+String _$eventForHonoreeHash() => r'cabd9657c8cf4237da555ad888471261a148e227';
 
-/// Home row: the open event for a friend's next birthday (null = none).
+/// Home row: the open event for a friend's occasion (null = none).
 
 final class EventForHonoreeFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<EventForHonoree?>, String> {
+    with $FunctionalFamilyOverride<FutureOr<EventForHonoree?>, OccasionKey> {
   EventForHonoreeFamily._()
     : super(
         retry: null,
@@ -414,10 +414,10 @@ final class EventForHonoreeFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Home row: the open event for a friend's next birthday (null = none).
+  /// Home row: the open event for a friend's occasion (null = none).
 
-  EventForHonoreeProvider call(String honoreeId) =>
-      EventForHonoreeProvider._(argument: honoreeId, from: this);
+  EventForHonoreeProvider call(OccasionKey key) =>
+      EventForHonoreeProvider._(argument: key, from: this);
 
   @override
   String toString() => r'eventForHonoreeProvider';
@@ -468,7 +468,7 @@ final class EventsControllerProvider
   }
 }
 
-String _$eventsControllerHash() => r'9be629f2cd131886fc09732a29e4f8ea0ed6bc0c';
+String _$eventsControllerHash() => r'dd21a303bcb95ecff7f11e41d5acf240ed0d7a79';
 
 /// Every write on events; refreshes the hub, the detail and the Home
 /// lookups afterwards.

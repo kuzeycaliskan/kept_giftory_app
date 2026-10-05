@@ -50,12 +50,16 @@ Future<List<GiftEntry>> eventGifts(Ref ref, String eventId) async {
   return result.when(success: (l) => l, failure: (f) => throw f);
 }
 
-/// Home row: the open event for a friend's next birthday (null = none).
+/// What the Home row asks about: a friend's next birthday, or the
+/// occasion they announced on a given date (G-410b).
+typedef OccasionKey = ({String honoreeId, EventKind kind, DateTime? date});
+
+/// Home row: the open event for a friend's occasion (null = none).
 @riverpod
-Future<EventForHonoree?> eventForHonoree(Ref ref, String honoreeId) async {
+Future<EventForHonoree?> eventForHonoree(Ref ref, OccasionKey key) async {
   final result = await ref
       .watch(eventsRepositoryProvider)
-      .eventForHonoree(honoreeId);
+      .eventForHonoree(key.honoreeId, kind: key.kind, date: key.date);
   return result.when(success: (e) => e, failure: (f) => throw f);
 }
 

@@ -5,6 +5,7 @@ import 'package:kept/app.dart';
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
 import 'package:kept/core/media/media_providers.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/friends/application/friends_providers.dart';
 import 'package:kept/features/friends/domain/friend_entry.dart';
 import 'package:kept/features/friends/domain/friendship_repository.dart';
@@ -403,5 +404,28 @@ void main() {
     await tester.tap(find.text('In 361 days'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('an announced day (G-410b) reads as the occasion with its CTA', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      birthdays: [
+        UpcomingBirthday(
+          friendId: 'zeynep',
+          username: 'zeynep',
+          displayName: 'Zeynep',
+          birthday: DateTime(2026, 11, 20),
+          daysUntil: 46,
+          kind: EventKind.newBaby,
+        ),
+      ],
+    );
+
+    expect(find.text('Zeynep · New baby'), findsOneWidget);
+    expect(find.text('In 46 days'), findsOneWidget);
+    // Far beyond the 14-day birthday window, yet organising is the point.
+    expect(find.text('Open event'), findsOneWidget);
   });
 }

@@ -128,11 +128,7 @@ class SupabaseEventsRepository implements EventsRepository {
         params: {
           'p_honoree': honoreeId,
           'p_kind': kind.wire,
-          if (date != null)
-            'p_date':
-                '${date.year.toString().padLeft(4, '0')}-'
-                '${date.month.toString().padLeft(2, '0')}-'
-                '${date.day.toString().padLeft(2, '0')}',
+          if (date != null) 'p_date': _isoDate(date),
           'p_title': ?title,
         },
       );
@@ -152,11 +148,19 @@ class SupabaseEventsRepository implements EventsRepository {
   }
 
   @override
-  Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId) async {
+  Future<Result<EventForHonoree?>> eventForHonoree(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+  }) async {
     try {
       final rows = await _client.rpc<List<dynamic>>(
         'gift_event_for_honoree',
-        params: {'p_honoree': honoreeId},
+        params: {
+          'p_honoree': honoreeId,
+          'p_kind': kind.wire,
+          if (date != null) 'p_date': _isoDate(date),
+        },
       );
       final row = rows.firstOrNull as Map<String, dynamic>?;
       if (row == null) return const Success(null);
@@ -421,8 +425,11 @@ class EmptyEventsRepository implements EventsRepository {
   }) async => _offline;
 
   @override
-  Future<Result<EventForHonoree?>> eventForHonoree(String honoreeId) async =>
-      const Success(null);
+  Future<Result<EventForHonoree?>> eventForHonoree(
+    String honoreeId, {
+    EventKind kind = EventKind.birthday,
+    DateTime? date,
+  }) async => const Success(null);
 
   @override
   Future<Result<List<ProfileCard>>> invitableFriends(String eventId) async =>
@@ -466,3 +473,8 @@ class EmptyEventsRepository implements EventsRepository {
   Future<Result<List<GiftEntry>>> fetchEventGifts(String eventId) async =>
       const Success([]);
 }
+
+String _isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';

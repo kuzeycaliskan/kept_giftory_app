@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(229);
+select plan(235);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2551,6 +2551,56 @@ select is(
     where e.honoree_id = '00000000-0000-0000-0000-000000000b31' and e.kind = 'new_baby'),
   'Ali · Yeni bebek',
   '222: the push label names the occasion'
+);
+reset role;
+
+-- ── 223-228: announced special days (G-410b) ────────────────────────────────
+-- b31 announces; b32 (friend) sees; b35 (not a friend of b31? they are —
+-- use carol 00c, no friendship with b31) does not.
+reset role;
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b31","role":"authenticated"}';
+select lives_ok(
+  $$ insert into public.special_days (user_id, kind, day)
+     values ('00000000-0000-0000-0000-000000000b31', 'new_baby', current_date + 20) $$,
+  '223: a user announces an upcoming occasion'
+);
+select throws_ok(
+  $$ insert into public.special_days (user_id, kind, day)
+     values ('00000000-0000-0000-0000-000000000b31', 'wedding', current_date - 1) $$,
+  '23514',
+  null,
+  '224: a day in the past is refused'
+);
+select throws_ok(
+  $$ insert into public.special_days (user_id, kind, day)
+     values ('00000000-0000-0000-0000-000000000b31', 'birthday', current_date + 1) $$,
+  '23514',
+  null,
+  '225: birthday is not an announced occasion (it lives on the profile)'
+);
+select throws_ok(
+  $$ insert into public.special_days (user_id, kind, day)
+     values ('00000000-0000-0000-0000-000000000b32', 'wedding', current_date + 1) $$,
+  '42501',
+  null,
+  '226: nobody announces on someone else''s behalf'
+);
+
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-000000000b32","role":"authenticated"}';
+select is(
+  (select count(*) from public.special_days where user_id = '00000000-0000-0000-0000-000000000b31'),
+  1::bigint,
+  '227: a friend sees the announced occasion'
+);
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+select is(
+  (select count(*) from public.special_days where user_id = '00000000-0000-0000-0000-000000000b31'),
+  0::bigint,
+  '228: a stranger does not'
 );
 reset role;
 

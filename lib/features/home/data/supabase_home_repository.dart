@@ -1,5 +1,6 @@
 import 'package:kept/core/error/failure.dart';
 import 'package:kept/core/error/result.dart';
+import 'package:kept/features/events/domain/event_kind.dart';
 import 'package:kept/features/gifts/data/gift_row_mapper.dart';
 import 'package:kept/features/home/domain/birthday_math.dart';
 import 'package:kept/features/home/domain/home_feed_items.dart';
@@ -61,7 +62,42 @@ class SupabaseHomeRepository implements HomeRepository {
           birthday: birthday,
           daysUntil: daysUntilBirthday(birthday, today),
         );
-      }).toList()..sort((a, b) => a.daysUntil.compareTo(b.daysUntil));
+      }).toList();
+
+      // Announced occasions (G-410b) sit next to birthdays. RLS already
+      // limits them to profiles this viewer may see.
+      final cards = {
+        for (final row
+            in await _client
+                .from('profiles')
+                .select('id, username, display_name, avatar_url')
+                .inFilter('id', friendIds))
+          row['id']! as String: row,
+      };
+      final dayRows = await _client
+          .from('special_days')
+          .select('user_id, kind, title, day')
+          .inFilter('user_id', friendIds)
+          .gte('day', _isoDate(today))
+          .lte('day', _isoDate(today.add(eventMaxLeadTime)));
+      for (final row in dayRows) {
+        final card = cards[row['user_id']! as String];
+        if (card == null) continue;
+        final day = DateTime.parse(row['day']! as String);
+        upcoming.add(
+          UpcomingBirthday(
+            friendId: card['id']! as String,
+            username: card['username']! as String,
+            displayName: card['display_name'] as String?,
+            avatarUrl: card['avatar_url'] as String?,
+            birthday: day,
+            daysUntil: daysUntil(day, today),
+            kind: EventKind.fromWire(row['kind']! as String),
+            title: row['title'] as String?,
+          ),
+        );
+      }
+      upcoming.sort((a, b) => a.daysUntil.compareTo(b.daysUntil));
 
       return Success(upcoming.take(limit).toList());
     } on PostgrestException catch (e) {
@@ -202,3 +238,8 @@ class SupabaseHomeRepository implements HomeRepository {
     }
   }
 }
+
+String _isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
