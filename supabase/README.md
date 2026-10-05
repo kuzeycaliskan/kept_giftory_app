@@ -335,6 +335,13 @@ works (defaults). `event_label(kind, title, honoree)` is the Turkish push/inbox 
 suffix-free ("Kuzey · Yeni bebek"); comment targets and the delete-cleanup payload carry
 it. RLS, reveal (+1 day), membership and all notices are unchanged.
 
+## Table grants (convention)
+
+The cloud project grants nothing by default: every new table needs an explicit
+`grant … on public.<table> to authenticated` (and `service_role` where a function writes),
+or every request fails with 42501 while local pgTAP passes. pgTAP 229 lists the app
+tables and checks the grant — add new tables to that list.
+
 ## Announced special days (G-410b)
 
 `special_days` (owner writes; friends read through `can_view_profile`; never a birthday;
