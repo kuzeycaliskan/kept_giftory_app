@@ -6,16 +6,17 @@
 > Stack: Flutter + Supabase (Postgres/Auth/Storage/RLS/Realtime) + FCM + (ölçekte) Cloudflare R2.
 > PBI ID formatı: `G-<epic><no>`. Öncelik: 🔴 zorunlu (MVP) · 🟡 önemli · 🟢 iyi olur.
 
-## Hedeflenen 4 Version
+## Hedeflenen Version'lar
 
 | Version | Tema | Dosya | Detay seviyesi | Durum |
 |---|---|---|---|---|
 | **V1** | Çekirdek fayda + kimlik | [`v1.md`](v1.md) | Geliştirmeye hazır (user story + kabul + tech) | 📝 Planlandı |
 | **V2** | Sosyal döngü (içerik motoru) | [`v2.md`](v2.md) | Kapsam listesi | 🔭 Kapsam |
 | **V3** | Hediye event'i (koordinasyon + reveal) | [`v3.md`](v3.md) | Kapsam listesi | 🔭 Kapsam |
-| **V4** | Ölçek & gelir | [`v4.md`](v4.md) | Kapsam listesi | 🔭 Kapsam |
+| **V4** | Olgunlaştırma (eksikler + sadeleştirme) | [`v4.md`](v4.md) | Aday liste, Kuzey ile netleşiyor | 🔄 Başladı |
+| **V5** | Ölçek & gelir | [`v5.md`](v5.md) | Kapsam listesi | 🔭 Kapsam |
 
-> V2–V4 kapsam hâlindedir; sırası gelince V1 detayına (user story + kabul kriterleri +
+> V5 kapsam hâlindedir; sırası gelince V1 detayına (user story + kabul kriterleri +
 > teknik not + DoD) açılacak. Yeni version dosyası eklenince bu tabloyu güncelle.
 
 ## Proje-geneli Kararlar
@@ -34,6 +35,8 @@
   gerçek veri V2'de (G-82). Boş-panel sorununu önler.
 - ✅ Profil: header + sekmeli (Wishlist/Geçmiş/Hakkında), görünürlük-duyarlı (G-84).
 - ✅ Home düzeni (19 Eyl 2026, Kuzey kararı): "Arkadaşlarının isteklerinden" bölümü KALDIRILDI; Yaklaşanlar satırı dokununca açılır ve o kişinin wishlist kartlarını + "Tüm listeyi gör" bağlantısını gösterir (avatar → profil, Hediye butonu → kayıt). Aktivite = hediye kartlı feed (G-210).
+- ✅ 5 Eki 2026 (Kuzey): V1–V3 cihazda doğrulandı, uygulama "bitmiş" sayılıyor; gelir/ölçek V5'e
+  taşındı, V4 = olgunlaştırma (eksikler + UI sadeleştirme + teknik borç).
 - ✅ Sıra (1.0-a): `G-01 → G-03(baseline friends-only RLS) → G-31 → G-41/42/51/52` — arkadaş
   görüntüleme PBI'larından önce RLS boundary'si (inceleme bulgusu B1).
 - ✅ Büyüme (V1): **davet linki (G-34) birincil** cold-start döngüsü; rehber eşleştirme (G-33)
