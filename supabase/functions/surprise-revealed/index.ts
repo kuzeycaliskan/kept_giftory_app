@@ -1,7 +1,8 @@
 // G-210 — "Your surprise opened" push. Hourly via pg_cron → pg_net.
-// Due gifts come from surprise_reveal_targets(); every due gift is marked
-// announced (reveal_notified_at) whether or not a push went out, so a
-// recipient without devices or opted out is not retried forever.
+// Due gifts come from surprise_reveal_targets(). The batch is CLAIMED
+// FIRST (reveal_notified_at), then announced: a push failure after that
+// is logged and the run still ends cleanly, so nothing is ever repeated.
+// (Marking last once re-announced two gifts every hour.)
 // Auth: X-Cron-Secret (CRON_SECRET). `?dry=1` lists without sending.
 // Deploy with --no-verify-jwt.
 
@@ -36,6 +37,11 @@ Deno.serve(async (req) => {
   if (dry) return Response.json({ dry: true, due: giftIds.length, targets });
   if (giftIds.length === 0) return Response.json({ sent: 0, due: 0 });
 
+  const { error: markError } = await supabase.rpc("mark_surprises_notified", {
+    p_ids: giftIds,
+  });
+  if (markError) return new Response(markError.message, { status: 500 });
+
   await recordNotices(
     supabase,
     targets.map((t): Notice => {
@@ -50,27 +56,28 @@ Deno.serve(async (req) => {
     }),
   );
   let sent = 0;
+  let pushError: string | null = null;
   const sendable = targets.filter((t) => t.enabled && t.token);
   if (sendable.length > 0) {
-    const { accessToken, projectId } = await fcmSender();
-    for (const t of sendable) {
-      const copy = surprisePush(t.giver_label, t.item_label);
-      const result = await sendPush(accessToken, projectId, {
-        token: t.token!,
-        title: copy.title,
-        body: copy.body,
-        route: `/gifts/${t.gift_id}?side=giver`,
-      });
-      if (result === "sent") sent++;
-      if (result === "stale") await deleteStaleToken(supabase, t.token!);
+    try {
+      const { accessToken, projectId } = await fcmSender();
+      for (const t of sendable) {
+        const copy = surprisePush(t.giver_label, t.item_label);
+        const result = await sendPush(accessToken, projectId, {
+          token: t.token!,
+          title: copy.title,
+          body: copy.body,
+          route: `/gifts/${t.gift_id}?side=giver`,
+        });
+        if (result === "sent") sent++;
+        if (result === "stale") await deleteStaleToken(supabase, t.token!);
+      }
+    } catch (e) {
+      // Already claimed and in the inbox: report, never retry the batch.
+      pushError = e instanceof Error ? e.message : String(e);
+      console.error("surprise-revealed push failed", pushError);
     }
   }
 
-  const { error: markError } = await supabase
-    .from("gifts")
-    .update({ reveal_notified_at: new Date().toISOString() })
-    .in("id", giftIds);
-  if (markError) return new Response(markError.message, { status: 500 });
-
-  return Response.json({ sent, due: giftIds.length });
+  return Response.json({ sent, due: giftIds.length, pushError });
 });

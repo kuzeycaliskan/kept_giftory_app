@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(236);
+select plan(237);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2618,6 +2618,18 @@ select is(
   true,
   '229: authenticated can select from every app table'
 );
+
+-- ── 230: the surprise marker is service-only ────────────────────────────────
+set local role authenticated;
+set local "request.jwt.claims" =
+  '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}';
+select throws_ok(
+  $$ select public.mark_surprises_notified(array['00000000-0000-0000-0000-000000000c01']::uuid[]) $$,
+  '42501',
+  null,
+  '230: marking surprises announced is service-only'
+);
+reset role;
 
 select * from finish();
 rollback;

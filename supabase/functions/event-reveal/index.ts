@@ -37,6 +37,14 @@ Deno.serve(async (req) => {
   if (dry) return Response.json({ dry: true, due: eventIds.length, targets });
   if (eventIds.length === 0) return Response.json({ sent: 0, due: 0 });
 
+  // Claim the batch before announcing it: a push failure must never mean
+  // a second "your friends came together" tomorrow.
+  const { error: markError } = await supabase.rpc(
+    "mark_event_reveal_notified",
+    { p_ids: eventIds },
+  );
+  if (markError) return new Response(markError.message, { status: 500 });
+
   await recordNotices(
     supabase,
     targets.map((t): Notice => {
@@ -51,27 +59,27 @@ Deno.serve(async (req) => {
     }),
   );
   let sent = 0;
+  let pushError: string | null = null;
   const sendable = targets.filter((t) => t.enabled && t.token);
   if (sendable.length > 0) {
-    const { accessToken, projectId } = await fcmSender();
-    for (const t of sendable) {
-      const copy = eventRevealPush(t.member_count);
-      const result = await sendPush(accessToken, projectId, {
-        token: t.token!,
-        title: copy.title,
-        body: copy.body,
-        route: `/events/${t.event_id}`,
-      });
-      if (result === "sent") sent++;
-      if (result === "stale") await deleteStaleToken(supabase, t.token!);
+    try {
+      const { accessToken, projectId } = await fcmSender();
+      for (const t of sendable) {
+        const copy = eventRevealPush(t.member_count);
+        const result = await sendPush(accessToken, projectId, {
+          token: t.token!,
+          title: copy.title,
+          body: copy.body,
+          route: `/events/${t.event_id}`,
+        });
+        if (result === "sent") sent++;
+        if (result === "stale") await deleteStaleToken(supabase, t.token!);
+      }
+    } catch (e) {
+      pushError = e instanceof Error ? e.message : String(e);
+      console.error("event-reveal push failed", pushError);
     }
   }
 
-  const { error: markError } = await supabase.rpc(
-    "mark_event_reveal_notified",
-    { p_ids: eventIds },
-  );
-  if (markError) return new Response(markError.message, { status: 500 });
-
-  return Response.json({ sent, due: eventIds.length });
+  return Response.json({ sent, due: eventIds.length, pushError });
 });
