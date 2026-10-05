@@ -11,7 +11,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(235);
+select plan(236);
 
 -- ── Fixtures (as table owner; RLS not applied) ──────────────────────────────
 insert into auth.users (id, email)
@@ -2603,6 +2603,21 @@ select is(
   '228: a stranger does not'
 );
 reset role;
+
+-- ── 229: every app table is granted to authenticated (RLS decides rows) ─────
+-- The cloud project grants nothing by default; a table without this line
+-- fails every request with 42501 while local tests sail through.
+reset role;
+select is(
+  (select bool_and(has_table_privilege('authenticated', 'public.' || t, 'SELECT'))
+     from unnest(array[
+       'profiles', 'friendships', 'wishlist_items', 'gifts', 'gift_photos',
+       'posts', 'gift_events', 'gift_event_members', 'event_comments',
+       'wishlist_claims', 'claim_pledges', 'notifications', 'special_days'
+     ]) as t),
+  true,
+  '229: authenticated can select from every app table'
+);
 
 select * from finish();
 rollback;
